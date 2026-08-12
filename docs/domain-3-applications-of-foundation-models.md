@@ -153,7 +153,6 @@ prompt.
 > cheapest and fastest to implement. If a scenario needs a multi-step
 > reasoning improvement (math, logic) with no extra data or cost, the
 > answer is almost always **chain-of-thought prompting**, not fine-tuning.
-</section>
 
 ---
 

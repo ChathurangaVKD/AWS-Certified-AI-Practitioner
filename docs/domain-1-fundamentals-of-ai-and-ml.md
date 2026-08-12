@@ -1,0 +1,721 @@
+# Domain 1: Fundamentals of AI and ML
+
+## Domain overview
+
+Domain 1 is the largest single knowledge domain on the AWS Certified AI
+Practitioner (AIF-C01) exam at roughly **20% of scored questions**. It tests
+whether you understand what AI, ML, and deep learning actually are, how a
+model goes from raw data to a production endpoint, the three major learning
+paradigms, where AI/ML solves real business problems, which AWS managed
+service maps to which problem, and how to tell — using basic metrics — whether
+a model is any good.
+
+This domain matters because every later domain (generative AI, foundation
+model applications, responsible AI, and security/governance) assumes you
+already have this vocabulary and mental model. Questions here are rarely
+about memorizing an API call; they are scenario-based ("a company wants to
+do X — which AWS service and which technique fit?") and reward being able to
+reason from first principles about the ML lifecycle and about which managed
+AI service removes the most undifferentiated heavy lifting for a given use
+case.
+
+---
+
+## 1. Basic AI/ML/DL terminology and concepts
+
+**Artificial Intelligence (AI)** is the broad field of building systems that
+perform tasks normally requiring human intelligence — perception, reasoning,
+language understanding, decision-making.
+
+**Machine Learning (ML)** is a subset of AI in which a system *learns
+patterns from data* instead of following explicit, hand-written rules. You
+give an algorithm examples (data) and it produces a **model** that
+generalizes to new, unseen inputs.
+
+**Deep Learning (DL)** is a subset of ML that uses **neural networks** with
+many layers ("deep" networks) to automatically learn hierarchical feature
+representations from raw or lightly processed data (pixels, audio waveforms,
+raw text tokens). DL typically needs more data and more compute than
+classical ML, but it removes most manual feature engineering for
+unstructured data like images, audio, and text.
+
+**Generative AI (GenAI)** is a further subset of DL that focuses on models
+(often foundation models built on the transformer architecture) that
+*generate* new content — text, images, code, audio — rather than only
+predicting a label or a number. Generative AI is covered in depth in Domain
+2, but you should know it nests inside DL, which nests inside ML, which
+nests inside AI:
+
+```
+AI  ⊃  ML  ⊃  DL  ⊃  Generative AI
+```
+
+Other core vocabulary you must know cold:
+
+- **Model** — the artifact produced by training; a set of learned
+  parameters (weights) that maps inputs to outputs.
+- **Algorithm** — the method used to learn the model (e.g., XGBoost,
+  linear regression, k-means, a convolutional neural network architecture).
+- **Parameters** — values the model learns automatically during training
+  (e.g., neural network weights).
+- **Hyperparameters** — values set by a human *before* training that
+  control the learning process (e.g., learning rate, number of trees,
+  number of epochs, batch size). AWS SageMaker's **automatic model tuning**
+  (hyperparameter optimization) searches these for you.
+- **Training data / labels** — the historical examples (and, for supervised
+  learning, the correct answers) used to fit the model.
+- **Inference** — using a trained model to make a prediction on new data.
+  AWS distinguishes **real-time inference** (low-latency, persistent
+  endpoint), **batch inference** (large offline jobs), **asynchronous
+  inference** (large payloads, minutes-long processing, queued), and
+  **serverless inference** (intermittent traffic, auto-scales to zero).
+
+**AWS example:** Amazon SageMaker is AWS's umbrella ML platform — it doesn't
+force you to pick AI vs. ML vs. DL; it gives you the tooling (notebooks,
+built-in algorithms, framework containers for TensorFlow/PyTorch, and
+managed infrastructure) to build models anywhere on that spectrum, from a
+simple linear regression to a deep neural network.
+
+> **Exam tip:** The exam loves testing the *nesting* relationship (AI ⊃ ML ⊃
+> DL ⊃ Generative AI) with distractor answers that reverse it (e.g., "ML is
+> a type of deep learning"). Also expect a question that asks you to
+> distinguish a **parameter** from a **hyperparameter** — parameters are
+> *learned*, hyperparameters are *configured by a person before training*.
+
+---
+
+## 2. The ML development lifecycle
+
+AIF-C01 expects you to know the standard, ordered ML lifecycle and which
+AWS tool/SageMaker capability supports each stage:
+
+1. **Business goal identification** — define the problem and the success
+   metric *before* touching data (e.g., "reduce fraudulent transactions by
+   X% while keeping false declines below Y%").
+2. **Data collection** — gather data from data lakes, warehouses,
+   streaming sources, etc. AWS: Amazon S3 (storage), AWS Glue (ETL),
+   Amazon Kinesis / MSK (streaming ingestion).
+3. **Exploratory data analysis (EDA)** — understand distributions, spot
+   missing values, outliers, class imbalance, and correlations. AWS:
+   **SageMaker Data Wrangler**, **SageMaker Studio** notebooks, Amazon
+   Athena for ad hoc SQL over S3 data.
+4. **Data preparation / feature engineering** — clean, transform, encode,
+   and select the input variables ("features") the model will actually
+   consume: normalization/scaling, one-hot encoding of categoricals,
+   handling missing values, creating derived features. AWS: **SageMaker
+   Data Wrangler** (visual data prep), **SageMaker Feature Store**
+   (centralized, versioned, reusable feature repository shared between
+   training and inference to avoid training/serving skew).
+5. **Model training** — fit an algorithm to the prepared training data.
+   AWS: **SageMaker** built-in algorithms, **SageMaker JumpStart**
+   (pretrained models/prebuilt solutions), managed Spot Training for
+   cheaper training jobs, **SageMaker distributed training** for very
+   large models.
+6. **Hyperparameter tuning / evaluation** — measure model quality on a
+   held-out validation/test set that the model never trained on, and
+   iterate. AWS: **SageMaker automatic model tuning** (hyperparameter
+   optimization), **SageMaker Clarify** (bias and explainability metrics).
+7. **Deployment** — expose the trained model for inference. AWS:
+   **SageMaker endpoints** (real-time), **SageMaker batch transform**
+   (batch), **SageMaker Serverless Inference**, **SageMaker asynchronous
+   inference**, multi-model/multi-container endpoints.
+8. **Monitoring** — track live model quality, input data drift, and
+   concept drift after deployment, since real-world data distributions
+   change over time. AWS: **SageMaker Model Monitor**, Amazon CloudWatch
+   for operational metrics.
+
+This is an **iterative loop**, not a strict waterfall: poor evaluation or
+monitoring results send you back to data collection, feature engineering,
+or retraining.
+
+**AWS example:** A retailer builds a churn-prediction model. They land raw
+event data in S3, use SageMaker Data Wrangler for EDA and feature
+engineering, store reusable features in SageMaker Feature Store, train an
+XGBoost model with SageMaker Training Jobs, tune hyperparameters with
+SageMaker automatic model tuning, deploy to a real-time SageMaker endpoint,
+and continuously watch for drift with SageMaker Model Monitor — retraining
+when accuracy degrades.
+
+> **Exam tip:** Questions often describe a scenario and ask "what is the
+> **next** step" or "what is missing" from a lifecycle description. Memorize
+> the order: collect → explore (EDA) → prepare/feature-engineer → train →
+> evaluate/tune → deploy → monitor. Also know that **Feature Store** exists
+> specifically to prevent *training/serving skew* (features computed
+> differently at training time vs. inference time).
+
+---
+
+## 3. Types of learning
+
+- **Supervised learning** — trains on **labeled** data (inputs paired with
+  known correct outputs). Used for **classification** (predict a category,
+  e.g., "fraud" vs. "not fraud") and **regression** (predict a continuous
+  number, e.g., house price). Examples of AWS SageMaker built-in supervised
+  algorithms: **Linear Learner**, **XGBoost**, **k-Nearest Neighbors (k-NN)**.
+- **Unsupervised learning** — trains on **unlabeled** data; the algorithm
+  finds structure on its own. Used for **clustering** (grouping similar
+  items, e.g., customer segmentation) and **dimensionality reduction**
+  (compressing features while preserving information, e.g., anomaly
+  detection preprocessing). AWS SageMaker examples: **k-means** (clustering),
+  **PCA** (dimensionality reduction), **Random Cut Forest** (anomaly
+  detection).
+- **Reinforcement learning (RL)** — an **agent** learns by taking
+  **actions** in an **environment** to maximize cumulative **reward**
+  through trial and error, rather than learning from a fixed labeled
+  dataset. Used for robotics, game playing, and resource optimization.
+  AWS: **Amazon SageMaker RL** (managed RL toolkits/environments), AWS
+  DeepRacer (RL-based autonomous racing, used for education).
+- **Semi-supervised learning** (know the term, lower emphasis) — trains on
+  a small amount of labeled data combined with a large amount of unlabeled
+  data, useful when labeling is expensive.
+
+**AWS example:** A bank wants to flag suspicious transactions and has
+historical transactions labeled "fraud"/"not fraud" — that's **supervised
+classification** (e.g., SageMaker XGBoost). The same bank wants to discover
+previously unknown customer segments for marketing, with no labels — that's
+**unsupervised clustering** (e.g., SageMaker k-means). A warehouse robot
+learning to navigate and pick items through trial and error, receiving a
+reward signal for success, is **reinforcement learning**.
+
+> **Exam tip:** The single most common trap: a scenario gives you data with
+> **no labels/target column** and asks which learning type to use —
+> answer **unsupervised**, not supervised, even if the described goal
+> sounds like "prediction." Also: RL is defined by *agent + environment +
+> reward*, not simply "learning without labels" — don't confuse it with
+> unsupervised learning.
+
+---
+
+## 4. Common use cases for AI/ML
+
+Know how to match a business scenario to the *category* of ML problem, and
+which managed AWS service is purpose-built for it:
+
+- **Fraud detection** — classify transactions/accounts/claims as
+  legitimate or fraudulent in near real time. AWS: **Amazon Fraud
+  Detector** (purpose-built, no ML expertise required) or a custom
+  SageMaker classification model for bespoke fraud logic.
+- **Recommendation systems** — predict what a user is likely to want next
+  (products, content). AWS: **Amazon Personalize** (same recommendation
+  technology used by Amazon.com retail).
+- **Forecasting** — predict future values of a time series (demand,
+  inventory, staffing, financial metrics). AWS: **Amazon Forecast**
+  (time-series forecasting using ML, no ML expertise required).
+- **Computer vision** — extract information from images/video: object
+  detection, facial analysis, content moderation, activity detection. AWS:
+  **Amazon Rekognition**.
+- **Natural language processing (NLP)** — understand and extract meaning
+  from text: sentiment, entities, key phrases, language detection, PII
+  detection, topic modeling. AWS: **Amazon Comprehend**.
+- **Speech** — convert speech to text (**Amazon Transcribe**) or text to
+  lifelike speech (**Amazon Polly**).
+- **Document processing / intelligent document processing (IDP)** —
+  extract printed text, handwriting, forms, and tables from scanned
+  documents. AWS: **Amazon Textract**.
+- **Conversational AI / chatbots** — build voice and text bots. AWS:
+  **Amazon Lex** (the same conversational engine that powers Alexa).
+- **Language translation** — automatic translation between languages.
+  AWS: **Amazon Translate**.
+
+**AWS example:** An insurance company wants to (1) auto-flag suspicious
+claims, (2) recommend relevant add-on policies to existing customers, (3)
+forecast next quarter's claim volume, and (4) pull structured data out of
+scanned paper claim forms. That maps to Amazon Fraud Detector, Amazon
+Personalize, Amazon Forecast, and Amazon Textract, respectively — four
+different managed services for four different problem categories.
+
+> **Exam tip:** AIF-C01 frequently gives a one-sentence business scenario
+> and asks you to pick the single best-fit *AI service category* (not the
+> underlying algorithm). Read for the **verb**: "detect fraud" →
+> classification/Fraud Detector; "recommend" → Personalize; "predict future
+> demand" → Forecast; "read this scanned form" → Textract (not
+> Comprehend — Textract handles the *layout/extraction*, Comprehend
+> analyzes *plain text meaning*).
+
+---
+
+## 5. AWS managed AI/ML services (conceptual overview)
+
+At the AI Practitioner level you need to know **what each service does and
+when to reach for it**, not its API syntax.
+
+- **Amazon SageMaker** — the end-to-end, fully managed platform to build,
+  train, tune, deploy, and monitor **custom** ML models at any point on the
+  AI/ML/DL spectrum. Use it when a purpose-built AI service doesn't fit
+  your specific data/problem and you need full control (algorithm choice,
+  custom training, MLOps pipelines).
+- **Amazon Rekognition** — pre-trained and custom **computer vision**:
+  object/scene detection, facial analysis and comparison, text-in-image,
+  content moderation, celebrity recognition, video analysis.
+- **Amazon Transcribe** — **automatic speech recognition (ASR)**;
+  converts audio/video speech into text, with support for custom
+  vocabularies, speaker identification (diarization), and PII redaction.
+- **Amazon Comprehend** — **NLP**; extracts sentiment, entities, key
+  phrases, language, syntax, PII, and topics from text; supports custom
+  classification and custom entity recognition.
+- **Amazon Polly** — **text-to-speech (TTS)**; turns text into natural,
+  lifelike speech audio in many voices/languages.
+- **Amazon Translate** — **neural machine translation** between
+  languages.
+- **Amazon Lex** — builds **conversational interfaces** (chatbots/voice
+  bots) using automatic speech recognition and natural language
+  understanding; the technology behind Alexa.
+- **Amazon Personalize** — real-time, individualized **recommendations**
+  and re-ranking, built on the same tech Amazon.com uses; requires no ML
+  expertise.
+- **Amazon Forecast** — managed **time-series forecasting** (demand,
+  inventory, financials) using ML, requires no ML expertise.
+- **Amazon Textract** — extracts text, handwriting, forms, and **tables**
+  from scanned documents (goes beyond plain OCR by preserving structure
+  and key-value relationships).
+
+> **Exam tip:** A recurring exam pattern is "the company has no ML
+> expertise and wants X" → the answer is almost always the **purpose-built
+> managed AI service** (Rekognition/Comprehend/Personalize/Forecast/etc.),
+> **not SageMaker** — SageMaker is the answer only when the scenario needs
+> a **custom model** or a use case not covered by any purpose-built
+> service.
+
+**AWS example:** A media company needs to (1) moderate user-uploaded
+images, (2) transcribe uploaded video for closed captions, and (3) build a
+support chatbot — three different problems solved by three different
+purpose-built services (Rekognition, Transcribe, and Lex) with no custom
+model training required for any of them.
+
+---
+
+## 6. Model evaluation basics
+
+Evaluation happens on data the model did **not** train on (a held-out
+validation or test set) so the metric reflects real generalization.
+
+**Confusion matrix** (binary classification) — a 2×2 table comparing
+predicted vs. actual class:
+
+|                     | Predicted Positive | Predicted Negative |
+|---------------------|--------------------|--------------------|
+| **Actual Positive** | True Positive (TP) | False Negative (FN) |
+| **Actual Negative** | False Positive (FP) | True Negative (TN) |
+
+From this table:
+
+- **Accuracy** = (TP + TN) / (TP + TN + FP + FN) — overall percent
+  correct. **Misleading on imbalanced data** (e.g., 99% non-fraud, 1%
+  fraud: a model that always predicts "not fraud" scores 99% accuracy
+  while being useless).
+- **Precision** = TP / (TP + FP) — of everything the model *flagged
+  positive*, what fraction was actually positive. High precision means
+  **few false alarms**. Prioritize precision when false positives are
+  costly (e.g., flagging a legitimate transaction as fraud and blocking a
+  customer).
+- **Recall (Sensitivity)** = TP / (TP + FN) — of everything that was
+  *actually positive*, what fraction did the model catch. High recall
+  means **few missed cases**. Prioritize recall when false negatives are
+  costly (e.g., missing an actual fraudulent transaction, or missing a
+  cancer diagnosis).
+- **F1 score** = 2 × (Precision × Recall) / (Precision + Recall) — the
+  harmonic mean of precision and recall; a single balanced metric useful
+  when you need both false positives and false negatives to matter, and
+  especially useful on **imbalanced classes**.
+- **AUC-ROC** — the Area Under the Receiver Operating Characteristic
+  curve, which plots the true positive rate against the false positive
+  rate across all classification thresholds. AUC summarizes how well the
+  model **ranks** positives above negatives regardless of a single fixed
+  threshold; 1.0 is a perfect classifier, 0.5 is random guessing.
+- **RMSE / MAE** (for regression, not classification) — Root Mean Squared
+  Error and Mean Absolute Error measure how far predicted numeric values
+  are from actual numeric values; lower is better. Know that these are
+  the *regression* analogue of classification metrics like precision/recall.
+
+**AWS example:** A fraud-detection model on a dataset that is 99% "not
+fraud" reports 99% accuracy but only 40% recall — meaning it misses 60% of
+actual fraud cases. **Amazon SageMaker Clarify** and SageMaker's built-in
+evaluation reports surface precision, recall, F1, and AUC so you don't rely
+on accuracy alone. **Amazon SageMaker Model Monitor** then tracks these
+metrics in production over time to detect quality drift.
+
+> **Exam tip:** Whenever a question mentions **class imbalance** (fraud,
+> disease detection, rare events), the correct metric is almost never
+> plain accuracy — look for precision, recall, F1, or AUC-ROC as the
+> answer. Also memorize the precision/recall trade-off direction: raising
+> the classification threshold typically **increases precision and
+> decreases recall**, and vice versa.
+
+---
+
+## 7. Overfitting, underfitting, and the bias–variance trade-off
+
+- **Underfitting** — the model is too simple to capture the underlying
+  pattern in the data. Symptoms: **poor performance on both training and
+  test data**. This is a **high-bias** problem. Fixes: use a more complex
+  model, add more/better features, train longer, reduce regularization.
+- **Overfitting** — the model memorizes noise and specific quirks of the
+  training data instead of the general pattern. Symptoms: **very good
+  performance on training data but poor performance on test/validation
+  data**. This is a **high-variance** problem. Fixes: get more training
+  data, use simpler models, apply **regularization** (L1/L2, dropout in
+  neural networks), use **cross-validation**, **early stopping**, feature
+  selection/reduction, or data augmentation.
+- **Bias–variance trade-off** — **bias** is error from overly simplistic
+  assumptions (underfitting); **variance** is error from excessive
+  sensitivity to the training data's noise (overfitting). Reducing one
+  typically increases the other; the goal is the sweet spot that
+  minimizes total error on unseen data.
+
+**AWS example:** A team training an image classifier with SageMaker
+notices 99% training accuracy but only 65% validation accuracy — classic
+**overfitting**. They use **SageMaker automatic model tuning** to search
+for better regularization hyperparameters, add data augmentation, and use
+a validation split/cross-validation during training jobs to catch this
+before deploying to a SageMaker endpoint.
+
+> **Exam tip:** If a scenario says "great score on training data, bad score
+> on test/production data," the answer is **overfitting / high variance**.
+> If it says "bad score on *both* training and test data," the answer is
+> **underfitting / high bias**. Regularization and more data are the two
+> most commonly tested overfitting remedies.
+
+---
+
+## Comparison table: AWS managed AI/ML services at a glance
+
+| Service | Category | Primary input | What it's for | When to choose it over SageMaker |
+|---|---|---|---|---|
+| **Amazon SageMaker** | ML platform | Tabular, image, text, any | Build/train/deploy **custom** models end to end | You need a bespoke model or algorithm not covered by a purpose-built service |
+| **Amazon Rekognition** | Computer vision | Image / video | Object/scene detection, facial analysis, moderation | Standard vision tasks; no ML expertise or custom training needed |
+| **Amazon Transcribe** | Speech-to-text | Audio / video | Convert spoken audio to text, diarization | Off-the-shelf ASR without training a custom acoustic model |
+| **Amazon Comprehend** | NLP | Text | Sentiment, entities, key phrases, PII, topics | Standard text analytics without training custom NLP models |
+| **Amazon Polly** | Text-to-speech | Text | Generate natural spoken audio from text | Any TTS need; no custom voice model required |
+| **Amazon Translate** | Machine translation | Text | Translate text between languages | Standard translation without training a custom MT model |
+| **Amazon Lex** | Conversational AI | Text / voice | Build chatbots and voice bots | Building a conversational interface, not a raw NLU model |
+| **Amazon Personalize** | Recommendations | User/item interaction data | Real-time personalized recommendations | Recommendation use case; avoids building a recommender from scratch |
+| **Amazon Forecast** | Forecasting | Time-series data | Predict future values (demand, inventory) | Time-series forecasting without building custom models |
+| **Amazon Textract** | Document extraction | Scanned documents/images | Extract text, forms, and tables with structure | Need structured extraction, not just plain OCR text |
+| **Amazon Fraud Detector** | Fraud detection | Transaction/account data | Real-time fraud-risk scoring | Fraud use case without building a custom classifier |
+
+> **Exam tip:** The unifying rule tested across nearly every row of this
+> table: **if a purpose-built managed AI service exists for the described
+> use case, it is almost always the better exam answer than building a
+> custom SageMaker model** — SageMaker is for cases the purpose-built
+> services don't cover, or when deep customization/control is explicitly
+> required.
+
+---
+
+## Key terms glossary
+
+- **AI (Artificial Intelligence)** — broad field of systems performing
+  tasks that normally require human intelligence.
+- **ML (Machine Learning)** — subset of AI where systems learn patterns
+  from data instead of explicit rules.
+- **DL (Deep Learning)** — subset of ML using multi-layer neural networks
+  to learn representations automatically.
+- **Model** — the trained artifact that maps inputs to outputs.
+- **Algorithm** — the method used to train a model (e.g., XGBoost, k-means).
+- **Parameter** — a value learned by the model during training (e.g.,
+  neural network weight).
+- **Hyperparameter** — a configuration value set before training (e.g.,
+  learning rate, number of epochs).
+- **Training data** — historical data (with labels, for supervised
+  learning) used to fit a model.
+- **Inference** — using a trained model to generate predictions on new data.
+- **Labeled data** — data where each example has a known, correct output/target.
+- **Supervised learning** — learning from labeled data (classification/regression).
+- **Unsupervised learning** — learning structure from unlabeled data (clustering/dimensionality reduction).
+- **Reinforcement learning** — an agent learns via trial-and-error actions in an environment to maximize cumulative reward.
+- **Classification** — predicting a discrete category/label.
+- **Regression** — predicting a continuous numeric value.
+- **Clustering** — grouping similar unlabeled data points together.
+- **Feature** — an individual measurable input variable used by a model.
+- **Feature engineering** — creating/transforming input variables to improve model performance.
+- **Feature Store** — a centralized repository (e.g., SageMaker Feature Store) for storing and reusing curated features consistently between training and inference.
+- **Exploratory data analysis (EDA)** — analyzing data (distributions, missing values, outliers) before modeling.
+- **Confusion matrix** — table comparing predicted vs. actual classifications (TP/TN/FP/FN).
+- **Accuracy** — proportion of all predictions that were correct.
+- **Precision** — proportion of predicted positives that were actually positive.
+- **Recall (Sensitivity)** — proportion of actual positives correctly predicted.
+- **F1 score** — harmonic mean of precision and recall.
+- **AUC-ROC** — area under the ROC curve; measures ranking quality across thresholds.
+- **Overfitting** — model fits training data (including noise) too closely and generalizes poorly (high variance).
+- **Underfitting** — model is too simple to capture the pattern in the data (high bias).
+- **Bias–variance trade-off** — balance between error from oversimplified assumptions (bias) and error from sensitivity to training data noise (variance).
+- **Regularization** — techniques (L1/L2, dropout) that discourage overly complex models to reduce overfitting.
+- **Cross-validation** — repeatedly splitting data into train/validation folds to get a more robust performance estimate.
+- **Real-time inference** — low-latency predictions served from a persistent endpoint.
+- **Batch inference** — predictions computed offline over large datasets at once.
+- **Model drift / data drift** — degradation in model performance over time as real-world data distributions change from training data.
+
+---
+
+## Practice questions
+
+1. A company wants to group its customers into segments based on purchasing
+   behavior, but it has no predefined categories or labels. Which type of
+   machine learning should it use?
+   A. Supervised learning
+   B. Unsupervised learning
+   C. Reinforcement learning
+   D. Semi-supervised learning
+
+2. Which of the following best describes the relationship between AI, ML,
+   and deep learning?
+   A. Deep learning is a broader field that contains machine learning, which contains AI
+   B. AI, ML, and deep learning are unrelated, independently developed fields
+   C. AI is the broadest field; ML is a subset of AI; deep learning is a subset of ML
+   D. ML and deep learning are the same technique with different names
+
+3. A data scientist notices a model achieves 98% accuracy on training data
+   but only 61% accuracy on the test data. What is the most likely problem?
+   A. Underfitting
+   B. Overfitting
+   C. Data leakage prevention
+   D. Insufficient hyperparameters
+
+4. Which AWS service should a company with no in-house ML expertise use to
+   add real-time, individualized product recommendations to its e-commerce site?
+   A. Amazon SageMaker
+   B. Amazon Personalize
+   C. Amazon Forecast
+   D. Amazon Comprehend
+
+5. A hospital is building a diagnostic model to detect a rare disease that
+   occurs in 1% of patients. Which evaluation metric is LEAST appropriate
+   on its own for this use case?
+   A. Recall
+   B. Precision
+   C. Accuracy
+   D. F1 score
+
+6. In the standard ML development lifecycle, which step comes immediately
+   after model training and before deployment?
+   A. Data collection
+   B. Exploratory data analysis
+   C. Evaluation and hyperparameter tuning
+   D. Monitoring
+
+7. Which AWS service is purpose-built to extract text, key-value pairs, and
+   tables (preserving structure) from scanned documents?
+   A. Amazon Comprehend
+   B. Amazon Rekognition
+   C. Amazon Textract
+   D. Amazon Transcribe
+
+8. A robotics team is training a warehouse robot to learn the optimal path
+   for picking items, where the robot receives a numeric reward after each
+   action and has no fixed labeled dataset. Which learning type is this?
+   A. Supervised learning
+   B. Unsupervised learning
+   C. Reinforcement learning
+   D. Batch learning
+
+9. Which of the following is a hyperparameter rather than a parameter?
+   A. A neural network's learned weight values
+   B. The learning rate used during training
+   C. The bias term learned by a linear regression model
+   D. The coefficients learned by a regression model
+
+10. A company wants to convert customer service call recordings into text
+    transcripts, including identifying which speaker said what. Which AWS
+    service best fits this need?
+    A. Amazon Polly
+    B. Amazon Comprehend
+    C. Amazon Transcribe
+    D. Amazon Lex
+
+11. Which SageMaker capability is specifically designed to store and share
+    curated features consistently between model training and real-time
+    inference to avoid training/serving skew?
+    A. SageMaker Data Wrangler
+    B. SageMaker Feature Store
+    C. SageMaker Clarify
+    D. SageMaker Model Monitor
+
+12. A model classifying loan applications as "approve" or "reject" has the
+    following confusion matrix on test data: TP = 180, FP = 20, FN = 60,
+    TN = 740. What is the recall of the model (rounded)?
+    A. 90%
+    B. 75%
+    C. 25%
+    D. 96%
+
+13. Which two AWS services would BEST fit a company that wants to (1)
+    forecast next quarter's product demand and (2) automatically translate
+    its product listings into five languages? (Select TWO.)
+    A. Amazon Forecast
+    B. Amazon Translate
+    C. Amazon Personalize
+    D. Amazon Comprehend
+    E. Amazon Textract
+
+14. Which technique is generally the LEAST effective way to reduce overfitting?
+    A. Adding regularization (e.g., L2 penalty)
+    B. Collecting more diverse training data
+    C. Increasing model complexity further
+    D. Using cross-validation and early stopping
+
+15. A company wants to build a text-based chatbot that can hold a
+    conversation with customers and integrate speech recognition. Which
+    AWS service is purpose-built for this?
+    A. Amazon Comprehend
+    B. Amazon Lex
+    C. Amazon Translate
+    D. Amazon Polly
+
+16. Which metric summarizes a binary classifier's ability to rank positive
+    cases above negative cases across all possible decision thresholds?
+    A. Accuracy
+    B. Precision
+    C. AUC-ROC
+    D. Mean Absolute Error (MAE)
+
+17. A team is building a completely custom fraud model using a proprietary
+    algorithm and unique internal features that no managed AWS AI service
+    supports out of the box. Which AWS service should they use?
+    A. Amazon Fraud Detector
+    B. Amazon SageMaker
+    C. Amazon Comprehend
+    D. Amazon Personalize
+
+18. Which of the following statements about the bias–variance trade-off is correct?
+    A. High bias and high variance always increase or decrease together
+    B. High bias is associated with overfitting, and high variance with underfitting
+    C. High bias is associated with underfitting, and high variance with overfitting
+    D. Bias and variance are unrelated to model generalization error
+
+19. During exploratory data analysis, a data scientist discovers a dataset
+    is missing 40% of values in one column and contains several extreme
+    outliers in another. In the ML lifecycle, which stage should address
+    these issues before training begins?
+    A. Model monitoring
+    B. Data preparation / feature engineering
+    C. Model deployment
+    D. Hyperparameter tuning
+
+20. A retail company wants to detect potentially fraudulent returns in
+    real time without building or training its own ML model. Which AWS
+    service is the best fit?
+    A. Amazon SageMaker
+    B. Amazon Fraud Detector
+    C. Amazon Rekognition
+    D. Amazon Forecast
+
+---
+
+## Answer key and explanations
+
+1. **B — Unsupervised learning.** No labels/categories exist, so the
+   algorithm must find structure on its own (clustering). Supervised (A)
+   requires labeled outcomes; reinforcement (C) requires an agent/reward
+   loop, not present here; semi-supervised (D) requires at least some
+   labeled data.
+
+2. **C — AI is the broadest field; ML is a subset of AI; deep learning is a
+   subset of ML.** This is the standard nesting relationship. A reverses
+   the hierarchy; B is false since the fields are directly related by
+   subset; D incorrectly equates ML and deep learning, which differ in
+   technique and data requirements.
+
+3. **B — Overfitting.** Very high training performance with much lower
+   test performance is the textbook symptom of overfitting (high
+   variance), where the model memorized training data. Underfitting (A)
+   would show poor performance on *both* sets. C and D are not real
+   diagnoses matching these symptoms.
+
+4. **B — Amazon Personalize.** It is a purpose-built, managed
+   recommendation service requiring no ML expertise. SageMaker (A) would
+   require building a custom model; Forecast (C) is for time-series
+   prediction, not recommendations; Comprehend (D) is for text analytics.
+
+5. **C — Accuracy.** With only 1% positive cases, a model predicting
+   "negative" for everyone would still score ~99% accuracy while being
+   clinically useless — the accuracy paradox on imbalanced data. Recall,
+   precision, and F1 (A, B, D) are all more informative for rare-event
+   detection.
+
+6. **C — Evaluation and hyperparameter tuning.** The standard lifecycle
+   order is train → evaluate/tune → deploy → monitor. Data collection (A)
+   and EDA (B) happen before training; monitoring (D) happens after
+   deployment.
+
+7. **C — Amazon Textract.** It is specifically built to extract text,
+   forms, and tables with structural/layout awareness from scanned
+   documents. Comprehend (A) analyzes plain text meaning, not document
+   layout; Rekognition (B) is for images/video content, not structured
+   document data; Transcribe (D) converts speech, not scanned documents.
+
+8. **C — Reinforcement learning.** An agent (robot) takes actions in an
+   environment and learns from a reward signal through trial and error,
+   with no fixed labeled dataset — the defining trait of RL. A and B
+   require labeled or unlabeled static datasets respectively, not a
+   reward loop; D is not a standard ML learning-type category.
+
+9. **B — The learning rate used during training.** Hyperparameters are
+   set by a person before training begins. A, C, and D are all values the
+   model itself learns during training (parameters).
+
+10. **C — Amazon Transcribe.** It performs automatic speech recognition
+    and supports speaker identification (diarization) for call
+    recordings. Polly (A) does the reverse (text-to-speech); Comprehend
+    (B) analyzes text, not audio; Lex (D) builds conversational bots, not
+    transcription pipelines.
+
+11. **B — SageMaker Feature Store.** It is purpose-built as a centralized,
+    versioned feature repository shared between training and inference.
+    Data Wrangler (A) is for data prep/EDA; Clarify (C) is for bias and
+    explainability; Model Monitor (D) tracks live model/data quality
+    post-deployment.
+
+12. **B — 75%.** Recall = TP / (TP + FN) = 180 / (180 + 60) = 180/240 =
+    0.75 = 75%. Option A (90%) is actually the model's *precision*
+    (180/200) — a common distractor; accuracy would be (180+740)/1000 =
+    92%, and option C/D do not match any of these standard formulas.
+
+13. **A and B — Amazon Forecast and Amazon Translate.** Forecast is
+    purpose-built for time-series demand forecasting; Translate is
+    purpose-built for automatic language translation. Personalize (C) is
+    for recommendations, not forecasting or translation; Comprehend (D)
+    analyzes text meaning, not translation; Textract (E) extracts data
+    from scanned documents, unrelated to either need.
+
+14. **C — Increasing model complexity further.** Adding complexity
+    increases the model's capacity to memorize noise, making overfitting
+    *worse*, not better. A, B, and D are all standard, effective
+    overfitting remedies.
+
+15. **B — Amazon Lex.** It is purpose-built for conversational
+    interfaces, combining automatic speech recognition and natural
+    language understanding for chatbots/voice bots. Comprehend (A)
+    analyzes text but doesn't manage dialog/conversation state; Translate
+    (C) translates languages; Polly (D) only converts text to speech.
+
+16. **C — AUC-ROC.** It measures ranking quality (true positive rate vs.
+    false positive rate) across all thresholds. Accuracy (A) and
+    precision (B) are single-threshold metrics; MAE (D) is a regression
+    error metric, not applicable to classification ranking.
+
+17. **B — Amazon SageMaker.** When the use case requires a fully custom
+    algorithm and proprietary features not supported by any purpose-built
+    managed AI service, SageMaker provides the flexibility to build,
+    train, and deploy that custom model. Fraud Detector (A), Comprehend
+    (C), and Personalize (D) are purpose-built services with fixed
+    capabilities that don't support arbitrary custom algorithms/features.
+
+18. **C — High bias is associated with underfitting, and high variance
+    with overfitting.** This is the standard definition of the
+    bias–variance trade-off. A is false because bias and variance
+    typically trade off *against* each other, not move together; B
+    reverses the correct associations; D is false since bias and variance
+    are the two components that together determine generalization error.
+
+19. **B — Data preparation / feature engineering.** Handling missing
+    values and outliers is core data cleaning/preparation work that must
+    happen before training, typically alongside or right after EDA.
+    Monitoring (A) and deployment (C) happen after a model already
+    exists; hyperparameter tuning (D) operates on the training process,
+    not on fixing raw data quality issues.
+
+20. **B — Amazon Fraud Detector.** It is a purpose-built, managed
+    real-time fraud-detection service requiring no custom model
+    development. SageMaker (A) would require building and training a
+    custom model; Rekognition (C) analyzes images/video, not transaction
+    data; Forecast (D) predicts time-series values, not fraud risk.

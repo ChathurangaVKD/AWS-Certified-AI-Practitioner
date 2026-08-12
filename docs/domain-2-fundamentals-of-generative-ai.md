@@ -225,8 +225,8 @@ the model chose particular wording is not available.
 > the exam sometimes tests this nuance. Also know that **lowering
 > temperature reduces (but does not eliminate) nondeterminism and
 > hallucination risk**, and that RAG reduces hallucination by grounding
-> answers in retrieved source data, but does not fully interpretability
-> or guarantee correctness.
+> answers in retrieved source data, but does not fully restore
+> interpretability or guarantee correctness.
 
 ---
 

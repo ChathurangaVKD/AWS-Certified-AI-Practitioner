@@ -77,15 +77,20 @@ def _heading_anchors(doc_text):
     return {_slugify(h) for h in headings}
 
 
-def _extract_domain_terms(filename, heading):
+def _key_terms_section_text(filename, heading):
     text = _read(DOCS_DIR / filename)
     pattern = re.compile(
         r"^## " + re.escape(heading) + r"\s*$(.*?)(?:^## |\Z)", re.M | re.S
     )
     match = pattern.search(text)
     assert match, f"could not find {heading!r} section in {filename}"
+    return match.group(1)
+
+
+def _extract_domain_terms(filename, heading):
+    section_text = _key_terms_section_text(filename, heading)
     term_re = re.compile(r"^- \*\*(?P<term>.+?)\*\*\s*[—-]\s*.+$", re.M)
-    return term_re.findall(match.group(1))
+    return term_re.findall(section_text)
 
 
 class TestMasterGlossaryExists(unittest.TestCase):
@@ -267,6 +272,25 @@ class TestMasterGlossaryDomainTags(unittest.TestCase):
                     len(by_term[term].split(",")),
                     2,
                     f"expected {term!r} to be tagged with 2+ domains",
+                )
+
+
+class TestDomainGuidesLinkBackToMasterGlossary(unittest.TestCase):
+    """The master glossary only closes the navigation gap if a learner
+    reading a domain guide's local glossary can discover it. Each domain
+    guide's own "Key terms glossary" section must point back to
+    docs/master-glossary.md so the discovery works in both directions."""
+
+    def test_every_domain_key_terms_section_links_to_master_glossary(self):
+        for filename, heading in DOMAIN_KEY_TERMS_SECTIONS:
+            with self.subTest(domain=filename):
+                section_text = _key_terms_section_text(filename, heading)
+                self.assertIn(
+                    "master-glossary.md",
+                    section_text,
+                    f"{filename}'s {heading!r} section should link back to "
+                    "docs/master-glossary.md so learners can discover the "
+                    "cross-domain index from within a domain guide",
                 )
 
 

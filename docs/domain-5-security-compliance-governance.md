@@ -287,6 +287,8 @@ regardless of how managed the service is.
 
 ## Key terms glossary
 
+> Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.
+
 - **IAM (Identity and Access Management)** — AWS service for controlling authentication and authorization to AWS resources.
 - **Least privilege** — Granting only the minimum permissions needed to perform a task.
 - **Execution role** — An IAM role an AWS service (e.g., SageMaker) assumes to act on a customer's behalf.

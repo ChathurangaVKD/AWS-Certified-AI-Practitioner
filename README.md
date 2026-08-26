@@ -45,6 +45,15 @@ scoped to that guide alone. See
 of every key term across all five domains, each with a brief definition and
 a backlink to the domain section that explains it in full.
 
+## Full-length mock exam
+
+Each domain guide's practice questions are domain-siloed, but the real
+exam interleaves all five domains under a single 90-minute clock. See
+[`docs/mock-exam.md`](docs/mock-exam.md) for a 65-question mock exam built
+to the same length, domain-weight distribution (~20%/24%/28%/14%/14%), and
+time budget as the real AIF-C01 exam, with timing guidance and a full
+answer key with explanations.
+
 ## Status
 
 This series is generated and kept current by gd-autopilot's own

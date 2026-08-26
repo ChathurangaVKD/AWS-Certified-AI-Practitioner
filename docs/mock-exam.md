@@ -667,8 +667,8 @@ like this:
    required for a task, and no more, is the definition of least
    privilege. The shared responsibility model (A) describes the AWS/
    customer security split; defense in depth (C) layers multiple
-   controls; data residency (D) concerns where data is stored. *(Domain
-   5 — Security, Compliance, and Governance for AI Solutions)*
+   controls; data residency (D) concerns where data is stored.
+   *(Domain 5 — Security, Compliance, and Governance for AI Solutions)*
 
 7. **B — Hallucination.** Generative models can produce fluent,
    confident-sounding output that is factually wrong, a well-documented
@@ -1093,8 +1093,8 @@ like this:
     generative-AI-specific legal and ethical question distinct from
     general data privacy, covering questions like who owns generated
     output and whether training data was used with proper rights. B, C,
-    and D are unrelated cost or account-configuration details. *(Domain
-    4 — Guidelines for Responsible AI)*
+    and D are unrelated cost or account-configuration details.
+    *(Domain 4 — Guidelines for Responsible AI)*
 
 65. **A and B — Amazon Macie to discover and classify sensitive data, and
     AWS KMS with customer managed keys (CMKs) to encrypt it.** Macie

@@ -46,7 +46,7 @@ Five exam domains totaling 100% coverage:
 
 **Quality:** Practice questions are authentic exam style (scenario-based, multiple-choice, clear distractors). Answer explanations are substantive and rule out each wrong answer. Comparison tables provide quick reference (e.g., "AWS managed AI/ML services at a glance" in D1, "AWS generative AI services" in D2).
 
-**Missing diagrams:** No flowcharts or architecture diagrams. Text-only content for: ML lifecycle (8-stage iterative loop), FM customization decision tree, transformer architecture, shared responsibility model boundaries. Domain 1 has one ASCII diagram (AI ⊃ ML ⊃ DL ⊃ GenAI hierarchy); others lack equivalent visual aids.
+**Diagrams:** Domain 1 has an ASCII diagram for the AI ⊃ ML ⊃ DL ⊃ GenAI hierarchy (Section 1) and for the 8-stage ML lifecycle loop (Section 2). Domain 2 has an ASCII diagram for the transformer/self-attention pipeline (Section 1). Domain 3 has an ASCII decision-tree diagram for FM customization approaches (Section 4). Domain 5 has an ASCII diagram of shared-responsibility boundaries for Bedrock vs. SageMaker (Section 5).
 
 **Missing examples:** Each section has one "AWS example," but no deep end-to-end case study showing a single company's AI evolution through multiple domains. No code examples (appropriate for exam prep, but limits hands-on learning).
 

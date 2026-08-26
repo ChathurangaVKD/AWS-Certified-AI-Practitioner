@@ -253,6 +253,37 @@ single spectrum and pick the right one for a scenario:
 | Ground answers in current, frequently changing, or proprietary knowledge without retraining | RAG |
 | Quick behavior adjustment, no training data, lowest cost/fastest to iterate | Prompt engineering |
 
+**Decision tree:**
+```
+        START: need to customize a foundation model's behavior?
+                              │
+                              ▼
+        Q1: Can prompt wording alone get an acceptable result,
+            with no extra data and the lowest cost/fastest iteration?
+              │                                   │
+             YES                                  NO
+              │                                   │
+              ▼                                   ▼
+     PROMPT ENGINEERING              Q2: Do answers need to reflect current,
+                                         frequently changing, or proprietary
+                                         knowledge WITHOUT retraining?
+                                           │                    │
+                                          YES                   NO
+                                           │                    │
+                                           ▼                    ▼
+                                          RAG          Q3: Do you have LABELED
+                                                            input/output examples to
+                                                            teach an exact task,
+                                                            tone, or format?
+                                                              │                │
+                                                             YES               NO
+                                                              │                │
+                                                              ▼                ▼
+                                                       FINE-TUNING     CONTINUED PRE-TRAINING
+                                                                       (large UNLABELED domain
+                                                                        text to deepen vocabulary)
+```
+
 These are not mutually exclusive — a production application commonly
 combines several, e.g., prompt engineering **and** RAG together, or a
 fine-tuned model accessed **through** a RAG pipeline.

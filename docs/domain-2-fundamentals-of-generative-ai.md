@@ -84,6 +84,26 @@ Core vocabulary you must know cold:
   produce), and the two don't have to match (e.g., a model can take a text
   prompt as input and generate an image as output).
 
+Illustrating the transformer pipeline described above:
+```
+Input text → Tokenization → Embeddings + positional encoding
+                                    ↓
+                    ┌────────────────────────────────┐
+                    │  Transformer block (× N layers)  │
+                    │  Self-Attention → Feed-Forward   │
+                    └────────────────────────────────┘
+                                    ↓
+                     Output token probabilities
+                 (next token generated one at a time)
+
+Self-attention for the token "it" in "The cat sat on the mat because it was tired":
+
+  The   cat   sat   on   the   mat   because   it   was   tired
+   |     |     |     |     |     |      |       |     |     |
+   +-----+-----+-----+-----+-----+------+       |     |     |
+                   (attention weights point back to "cat")
+```
+
 **AWS example:** A retailer wants a chatbot that can answer natural-language
 questions using its internal product catalog. The catalog documents are
 converted into **embeddings** and stored as **vectors** in Amazon

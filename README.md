@@ -27,6 +27,16 @@ a map of how Domain 1 fundamentals (model evaluation, the ML lifecycle,
 bias–variance) flow into Domain 3 foundation-model applications, Domain 4
 responsible-AI concerns, and Domain 5 security/governance requirements.
 
+## AWS service decision guide
+
+Domains 1, 2, 3, and 5 each include their own service comparison table,
+scoped to that domain. See
+[`docs/aws-service-decision-guide.md`](docs/aws-service-decision-guide.md)
+for a consolidated quick reference: a decision flow for choosing between
+SageMaker, Bedrock, and purpose-built AI services, plus cross-domain
+comparison tables for security/compliance/governance services and
+encryption/privacy options.
+
 ## Glossary
 
 Each domain guide ends with its own "Key terms" section, but those are

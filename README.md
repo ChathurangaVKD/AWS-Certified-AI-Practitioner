@@ -38,55 +38,10 @@ Both sides add a new top-level section after the concept map link, before "## St
   and Security, Compliance, and Governance apply the model and
   application concepts from the earlier domains to responsible-use and
   governance scenarios.
-
-For a full explanation of why this order matters, plus ready-made
-1-week/2-week/4-week study schedules, see
-[`docs/exam-preparation-strategy.md`](docs/exam-preparation-strategy.md#3-recommended-reading-order).
-
-## Cross-domain concept map
-
-The domain guides above are written to stand alone, but the exam and
-real-world practice both draw on them together. See
-[`docs/cross-domain-concept-map.md`](docs/cross-domain-concept-map.md) for
-a map of how Domain 1 fundamentals (model evaluation, the ML lifecycle,
-bias–variance) flow into Domain 3 foundation-model applications, Domain 4
-responsible-AI concerns, and Domain 5 security/governance requirements.
-
-## AWS service decision guide
-
-Domains 1, 2, 3, and 5 each include their own service comparison table,
-scoped to that domain. See
-[`docs/aws-service-decision-guide.md`](docs/aws-service-decision-guide.md)
-for a consolidated quick reference: a decision flow for choosing between
-SageMaker, Bedrock, and purpose-built AI services, plus cross-domain
-comparison tables for security/compliance/governance services and
-encryption/privacy options.
-
-## Glossary
-
-Each domain guide ends with its own "Key terms" section, but those are
-scoped to that guide alone. See
-[`docs/GLOSSARY.md`](docs/GLOSSARY.md) for a single alphabetical glossary
-of every key term across all five domains, each with a brief definition and
-a backlink to the domain section that explains it in full.
-
-## Exam preparation and study strategy
-
-Ready to plan your study time or your exam-day approach? See
-[`docs/exam-preparation-strategy.md`](docs/exam-preparation-strategy.md)
-for exam format and time-management tips, domain weights with high-yield
-focus areas, the recommended domain reading order and why it matters, every
-domain's "Exam tip" callouts consolidated into one list of common traps,
-and 1-week/2-week/4-week study plans.
-
-## Full-length mock exam
-
-Ready to rehearse actual exam conditions? See
-[`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) for a
-65-question, 90-minute mock exam weighted across all five domains in the
-same proportions as the real exam (~20%/24%/28%/14%/14%), mixed in
-exam-like order rather than grouped by domain, with timing guidance and a
-full answer key with explanations.
+For a quicker "where is X explained?" lookup, see
+[`docs/master-glossary.md`](docs/master-glossary.md) — the same
+cross-domain term set as a compact alphabetical index, with a `[D1, D3]`
+-style domain tag and direct links per term.
 
 ## End-to-end case study
 

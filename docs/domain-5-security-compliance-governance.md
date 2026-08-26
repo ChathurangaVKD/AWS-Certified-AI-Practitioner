@@ -285,7 +285,7 @@ regardless of how managed the service is.
 | AWS Artifact | On-demand access to AWS compliance reports & agreements (e.g., BAA) | "Where do I get AWS's own compliance certifications or sign a BAA?" | Download SOC 2 report or execute a HIPAA BAA |
 | AWS PrivateLink / VPC endpoints | Keep traffic to AWS services off the public internet | "How do I call an AWS AI service privately from my VPC?" | Private connectivity from a SageMaker notebook to Bedrock Runtime |
 
-## Key terms
+## Key terms glossary
 
 - **IAM (Identity and Access Management)** — AWS service for controlling authentication and authorization to AWS resources.
 - **Least privilege** — Granting only the minimum permissions needed to perform a task.

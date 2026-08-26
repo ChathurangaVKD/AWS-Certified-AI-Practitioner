@@ -35,7 +35,7 @@ DOMAIN_KEY_TERMS_SECTIONS = [
     ("domain-2-fundamentals-of-generative-ai.md", "Key terms glossary"),
     ("domain-3-applications-of-foundation-models.md", "Key terms glossary"),
     ("domain-4-guidelines-for-responsible-ai.md", "Key terms glossary"),
-    ("domain-5-security-compliance-governance.md", "Key terms"),
+    ("domain-5-security-compliance-governance.md", "Key terms glossary"),
 ]
 
 # A representative sample of terms that must appear in the merged glossary,

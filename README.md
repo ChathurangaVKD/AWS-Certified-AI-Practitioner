@@ -27,6 +27,14 @@ a map of how Domain 1 fundamentals (model evaluation, the ML lifecycle,
 bias–variance) flow into Domain 3 foundation-model applications, Domain 4
 responsible-AI concerns, and Domain 5 security/governance requirements.
 
+## Glossary
+
+Each domain guide ends with its own "Key terms" section, but those are
+scoped to that guide alone. See
+[`docs/GLOSSARY.md`](docs/GLOSSARY.md) for a single alphabetical glossary
+of every key term across all five domains, each with a brief definition and
+a backlink to the domain section that explains it in full.
+
 ## Status
 
 This series is generated and kept current by gd-autopilot's own

@@ -1,0 +1,1138 @@
+# AIF-C01 Full-Length Mock Exam
+
+The five domain guides ([1](domain-1-fundamentals-of-ai-and-ml.md),
+[2](domain-2-fundamentals-of-generative-ai.md),
+[3](domain-3-applications-of-foundation-models.md),
+[4](domain-4-guidelines-for-responsible-ai.md),
+[5](domain-5-security-compliance-governance.md)) each carry 15–20
+domain-siloed practice questions — good for checking whether you've learned
+a single domain, but the real AWS Certified AI Practitioner (AIF-C01) exam
+never asks questions one domain at a time. It mixes all five domains
+together, weights them unevenly, and gives you a single clock running
+against the whole set. This page is that rehearsal: **one continuous,
+65-question exam** built to the same length, domain-weight distribution,
+and time budget as the real thing.
+
+Take it in one sitting, under a timer, before you sit the real exam. Don't
+peek at the answer key until you've answered every question.
+
+## How this mirrors the real exam
+
+| | Real AIF-C01 exam | This mock exam |
+|---|---|---|
+| Question count | 65 (50 scored + 15 unscored, indistinguishable) | 65 |
+| Format | Multiple choice (one correct answer) and multiple response (choose two) | Same mix — 3 multiple-response questions included |
+| Time limit | 90 minutes | 90 minutes |
+| Domain order | Domains interleaved randomly, not grouped | Domains interleaved (not grouped) — see the scoring key for which domain each question tests |
+| Scoring | Scaled 100–1000, pass at 700 | Simple raw score out of 65, plus a per-domain breakdown (see [Scoring your results](#scoring-your-results)) |
+| Reference material | None allowed | None — no domain guides, no notes |
+
+### Domain weight distribution
+
+The real exam draws questions from five domains at fixed proportions. This
+mock exam uses the same proportions, applied to 65 questions:
+
+| # | Domain | Exam weight | Questions in this mock exam |
+|---|--------|-------------|------------------------------|
+| 1 | Fundamentals of AI and ML | ~20% | 13 |
+| 2 | Fundamentals of Generative AI | ~24% | 16 |
+| 3 | Applications of Foundation Models | ~28% | 18 |
+| 4 | Guidelines for Responsible AI | ~14% | 9 |
+| 5 | Security, Compliance, and Governance for AI Solutions | ~14% | 9 |
+| | **Total** | **100%** | **65** |
+
+## Timing guidance
+
+90 minutes for 65 questions is **83 seconds per question on average** — but
+not every question deserves the same slice of that budget. Pace yourself
+like this:
+
+- **First pass (~60 minutes):** Move through all 65 questions in order.
+  Spend no more than ~60–75 seconds on any single question on this pass.
+  If a question isn't clicking within that window, make your best guess,
+  flag it mentally (or on scratch paper: write down its number), and move
+  on. A question you're stuck on is not worth more than a question you
+  haven't seen yet.
+- **Second pass (~20 minutes):** Return to the questions you flagged.
+  Fresh eyes after a first pass often spot the distractor you missed the
+  first time.
+- **Final review (~10 minutes):** Skim every answer once more. Watch
+  specifically for questions with "LEAST," "NOT," or "MOST cost-effective"
+  in the stem — these are the ones test-takers misread under time pressure.
+- **Multiple-response questions** ("Select TWO") take longer than
+  single-answer questions because you must evaluate every option
+  independently rather than stopping once you find the right one. Budget
+  extra time for the three flagged in this exam.
+- Do not leave any question blank. There is no penalty for guessing, so an
+  educated guess always beats an omission.
+
+## Instructions
+
+1. Set a timer for 90 minutes before reading Question 1.
+2. Answer all 65 questions below without consulting the domain guides,
+   glossary, or notes.
+3. Record your answers separately (letter per question number) so you can
+   self-grade without seeing the correct answers while you work.
+4. When the timer ends (or you finish early), stop and check your answers
+   against the [answer key](#answer-key-and-explanations).
+5. Use [Scoring your results](#scoring-your-results) to find your weakest
+   domain and go back to that domain's guide before your next attempt.
+
+---
+
+## Mock exam questions
+
+1. A company is building a system that must generate original marketing
+   copy, product images, and short video clips from a text prompt, rather
+   than classify or predict from existing labeled examples. Which
+   category of AI best describes this system?
+   A. Discriminative AI
+   B. Generative AI
+   C. Reinforcement learning
+   D. Rule-based expert system
+
+2. Which of the following is the best definition of a "token" in the
+   context of large language models?
+   A. A cryptographic key used to authenticate API calls to a model endpoint
+   B. A unit of text — a word, part of a word, or punctuation mark — that a model processes as a discrete piece of input or output
+   C. A single row in a training dataset used during fine-tuning
+   D. A numeric score representing how confident a model is in its output
+
+3. A retailer has no predefined categories for its customers and wants an
+   algorithm to discover natural groupings in purchasing behavior on its
+   own. Which type of machine learning fits this need?
+   A. Supervised learning
+   B. Unsupervised learning
+   C. Reinforcement learning
+   D. Semi-supervised learning
+
+4. A company wants to let its support agents ask natural-language
+   questions and get answers grounded in its private product manuals,
+   without retraining or fine-tuning any model. Which approach is the
+   best fit?
+   A. Continued pre-training on the manuals
+   B. Full fine-tuning of a foundation model on the manuals
+   C. Retrieval-Augmented Generation (RAG) using the manuals as a knowledge base
+   D. Increasing the model's temperature parameter
+
+5. Which responsible AI dimension is most directly concerned with a
+   stakeholder's ability to understand *why* a model produced a specific
+   output, not merely whether the output is accurate?
+   A. Robustness
+   B. Explainability
+   C. Scalability
+   D. Latency
+
+6. A company deploying a foundation model through Amazon Bedrock wants to
+   ensure that credentials used to invoke the model carry only the
+   permissions strictly needed for that task, and nothing more. Which AWS
+   security principle does this describe?
+   A. Shared responsibility model
+   B. Least privilege
+   C. Defense in depth
+   D. Data residency
+
+7. Which of the following is a well-known disadvantage of generative AI
+   models that engineering teams must design around, even when a model is
+   otherwise performing well?
+   A. Inability to process any text input longer than one sentence
+   B. Hallucination — producing plausible-sounding but factually incorrect output
+   C. Requirement that all training data be labeled by hand
+   D. Inability to run in a cloud environment
+
+8. A data scientist trains a model that scores 97% accuracy on the
+   training set but only 58% on a held-out test set. What does this
+   pattern most likely indicate?
+   A. Underfitting
+   B. Overfitting
+   C. Insufficient compute at inference time
+   D. A mislabeled test set
+
+9. A company wants to give business users a way to prototype generative
+   AI ideas visually, without writing code or provisioning infrastructure.
+   Which AWS offering is purpose-built for this?
+   A. Amazon SageMaker Studio
+   B. AWS Lambda
+   C. PartyRock, an Amazon Bedrock Playground
+   D. Amazon EC2
+
+10. Numeric representations of words, sentences, or images that place
+    semantically similar items close together in a high-dimensional space
+    are called:
+    A. Tokens
+    B. Embeddings
+    C. Hyperparameters
+    D. Checkpoints
+
+11. A company has a proprietary vocabulary and writing style it wants a
+    foundation model to permanently absorb through further, unsupervised
+    training on a large corpus of unlabeled domain text, without changing
+    the base model's overall task capabilities. Which customization
+    technique fits best?
+    A. Prompt engineering
+    B. Continued pre-training
+    C. Retrieval-Augmented Generation
+    D. Zero-shot prompting
+
+12. A company's hiring model was trained on historical hiring data that
+    reflected past inequities, and the model has learned to replicate
+    those patterns. Which type of bias does this describe?
+    A. Sampling bias
+    B. Measurement bias
+    C. Historical bias
+    D. Aggregation bias
+
+13. Which AWS service provides independently audited compliance reports
+    (such as SOC, PCI DSS, and ISO certifications) that customers can
+    download to support their own regulatory audits?
+    A. AWS Artifact
+    B. AWS CloudTrail
+    C. AWS Config
+    D. Amazon Macie
+
+14. Which of the following best describes the relationship between
+    artificial intelligence, machine learning, and deep learning?
+    A. They are three unrelated, independently developed fields
+    B. Deep learning is the broadest field, containing machine learning, which contains AI
+    C. AI is the broadest field; machine learning is a subset of AI; deep learning is a subset of machine learning
+    D. Machine learning and deep learning are two names for the same technique
+
+15. A prompt engineer includes several example input/output pairs directly
+    in the prompt before asking the model to complete a new, similar task.
+    What is this technique called?
+    A. Zero-shot prompting
+    B. Few-shot prompting
+    C. Negative prompting
+    D. Retrieval-augmented prompting
+
+16. A company evaluating foundation models for a customer-facing chatbot
+    needs a model that responds within 200 milliseconds and fits a tight
+    per-token cost budget, even if it means slightly lower output quality
+    than the largest available model. Which factors should most directly
+    drive the model selection decision?
+    A. The model's training data cutoff date only
+    B. Latency and cost, weighed against acceptable quality
+    C. The model provider's headquarters location
+    D. The number of parameters alone, regardless of latency or cost
+
+17. Which AWS service is purpose-built to detect fraudulent online
+    activity, such as payment fraud or fake account creation, using
+    managed machine learning models with minimal setup?
+    A. Amazon Fraud Detector
+    B. Amazon Comprehend
+    C. Amazon Rekognition
+    D. Amazon Forecast
+
+18. A model consistently predicts higher risk scores for one demographic
+    group because that group was underrepresented in the training data
+    relative to its real-world prevalence. Which term describes this
+    situation?
+    A. Overfitting
+    B. Sampling bias
+    C. Regularization
+    D. Model drift
+
+19. A company is building a customer-support chatbot on Amazon Bedrock and
+    wants the model to autonomously look up an order status via an
+    internal API and then summarize it for the customer, coordinating
+    multiple steps without manual orchestration code. Which Bedrock
+    feature is designed for this?
+    A. Amazon Bedrock Guardrails
+    B. Amazon Bedrock Agents
+    C. Amazon Bedrock Model Evaluation
+    D. Amazon Titan Text Embeddings
+
+20. Which AWS service is designed specifically to detect and help remediate
+    bias in both training data and trained model predictions, and to
+    generate explainability reports for individual predictions?
+    A. Amazon SageMaker Clarify
+    B. Amazon SageMaker Ground Truth
+    C. Amazon CloudWatch
+    D. AWS Trusted Advisor
+
+21. A healthcare company processing patient data with a machine learning
+    workload must sign a specific agreement with AWS before using any AWS
+    service to process protected health information. What is this
+    agreement called?
+    A. AWS Shared Responsibility Agreement
+    B. Business Associate Addendum (BAA), required for HIPAA compliance
+    C. AWS Acceptable Use Policy
+    D. Service Level Agreement (SLA)
+
+22. During few-shot prompting, which inference parameter most directly
+    controls how random or deterministic the model's next-token choices
+    are, with lower values producing more focused, repeatable output?
+    A. Context window
+    B. Temperature
+    C. Max tokens
+    D. Top-k only, never temperature
+
+23. In the standard machine learning development lifecycle, which stage
+    directly precedes model deployment?
+    A. Business goal identification
+    B. Data collection and preparation
+    C. Evaluation and hyperparameter tuning
+    D. Monitoring in production
+
+24. A company wants to store millions of document embeddings and perform
+    low-latency similarity search over them to power a Retrieval-Augmented
+    Generation pipeline. Which category of AWS data store is purpose-built
+    for this?
+    A. A relational database with only exact-match indexes
+    B. A vector database, such as Amazon OpenSearch Service with a vector engine
+    C. Amazon Simple Queue Service (SQS)
+    D. AWS Key Management Service (KMS)
+
+25. Which of the following best distinguishes a large language model (LLM)
+    from a general foundation model?
+    A. An LLM is trained exclusively on labeled data, while a foundation model never uses labeled data
+    B. An LLM is a type of foundation model specialized in understanding and generating natural language text, while "foundation model" is a broader term that can also cover other modalities such as images or audio
+    C. An LLM cannot be fine-tuned, while other foundation models can
+    D. There is no meaningful distinction; the terms are always interchangeable in every context
+
+26. A team wants an objective, repeatable, automated way to score a
+    summarization model's output quality by comparing generated summaries
+    against reference summaries. Which category of evaluation approach
+    fits best, and which specific technique commonly implements it?
+    (Select TWO.)
+    A. Human evaluation panels only
+    B. Automatic evaluation metrics
+    C. ROUGE score comparison against reference text
+    D. Manual code review of the model's training script
+    E. Checking the model's parameter count
+
+27. Which of the following is an example of the "veracity and robustness"
+    dimension of responsible AI, as distinct from fairness or privacy?
+    A. Ensuring a model performs reliably and produces factually accurate output even under unexpected or adversarial input
+    B. Ensuring a model's training data was collected with user consent
+    C. Ensuring different demographic groups receive statistically similar outcomes
+    D. Ensuring model logs are encrypted at rest
+
+28. Which AWS service continuously records and stores a history of API
+    calls made across an AWS account, supporting auditing of who did what
+    and when — including calls to Amazon Bedrock and SageMaker APIs?
+    A. Amazon GuardDuty
+    B. AWS CloudTrail
+    C. Amazon Macie
+    D. AWS Audit Manager
+
+29. Which of the following statements correctly orders the bias–variance
+    trade-off?
+    A. High bias and high variance both always improve as model complexity increases
+    B. A model with high bias tends to underfit; a model with high variance tends to overfit
+    C. A model with high bias tends to overfit; a model with high variance tends to underfit
+    D. Bias and variance are unrelated to model complexity
+
+30. A company wants to summarize thousands of customer support transcripts
+    per day using a foundation model, without managing any GPU
+    infrastructure. Which AWS approach requires the least infrastructure
+    management?
+    A. Deploy an open-source LLM on self-managed EC2 GPU instances
+    B. Invoke a foundation model through Amazon Bedrock's on-demand or provisioned throughput API
+    C. Train a model from scratch on AWS Trainium
+    D. Build a custom transformer architecture using raw TensorFlow on-premises
+
+31. A company's generative AI application must never output competitor
+    names, profanity, or content matching a defined list of harmful
+    topics, regardless of what the underlying foundation model would
+    otherwise produce. Which Amazon Bedrock feature enforces this?
+    A. Amazon Bedrock Knowledge Bases
+    B. Amazon Bedrock Guardrails
+    C. Amazon Titan Image Generator
+    D. Amazon Bedrock Model Evaluation
+
+32. Which AWS service is purpose-built to extract text, key-value pairs,
+    and tables — while preserving their original layout — from scanned
+    documents such as invoices and forms?
+    A. Amazon Comprehend
+    B. Amazon Rekognition
+    C. Amazon Textract
+    D. Amazon Transcribe
+
+33. A company running a customer-facing generative AI feature at
+    consistently high, predictable request volume wants guaranteed
+    throughput and lower latency variance from Amazon Bedrock, and is
+    willing to commit to a fixed capacity purchase. Which Bedrock option
+    fits this need?
+    A. On-demand throughput
+    B. Provisioned Throughput
+    C. Spot Instances
+    D. Amazon Bedrock Guardrails
+
+34. A company wants to publish a standardized, structured document that
+    summarizes a deployed model's intended use, training data, evaluation
+    results, and known limitations, for internal governance review before
+    the model reaches production. Which AWS capability is designed for
+    this?
+    A. Amazon SageMaker Model Cards
+    B. Amazon CloudWatch Dashboards
+    C. AWS Cost Explorer
+    D. Amazon QuickSight
+
+35. Under the AWS shared responsibility model, which of the following is
+    always the customer's responsibility, regardless of which AWS AI
+    service is used?
+    A. Physical security of the data center
+    B. Patching the underlying hypervisor
+    C. Configuring IAM permissions and classifying the sensitivity of the customer's own data
+    D. Maintaining the durability of the underlying storage hardware
+
+36. A prompt engineer explicitly tells a model "Do not include any
+    pricing information in your response" to steer the output away from
+    an undesired topic. What is this technique called?
+    A. Chain-of-thought prompting
+    B. Few-shot prompting
+    C. Negative prompting
+    D. Prompt injection
+
+37. A company needs its generative AI application's responses to always
+    cite the specific internal document a claim came from, so reviewers
+    can verify accuracy. Which architectural approach most directly
+    supports this requirement?
+    A. Increasing the model's max token limit
+    B. Retrieval-Augmented Generation with source attribution from the retrieved documents
+    C. Lowering the model's temperature to 0
+    D. Using a smaller foundation model
+
+38. A hospital is training a model to detect a disease that occurs in only
+    1% of patients. Which evaluation metric is LEAST appropriate on its
+    own for judging this model's usefulness?
+    A. Recall
+    B. Precision
+    C. Accuracy
+    D. F1 score
+
+39. Which of the following best explains why generative AI outputs can
+    differ each time the same prompt is submitted, even with identical
+    input?
+    A. AWS enforces a strict per-account daily prompt limit
+    B. Nondeterminism: sampling-based generation combined with parameters like temperature introduces variability into token selection
+    C. All foundation models cache and always replay their first response
+    D. Foundation models require re-training after every request
+
+40. A team fine-tuned a foundation model on labeled examples specific to
+    their domain and now wants to measure whether the fine-tuned model's
+    outputs are actually preferred by real users compared to the base
+    model's outputs. Which evaluation approach is most appropriate for
+    capturing subjective quality and preference?
+    A. Automatic metrics only, such as BLEU score
+    B. Human evaluation, such as a preference study or rating panel
+    C. Checking the training loss curve alone
+    D. Comparing only the two models' parameter counts
+
+41. Which of the following best illustrates the trade-off between model
+    performance and interpretability that a responsible AI practitioner
+    must weigh?
+    A. A deep neural network may achieve higher accuracy than a linear regression model, but its decision process is harder for a human to explain
+    B. Interpretable models always outperform deep neural networks on every task
+    C. Model performance and interpretability are unrelated concepts with no trade-off
+    D. Only unsupervised models raise interpretability concerns
+
+42. A company must ensure that traffic between its VPC-hosted application
+    and Amazon Bedrock never traverses the public internet. Which AWS
+    networking feature should it use?
+    A. An internet gateway
+    B. A VPC endpoint (AWS PrivateLink) for Amazon Bedrock
+    C. A NAT gateway
+    D. A public Elastic IP address
+
+43. Which of the following is a genuine business advantage commonly
+    attributed to generative AI adoption, as distinct from its known
+    risks?
+    A. Guaranteed 100% factual accuracy in every response
+    B. Scalability — the ability to generate large volumes of tailored content on demand without linear increases in human effort
+    C. Elimination of the need for any human review, ever
+    D. Immunity to prompt injection attacks
+
+44. Which AWS service should a company with no in-house machine learning
+    expertise use to add real-time, individualized product
+    recommendations to its e-commerce website?
+    A. Amazon SageMaker
+    B. Amazon Personalize
+    C. Amazon Forecast
+    D. Amazon Comprehend
+
+45. A company wants to compare candidate foundation models for a
+    Retrieval-Augmented Generation use case and is evaluating which
+    vector store to pair with an existing Amazon Aurora PostgreSQL
+    deployment, to avoid introducing a brand-new data store. Which option
+    fits best?
+    A. Amazon Aurora PostgreSQL with the pgvector extension
+    B. Amazon Kendra as a replacement for the relational database
+    C. Amazon DynamoDB Accelerator (DAX)
+    D. AWS Glue DataBrew
+
+46. Which of the following is an example of "controllability" as a
+    responsible AI dimension?
+    A. The ability for operators to constrain, override, or halt a model's actions in production
+    B. The ability of a model to run on lower-cost hardware
+    C. The ability of a model to generate images faster
+    D. The ability of a model to support more languages
+
+47. A robotics team is training a warehouse robot to find the optimal path
+    for picking items. The robot receives a numeric reward after each
+    action and has no fixed, pre-labeled dataset to learn from. Which
+    type of learning is this?
+    A. Supervised learning
+    B. Unsupervised learning
+    C. Reinforcement learning
+    D. Batch learning
+
+48. A company evaluating the specialized silicon options available on AWS
+    for training very large foundation models at lower cost than
+    comparable GPU instances should consider which AWS-designed chip?
+    A. AWS Trainium
+    B. AWS Inferentia
+    C. AWS Graviton
+    D. AWS Nitro
+
+49. Which of the following actions best reflects the "transparency"
+    dimension of responsible AI in a deployed generative AI product?
+    A. Disclosing to end users that they are interacting with an AI system, rather than a human
+    B. Encrypting all model weights at rest
+    C. Maximizing the model's context window size
+    D. Minimizing the model's inference latency
+
+50. A company operating in the European Union must ensure that personal
+    data processed by its AI system is handled according to strict
+    individual privacy rights, including the right to be forgotten. Which
+    regulation is most directly relevant?
+    A. HIPAA
+    B. GDPR (General Data Protection Regulation)
+    C. PCI DSS
+    D. SOC 2
+
+51. Which of the following best describes the role of AWS Inferentia
+    chips, as distinct from AWS Trainium chips?
+    A. Inferentia is optimized for cost-effective machine learning inference; Trainium is optimized for training
+    B. Inferentia and Trainium are two marketing names for the same physical chip
+    C. Inferentia is used only for storage, never for compute
+    D. Trainium is exclusively for inference workloads
+
+52. A company wants to measure a deployed foundation model's real-world
+    business impact rather than a purely linguistic quality score. Which
+    of the following is an example of a business metric for FM
+    evaluation, as opposed to an automatic linguistic metric?
+    A. BLEU score
+    B. ROUGE score
+    C. Customer satisfaction score or cost per resolved support ticket
+    D. Perplexity
+
+53. Which of the following correctly distinguishes a model parameter from
+    a hyperparameter?
+    A. A parameter is set manually before training begins; a hyperparameter is learned automatically during training
+    B. A parameter, such as a neural network's learned weights, is learned automatically during training; a hyperparameter, such as the learning rate, is set before training begins
+    C. Parameters and hyperparameters are the same thing under different names
+    D. Hyperparameters can only exist in unsupervised learning models
+
+54. A prompt engineer asks a model to "think step by step" before giving
+    a final answer to a multi-step arithmetic word problem, in order to
+    improve the accuracy of the final answer. What is this technique
+    called?
+    A. Zero-shot prompting
+    B. Chain-of-thought prompting
+    C. Prompt injection
+    D. Negative prompting
+
+55. A company wants an enterprise search-and-generate experience over its
+    existing SharePoint and Amazon S3 content, with minimal custom
+    integration work, rather than building and managing a custom vector
+    index. Which AWS service is designed specifically for this?
+    A. Amazon Kendra
+    B. Amazon Redshift
+    C. AWS Glue
+    D. Amazon EMR
+
+56. Which of the following best exemplifies "privacy and security" as a
+    responsible AI dimension, distinct from fairness?
+    A. Ensuring a model's outputs are equally accurate across demographic groups
+    B. Ensuring personal data used to train or prompt a model is protected from unauthorized access and misuse
+    C. Ensuring the model documentation is publicly available
+    D. Ensuring the model's carbon footprint is minimized
+
+57. Which AWS service continuously evaluates whether AWS resource
+    configurations (such as S3 bucket encryption settings) comply with a
+    defined set of rules, and flags noncompliant resources?
+    A. AWS Config
+    B. Amazon Inspector
+    C. AWS Trusted Advisor
+    D. Amazon Detective
+
+58. Which learning type requires a labeled dataset where each training
+    example already has a known correct output that the model learns to
+    predict?
+    A. Unsupervised learning
+    B. Supervised learning
+    C. Reinforcement learning
+    D. Self-organizing learning
+
+59. Which of the following AWS offerings is a fully managed, generative-AI
+    powered assistant designed to be grounded in a company's own
+    enterprise data and systems, aimed at business users rather than
+    developers?
+    A. Amazon Q Developer
+    B. Amazon Q Business
+    C. AWS CodeWhisperer legacy console
+    D. Amazon Lex
+
+60. When choosing between prompt engineering, RAG, fine-tuning, and
+    continued pre-training to customize a foundation model's behavior,
+    which two factors most directly determine the right point on that
+    customization spectrum? (Select TWO.)
+    A. How much labeled or domain-specific data is available
+    B. The color scheme of the client application's user interface
+    C. How much the desired behavior differs from the base model's existing capabilities
+    D. The number of AWS Regions the company has an account in
+    E. Whether the company uses Windows or macOS for development
+
+61. A model performs very poorly on both its training data and its test
+    data. Which of the following best describes this situation?
+    A. Overfitting
+    B. Underfitting
+    C. Perfect generalization
+    D. Data leakage
+
+62. A developer wants an AI pair-programming assistant integrated into
+    their IDE that can suggest code completions and explain existing
+    code. Which AWS offering is purpose-built for this?
+    A. Amazon Q Developer
+    B. Amazon Q Business
+    C. Amazon Polly
+    D. Amazon Transcribe
+
+63. A company wants to fine-tune a foundation model to speak in a specific
+    brand voice using a few thousand labeled example conversations, while
+    keeping most of the model's general knowledge intact. Which
+    customization approach is most appropriate?
+    A. Continued pre-training on unlabeled text
+    B. Supervised fine-tuning on the labeled example conversations
+    C. Prompt engineering only, with no training
+    D. Rebuilding the transformer architecture from scratch
+
+64. Which of the following is an example of a legal or ethical
+    consideration specific to generative AI, beyond general data privacy
+    concerns?
+    A. Uncertainty over intellectual property rights for AI-generated content and the provenance of training data
+    B. The cost of Amazon EC2 On-Demand Instances
+    C. The maximum number of IAM users per AWS account
+    D. The default region for a new AWS account
+
+65. Which two AWS controls should a company combine to both classify
+    sensitive data stored in Amazon S3 for compliance purposes and encrypt
+    that data using customer-managed keys? (Select TWO.)
+    A. Amazon Macie to discover and classify sensitive data
+    B. AWS KMS with customer managed keys (CMKs) to encrypt the data
+    C. Amazon Personalize to recommend related datasets
+    D. Amazon Polly to read the data aloud
+    E. Amazon Forecast to predict future storage costs
+
+---
+
+## Answer key and explanations
+
+1. **B — Generative AI.** The system creates new original content (text,
+   images, video) from a prompt rather than classifying or predicting
+   from fixed labels, which is the defining trait of generative AI as
+   opposed to discriminative models (A), reinforcement learning (C), or a
+   fixed rule-based system (D). *(Domain 2 — Fundamentals of Generative AI)*
+
+2. **B — A unit of text that a model processes as a discrete piece of
+   input or output.** Tokens are the atomic units — words, sub-words, or
+   punctuation — that language models tokenize input into and generate
+   output as. An API key (A), a training row (C), and a confidence score
+   (D) are unrelated concepts. *(Domain 2 — Fundamentals of Generative AI)*
+
+3. **B — Unsupervised learning.** With no predefined labels, the
+   algorithm must discover structure in the data on its own, which is
+   exactly what clustering-based unsupervised learning does. Supervised
+   learning (A) needs labeled outcomes; reinforcement learning (C) needs
+   a reward loop; semi-supervised (D) needs at least some labeled data.
+   *(Domain 1 — Fundamentals of AI and ML)*
+
+4. **C — Retrieval-Augmented Generation (RAG).** RAG grounds a model's
+   responses in an external knowledge source at query time without any
+   retraining, which is exactly the "no retraining or fine-tuning"
+   constraint here. Continued pre-training (A) and fine-tuning (B) both
+   require training; raising temperature (D) affects randomness, not
+   grounding. *(Domain 3 — Applications of Foundation Models)*
+
+5. **B — Explainability.** Explainability is specifically about being
+   able to describe or justify why a model produced a given output.
+   Robustness (A) concerns reliability under varied input; scalability
+   (C) and latency (D) are performance concerns unrelated to
+   understanding a specific decision. *(Domain 4 — Guidelines for
+   Responsible AI)*
+
+6. **B — Least privilege.** Granting only the permissions strictly
+   required for a task, and no more, is the definition of least
+   privilege. The shared responsibility model (A) describes the AWS/
+   customer security split; defense in depth (C) layers multiple
+   controls; data residency (D) concerns where data is stored. *(Domain
+   5 — Security, Compliance, and Governance for AI Solutions)*
+
+7. **B — Hallucination.** Generative models can produce fluent,
+   confident-sounding output that is factually wrong, a well-documented
+   risk teams must mitigate with grounding, guardrails, and human review.
+   The other options describe limitations that do not generally apply to
+   modern generative AI systems. *(Domain 2 — Fundamentals of Generative
+   AI)*
+
+8. **B — Overfitting.** A large gap between very high training
+   performance and much lower test performance is the textbook symptom
+   of overfitting, where the model has memorized training data rather
+   than learned generalizable patterns. Underfitting (A) would show poor
+   performance on both sets; C and D don't match this symptom pattern.
+   *(Domain 1 — Fundamentals of AI and ML)*
+
+9. **C — PartyRock, an Amazon Bedrock Playground.** PartyRock is
+   purpose-built for no-code, no-infrastructure generative AI app
+   prototyping aimed at business users. SageMaker Studio (A) is a
+   developer ML IDE; Lambda (B) and EC2 (D) both require writing and
+   deploying code or managing servers. *(Domain 2 — Fundamentals of
+   Generative AI)*
+
+10. **B — Embeddings.** Embeddings are dense numeric vectors positioned so
+    that semantically similar items land close together in the vector
+    space, enabling similarity search. Tokens (A) are discrete text
+    units, not vectors; hyperparameters (C) and checkpoints (D) are
+    unrelated training artifacts. *(Domain 2 — Fundamentals of Generative
+    AI)*
+
+11. **B — Continued pre-training.** Further unsupervised training on a
+    large unlabeled corpus to permanently absorb vocabulary and style,
+    without changing overall task capability, is precisely continued
+    pre-training. Prompt engineering (A) and zero-shot prompting (D)
+    change nothing about the model itself; RAG (C) retrieves data at
+    query time rather than absorbing it into weights. *(Domain 3 —
+    Applications of Foundation Models)*
+
+12. **C — Historical bias.** Historical bias occurs when the underlying
+    real-world data reflects past societal or organizational inequities,
+    which the model then learns and perpetuates. Sampling bias (A) is
+    about how the dataset was collected relative to the population;
+    measurement bias (B) is about how labels/features were measured;
+    aggregation bias (D) arises from combining distinct subgroups
+    inappropriately. *(Domain 4 — Guidelines for Responsible AI)*
+
+13. **A — AWS Artifact.** AWS Artifact is the self-service portal for
+    downloading AWS's independently audited compliance reports (SOC, PCI
+    DSS, ISO, and more). CloudTrail (B) logs API activity; Config (C)
+    evaluates resource configuration compliance; Macie (D) discovers and
+    classifies sensitive data. *(Domain 5 — Security, Compliance, and
+    Governance for AI Solutions)*
+
+14. **C — AI is the broadest field; machine learning is a subset of AI;
+    deep learning is a subset of machine learning.** This nesting is the
+    standard relationship among the three fields. A and D scramble or
+    deny that relationship, and B reverses it entirely. *(Domain 1 —
+    Fundamentals of AI and ML)*
+
+15. **B — Few-shot prompting.** Providing several example input/output
+    pairs in the prompt before the actual task is the definition of
+    few-shot prompting. Zero-shot (A) provides no examples; negative
+    prompting (C) tells the model what to avoid; retrieval-augmented
+    prompting (D) is not a standard term for this technique. *(Domain 2
+    — Fundamentals of Generative AI)*
+
+16. **B — Latency and cost, weighed against acceptable quality.**
+    Foundation model selection is fundamentally a trade-off across
+    latency, cost, and quality (along with modality and context window)
+    for the specific use case — never one factor in isolation. A, C, and
+    D each isolate an irrelevant or overly narrow factor. *(Domain 2 —
+    Fundamentals of Generative AI)*
+
+17. **A — Amazon Fraud Detector.** It's a managed service purpose-built to
+    detect online fraud patterns (payment fraud, fake accounts) using
+    pre-built ML models with minimal setup. Comprehend (B) is text
+    analytics, Rekognition (C) is image/video analysis, and Forecast (D)
+    is time-series prediction — none purpose-built for fraud detection.
+    *(Domain 1 — Fundamentals of AI and ML)*
+
+18. **B — Sampling bias.** When a demographic group is underrepresented in
+    training data relative to its real-world prevalence, the resulting
+    skewed predictions are a textbook case of sampling bias. Overfitting
+    (A) and model drift (D) describe different failure modes;
+    regularization (C) is a mitigation technique, not a bias type.
+    *(Domain 1 — Fundamentals of AI and ML)*
+
+19. **B — Amazon Bedrock Agents.** Agents are designed to orchestrate
+    multi-step tasks autonomously, including calling external APIs and
+    summarizing results, without custom orchestration code. Guardrails
+    (A) filter content, Model Evaluation (C) scores model quality, and
+    Titan Text Embeddings (D) produces vector representations — none
+    orchestrate multi-step actions. *(Domain 3 — Applications of
+    Foundation Models)*
+
+20. **A — Amazon SageMaker Clarify.** Clarify is specifically built to
+    detect bias in data and models and to generate explainability
+    reports for individual predictions. Ground Truth (B) is for data
+    labeling, CloudWatch (C) is for monitoring/metrics, and Trusted
+    Advisor (D) is for cost/security/performance best-practice checks.
+    *(Domain 4 — Guidelines for Responsible AI)*
+
+21. **B — Business Associate Addendum (BAA), required for HIPAA
+    compliance.** Processing protected health information on AWS
+    requires executing a BAA, which extends HIPAA obligations to AWS as
+    a business associate. The shared responsibility model (A) is a
+    general security framework, not a signed agreement; the Acceptable
+    Use Policy (C) and an SLA (D) address unrelated obligations.
+    *(Domain 5 — Security, Compliance, and Governance for AI Solutions)*
+
+22. **B — Temperature.** Temperature scales the randomness of the
+    probability distribution used to pick the next token — lower values
+    concentrate probability on the most likely tokens, producing more
+    deterministic output. Context window (A) and max tokens (C) control
+    length/scope, not randomness; D incorrectly excludes temperature.
+    *(Domain 2 — Fundamentals of Generative AI)*
+
+23. **C — Evaluation and hyperparameter tuning.** In the standard ML
+    lifecycle, a trained model is evaluated and tuned before it is
+    deployed to production. Business goal identification (A) and data
+    collection (B) happen far earlier; monitoring (D) happens only after
+    deployment. *(Domain 1 — Fundamentals of AI and ML)*
+
+24. **B — A vector database, such as Amazon OpenSearch Service with a
+    vector engine.** Vector databases are purpose-built for storing
+    embeddings and performing low-latency similarity search at scale, the
+    core requirement of a RAG retrieval step. A relational database with
+    only exact-match indexes (A) cannot do similarity search efficiently;
+    SQS (C) and KMS (D) are unrelated to vector storage. *(Domain 3 —
+    Applications of Foundation Models)*
+
+25. **B — An LLM is a type of foundation model specialized in natural
+    language, while "foundation model" is the broader term covering other
+    modalities too.** Foundation model is the umbrella category (text,
+    image, audio, multimodal); LLM refers specifically to the
+    text-focused subset. A, C, and D each state a false or overly rigid
+    distinction. *(Domain 2 — Fundamentals of Generative AI)*
+
+26. **B and C — Automatic evaluation metrics, using a technique like ROUGE
+    score comparison.** Automated, repeatable comparison against
+    reference summaries is exactly what automatic metrics like ROUGE (or
+    BLEU) provide. Human evaluation panels (A) are valuable but are not
+    "automated"; reviewing training code (D) and counting parameters (E)
+    don't measure output quality at all. *(Domain 3 — Applications of
+    Foundation Models)*
+
+27. **A — Ensuring a model performs reliably and produces factually
+    accurate output even under unexpected or adversarial input.**
+    Veracity and robustness concern factual correctness and stable
+    performance under stress, distinct from fairness (equitable outcomes
+    across groups, C), privacy (B), and general security hygiene (D).
+    *(Domain 4 — Guidelines for Responsible AI)*
+
+28. **B — AWS CloudTrail.** CloudTrail records a continuous history of API
+    calls across an account, including Bedrock and SageMaker API
+    activity, supporting security auditing. GuardDuty (A) detects
+    threats, Macie (C) classifies sensitive data, and Audit Manager (D)
+    assesses compliance posture rather than logging raw API calls.
+    *(Domain 5 — Security, Compliance, and Governance for AI Solutions)*
+
+29. **B — A model with high bias tends to underfit; a model with high
+    variance tends to overfit.** This is the standard bias–variance
+    relationship: high bias means the model is too simple (underfitting),
+    while high variance means it's overly sensitive to training data
+    noise (overfitting). A, C, and D each misstate the relationship.
+    *(Domain 1 — Fundamentals of AI and ML)*
+
+30. **B — Invoke a foundation model through Amazon Bedrock's on-demand or
+    provisioned throughput API.** Bedrock is a fully managed API — no
+    GPU provisioning, patching, or scaling management required. Self-
+    managing EC2 GPUs (A), training from scratch on Trainium (C), and
+    building a custom transformer on-premises (D) all require
+    significant infrastructure management. *(Domain 3 — Applications of
+    Foundation Models)*
+
+31. **B — Amazon Bedrock Guardrails.** Guardrails let you configure
+    denied topics, content filters, and word/phrase blocklists that are
+    enforced on model input and output regardless of what the underlying
+    model would otherwise produce. Knowledge Bases (A) power RAG, the
+    Titan Image Generator (C) creates images, and Model Evaluation (D)
+    scores quality — none enforce content policy. *(Domain 3 —
+    Applications of Foundation Models)*
+
+32. **C — Amazon Textract.** Textract is purpose-built to extract text,
+    key-value pairs, and tables while preserving document structure from
+    scanned forms and invoices. Comprehend (A) analyzes text that's
+    already extracted, Rekognition (B) analyzes images/video generally,
+    and Transcribe (D) converts speech to text. *(Domain 1 —
+    Fundamentals of AI and ML)*
+
+33. **B — Provisioned Throughput.** Provisioned Throughput lets a
+    customer commit to a fixed capacity purchase in exchange for
+    guaranteed, consistent throughput and lower latency variance — ideal
+    for predictable, high-volume production traffic. On-demand (A) has
+    variable capacity; Spot Instances (C) don't apply to Bedrock model
+    invocation; Guardrails (D) is a content-safety feature, not a
+    capacity model. *(Domain 3 — Applications of Foundation Models)*
+
+34. **A — Amazon SageMaker Model Cards.** Model Cards are the standardized
+    document format for capturing a model's intended use, training data,
+    evaluation results, and limitations for governance review. CloudWatch
+    Dashboards (B), Cost Explorer (C), and QuickSight (D) address
+    monitoring, cost, and BI visualization, not model documentation.
+    *(Domain 4 — Guidelines for Responsible AI)*
+
+35. **C — Configuring IAM permissions and classifying the sensitivity of
+    the customer's own data.** Under the shared responsibility model,
+    "security in the cloud" — including IAM configuration and data
+    classification — is always the customer's job. Physical data-center
+    security (A), hypervisor patching (B), and storage-hardware
+    durability (D) are AWS's responsibility ("security of the cloud").
+    *(Domain 5 — Security, Compliance, and Governance for AI Solutions)*
+
+36. **C — Negative prompting.** Explicitly instructing a model to avoid a
+    topic or type of content is negative prompting. Chain-of-thought (A)
+    asks the model to reason step by step; few-shot (B) provides
+    examples; prompt injection (D) is an attack technique, not a
+    deliberate engineering choice by the prompt's author. *(Domain 2 —
+    Fundamentals of Generative AI)*
+
+37. **B — Retrieval-Augmented Generation with source attribution from the
+    retrieved documents.** RAG architectures can return the specific
+    source documents used to ground a response, enabling citation and
+    verification. Raising max tokens (A), lowering temperature (C), and
+    using a smaller model (D) don't provide any mechanism for tracing an
+    answer back to a source document. *(Domain 3 — Applications of
+    Foundation Models)*
+
+38. **C — Accuracy.** With only 1% positive cases, a model that predicts
+    "negative" for every patient would still score about 99% accuracy
+    while being clinically useless — the classic accuracy paradox on
+    imbalanced data. Recall, precision, and F1 (A, B, D) are all more
+    informative for rare-event detection. *(Domain 1 — Fundamentals of AI
+    and ML)*
+
+39. **B — Nondeterminism: sampling-based generation combined with
+    parameters like temperature introduces variability into token
+    selection.** Generative models sample from a probability
+    distribution over possible next tokens, so identical prompts can
+    yield different outputs unless sampling is constrained to be fully
+    deterministic. A, C, and D describe mechanisms that don't exist in
+    standard foundation model serving. *(Domain 2 — Fundamentals of
+    Generative AI)*
+
+40. **B — Human evaluation, such as a preference study or rating panel.**
+    Subjective quality and user preference require human judgment;
+    automatic metrics like BLEU (A) measure lexical overlap, not
+    preference, and training loss (C) or parameter count (D) say nothing
+    about output quality as perceived by real users. *(Domain 3 —
+    Applications of Foundation Models)*
+
+41. **A — A deep neural network may achieve higher accuracy than a linear
+    regression model, but its decision process is harder for a human to
+    explain.** This captures the classic performance-versus-
+    interpretability trade-off: complex models often perform better but
+    are harder to explain, while simpler models are easier to interpret
+    but may underperform. B, C, and D each deny that a real trade-off
+    exists. *(Domain 4 — Guidelines for Responsible AI)*
+
+42. **B — A VPC endpoint (AWS PrivateLink) for Amazon Bedrock.** A VPC
+    endpoint keeps traffic between a VPC and Bedrock entirely on the AWS
+    network, never traversing the public internet. An internet gateway
+    (A), NAT gateway (C), and public Elastic IP (D) all involve public
+    internet routing. *(Domain 5 — Security, Compliance, and Governance
+    for AI Solutions)*
+
+43. **B — Scalability.** The ability to generate large volumes of
+    tailored content on demand, without a linear increase in human
+    effort, is a genuine and widely cited advantage of generative AI. A,
+    C, and D all describe guarantees generative AI does not actually
+    provide. *(Domain 2 — Fundamentals of Generative AI)*
+
+44. **B — Amazon Personalize.** Personalize is a fully managed
+    recommendation service designed for exactly this use case, requiring
+    no in-house ML expertise. SageMaker (A) would require building a
+    custom model; Forecast (C) targets time-series prediction; Comprehend
+    (D) is for text analytics. *(Domain 1 — Fundamentals of AI and ML)*
+
+45. **A — Amazon Aurora PostgreSQL with the pgvector extension.** pgvector
+    adds vector similarity search directly to an existing PostgreSQL
+    deployment, avoiding a brand-new data store. Kendra (B) is a separate
+    enterprise search service, not a relational database replacement;
+    DAX (C) accelerates DynamoDB reads and Glue DataBrew (D) is a data
+    preparation tool — neither adds vector search to Aurora. *(Domain 3 —
+    Applications of Foundation Models)*
+
+46. **A — The ability for operators to constrain, override, or halt a
+    model's actions in production.** Controllability is specifically
+    about maintaining human oversight and the ability to intervene in a
+    deployed system's behavior. B, C, and D describe cost, speed, and
+    language-support characteristics unrelated to control. *(Domain 4 —
+    Guidelines for Responsible AI)*
+
+47. **C — Reinforcement learning.** An agent that learns optimal actions
+    through numeric rewards, with no fixed labeled dataset, is the
+    defining pattern of reinforcement learning. Supervised learning (A)
+    requires labels; unsupervised learning (B) finds structure without
+    rewards; "batch learning" (D) describes a training cadence, not a
+    learning paradigm. *(Domain 1 — Fundamentals of AI and ML)*
+
+48. **A — AWS Trainium.** Trainium is AWS's custom silicon purpose-built
+    for cost-efficient large-scale model training. Inferentia (B) is
+    optimized for inference, not training; Graviton (C) is a general-
+    purpose CPU; Nitro (D) is the underlying virtualization system, not
+    an ML accelerator. *(Domain 3 — Applications of Foundation Models)*
+
+49. **A — Disclosing to end users that they are interacting with an AI
+    system, rather than a human.** Transparency is about making a
+    system's nature and capabilities clear to the people affected by it.
+    Encrypting weights (B), maximizing context window (C), and
+    minimizing latency (D) are security or performance concerns, not
+    transparency. *(Domain 4 — Guidelines for Responsible AI)*
+
+50. **B — GDPR (General Data Protection Regulation).** GDPR governs
+    personal data protection and individual privacy rights, including
+    the right to erasure, for anyone processing EU residents' data.
+    HIPAA (A) covers U.S. health information, PCI DSS (C) covers payment
+    card data, and SOC 2 (D) is a security/availability audit standard,
+    not a privacy regulation. *(Domain 5 — Security, Compliance, and
+    Governance for AI Solutions)*
+
+51. **A — Inferentia is optimized for cost-effective machine learning
+    inference; Trainium is optimized for training.** These are AWS's two
+    distinct custom ML chip families, each targeting a different stage of
+    the ML lifecycle. B, C, and D each misstate their purpose or
+    interchange their roles. *(Domain 3 — Applications of Foundation
+    Models)*
+
+52. **C — Customer satisfaction score or cost per resolved support
+    ticket.** Business metrics tie model performance to real-world
+    organizational outcomes. BLEU (A), ROUGE (B), and perplexity (D) are
+    all automatic linguistic metrics that measure text quality, not
+    business impact. *(Domain 3 — Applications of Foundation Models)*
+
+53. **B — A parameter, such as a neural network's learned weights, is
+    learned automatically during training; a hyperparameter, such as the
+    learning rate, is set before training begins.** This is the standard
+    distinction. A reverses it, C denies any difference exists, and D
+    incorrectly restricts hyperparameters to unsupervised learning.
+    *(Domain 1 — Fundamentals of AI and ML)*
+
+54. **B — Chain-of-thought prompting.** Asking a model to reason through
+    intermediate steps before producing a final answer is chain-of-
+    thought prompting, and it commonly improves accuracy on multi-step
+    problems. Zero-shot (A) provides no reasoning scaffold; prompt
+    injection (C) is an attack; negative prompting (D) tells the model
+    what to avoid. *(Domain 2 — Fundamentals of Generative AI)*
+
+55. **A — Amazon Kendra.** Kendra is a managed enterprise search service
+    with built-in connectors (including SharePoint and S3) designed to
+    minimize custom integration work. Redshift (B), Glue (C), and EMR
+    (D) are data warehousing, ETL, and big-data processing services, not
+    purpose-built enterprise search. *(Domain 3 — Applications of
+    Foundation Models)*
+
+56. **B — Ensuring personal data used to train or prompt a model is
+    protected from unauthorized access and misuse.** This is the core of
+    privacy and security as a responsible AI dimension. Equal accuracy
+    across groups (A) is fairness; public documentation (C) is
+    transparency; carbon footprint (D) is an environmental
+    consideration, not privacy/security. *(Domain 4 — Guidelines for
+    Responsible AI)*
+
+57. **A — AWS Config.** Config continuously evaluates resource
+    configurations against defined rules and flags noncompliant
+    resources, such as an unencrypted S3 bucket. Inspector (B) scans for
+    vulnerabilities, Trusted Advisor (C) gives general best-practice
+    checks, and Detective (D) investigates security findings — none
+    perform continuous configuration-compliance evaluation the way
+    Config does. *(Domain 5 — Security, Compliance, and Governance for
+    AI Solutions)*
+
+58. **B — Supervised learning.** Supervised learning specifically
+    requires a labeled dataset with known correct outputs for the model
+    to learn to predict. Unsupervised learning (A) has no labels;
+    reinforcement learning (C) uses rewards instead of labels;
+    "self-organizing learning" (D) is not a standard ML category.
+    *(Domain 1 — Fundamentals of AI and ML)*
+
+59. **B — Amazon Q Business.** Q Business is a fully managed assistant
+    designed for business users, grounded in a company's own enterprise
+    data and systems. Q Developer (A) targets software developers; the
+    legacy CodeWhisperer console (C) is a developer tool; Lex (D) builds
+    conversational interfaces rather than acting as a ready-made
+    enterprise assistant. *(Domain 2 — Fundamentals of Generative AI)*
+
+60. **A and C — How much labeled/domain-specific data is available, and
+    how much the desired behavior differs from the base model's existing
+    capabilities.** These two factors determine where on the spectrum
+    (prompt engineering → RAG → fine-tuning → continued pre-training) a
+    use case lands: minimal data and small behavior gaps favor prompt
+    engineering or RAG, while large data volumes and substantial behavior
+    changes favor fine-tuning or continued pre-training. UI color scheme
+    (B), AWS Region count (D), and developer operating system (E) are
+    irrelevant to this decision. *(Domain 3 — Applications of Foundation
+    Models)*
+
+61. **B — Underfitting.** Poor performance on both the training data and
+    the test data indicates the model is too simple to capture the
+    underlying pattern at all — underfitting (high bias). Overfitting
+    (A) would show a large gap between strong training performance and
+    weak test performance, which is not the case here; C and D don't
+    match this symptom. *(Domain 1 — Fundamentals of AI and ML)*
+
+62. **A — Amazon Q Developer.** Q Developer is purpose-built as an
+    AI pair-programming assistant integrated into IDEs, offering code
+    completions and explanations. Q Business (B) targets business users
+    with enterprise data grounding, while Polly (C) and Transcribe (D)
+    handle text-to-speech and speech-to-text, unrelated to coding.
+    *(Domain 3 — Applications of Foundation Models)*
+
+63. **B — Supervised fine-tuning on the labeled example conversations.**
+    Fine-tuning on a modest labeled dataset adjusts a model's style and
+    behavior for a specific use case while preserving most of its
+    general knowledge. Continued pre-training (A) uses unlabeled data at
+    much larger scale; prompt engineering alone (C) doesn't durably
+    change the model; rebuilding the architecture (D) is neither
+    necessary nor practical. *(Domain 3 — Applications of Foundation
+    Models)*
+
+64. **A — Uncertainty over intellectual property rights for AI-generated
+    content and the provenance of training data.** This is a
+    generative-AI-specific legal and ethical question distinct from
+    general data privacy, covering questions like who owns generated
+    output and whether training data was used with proper rights. B, C,
+    and D are unrelated cost or account-configuration details. *(Domain
+    4 — Guidelines for Responsible AI)*
+
+65. **A and B — Amazon Macie to discover and classify sensitive data, and
+    AWS KMS with customer managed keys (CMKs) to encrypt it.** Macie
+    handles automated discovery and classification of sensitive data in
+    S3, while KMS with CMKs provides the customer-controlled encryption
+    needed for compliance. Personalize (C), Polly (D), and Forecast (E)
+    are unrelated AI services with no role in data classification or
+    encryption. *(Domain 5 — Security, Compliance, and Governance for AI
+    Solutions)*
+
+## Scoring your results
+
+Real AWS exams report a scaled score from 100–1000 with a passing score of
+700, computed from a proprietary weighting of scored items (only 50 of the
+65 questions on the real exam are scored; 15 are unscored pretest
+questions you can't identify). This mock exam doesn't have access to that
+scaling model, so use a simpler, more conservative proxy instead:
+
+1. **Overall raw score:** Count your correct answers out of 65.
+   - **49/65 (≈75%) or higher:** Roughly comparable to a passing band on
+     the real exam. Keep practicing timing and your weakest domain below.
+   - **Below 49/65:** Treat this as a signal to revisit the domain guides
+     before scheduling the real exam, not just this mock exam again.
+2. **Per-domain score:** Using the domain tag on each answer above, tally
+   your correct answers within each domain and compare against that
+   domain's question count from the [distribution table](#domain-weight-distribution):
+
+   | Domain | Correct / Total |
+   |--------|------------------|
+   | 1 — Fundamentals of AI and ML | ___ / 13 |
+   | 2 — Fundamentals of Generative AI | ___ / 16 |
+   | 3 — Applications of Foundation Models | ___ / 18 |
+   | 4 — Guidelines for Responsible AI | ___ / 9 |
+   | 5 — Security, Compliance, and Governance for AI Solutions | ___ / 9 |
+
+   Because Domain 3 carries the heaviest weight (~28%) on the real exam,
+   a weak score there costs you more than a weak score in Domain 4 or 5 —
+   prioritize your review accordingly. Revisit the matching
+   [domain guide](README.md#exam-domains) for any domain scoring below
+   70%, then retake this mock exam after a study pass to check for
+   improvement.

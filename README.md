@@ -45,6 +45,15 @@ scoped to that guide alone. See
 of every key term across all five domains, each with a brief definition and
 a backlink to the domain section that explains it in full.
 
+## Exam preparation and study strategy
+
+Ready to plan your study time or your exam-day approach? See
+[`docs/exam-preparation-strategy.md`](docs/exam-preparation-strategy.md)
+for exam format and time-management tips, domain weights with high-yield
+focus areas, the recommended domain reading order and why it matters, every
+domain's "Exam tip" callouts consolidated into one list of common traps,
+and 1-week/2-week/4-week study plans.
+
 ## Status
 
 This series is generated and kept current by gd-autopilot's own

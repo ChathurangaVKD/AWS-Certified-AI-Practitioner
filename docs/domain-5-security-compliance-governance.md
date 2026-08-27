@@ -261,6 +261,26 @@ service:
   settings for training jobs, and patching custom inference code —
   while AWS still secures the underlying compute/storage infrastructure.
 
+```
+                Amazon Bedrock                              Amazon SageMaker
+        ┌─────────────────────────────┐            ┌─────────────────────────────┐
+        │   CUSTOMER ("in the cloud")  │            │   CUSTOMER ("in the cloud")  │
+        │  - IAM permissions           │            │  - IAM permissions           │
+        │  - Data sent to/from model   │            │  - Training data pipeline    │
+        │  - Guardrail configuration   │            │  - Custom training/inference │
+        │  - Encryption key choices    │            │    containers & code         │
+        │                              │            │  - VPC config for jobs       │
+        ├─────────────────────────────┤            ├─────────────────────────────┤
+        │     AWS ("of the cloud")     │            │     AWS ("of the cloud")     │
+        │  - Physical infrastructure   │            │  - Physical infrastructure   │
+        │  - Host OS / virtualization  │            │  - Host OS / virtualization  │
+        │  - FM hosting & patching     │            │  - Underlying compute/       │
+        │                              │            │    storage infrastructure    │
+        └─────────────────────────────┘            └─────────────────────────────┘
+        (thin customer slice — most            (thicker customer slice — customer
+         responsibility is AWS-managed)          takes on more configuration/code)
+```
+
 **Example:** If a Bedrock foundation model itself has a vulnerability in
 AWS's serving infrastructure, that is AWS's responsibility to patch. If a
 company misconfigures an IAM policy so any authenticated AWS user can

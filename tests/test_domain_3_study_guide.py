@@ -134,6 +134,28 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
         self.assertNotIn("</section>", self.text)
         self.assertNotIn("<section>", self.text)
 
+    def test_customization_section_has_a_decision_tree_diagram(self):
+        section = _section(
+            self.text,
+            r"\n## 4\. Fine-tuning vs\. continued pre-training vs\. RAG vs\. prompt engineering",
+        )
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences, "customization section should include a decision-tree diagram"
+        )
+        diagram = "\n".join(fences)
+        for approach in [
+            "PROMPT ENGINEERING",
+            "RAG",
+            "FINE-TUNING",
+            "CONTINUED PRE-TRAINING",
+        ]:
+            with self.subTest(approach=approach):
+                self.assertIn(approach, diagram)
+        self.assertIn(
+            "?", diagram, "diagram should pose branching decision questions"
+        )
+
     def test_has_every_required_topic_section(self):
         for heading in REQUIRED_TOPIC_HEADINGS:
             with self.subTest(heading=heading):

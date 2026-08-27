@@ -109,6 +109,20 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
         )
         self.assertIn("## Domain overview", self.text)
 
+    def test_generative_ai_section_has_a_transformer_diagram(self):
+        section = _section(self.text, r"\n## 1\. Generative AI core concepts")
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences, "core concepts section should include a transformer diagram"
+        )
+        diagram = "\n".join(fences)
+        for term in ["Tokenization", "Embeddings", "Self-Attention", "Feed-Forward"]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+        self.assertRegex(
+            diagram, r"→|↓", "diagram should show the transformer pipeline flow"
+        )
+
     def test_has_every_required_topic_section(self):
         for heading in REQUIRED_TOPIC_HEADINGS:
             with self.subTest(heading=heading):

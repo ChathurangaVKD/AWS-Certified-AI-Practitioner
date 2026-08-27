@@ -128,6 +128,28 @@ This is an **iterative loop**, not a strict waterfall: poor evaluation or
 monitoring results send you back to data collection, feature engineering,
 or retraining.
 
+```
+1. Business Goal Identification
+        ↓
+2. Data Collection
+        ↓
+3. Exploratory Data Analysis (EDA)
+        ↓
+4. Data Preparation / Feature Engineering
+        ↓
+5. Model Training
+        ↓
+6. Hyperparameter Tuning / Evaluation
+        ↓
+7. Deployment
+        ↓
+8. Monitoring
+        │
+        └──── iterate: drift or degraded accuracy loops back to Data
+              Collection, Feature Engineering, or Model Training ────▶
+              (back to step 2 / 4 / 5)
+```
+
 **AWS example:** A retailer builds a churn-prediction model. They land raw
 event data in S3, use SageMaker Data Wrangler for EDA and feature
 engineering, store reusable features in SageMaker Feature Store, train an

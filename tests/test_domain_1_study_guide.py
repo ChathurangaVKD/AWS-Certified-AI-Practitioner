@@ -152,6 +152,34 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
                     f"model evaluation section missing term: {term!r}",
                 )
 
+    def test_ml_lifecycle_section_has_a_flow_diagram(self):
+        section = _section(self.text, r"\n## 2\. The ML development lifecycle")
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences, "ML lifecycle section should include a diagram in a fenced code block"
+        )
+        diagram = "\n".join(fences)
+        for stage in [
+            "Business Goal",
+            "Data Collection",
+            "Exploratory Data Analysis",
+            "Feature Engineering",
+            "Model Training",
+            "Hyperparameter Tuning",
+            "Deployment",
+            "Monitoring",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertIn(stage, diagram)
+        self.assertRegex(
+            diagram, r"[↓▶│└]", "diagram should show directional flow between stages"
+        )
+        self.assertRegex(
+            diagram,
+            r"(?i)iterat",
+            "diagram should depict the loop-back to an earlier stage",
+        )
+
     def test_has_key_terms_glossary_with_substantial_coverage(self):
         glossary = _section(self.text, r"\n## Key terms glossary")
         entries = re.findall(r"^- \*\*.+?\*\*", glossary, re.M)

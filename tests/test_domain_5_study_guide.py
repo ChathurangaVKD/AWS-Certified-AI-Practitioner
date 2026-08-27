@@ -184,6 +184,44 @@ class TestDomain5GovernanceDecisionTree(unittest.TestCase):
                 self.assertIn(term, diagram)
 
 
+class TestDomain5EncryptionArchitectureDiagrams(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+
+    def test_encryption_section_has_kms_key_lifecycle_diagram(self):
+        section = _section(
+            self.text,
+            r"\n### Data encryption at rest and in transit",
+            r"\n### ",
+        )
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "encryption section should include a KMS key lifecycle diagram",
+        )
+        diagram = "\n".join(fences)
+        for term in ["Key creation", "key rotation", "CloudTrail", "revocation"]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+
+    def test_privatelink_section_has_data_flow_diagram(self):
+        section = _section(
+            self.text,
+            r"\n### AWS PrivateLink and VPC endpoints for AI services",
+            r"\n### ",
+        )
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "VPC endpoints section should include a data-flow diagram",
+        )
+        diagram = "\n".join(fences)
+        for term in ["Amazon S3", "AWS KMS", "VPC endpoint", "SageMaker", "Bedrock", "TLS"]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+
+
 class TestDomain5StudyGuideStructure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

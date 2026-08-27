@@ -110,6 +110,19 @@ in transit" = data moving over the network (TLS/HTTPS). Don't confuse
 KMS (which manages *keys*) with CloudTrail (which *logs* key usage) — a
 common distractor pairing.
 
+**Visual summary — KMS key lifecycle:** the diagram below traces a
+customer managed key from creation through routine use, automatic
+rotation, CloudTrail logging, and eventual revocation:
+
+```mermaid
+graph TD
+    CREATE["Key creation\ncustomer creates a KMS key\nand sets a key policy"] --> USE["Key usage\nencrypts/decrypts S3, EBS,\nSageMaker, and Bedrock data"]
+    USE --> ROTATE["Automatic key rotation\nKMS rotates backing key material\nannually; key ID unchanged"]
+    ROTATE --> USE
+    USE -. "every Encrypt/Decrypt/RotateKey\ncall is recorded" .-> LOG["CloudTrail logging"]
+    LOG --> REVOKE["Key revocation\ndisable the key, or schedule\ndeletion with a waiting period"]
+```
+
 ### AWS PrivateLink and VPC endpoints for AI services
 By default, calls from your VPC to an AWS service like Bedrock or
 SageMaker travel over the public AWS network backbone via public service
@@ -130,6 +143,25 @@ internet, or a workload runs in an isolated/air-gapped VPC with no
 internet gateway, the answer is a **VPC endpoint (PrivateLink)** — not a
 NAT gateway (which still routes through the public internet) and not a
 VPN (which connects networks, not a VPC to an AWS service).
+
+**Visual summary — data security and encryption architecture:** the
+diagram below shows a request flowing from a client through a private VPC
+endpoint to SageMaker/Bedrock, encrypted in transit via TLS the whole way,
+down to S3 storage encrypted at rest via a customer managed KMS key, with
+every key operation logged to CloudTrail:
+
+```mermaid
+graph LR
+    CLIENT["Client / application"] -. "TLS/HTTPS (in transit)" .-> VPCE["Interface VPC endpoint\n(AWS PrivateLink)"]
+    VPCE -. "TLS/HTTPS (in transit)" .-> SM["Amazon SageMaker"]
+    VPCE -. "TLS/HTTPS (in transit)" .-> BR["Amazon Bedrock"]
+    SM -. "TLS/HTTPS (in transit)" .-> S3["Amazon S3\n(training data & model artifacts)"]
+    BR -. "TLS/HTTPS (in transit)" .-> S3
+    S3 --> KMS["AWS KMS\ncustomer managed key (CMK)\nencrypts data at rest"]
+    SM --> KMS
+    BR --> KMS
+    KMS -. "key usage logged to" .-> CT["AWS CloudTrail"]
+```
 
 ### Source citation and data lineage
 - **Source citation / attribution**: Retrieval-Augmented Generation (RAG)

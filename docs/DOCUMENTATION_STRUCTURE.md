@@ -36,7 +36,7 @@ Five exam domains totaling 100% coverage:
 
 5. **Domain 5 — Security, Compliance, and Governance for AI Solutions (~14%):** Securing AI systems (IAM roles/policies, least privilege, execution roles, encryption at rest/transit, KMS/CMKs, PrivateLink/VPC endpoints, source citation, data lineage), AWS compliance (AWS Artifact, GDPR, HIPAA/BAA), governance services (CloudTrail, Config, Audit Manager), data governance (data lifecycle, data residency, data monitoring with Macie/GuardDuty), shared responsibility model (AWS "of the cloud," customer "in the cloud").
 
-**Structural gaps:** No integrated concept map showing how Domain 1 fundamentals (e.g., model evaluation) flow into Domain 3 applications or Domain 4 responsible AI concerns. No exam preparation guide, no quick-reference cheat sheet, no mock exam, no cross-domain scenario questions.
+**Structural gaps:** No integrated concept map showing how Domain 1 fundamentals (e.g., model evaluation) flow into Domain 3 applications or Domain 4 responsible AI concerns. No exam preparation guide, no quick-reference cheat sheet, no mock exam.
 
 ## Content Health
 
@@ -50,7 +50,7 @@ Five exam domains totaling 100% coverage:
 
 **Missing examples:** Each section has one "AWS example," but no deep end-to-end case study showing a single company's AI evolution through multiple domains. No code examples (appropriate for exam prep, but limits hands-on learning).
 
-**Missing self-assessment:** Practice questions lack difficulty levels (beginner/intermediate/advanced). No cross-domain questions (e.g., "choose a [D3] customization method that meets [D5] security requirements"). No mock exam simulating real exam length/time. No answer analytics or topic-difficulty data.
+**Missing self-assessment:** No mock exam simulating real exam length/time. No answer analytics or topic-difficulty data.
 
 **Test coverage gaps:** Domain 5 has no `test_domain_5_study_guide.py` file; Domains 1–4 do. Domain 5 glossary heading is "Key terms" instead of "Key terms glossary," creating inconsistency with D1–D4 and would fail any unified test.
 

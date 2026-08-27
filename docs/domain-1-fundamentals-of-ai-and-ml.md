@@ -27,8 +27,11 @@ paradigms, where AI/ML solves real business problems, which AWS managed
 service maps to which problem, and how to tell — using basic metrics — whether
 a model is any good.
 
-This domain matters because every later domain (generative AI, foundation
-model applications, responsible AI, and security/governance) assumes you
+This domain matters because every later domain
+([generative AI](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts),
+[foundation model applications](domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications),
+[responsible AI](domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai), and
+[security/governance](domain-5-security-compliance-governance.md#1-securing-ai-systems)) assumes you
 already have this vocabulary and mental model. Questions here are rarely
 about memorizing an API call; they are scenario-based ("a company wants to
 do X — which AWS service and which technique fit?") and reward being able to
@@ -59,8 +62,8 @@ unstructured data like images, audio, and text.
 **Generative AI (GenAI)** is a further subset of DL that focuses on models
 (often foundation models built on the transformer architecture) that
 *generate* new content — text, images, code, audio — rather than only
-predicting a label or a number. Generative AI is covered in depth in Domain
-2, but you should know it nests inside DL, which nests inside ML, which
+predicting a label or a number. Generative AI is covered in depth in
+[Domain 2](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts), but you should know it nests inside DL, which nests inside ML, which
 nests inside AI:
 
 ```

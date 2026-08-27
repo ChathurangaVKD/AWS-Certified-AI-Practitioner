@@ -31,7 +31,7 @@ between a model's raw performance and how explainable/interpretable it is
 for a given use case.
 
 This domain matters because responsible AI is not an afterthought bolted
-onto Domains 1–3 — it's tested as a first-class concern the exam expects
+onto [Domain 1](domain-1-fundamentals-of-ai-and-ml.md)–[Domain 3](domain-3-applications-of-foundation-models.md) — it's tested as a first-class concern the exam expects
 you to weigh in almost any scenario involving real users, regulated
 industries, or generated content. Questions here are rarely about writing
 code; they are scenario-based ("a company is concerned about X — which

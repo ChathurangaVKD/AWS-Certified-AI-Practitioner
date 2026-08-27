@@ -54,6 +54,15 @@ focus areas, the recommended domain reading order and why it matters, every
 domain's "Exam tip" callouts consolidated into one list of common traps,
 and 1-week/2-week/4-week study plans.
 
+## Full-length mock exam
+
+Ready to rehearse actual exam conditions? See
+[`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) for a
+65-question, 90-minute mock exam weighted across all five domains in the
+same proportions as the real exam (~20%/24%/28%/14%/14%), mixed in
+exam-like order rather than grouped by domain, with timing guidance and a
+full answer key with explanations.
+
 ## Status
 
 This series is generated and kept current by gd-autopilot's own

@@ -340,6 +340,47 @@ simply re-sync the S3 data source instead of retraining anything.
 > doesn't inherently reduce hallucination on facts outside the fine-tuning
 > data.
 
+#### Mini-quiz: Test your understanding of RAG and Amazon Bedrock Knowledge Bases
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which two foundation model limitations does RAG directly address?
+   A. High inference cost and slow latency
+   B. Stale knowledge and hallucination
+   C. Limited context window and lack of multimodal support
+   D. Prompt injection and toxic output
+
+   **Answer: B** — RAG grounds generation in retrieved, authoritative
+   source text, which directly counters a model's training-data cutoff
+   (stale knowledge) and its tendency to confidently generate incorrect
+   information (hallucination).
+
+2. In the RAG pipeline, what is the purpose of the chunking step?
+   A. Converting text into numeric vectors
+   B. Splitting documents into smaller passages so retrieval can return
+      focused, relevant sections
+   C. Storing embeddings in a vector database for fast similarity search
+   D. Generating the final answer grounded in retrieved context
+
+   **Answer: B** — Chunking splits source documents into smaller passages
+   *before* embedding, so retrieval returns focused sections instead of
+   entire documents; converting to vectors is embedding (A), storing them
+   is indexing (C), and producing the final answer is generation (D).
+
+3. Which Amazon Bedrock Knowledge Bases API call lets an application send a
+   user question and receive an answer generated from automatically
+   retrieved context in a single call?
+   A. Retrieve
+   B. RetrieveAndGenerate
+   C. InvokeModel
+   D. CreateKnowledgeBase
+
+   **Answer: B** — `RetrieveAndGenerate` performs the retrieval-plus-
+   prompting-plus-generation steps together; `Retrieve` (A) only returns
+   the matching chunks without generating an answer, and the other two
+   options aren't Knowledge Bases retrieval/generation calls.
+
 ---
 
 ## 4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering
@@ -464,6 +505,49 @@ language before fine-tuning on top of it.
 > input/output pairs; continued pre-training needs only unlabeled
 > domain text** — that labeled-vs-unlabeled distinction is exactly what
 > the exam tests between these two.
+
+#### Mini-quiz: Test your understanding of customization approach trade-offs
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which customization approach requires **labeled** input/output example
+   pairs to update the model's weights toward a specific task or style?
+   A. Prompt engineering
+   B. RAG
+   C. Fine-tuning
+   D. None of these change the model's weights
+
+   **Answer: C** — Fine-tuning trains a copy of a pretrained FM on a
+   smaller, labeled dataset of input/output examples, updating its weights
+   for a specific behavior; prompt engineering and RAG never touch the
+   model's weights at all.
+
+2. Which approach trains on a large volume of **unlabeled** domain-specific
+   text using the original self-supervised pretraining objective, to
+   deepen a model's general domain fluency rather than teach one task?
+   A. RAG
+   B. Continued pre-training
+   C. Prompt engineering
+   D. Fine-tuning
+
+   **Answer: B** — Continued pre-training deepens domain knowledge and
+   vocabulary using large volumes of unlabeled text, unlike fine-tuning,
+   which needs labeled task-specific examples.
+
+3. A company wants a generative AI assistant to always reflect the latest
+   version of a product catalog that changes daily, without retraining a
+   model every day. Which approach best fits?
+   A. Fine-tuning
+   B. Continued pre-training
+   C. RAG
+   D. Prompt engineering alone, with no external data
+
+   **Answer: C** — RAG retrieves current external data at query time
+   without any retraining, exactly fitting a frequently changing data
+   source; fine-tuning and continued pre-training both bake knowledge into
+   static weights that would need daily retraining to stay current.
+
 ---
 
 ## 5. Amazon Bedrock features
@@ -536,6 +620,46 @@ throughput** instead of paying on-demand rates.
 > **provisioned throughput**; "unpredictable/low/spiky volume, pay only
 > for what's used" → **on-demand**.
 
+#### Mini-quiz: Test your understanding of Amazon Bedrock features
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which Bedrock feature lets an FM plan a multi-step task and invoke
+   external APIs via action groups?
+   A. Guardrails for Amazon Bedrock
+   B. Amazon Bedrock Agents
+   C. Amazon Bedrock model evaluation
+   D. Provisioned throughput
+
+   **Answer: B** — Agents orchestrate multi-step tasks by letting an FM
+   reason about a request, break it into steps, and invoke external action
+   groups (API calls via Lambda) and Knowledge Bases.
+
+2. Which Bedrock capability blocks denied topics and filters sensitive
+   information (PII) from a model's inputs and outputs?
+   A. Amazon Bedrock Knowledge Bases
+   B. Amazon Bedrock Agents
+   C. Guardrails for Amazon Bedrock
+   D. Model access
+
+   **Answer: C** — Guardrails is the configurable safety layer covering
+   denied topics, content filters, word filters, PII filters, and
+   contextual grounding checks.
+
+3. A team expects high, steady, predictable request volume for a custom
+   fine-tuned model in production and wants guaranteed, consistent
+   throughput. Which capacity option should they choose?
+   A. On-demand pricing
+   B. Provisioned throughput
+   C. Automatic model evaluation
+   D. Requesting model access
+
+   **Answer: B** — Provisioned throughput purchases dedicated inference
+   capacity for a commitment period, guaranteeing consistent
+   throughput/latency, and is generally the required and cost-effective
+   choice for high, steady, predictable volume on a custom model.
+
 ---
 
 ## 6. Vector databases and embeddings for search and retrieval
@@ -593,6 +717,48 @@ and points it at those repositories directly.
 > embeddings, that's **Amazon Kendra** — a fully managed enterprise search
 > service, not a database you architect yourself.
 
+#### Mini-quiz: Test your understanding of vector databases and embeddings
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. What mechanism does a vector database use to find the stored vectors
+   closest to a query vector?
+   A. Exact keyword matching only
+   B. Similarity search (e.g., k-nearest-neighbor / k-NN)
+   C. Chain-of-thought reasoning
+   D. Prompt templating
+
+   **Answer: B** — Vector databases perform similarity search (commonly
+   k-NN using cosine similarity or Euclidean distance) to find vectors
+   close to a query vector, which is the mechanism behind semantic search.
+
+2. A team already runs its data in Amazon Aurora PostgreSQL and wants to
+   add vector similarity search without adopting a separate dedicated
+   search service. Which option fits best?
+   A. Amazon Kendra
+   B. Amazon Aurora (PostgreSQL-compatible) with the pgvector extension
+   C. AWS Trainium
+   D. Amazon Bedrock Agents
+
+   **Answer: B** — pgvector lets the team store embeddings as a column
+   type directly inside the PostgreSQL database they already operate and
+   query them with SQL, avoiding a new dedicated service.
+
+3. Which AWS service handles embedding, ranking, and relevance internally,
+   making it the right fit for natural-language search across existing
+   enterprise document repositories without building a custom embeddings
+   pipeline?
+   A. Amazon OpenSearch Service
+   B. Amazon Aurora with pgvector
+   C. Amazon Kendra
+   D. AWS Inferentia
+
+   **Answer: C** — Amazon Kendra is a fully managed enterprise search
+   service that indexes documents from connectors like S3 and SharePoint
+   and handles embeddings and relevance internally, so no custom pipeline
+   is required.
+
 ---
 
 ## 7. Evaluating foundation model performance
@@ -644,6 +810,45 @@ successful, regardless of how well the model scored on benchmarks.
 > human evaluation; a question about "did this actually help the
 > business" points to a business metric.
 
+#### Mini-quiz: Test your understanding of evaluating foundation model performance
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which evaluation approach uses standardized datasets paired with
+   automatically computable metrics such as accuracy or F1 score?
+   A. Human evaluation
+   B. Benchmark datasets
+   C. Business metrics
+   D. Provisioned throughput
+
+   **Answer: B** — Benchmark datasets are standardized, often public
+   datasets paired with automatically computable metrics used to score a
+   model objectively and reproducibly.
+
+2. Which of the three evaluation layers is tied directly to organizational
+   outcomes rather than to model output quality itself?
+   A. Benchmark datasets
+   B. Human evaluation
+   C. Business metrics
+   D. Automatic model evaluation
+
+   **Answer: C** — Business metrics (e.g., CSAT, task completion rate,
+   cost per interaction) measure real-world outcome impact; a model can
+   score well on benchmarks or human evaluation yet still fail to move the
+   business metric it was built for.
+
+3. A team wants to judge tone and creativity — criteria that are hard to
+   compute automatically. Which evaluation approach fits best?
+   A. Benchmark datasets
+   B. Human evaluation
+   C. Business metrics
+   D. Automatic evaluation only
+
+   **Answer: B** — Human evaluation uses people to score outputs on
+   subjective criteria like tone and creativity that automatic metrics
+   can't capture.
+
 ---
 
 ## 8. AWS infrastructure for generative AI workloads
@@ -689,6 +894,46 @@ infrastructure directly, a different team at the same company uses
 > learning workloads specifically — pick Trainium/Inferentia over generic
 > EC2 GPU instances when a scenario emphasizes minimizing the cost of
 > training or serving large models at scale.
+
+#### Mini-quiz: Test your understanding of AWS infrastructure for generative AI workloads
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which purpose-built AWS chip is optimized specifically for
+   high-performance, cost-efficient **training** of deep learning and
+   foundation models at scale?
+   A. AWS Inferentia
+   B. AWS Trainium
+   C. AWS Graviton
+   D. AWS Nitro
+
+   **Answer: B** — Trainium is purpose-built for high-performance,
+   cost-efficient training, available via EC2 Trn1/Trn2 instances.
+
+2. Which purpose-built AWS chip is optimized specifically for
+   high-throughput, low-latency, cost-efficient **inference**?
+   A. AWS Trainium
+   B. AWS Inferentia
+   C. AWS Graviton
+   D. AWS Nitro
+
+   **Answer: B** — Inferentia is purpose-built for high-throughput,
+   low-latency, cost-efficient inference, available via EC2 Inf1/Inf2
+   instances; Trainium (A) targets training, not inference.
+
+3. Which AWS service provides a hub of pretrained foundation models and
+   pre-built solution templates that can be deployed or fine-tuned with
+   more direct control over hosting than Amazon Bedrock's fully managed
+   API?
+   A. Amazon Bedrock Knowledge Bases
+   B. Amazon SageMaker JumpStart
+   C. Amazon Kendra
+   D. AWS Neuron SDK
+
+   **Answer: B** — SageMaker JumpStart offers pretrained models and
+   templates deployable/fine-tunable with more control over hosting (e.g.,
+   a specific instance type or a model not available on Bedrock).
 
 ---
 

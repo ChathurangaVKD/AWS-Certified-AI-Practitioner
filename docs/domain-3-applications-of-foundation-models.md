@@ -284,6 +284,49 @@ single spectrum and pick the right one for a scenario:
   data- and compute-intensive than fine-tuning and doesn't require labeled
   input/output pairs.
 
+**Visual summary — comparison matrix:** the diagram below lines up all
+four approaches side by side across the five dimensions the exam tests
+most (cost, complexity, accuracy, speed to implement, and data
+requirements), so the trade-offs can be scanned at a glance instead of
+re-reading the narrative above:
+
+```mermaid
+graph LR
+    subgraph PE["Prompt engineering"]
+        PE_COST["Cost: Lowest"]
+        PE_COMPLEXITY["Complexity: Lowest -\nno training pipeline"]
+        PE_ACCURACY["Accuracy: Limited by base\nmodel + context window"]
+        PE_SPEED["Speed: Fastest -\nminutes to iterate"]
+        PE_DATA["Data: None beyond\nthe prompt itself"]
+    end
+
+    subgraph RAG_G["RAG"]
+        RAG_COST["Cost: Low"]
+        RAG_COMPLEXITY["Complexity: Low/medium -\nretrieval pipeline to build"]
+        RAG_ACCURACY["Accuracy: High for current/\nproprietary, grounded facts"]
+        RAG_SPEED["Speed: Fast -\nhours to days to stand up"]
+        RAG_DATA["Data: Unlabeled external\nknowledge source (documents)"]
+    end
+
+    subgraph FT["Fine-tuning"]
+        FT_COST["Cost: High"]
+        FT_COMPLEXITY["Complexity: High -\ntraining job + ML expertise"]
+        FT_ACCURACY["Accuracy: High for the\nspecific trained task/style"]
+        FT_SPEED["Speed: Slow -\ndays to weeks per training run"]
+        FT_DATA["Data: Labeled\ninput/output example pairs"]
+    end
+
+    subgraph CPT["Continued pre-training"]
+        CPT_COST["Cost: Highest"]
+        CPT_COMPLEXITY["Complexity: Highest -\nlarge-scale self-supervised training"]
+        CPT_ACCURACY["Accuracy: Deepens domain\nfluency, not one specific task"]
+        CPT_SPEED["Speed: Slowest -\nweeks or more"]
+        CPT_DATA["Data: Large volume of\nunlabeled domain-specific text"]
+    end
+
+    PE --> RAG_G --> FT --> CPT
+```
+
 **How to decide:**
 
 | Need | Best fit |

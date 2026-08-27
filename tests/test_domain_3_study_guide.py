@@ -156,6 +156,47 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
             "?", diagram, "diagram should pose branching decision questions"
         )
 
+    def test_customization_section_has_a_visual_comparison_matrix(self):
+        # Regression guard: Section 4 originally compared the four
+        # customization approaches in narrative form only. A Mermaid
+        # visual matrix should let all four approaches be scanned at a
+        # glance across cost, complexity, accuracy, speed, and data
+        # requirements.
+        section = _section(
+            self.text,
+            r"\n## 4\. Fine-tuning vs\. continued pre-training vs\. RAG vs\. prompt engineering",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "customization section should include a Mermaid visual "
+            "comparison matrix in addition to the decision-tree diagram",
+        )
+        matrix_fences = [f for f in fences if "PROMPT ENGINEERING" not in f]
+        self.assertTrue(
+            matrix_fences,
+            "expected a Mermaid diagram distinct from the decision tree "
+            "to serve as the comparison matrix",
+        )
+        matrix = "\n".join(matrix_fences)
+        for approach in [
+            "Prompt engineering",
+            "RAG",
+            "Fine-tuning",
+            "Continued pre-training",
+        ]:
+            with self.subTest(approach=approach):
+                self.assertIn(approach, matrix)
+        for dimension in [
+            "Cost",
+            "Complexity",
+            "Accuracy",
+            "Speed",
+            "Data",
+        ]:
+            with self.subTest(dimension=dimension):
+                self.assertIn(dimension, matrix)
+
     def test_has_every_required_topic_section(self):
         for heading in REQUIRED_TOPIC_HEADINGS:
             with self.subTest(heading=heading):

@@ -65,5 +65,33 @@ class TestDomain5SharedResponsibilityDiagram(unittest.TestCase):
                 self.assertIn(term, diagram)
 
 
+class TestDomain5GovernanceDecisionTree(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+
+    def test_governance_section_has_a_decision_tree(self):
+        section = _section(
+            self.text,
+            r"\n## 3\. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance",
+        )
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "governance services section should include a decision-tree diagram",
+        )
+        diagram = "\n".join(fences)
+        for term in [
+            "AWS CloudTrail",
+            "AWS Config",
+            "AWS Audit Manager",
+            "API activity",
+            "configuration compliance",
+            "audit-ready evidence report",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+
+
 if __name__ == "__main__":
     unittest.main()

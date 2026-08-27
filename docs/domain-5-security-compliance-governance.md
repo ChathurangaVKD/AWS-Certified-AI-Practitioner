@@ -220,6 +220,21 @@ service tells you a specific S3 bucket became publicly accessible three
 days ago" is AWS Config (configuration history), not CloudTrail (which
 would show the *API call* that changed it, but not evaluate compliance).
 
+```
+NEED TO ANSWER: which governance/monitoring service applies?
+│
+├─ "Who called this API, and when?" (API activity / who-did-what)
+│   → AWS CloudTrail
+│
+├─ "Is this resource's configuration compliant, and did it drift
+│   out of compliance over time?" (configuration compliance checks)
+│   → AWS Config
+│
+└─ "Can I produce an audit-ready evidence report mapped to a
+    compliance framework (HIPAA, ISO 27001, GDPR, etc.)?"
+    → AWS Audit Manager (built on evidence from CloudTrail and Config)
+```
+
 ## 4. Data governance strategies
 
 ### Data lifecycle

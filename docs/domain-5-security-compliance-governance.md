@@ -72,6 +72,12 @@ another AWS service on a customer's behalf, the answer is almost always
 "attach an IAM role to the service" — not "embed an access key," which is
 an anti-pattern AWS never recommends.
 
+**IAM Access Analyzer** complements this by continuously analyzing
+resource-based policies (like an S3 bucket policy or Bedrock model resource
+policy) to identify resources shared with an external entity — helping
+validate that least-privilege IAM configurations for AI workloads aren't
+unintentionally broader than intended.
+
 ### Data encryption at rest and in transit
 - **Encryption at rest** protects stored data (S3 objects, SageMaker
   model artifacts, EBS volumes, Bedrock fine-tuning data). AWS Key
@@ -143,6 +149,97 @@ output* (RAG citing documents); data lineage is about *tracing a
 dataset/model's history for governance*. Don't conflate the two — the
 exam tests both as distinct concepts under "transparency."
 
+### Common security threats to AI systems and how to mitigate them
+AI/ML systems face threats beyond traditional application security, because
+the *data* and the *model* are themselves attack surfaces, and outputs are
+often non-deterministic. The exam expects you to recognize each threat by
+description and know the general mitigation category (AWS best practice or
+MLOps practice), not implement a fix yourself.
+- **Data poisoning** — an attacker deliberately corrupts training (or
+  fine-tuning) data so the resulting model behaves incorrectly or
+  maliciously. Mitigate with strict access controls on training data (IAM,
+  S3 bucket policies), data validation/provenance checks, and dataset
+  versioning so a poisoned version can be identified and rolled back.
+- **Prompt injection** — malicious input tries to override a model's or
+  application's original instructions (directly, in the user's prompt, or
+  indirectly, hidden in a retrieved document in a RAG pipeline). Mitigate
+  with **Guardrails for Amazon Bedrock** (content filters, denied topics,
+  contextual grounding checks) and by treating retrieved content as
+  untrusted input, not instructions.
+- **Model inversion / extraction attacks** — an adversary sends many
+  crafted queries to a deployed model to try to reconstruct training data
+  or replicate the model itself. Mitigate with request throttling/rate
+  limiting, output filtering, and least-privilege access to inference
+  endpoints.
+- **Model performance degradation over time (model/data drift)** — a
+  model's real-world accuracy erodes as production data distributions
+  diverge from training data. Mitigate with continuous monitoring (Amazon
+  CloudWatch, SageMaker Model Monitor) and a retraining pipeline as part of
+  MLOps practice.
+
+AI-specific security also differs from traditional software security in a
+key way: traditional software is deterministic (the same input always
+produces the same output, so signature-based defenses work well), while AI
+systems are often **non-deterministic** — the same prompt can yield
+different outputs on different runs — which means security controls must
+focus on the data pipeline and inference interface, not just static code
+scanning. Security considerations also span the AI system's stages:
+**development** (secure data engineering — vetting the source, versioning,
+and integrity of training data), **deployment** (IAM, encryption, and
+network isolation, covered above), and **monitoring** (detecting anomalous
+invocation patterns, [Section 4](#data-monitoring)). Guardrails for Amazon
+Bedrock can also apply different controls (blocking, filtering) to
+different content types/modalities it supports (e.g., text and image),
+letting teams tune enforcement per content type rather than applying one
+blanket rule.
+
+**Example:** A company builds a RAG chatbot over public web documents. An
+attacker plants hidden text in a web page instructing the model to reveal
+confidential system prompts. This is an **indirect prompt injection**
+attack; configuring Guardrails for Amazon Bedrock to filter suspicious
+instructions in retrieved content is a direct mitigation.
+
+**Exam tip:** Distinguish the threats by *what* is attacked: data
+poisoning corrupts training data, prompt injection hijacks instructions at
+inference time, and model inversion/extraction targets the deployed model
+through its API. Model drift is degradation, not an attack — the
+mitigation (monitoring + retraining) is different from the mitigation for
+the other three (access control, input/output filtering).
+
+### Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications
+Two industry frameworks help teams reason about AI-specific threats
+systematically, and the exam expects you to recognize them by name and
+purpose:
+- **MITRE ATLAS** (Adversarial Threat Landscape for Artificial-Intelligence
+  Systems) is a knowledge base of adversary tactics and techniques against
+  AI systems, modeled on the well-known MITRE ATT&CK framework for
+  traditional IT systems. It catalogs real-world attack patterns like data
+  poisoning and model evasion so defenders can map their own AI system's
+  exposure.
+- **OWASP Top 10 for Large Language Model Applications** is a
+  community-maintained list of the most critical security risks specific
+  to LLM-based applications (e.g., prompt injection, insecure output
+  handling, training data poisoning, model denial of service) — the
+  generative-AI counterpart to the well-known OWASP Top 10 for web
+  applications.
+
+Both frameworks are used to *apply* structured thinking to AI security, a
+distinct exam skill from *knowing* the underlying threats (previous
+subsection).
+
+**Example:** A security team building a Bedrock-powered support agent
+wants a checklist of generative-AI-specific risks to test for before
+launch. They use the OWASP Top 10 for LLM Applications as that checklist,
+and reference MITRE ATLAS to understand how each risk could realistically
+be exploited.
+
+**Exam tip:** If a question describes *cataloging adversary
+tactics/techniques* against AI systems generally, it's MITRE ATLAS; if it
+describes a *prioritized risk checklist specifically for LLM
+applications*, it's the OWASP Top 10 for LLM Applications. Neither is an
+AWS service — both are external, vendor-neutral frameworks the exam
+expects you to recognize by name.
+
 ## 2. AWS compliance standards relevant to AI workloads
 
 ### AWS Artifact
@@ -183,6 +280,56 @@ exam — you need to know *what they protect and why AWS Artifact matters*,
 not clause-by-clause legal detail. If a question mentions PHI, think BAA
 + HIPAA-eligible services. If it mentions EU citizens' personal data,
 think GDPR + data residency + Regions.
+
+### NIST AI Risk Management Framework (AI RMF) — conceptual level
+A **voluntary** framework published by the US National Institute of
+Standards and Technology (NIST) to help organizations manage risk
+throughout an AI system's lifecycle. It is organized around four core
+functions: **Govern** (cultivate a risk-management culture), **Map**
+(identify context and risks), **Measure** (assess and track risks), and
+**Manage** (prioritize and respond to risks). Unlike a law, the NIST AI
+RMF is guidance an organization chooses to adopt — it is not legally
+binding.
+
+### EU AI Act — conceptual level
+A **binding** European Union regulation (distinct from GDPR, which governs
+personal data broadly) that specifically regulates AI systems by
+classifying them into risk tiers — **unacceptable risk** (banned),
+**high risk** (subject to strict requirements like risk management, data
+governance, human oversight, and documentation), **limited risk**
+(subject to transparency obligations, e.g., disclosing that content is
+AI-generated), and **minimal risk** (largely unregulated). The exam
+expects you to recognize the EU AI Act as risk-tiered AI-specific
+regulation, distinct from GDPR's focus on personal data protection.
+
+### ISO/IEC 42001 and the Algorithmic Accountability Act — conceptual level
+- **ISO/IEC 42001** is an international standard for an **AI management
+  system (AIMS)** — a certifiable set of processes for governing AI
+  responsibly throughout its lifecycle, conceptually similar to how ISO
+  27001 certifies an information security management system. An
+  organization can pursue ISO/IEC 42001 certification to demonstrate a
+  mature AI governance program.
+- The **Algorithmic Accountability Act** is proposed US legislation that
+  would require companies to conduct and report **impact assessments** for
+  automated decision systems, evaluating them for bias, effectiveness, and
+  other risks before and during deployment. It illustrates the *direction*
+  of AI-specific legislation rather than being in force everywhere — the
+  exam tests recognition of the concept, not its legal status.
+
+**Example:** A multinational company deploying a high-risk AI hiring tool
+in the EU must comply with the EU AI Act's high-risk obligations
+(documentation, human oversight); pursuing ISO/IEC 42001 certification is
+a voluntary step that helps demonstrate a mature governance program to
+regulators and customers, while the NIST AI RMF offers a voluntary process
+framework the company could use internally to structure that governance
+work.
+
+**Exam tip:** Keep the type straight: **GDPR** and the **EU AI Act** are
+binding EU *laws*; **HIPAA** is a binding US *law*; the **NIST AI RMF** and
+**ISO/IEC 42001** are *voluntary* frameworks/standards an organization
+chooses to adopt; the **Algorithmic Accountability Act** is *proposed*
+(not-yet-binding) US legislation. A question asking "which of these is
+legally mandatory" hinges on this distinction.
 
 ## 3. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance
 
@@ -343,6 +490,18 @@ regardless of how managed the service is.
 | Amazon GuardDuty | Continuous threat/anomaly detection | "Is there malicious activity in my account?" | Detect compromised credentials being used to access AI resources |
 | AWS Artifact | On-demand access to AWS compliance reports & agreements (e.g., BAA) | "Where do I get AWS's own compliance certifications or sign a BAA?" | Download SOC 2 report or execute a HIPAA BAA |
 | AWS PrivateLink / VPC endpoints | Keep traffic to AWS services off the public internet | "How do I call an AWS AI service privately from my VPC?" | Private connectivity from a SageMaker notebook to Bedrock Runtime |
+| AWS IAM Access Analyzer | Identifies resources shared with external principals; validates least-privilege policies | "Does this IAM or resource policy grant broader access than intended?" | Confirm a Bedrock model resource policy or S3 training-data bucket isn't unintentionally shared externally |
+
+## Comparison table: governance and compliance regulations at a glance
+
+| Regulation / framework | Type | Scope | Key AIF-C01-relevant idea |
+|---|---|---|---|
+| GDPR | Binding EU law | Personal data of EU/EEA individuals | Data controller/processor roles; data residency in EU Regions |
+| HIPAA | Binding US law | Protected health information (PHI) | Requires a BAA (via AWS Artifact) and HIPAA-eligible services |
+| EU AI Act | Binding EU law | AI systems, tiered by risk | Risk-based obligations: unacceptable/high/limited/minimal risk |
+| NIST AI Risk Management Framework (AI RMF) | Voluntary US framework | AI risk management process | Govern, Map, Measure, Manage functions |
+| ISO/IEC 42001 | Voluntary international standard | AI management system (AIMS) processes | Certifiable AI governance program, analogous to ISO 27001 |
+| Algorithmic Accountability Act | Proposed US legislation | Automated decision systems | Would require algorithmic impact assessments |
 
 ## Key terms glossary
 
@@ -372,6 +531,15 @@ regardless of how managed the service is.
 - **Data sovereignty** — The principle that data is subject to the laws of the country in which it is located.
 - **Shared responsibility model** — The division of security duties between AWS ("of the cloud") and the customer ("in the cloud").
 - **PII (Personally Identifiable Information)** — Data that can identify a specific individual.
+- **Data poisoning** — An attack where training or fine-tuning data is deliberately corrupted to manipulate a model's behavior.
+- **Model inversion (attack)** — An attack where an adversary uses crafted queries against a deployed model to try to reconstruct training data or replicate the model.
+- **MITRE ATLAS** — A knowledge base of adversary tactics and techniques against AI systems, modeled on MITRE ATT&CK.
+- **OWASP Top 10 for LLM Applications** — A prioritized list of the top security risks specific to large language model applications, such as prompt injection and training data poisoning.
+- **IAM Access Analyzer** — An IAM feature that identifies resources (e.g., S3 buckets, Bedrock model resource policies) shared with entities outside your AWS account or organization.
+- **NIST AI Risk Management Framework (AI RMF)** — A voluntary US framework (Govern, Map, Measure, Manage) for managing risk throughout an AI system's lifecycle.
+- **EU AI Act** — A binding EU regulation that classifies AI systems into risk tiers (unacceptable, high, limited, minimal) and imposes obligations scaled to risk.
+- **ISO/IEC 42001** — An international standard for a certifiable AI management system (AIMS), conceptually similar to ISO 27001 for information security.
+- **Algorithmic Accountability Act** — Proposed US legislation that would require impact assessments for automated decision systems.
 
 ## Practice questions
 
@@ -496,6 +664,42 @@ regardless of how managed the service is.
     C. Rely on AWS Artifact to restrict access automatically
     D. Disable IAM entirely and use only network-level controls
 
+21. **[Intermediate]** An attacker gains write access to a company's training data S3 bucket and subtly alters labels to bias a fraud-detection model. Which type of attack is this, and what is a primary AWS-based mitigation?
+    A. Prompt injection; mitigate with Guardrails for Amazon Bedrock
+    B. Data poisoning; mitigate with strict IAM/S3 bucket access controls and dataset versioning
+    C. Model inversion; mitigate with request throttling
+    D. Model drift; mitigate with SageMaker Model Monitor
+
+22. **[Intermediate]** A RAG-based chatbot retrieves and summarizes public web pages. An attacker embeds hidden text in a web page instructing the model to ignore its system prompt and reveal internal data. What is this attack called, and which AWS capability most directly helps mitigate it?
+    A. Data poisoning; AWS Config
+    B. Model inversion; Amazon Macie
+    C. Indirect prompt injection; Guardrails for Amazon Bedrock
+    D. Model drift; Amazon CloudWatch
+
+23. **[Beginner]** Which of the following best distinguishes MITRE ATLAS from the OWASP Top 10 for Large Language Model Applications?
+    A. They are identical frameworks published by the same organization
+    B. MITRE ATLAS is a broad knowledge base of adversary tactics/techniques against AI systems; the OWASP Top 10 for LLM Applications is a prioritized list of top risks specific to LLM applications
+    C. MITRE ATLAS is an AWS service; OWASP Top 10 is a compliance law
+    D. OWASP Top 10 for LLM Applications only applies to image-generation models
+
+24. **[Intermediate]** A security team wants to confirm that no S3 bucket holding SageMaker training data, and no Bedrock model resource policy, has been unintentionally shared with an AWS account outside their organization. Which service is purpose-built for this check?
+    A. AWS Audit Manager
+    B. AWS IAM Access Analyzer
+    C. Amazon Macie
+    D. AWS Config
+
+25. **[Intermediate]** Which statement correctly distinguishes the NIST AI Risk Management Framework (AI RMF) from the EU AI Act?
+    A. Both are legally binding laws enforced identically worldwide
+    B. The NIST AI RMF is a voluntary US framework for managing AI risk; the EU AI Act is a binding EU regulation that imposes risk-tiered legal obligations on AI systems
+    C. The NIST AI RMF only applies to healthcare AI; the EU AI Act only applies to financial AI
+    D. The EU AI Act is voluntary guidance; the NIST AI RMF is binding law
+
+26. **[Advanced]** A company deploying a high-risk AI-powered hiring tool in the EU wants to (1) meet its legal obligations and (2) demonstrate a mature, certifiable AI governance program to customers. Which pairing correctly matches each need?
+    A. (1) ISO/IEC 42001 certification is legally required; (2) the EU AI Act is optional
+    B. (1) Comply with the EU AI Act's high-risk obligations (binding law); (2) pursue ISO/IEC 42001 certification (voluntary standard)
+    C. (1) and (2) are both satisfied solely by executing a BAA via AWS Artifact
+    D. (1) and (2) are both satisfied solely by enabling AWS Config
+
 ---
 
 ## Answer key
@@ -520,6 +724,12 @@ regardless of how managed the service is.
 18. **B.** An interface VPC endpoint for Bedrock Runtime, backed by AWS PrivateLink, keeps that traffic off the public internet even from a VPC connected to on-premises infrastructure. A NAT gateway (A) still routes through the public internet; a public S3 bucket (C) is unrelated and insecure; "AWS Artifact private connectivity mode" (D) does not exist.
 19. **B.** Config tracks resource configuration state and evaluates compliance rules over time; CloudTrail logs the underlying API call activity. (A) reverses the definitions; (C) and (D) misstate their scope and purpose.
 20. **B.** Least privilege via a policy scoped to the specific model ARN and only the needed action (`bedrock:InvokeModel`) is the correct approach. `AdministratorAccess` (A) grossly over-grants; AWS Artifact (C) has no access-restriction function; disabling IAM (D) is not possible and would remove all access control.
+21. **B.** This is data poisoning — the attacker corrupted training data itself. Restricting IAM/S3 access to the training data bucket and maintaining dataset versioning lets the team detect and roll back a poisoned dataset; prompt injection (A) targets inference-time instructions, model inversion (C) targets a deployed model's API, and model drift (D) is gradual degradation, not an attack.
+22. **C.** Hiding malicious instructions inside retrieved content (rather than the user's own prompt) is indirect prompt injection; Guardrails for Amazon Bedrock can filter suspicious instructions and enforce content/topic policies on both input and output. Data poisoning (A) corrupts training data, model inversion (B) extracts information from a deployed model via queries, and model drift (D) is unrelated to malicious input.
+23. **B.** MITRE ATLAS catalogs adversary tactics and techniques against AI systems broadly (mirroring MITRE ATT&CK for traditional IT); the OWASP Top 10 for LLM Applications is a narrower, prioritized checklist of the top security risks specific to LLM-based applications. Neither is an AWS service (C) or a law, and the OWASP list is not modality-restricted (D).
+24. **B.** AWS IAM Access Analyzer continuously analyzes resource-based policies (S3 bucket policies, Bedrock model resource policies) to flag resources shared with entities outside your account/organization, directly answering "is this over-shared?" Audit Manager (A) assembles compliance evidence, Macie (C) discovers sensitive data content, and Config (D) tracks configuration compliance rather than external-sharing analysis specifically.
+25. **B.** The NIST AI RMF is voluntary US guidance organized around Govern/Map/Measure/Manage; the EU AI Act is a binding EU regulation that classifies AI systems into risk tiers with mandatory obligations for higher-risk systems. (A), (C), and (D) all misstate which one is binding and their scope.
+26. **B.** The EU AI Act's high-risk obligations are legally mandatory for a high-risk AI system operating in the EU, while ISO/IEC 42001 certification is a voluntary standard organizations pursue to demonstrate a mature AI management system. AWS Artifact/BAA (C) relates to HIPAA, not this scenario, and AWS Config (D) doesn't address either legal compliance or certification.
 
 ---
 

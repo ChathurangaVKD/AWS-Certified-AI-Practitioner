@@ -143,7 +143,11 @@ AWS tool/SageMaker capability supports each stage:
 
 This is an **iterative loop**, not a strict waterfall: poor evaluation or
 monitoring results send you back to data collection, feature engineering,
-or retraining.
+or retraining. Step 6 in particular is a **decision point**, not just a
+measurement: if the model *passes* its target metrics it proceeds to
+deployment; if it *fails*, the loop sends it back to feature engineering
+(or earlier) to retrain rather than shipping a model that doesn't meet the
+success criteria defined in step 1.
 
 ```mermaid
 flowchart TD
@@ -152,9 +156,10 @@ flowchart TD
     C --> D["4. Data Preparation / Feature Engineering<br/>SageMaker Data Wrangler · SageMaker Feature Store"]
     D --> E["5. Model Training<br/>SageMaker Training Jobs · JumpStart · Managed Spot Training"]
     E --> F["6. Hyperparameter Tuning / Evaluation<br/>SageMaker Automatic Model Tuning · SageMaker Clarify"]
-    F --> G["7. Deployment<br/>SageMaker Endpoints · Batch Transform · Serverless Inference"]
+    F --> DEC{"Meets target<br/>success metrics?"}
+    DEC -- "Pass" --> G["7. Deployment<br/>SageMaker Endpoints · Batch Transform · Serverless Inference"]
     G --> H["8. Monitoring<br/>SageMaker Model Monitor · Amazon CloudWatch"]
-    F -. "poor evaluation results: retrain" .-> D
+    DEC -. "Fail: poor evaluation results, retrain" .-> D
     H -. "data / concept drift detected" .-> B
     H -. "degraded accuracy: retrain" .-> E
 ```
@@ -175,13 +180,17 @@ rendering:
         ↓
 6. Hyperparameter Tuning / Evaluation
         ↓
-7. Deployment
-        ↓
-8. Monitoring
-        │
-        └──── iterate: drift or degraded accuracy loops back to Data
-              Collection, Feature Engineering, or Model Training ────▶
-              (back to step 2 / 4 / 5)
+   ┌─── Meets target metrics? ───┐
+  PASS                          FAIL
+   ↓                             │
+7. Deployment                    │
+   ↓                             │
+8. Monitoring                    │
+   │                             │
+   └──── iterate: drift or degraded accuracy loops back to Data
+         Collection or Model Training ─────────────────────────▶
+         (back to step 2 / 5); a FAILed evaluation loops back
+         directly to Feature Engineering (step 4) to retrain ──▶
 ```
 
 **AWS example:** A retailer builds a churn-prediction model. They land raw

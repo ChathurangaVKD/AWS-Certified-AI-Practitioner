@@ -202,6 +202,29 @@ The typical RAG pipeline:
    the prompt as context, and the FM generates an answer grounded in that
    context.
 
+**Visual summary — RAG system architecture:** the diagram below traces one
+query end-to-end, from source documents being indexed offline through to a
+cited answer being returned at query time, and marks which AWS service
+typically handles each stage:
+
+```mermaid
+graph TD
+    subgraph Ingestion["Offline: ingestion & indexing"]
+        DOCS["Source documents\n(Amazon S3)"] --> CHUNK["Chunking"]
+        CHUNK --> EMBED1["Embedding model\n(Amazon Titan Text Embeddings /\nCohere Embed on Bedrock)"]
+        EMBED1 --> STORE["Vector store\n(Amazon OpenSearch Serverless/Service,\nAurora + pgvector, or Amazon Kendra)"]
+    end
+
+    subgraph QueryTime["Query time"]
+        USER["User question"] --> EMBED2["Embed the question\n(same embeddings model)"]
+        EMBED2 --> RETRIEVE["Retrieval:\nsimilarity search against\nthe vector store"]
+        STORE -. indexed chunks .-> RETRIEVE
+        RETRIEVE --> AUGMENT["Augmentation:\nretrieved chunks inserted\ninto the prompt as context"]
+        AUGMENT --> LLM["LLM invocation\n(Amazon Bedrock FM)"]
+        LLM --> RESPONSE["Response with citations"]
+    end
+```
+
 **Amazon Bedrock Knowledge Bases** is the fully managed AWS implementation
 of this entire pipeline: point it at a data source (typically an S3
 bucket), and it automatically handles ingestion, chunking, embedding

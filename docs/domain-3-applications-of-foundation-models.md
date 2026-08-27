@@ -337,35 +337,21 @@ graph LR
 | Ground answers in current, frequently changing, or proprietary knowledge without retraining | RAG |
 | Quick behavior adjustment, no training data, lowest cost/fastest to iterate | Prompt engineering |
 
-**Decision tree:**
-```
-        START: need to customize a foundation model's behavior?
-                              │
-                              ▼
-        Q1: Can prompt wording alone get an acceptable result,
-            with no extra data and the lowest cost/fastest iteration?
-              │                                   │
-             YES                                  NO
-              │                                   │
-              ▼                                   ▼
-     PROMPT ENGINEERING              Q2: Do answers need to reflect current,
-                                         frequently changing, or proprietary
-                                         knowledge WITHOUT retraining?
-                                           │                    │
-                                          YES                   NO
-                                           │                    │
-                                           ▼                    ▼
-                                          RAG          Q3: Do you have LABELED
-                                                            input/output examples to
-                                                            teach an exact task,
-                                                            tone, or format?
-                                                              │                │
-                                                             YES               NO
-                                                              │                │
-                                                              ▼                ▼
-                                                       FINE-TUNING     CONTINUED PRE-TRAINING
-                                                                       (large UNLABELED domain
-                                                                        text to deepen vocabulary)
+**Decision tree:** the flowchart below is the fastest way to work an exam
+scenario — read the symptom the question describes, follow the matching
+branch, and land on the customization approach it implies:
+
+```mermaid
+flowchart TD
+    START(["Need to customize an FM's behavior?"])
+    START --> Q1{"Is it a factuality/context\nproblem — answers must reflect\ncurrent, proprietary, or\nfrequently changing knowledge?"}
+    Q1 -->|"YES"| RAG["RAG\n(retrieve external data\nat query time, no retraining)"]
+    Q1 -->|"NO"| Q2{"Is it a style/format\nproblem — tone, structure, or\nbehavior fixable with better\ninstructions and no extra data?"}
+    Q2 -->|"YES"| PE["PROMPT ENGINEERING\n(zero/few-shot, templates,\nchain-of-thought)"]
+    Q2 -->|"NO"| Q3{"Is it narrow-task behavior —\ndo you have LABELED input/output\nexamples to teach one exact\ntask, tone, or format?"}
+    Q3 -->|"YES"| FT["FINE-TUNING\n(train on labeled examples;\naccessed via provisioned throughput)"]
+    Q3 -->|"NO"| Q4{"Does the model need new domain\nvocabulary from a large volume\nof UNLABELED training data?"}
+    Q4 -->|"YES"| CPT["CONTINUED PRE-TRAINING\n(self-supervised training on\nunlabeled domain-specific text)"]
 ```
 
 These are not mutually exclusive — a production application commonly

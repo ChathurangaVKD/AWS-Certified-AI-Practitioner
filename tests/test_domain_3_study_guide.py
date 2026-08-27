@@ -156,6 +156,54 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
             "?", diagram, "diagram should pose branching decision questions"
         )
 
+    def test_customization_decision_tree_is_a_mermaid_flowchart(self):
+        # Regression guard: the decision tree used to be an ASCII-art code
+        # block. It should now render as an actual Mermaid flowchart, and
+        # its branches should map the specific symptoms the exam tests to
+        # the right customization approach.
+        section = _section(
+            self.text,
+            r"\n## 4\. Fine-tuning vs\. continued pre-training vs\. RAG vs\. prompt engineering",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences, "customization section should include Mermaid diagrams"
+        )
+        tree_fences = [f for f in fences if "PROMPT ENGINEERING" in f]
+        self.assertTrue(
+            tree_fences,
+            "expected a Mermaid flowchart (not ASCII art) for the "
+            "decision tree, distinct from the comparison matrix",
+        )
+        tree = "\n".join(tree_fences)
+        self.assertRegex(
+            tree,
+            r"flowchart\s+\w+|graph\s+\w+",
+            "decision tree should use Mermaid flowchart/graph syntax",
+        )
+        decision_points = {
+            "factuality/context problem maps to RAG": (
+                r"factuality/context",
+                "RAG",
+            ),
+            "style/format problem maps to prompt engineering": (
+                r"style/format",
+                "PROMPT ENGINEERING",
+            ),
+            "narrow-task labeled behavior maps to fine-tuning": (
+                r"LABELED",
+                "FINE-TUNING",
+            ),
+            "new domain vocabulary maps to continued pre-training": (
+                r"UNLABELED",
+                "CONTINUED PRE-TRAINING",
+            ),
+        }
+        for description, (cue, outcome) in decision_points.items():
+            with self.subTest(decision_point=description):
+                self.assertRegex(tree, cue)
+                self.assertIn(outcome, tree)
+
     def test_customization_section_has_a_visual_comparison_matrix(self):
         # Regression guard: Section 4 originally compared the four
         # customization approaches in narrative form only. A Mermaid

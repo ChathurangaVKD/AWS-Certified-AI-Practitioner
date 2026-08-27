@@ -1,13 +1,27 @@
-"""Structural validation for the shared-responsibility diagram added to
-docs/domain-5-security-compliance-governance.md.
+"""Structural validation for docs/domain-5-security-compliance-governance.md.
 
-Domain 5 has no broader structural test suite yet (unlike Domains 1-4);
-this file only covers the new diagram added for the Section 5 shared
-responsibility model, mirroring the `_section` helper convention used in
-tests/test_domain_1_study_guide.py.
+This repository is a documentation series, not an application, so there is
+no application code to unit test. What *can* regress silently is the
+required structure of each domain study guide (README.md promises every
+domain doc covers its task statements, includes worked examples, and ends
+with a practice-question set + answer key). These tests assert that
+structure directly against the rendered Markdown so a future edit that
+drops a required section, mismatches the question/answer count, or forgets
+a required AWS service/regulation is caught automatically instead of only
+in manual review.
+
+Mirrors the conventions established in tests/test_domain_4_study_guide.py,
+adapted to Domain 5's own conventions: section callouts are
+"**Example:**" / "**Exam tip:**" (not "AWS example:"), the answer key
+heading is "## Answer key" (not "## Answer key and explanations"), and
+answer entries are formatted "N. **Letter.** explanation" (bold letter(s)
+immediately followed by a period, not an em-dash).
+
+Also keeps the original diagram/difficulty-tag/existence tests that
+predate this expansion.
 
 Run with:
-    python3 -m unittest tests/test_domain_5_study_guide.py -v
+    python3 -m unittest tests.test_domain_5_study_guide -v
 """
 
 import re
@@ -20,12 +34,53 @@ DOC_PATH = (
     / "domain-5-security-compliance-governance.md"
 )
 
+# Topic areas the task description requires as their own section.
+REQUIRED_TOPIC_HEADINGS = [
+    "Securing AI systems",
+    "AWS compliance standards relevant to AI workloads",
+    "AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance",
+    "Data governance strategies",
+    "AWS shared responsibility model applied to AI/ML services",
+]
+
+# 5.1 "Explain methods to secure AI systems" sub-areas the exam guide
+# requires: named threats, the AI-vs-traditional distinction, and named
+# frameworks, in addition to the IAM/encryption/networking already covered.
+REQUIRED_SECURITY_THREATS_AND_FRAMEWORKS = [
+    "data poisoning",
+    "prompt injection",
+    "model inversion",
+    "MITRE ATLAS",
+    "OWASP",
+    "IAM Access Analyzer",
+]
+
+# 5.2 "Recognize governance and compliance regulations" sub-areas the exam
+# guide requires, beyond GDPR/HIPAA/AWS Artifact.
+REQUIRED_REGULATIONS = [
+    "GDPR",
+    "HIPAA",
+    "NIST AI Risk Management Framework",
+    "EU AI Act",
+    "ISO/IEC 42001",
+    "Algorithmic Accountability Act",
+]
+
+# Domain 5's 5.1/5.2 sub-topic count, after closing this content gap,
+# genuinely exceeds the 15-20 range used by Domains 1-4 (26 questions
+# covering both task statements' full sub-area lists) -- MAX_QUESTIONS is
+# widened accordingly rather than left copy-pasted from another domain.
+MIN_QUESTIONS = 15
+MAX_QUESTIONS = 26
+
 
 def _read_doc():
     return DOC_PATH.read_text(encoding="utf-8")
 
 
 def _section(text, start_heading_regex, end_heading_regex=r"\n## "):
+    """Return the text between a heading matching start_heading_regex and
+    the next top-level (##) heading, or end of file."""
     start = re.search(start_heading_regex, text)
     assert start, f"heading not found: {start_heading_regex}"
     rest = text[start.end():]
@@ -39,9 +94,8 @@ class TestDomain5StudyGuideExists(unittest.TestCase):
 
 
 class TestDomain5PracticeQuestionDifficultyTags(unittest.TestCase):
-    """Domain 5 has no broader practice-question test suite yet (see module
-    docstring), but its practice questions must still carry difficulty tags
-    like Domains 1-4, so this class covers that one requirement directly."""
+    """Domain 5's practice questions must carry difficulty tags like
+    Domains 1-4, so this class covers that one requirement directly."""
 
     @classmethod
     def setUpClass(cls):
@@ -128,6 +182,160 @@ class TestDomain5GovernanceDecisionTree(unittest.TestCase):
         ]:
             with self.subTest(term=term):
                 self.assertIn(term, diagram)
+
+
+class TestDomain5StudyGuideStructure(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+
+    def test_has_domain_overview(self):
+        self.assertRegex(
+            self.text,
+            r"^# Domain 5: Security, Compliance, and Governance for AI Solutions",
+        )
+        self.assertIn("## Domain overview", self.text)
+
+    def test_has_every_required_topic_section(self):
+        for heading in REQUIRED_TOPIC_HEADINGS:
+            with self.subTest(heading=heading):
+                self.assertIn(
+                    heading,
+                    self.text,
+                    f"missing required topic section: {heading!r}",
+                )
+
+    def test_every_topic_section_has_an_example_and_exam_tip(self):
+        sections = re.findall(r"\n## [1-5]\. .*?(?=\n## |\Z)", self.text, re.S)
+        self.assertEqual(
+            len(sections), 5, "expected exactly 5 numbered topic sections"
+        )
+        for section in sections:
+            heading = section.strip().splitlines()[0]
+            with self.subTest(section=heading):
+                self.assertIn(
+                    "Example:",
+                    section,
+                    f"section {heading!r} is missing an 'Example' callout",
+                )
+                self.assertIn(
+                    "Exam tip:",
+                    section,
+                    f"section {heading!r} is missing an 'Exam tip' callout",
+                )
+
+    def test_securing_ai_systems_section_covers_required_threats_and_frameworks(self):
+        section = _section(self.text, r"\n## 1\. Securing AI systems")
+        for term in REQUIRED_SECURITY_THREATS_AND_FRAMEWORKS:
+            with self.subTest(term=term):
+                self.assertRegex(
+                    section,
+                    re.compile(re.escape(term), re.IGNORECASE),
+                    f"securing AI systems section missing: {term!r}",
+                )
+        # Model drift/degradation is described with either wording.
+        self.assertRegex(
+            section,
+            re.compile(r"model (drift|.*degradation)", re.IGNORECASE),
+            "securing AI systems section missing model drift/degradation coverage",
+        )
+
+    def test_compliance_section_covers_required_regulations(self):
+        section = _section(
+            self.text, r"\n## 2\. AWS compliance standards relevant to AI workloads"
+        )
+        for regulation in REQUIRED_REGULATIONS:
+            with self.subTest(regulation=regulation):
+                self.assertIn(
+                    regulation,
+                    section,
+                    f"compliance section missing regulation/framework: {regulation!r}",
+                )
+
+    def test_has_governance_comparison_table(self):
+        table_section = _section(
+            self.text,
+            r"\n## Comparison table: governance and compliance regulations at a glance",
+        )
+        self.assertRegex(table_section, r"\|\s*-{2,}\s*\|")
+        for regulation in REQUIRED_REGULATIONS:
+            with self.subTest(regulation=regulation):
+                self.assertIn(regulation, table_section)
+
+    def test_has_key_terms_glossary_with_substantial_coverage(self):
+        glossary = _section(self.text, r"\n## Key terms glossary")
+        entries = re.findall(r"^- \*\*.+?\*\*", glossary, re.M)
+        self.assertGreaterEqual(
+            len(entries),
+            15,
+            "key terms glossary should cover at least 15 terms",
+        )
+
+
+class TestDomain5PracticeQuestions(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.questions_section = _section(
+            cls.text, r"\n## Practice questions", r"\n## Answer key"
+        )
+        cls.answers_section = _section(cls.text, r"\n## Answer key")
+
+    def _numbered_items(self, section_text):
+        return re.findall(r"^(\d+)\.\s", section_text, re.M)
+
+    def test_question_count_within_required_range(self):
+        numbers = self._numbered_items(self.questions_section)
+        self.assertEqual(
+            [int(n) for n in numbers],
+            list(range(1, len(numbers) + 1)),
+            "practice questions must be sequentially numbered starting at 1",
+        )
+        self.assertGreaterEqual(len(numbers), MIN_QUESTIONS)
+        self.assertLessEqual(len(numbers), MAX_QUESTIONS)
+
+    def test_every_question_has_at_least_four_options(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.questions_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        for block in blocks:
+            qnum = block.split(".", 1)[0]
+            with self.subTest(question=qnum):
+                options = re.findall(r"^\s*[A-E]\.\s", block, re.M)
+                self.assertGreaterEqual(
+                    len(options),
+                    4,
+                    f"question {qnum} should have at least 4 answer options",
+                )
+
+    def test_answer_key_covers_every_question_with_explanation(self):
+        q_numbers = [int(n) for n in self._numbered_items(self.questions_section)]
+        a_numbers = [int(n) for n in self._numbered_items(self.answers_section)]
+        self.assertEqual(
+            q_numbers,
+            a_numbers,
+            "answer key must have exactly one entry per practice question, in order",
+        )
+
+        blocks = re.split(r"\n(?=\d+\.\s)", self.answers_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        for block in blocks:
+            anum = block.split(".", 1)[0]
+            with self.subTest(answer=anum):
+                # Each explanation should be substantive, not just "B is correct."
+                self.assertGreater(
+                    len(block.strip()),
+                    120,
+                    f"answer {anum} explanation looks too short to justify "
+                    f"the correct choice and rule out the distractors",
+                )
+                # Domain 5's answer key bolds the correct letter(s) followed
+                # by a period, e.g. "**B.**" or "**B and D.**" -- distinct
+                # from Domain 4's em-dash-based "**B —" style.
+                self.assertRegex(
+                    block,
+                    r"\*\*[A-E](?:\s*(?:,|and)\s*[A-E])*\.\*\*",
+                    f"answer {anum} should clearly state the correct option letter(s)",
+                )
 
 
 if __name__ == "__main__":

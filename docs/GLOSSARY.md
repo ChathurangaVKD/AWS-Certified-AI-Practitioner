@@ -19,6 +19,7 @@ See also the [cross-domain concept map](cross-domain-concept-map.md) for how Dom
 - **AI (Artificial Intelligence)** [D1] — broad field of systems performing tasks that normally require human intelligence. *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
 - **AI Service Cards** [D4] — AWS-published documentation describing intended use, limitations, and design considerations of an AWS AI service. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
 - **Algorithm** [D1] — the method used to train a model (e.g., XGBoost, k-means). *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
+- **Algorithmic Accountability Act** [D5] — Proposed US legislation that would require impact assessments for automated decision systems. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **Amazon Augmented AI (Amazon A2I)** [D4] — a service for building human-in-the-loop review workflows for ML predictions. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
 - **Amazon Bedrock** [D2] — fully managed service offering a choice of foundation models via a single API. *(See: [Domain 2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary).)*
 - **Amazon Bedrock Agents** [D2, D3] — managed capability for FMs to plan and execute multi-step tasks by calling your APIs. *(See: [Domain 2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary), [Domain 3](domain-3-applications-of-foundation-models.md#key-terms-glossary).)*
@@ -78,6 +79,7 @@ See also the [cross-domain concept map](cross-domain-concept-map.md) for how Dom
 
 - **Data controller / data processor** [D5] — Under GDPR, the controller decides how/why data is processed (usually the customer); the processor processes it on the controller's behalf (AWS). *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
 - **Data lineage** [D5] — A traceable record of a dataset's origin and transformations through a pipeline. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
+- **Data poisoning** [D5] — An attack where training or fine-tuning data is deliberately corrupted to manipulate a model's behavior. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **Data residency** [D4, D5] — the geographic location where data is stored and processed, relevant to privacy and regulatory compliance. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary), [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
 - **Data sovereignty** [D5] — The principle that data is subject to the laws of the country in which it is located. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
 - **Denied topics (Guardrails)** [D4] — a Guardrails configuration that blocks a model from engaging with specified topics. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
@@ -90,6 +92,7 @@ See also the [cross-domain concept map](cross-domain-concept-map.md) for how Dom
 - **Embedding** [D2, D3] — a numeric representation of data that captures its semantic meaning. *(See: [Domain 2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary), [Domain 3](domain-3-applications-of-foundation-models.md#key-terms-glossary).)*
 - **Encryption at rest** [D5] — Protecting stored data via encryption. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
 - **Encryption in transit** [D5] — Protecting data moving across a network, typically via TLS. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
+- **EU AI Act** [D5] — A binding EU regulation that classifies AI systems into risk tiers (unacceptable, high, limited, minimal) and imposes obligations scaled to risk. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **Execution role** [D5] — An IAM role an AWS service (e.g., SageMaker) assumes to act on a customer's behalf. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
 - **Explainability** [D4] — the ability to describe, in human-understandable terms, why a model produced a specific output. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
 - **Exploratory data analysis (EDA)** [D1] — analyzing data (distributions, missing values, outliers) before modeling. *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
@@ -124,10 +127,12 @@ See also the [cross-domain concept map](cross-domain-concept-map.md) for how Dom
 ## I
 
 - **IAM (Identity and Access Management)** [D5] — AWS service for controlling authentication and authorization to AWS resources. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms).)*
+- **IAM Access Analyzer** [D5] — An IAM feature that identifies resources (e.g., S3 buckets, Bedrock model resource policies) shared with entities outside your AWS account or organization. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **In-processing (bias mitigation)** [D4] — mitigating bias by adding fairness constraints during training. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
 - **Inference** [D1] — using a trained model to generate predictions on new data. *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
 - **Intellectual property (IP) indemnification** [D4] — a contractual protection (offered by some Bedrock model providers) that shifts legal risk of IP infringement claims on generated content away from the customer. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
 - **Interpretability** [D4] — how easily a human can understand how a model arrives at its outputs; trades off against raw performance for complex models. *(See: [Domain 4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary).)*
+- **ISO/IEC 42001** [D5] — An international standard for a certifiable AI management system (AIMS), conceptually similar to ISO 27001 for information security. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 
 ## L
 
@@ -138,21 +143,25 @@ See also the [cross-domain concept map](cross-domain-concept-map.md) for how Dom
 
 ## M
 
+- **MITRE ATLAS** [D5] — A knowledge base of adversary tactics and techniques against AI systems, modeled on MITRE ATT&CK. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **ML (Machine Learning)** [D1] — subset of AI where systems learn patterns from data instead of explicit rules. *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
 - **Modality** [D3] — the type(s) of input/output a model handles (text, image, audio, video); **multimodal** models handle more than one. *(See: [Domain 3](domain-3-applications-of-foundation-models.md#key-terms-glossary).)*
 - **Model** [D1] — the trained artifact that maps inputs to outputs. *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
 - **Model drift / data drift** [D1] — degradation in model performance over time as real-world data distributions change from training data. *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
+- **Model inversion (attack)** [D5] — An attack where an adversary uses crafted queries against a deployed model to try to reconstruct training data or replicate the model. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **Multimodal model** [D2] — a model that can accept and/or generate more than one type of content (e.g., text and images). *(See: [Domain 2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary).)*
 
 ## N
 
 - **Negative prompting** [D2, D3] — explicitly telling a model what not to include or do. *(See: [Domain 2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary), [Domain 3](domain-3-applications-of-foundation-models.md#key-terms-glossary).)*
+- **NIST AI Risk Management Framework (AI RMF)** [D5] — A voluntary US framework (Govern, Map, Measure, Manage) for managing risk throughout an AI system's lifecycle. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 - **Nondeterminism** [D2] — the same prompt can produce different outputs on different runs due to sampling. *(See: [Domain 2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary).)*
 
 ## O
 
 - **On-demand (Bedrock pricing)** [D3] — pay-per-token inference pricing with no capacity commitment, suited to variable/unpredictable traffic. *(See: [Domain 3](domain-3-applications-of-foundation-models.md#key-terms-glossary).)*
 - **Overfitting** [D1] — model fits training data (including noise) too closely and generalizes poorly (high variance). *(See: [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary).)*
+- **OWASP Top 10 for LLM Applications** [D5] — A prioritized list of the top security risks specific to large language model applications, such as prompt injection and training data poisoning. *(See: [Domain 5](domain-5-security-compliance-governance.md#key-terms-glossary).)*
 
 ## P
 

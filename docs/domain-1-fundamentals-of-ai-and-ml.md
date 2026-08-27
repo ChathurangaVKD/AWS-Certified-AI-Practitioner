@@ -1,5 +1,21 @@
 # Domain 1: Fundamentals of AI and ML
 
+[← README](../README.md) · **Domain 1 of 5** · [Domain 2: Fundamentals of Generative AI →](domain-2-fundamentals-of-generative-ai.md)
+
+## Table of contents
+
+- [1. Basic AI/ML/DL terminology and concepts](#1-basic-aimldl-terminology-and-concepts)
+- [2. The ML development lifecycle](#2-the-ml-development-lifecycle)
+- [3. Types of learning](#3-types-of-learning)
+- [4. Common use cases for AI/ML](#4-common-use-cases-for-aiml)
+- [5. AWS managed AI/ML services (conceptual overview)](#5-aws-managed-aiml-services-conceptual-overview)
+- [6. Model evaluation basics](#6-model-evaluation-basics)
+- [7. Overfitting, underfitting, and the bias–variance trade-off](#7-overfitting-underfitting-and-the-biasvariance-trade-off)
+- [Comparison table: AWS managed AI/ML services at a glance](#comparison-table-aws-managed-aiml-services-at-a-glance)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key and explanations](#answer-key-and-explanations)
+
 ## Domain overview
 
 Domain 1 is the largest single knowledge domain on the AWS Certified AI
@@ -743,3 +759,7 @@ before deploying to a SageMaker endpoint.
     development. SageMaker (A) would require building and training a
     custom model; Rekognition (C) analyzes images/video, not transaction
     data; Forecast (D) predicts time-series values, not fraud risk.
+
+---
+
+[← README](../README.md) · **Domain 1 of 5** · [Domain 2: Fundamentals of Generative AI →](domain-2-fundamentals-of-generative-ai.md)

@@ -25,8 +25,6 @@ Domain 5.** The domain guides are numbered for a reason — read them in
 order rather than jumping straight to the domain that interests you most:
 
 - **Domain 1 (Fundamentals of AI and ML) is foundational.** Its ML
-Both sides add a new top-level section after the concept map link, before "## Status." They're independent additions (AWS service decision guide + glossary + exam prep + mock exam vs. end-to-end case study). Combine both.
-
   lifecycle, learning types, and model-evaluation vocabulary reappear —
   renamed or specialized — in every later domain, so it should be read
   first regardless of prior experience.
@@ -38,6 +36,11 @@ Both sides add a new top-level section after the concept map link, before "## St
   and Security, Compliance, and Governance apply the model and
   application concepts from the earlier domains to responsible-use and
   governance scenarios.
+
+For a full explanation of why this order matters, plus ready-made
+1-week/2-week/4-week study schedules, see
+[`docs/exam-preparation-strategy.md`](docs/exam-preparation-strategy.md#3-recommended-reading-order).
+
 For a quicker "where is X explained?" lookup, see
 [`docs/master-glossary.md`](docs/master-glossary.md) — the same
 cross-domain term set as a compact alphabetical index, with a `[D1, D3]`

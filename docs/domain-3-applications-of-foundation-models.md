@@ -987,3 +987,7 @@ infrastructure directly, a different team at the same company uses
     but doesn't teach a consistent output style; increasing the context
     window (D) allows more input text, but doesn't itself teach the model
     a specific tone or format.
+
+---
+
+[← Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md) · **Domain 3 of 5** · [Domain 4: Guidelines for Responsible AI →](domain-4-guidelines-for-responsible-ai.md)

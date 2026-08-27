@@ -871,3 +871,7 @@ require the same level of per-prediction explainability.
     artifacts for distinct purposes; D is false — both concepts apply
     regardless of whether the underlying model is generative or
     traditional ML.
+
+---
+
+[← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)

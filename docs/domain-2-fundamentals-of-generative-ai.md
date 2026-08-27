@@ -1,5 +1,21 @@
 # Domain 2: Fundamentals of Generative AI
 
+[← Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md) · **Domain 2 of 5** · [Domain 3: Applications of Foundation Models →](domain-3-applications-of-foundation-models.md)
+
+## Table of contents
+
+- [1. Generative AI core concepts](#1-generative-ai-core-concepts)
+- [2. LLM lifecycle basics](#2-llm-lifecycle-basics)
+- [3. Advantages and disadvantages of generative AI](#3-advantages-and-disadvantages-of-generative-ai)
+- [4. Business use cases for generative AI](#4-business-use-cases-for-generative-ai)
+- [5. AWS generative AI services and capabilities](#5-aws-generative-ai-services-and-capabilities)
+- [6. Prompt engineering fundamentals](#6-prompt-engineering-fundamentals)
+- [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
+- [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key and explanations](#answer-key-and-explanations)
+
 ## Domain overview
 
 Domain 2 is the **largest single knowledge domain** on the AWS Certified AI
@@ -893,3 +909,7 @@ data before committing.
     runs, not fabricated content itself; overfitting (B) and underfitting
     (D) are traditional ML training diagnoses that don't describe a
     deployed generative model fabricating facts at inference time.
+
+---
+
+[← Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md) · **Domain 2 of 5** · [Domain 3: Applications of Foundation Models →](domain-3-applications-of-foundation-models.md)

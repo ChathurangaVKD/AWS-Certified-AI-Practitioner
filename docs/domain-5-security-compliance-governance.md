@@ -2,6 +2,30 @@
 
 *AWS Certified AI Practitioner (AIF-C01) — ~14% of exam*
 
+[← Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md) · **Domain 5 of 5** · [README →](../README.md)
+
+## Table of contents
+
+- [1. Securing AI systems](#1-securing-ai-systems)
+  - [IAM roles and policies for AI services](#iam-roles-and-policies-for-ai-services)
+  - [Data encryption at rest and in transit](#data-encryption-at-rest-and-in-transit)
+  - [AWS PrivateLink and VPC endpoints for AI services](#aws-privatelink-and-vpc-endpoints-for-ai-services)
+  - [Source citation and data lineage](#source-citation-and-data-lineage)
+- [2. AWS compliance standards relevant to AI workloads](#2-aws-compliance-standards-relevant-to-ai-workloads)
+  - [AWS Artifact](#aws-artifact)
+  - [GDPR (General Data Protection Regulation) — conceptual level](#gdpr-general-data-protection-regulation-conceptual-level)
+  - [HIPAA (Health Insurance Portability and Accountability Act) — conceptual level](#hipaa-health-insurance-portability-and-accountability-act-conceptual-level)
+- [3. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
+- [4. Data governance strategies](#4-data-governance-strategies)
+  - [Data lifecycle](#data-lifecycle)
+  - [Data residency](#data-residency)
+  - [Data monitoring](#data-monitoring)
+- [5. AWS shared responsibility model applied to AI/ML services](#5-aws-shared-responsibility-model-applied-to-aiml-services)
+- [Comparison table: governance and monitoring services](#comparison-table-governance-and-monitoring-services)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key](#answer-key)
+
 ## Domain overview
 
 This domain tests whether you understand how to keep AI/ML workloads on AWS
@@ -481,3 +505,7 @@ regardless of how managed the service is.
 18. **B.** An interface VPC endpoint for Bedrock Runtime, backed by AWS PrivateLink, keeps that traffic off the public internet even from a VPC connected to on-premises infrastructure. A NAT gateway (A) still routes through the public internet; a public S3 bucket (C) is unrelated and insecure; "AWS Artifact private connectivity mode" (D) does not exist.
 19. **B.** Config tracks resource configuration state and evaluates compliance rules over time; CloudTrail logs the underlying API call activity. (A) reverses the definitions; (C) and (D) misstate their scope and purpose.
 20. **B.** Least privilege via a policy scoped to the specific model ARN and only the needed action (`bedrock:InvokeModel`) is the correct approach. `AdministratorAccess` (A) grossly over-grants; AWS Artifact (C) has no access-restriction function; disabling IAM (D) is not possible and would remove all access control.
+
+---
+
+[← Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md) · **Domain 5 of 5** · [README →](../README.md)

@@ -1,5 +1,22 @@
 # Domain 3: Applications of Foundation Models
 
+[← Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md) · **Domain 3 of 5** · [Domain 4: Guidelines for Responsible AI →](domain-4-guidelines-for-responsible-ai.md)
+
+## Table of contents
+
+- [1. Design considerations for foundation model applications](#1-design-considerations-for-foundation-model-applications)
+- [2. Prompt engineering techniques](#2-prompt-engineering-techniques)
+- [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
+- [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
+- [5. Amazon Bedrock features](#5-amazon-bedrock-features)
+- [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
+- [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
+- [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
+- [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key and explanations](#answer-key-and-explanations)
+
 ## Domain overview
 
 Domain 3 is the largest domain on the AWS Certified AI Practitioner
@@ -970,3 +987,7 @@ infrastructure directly, a different team at the same company uses
     but doesn't teach a consistent output style; increasing the context
     window (D) allows more input text, but doesn't itself teach the model
     a specific tone or format.
+
+---
+
+[← Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md) · **Domain 3 of 5** · [Domain 4: Guidelines for Responsible AI →](domain-4-guidelines-for-responsible-ai.md)

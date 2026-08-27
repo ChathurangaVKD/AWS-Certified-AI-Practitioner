@@ -1,5 +1,19 @@
 # Domain 4: Guidelines for Responsible AI
 
+[← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)
+
+## Table of contents
+
+- [1. Core dimensions of responsible AI](#1-core-dimensions-of-responsible-ai)
+- [2. Identifying bias and fairness issues in training data and model outputs](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+- [3. AWS tools for responsible AI](#3-aws-tools-for-responsible-ai)
+- [4. Legal and ethical considerations](#4-legal-and-ethical-considerations)
+- [5. Balancing model performance and interpretability](#5-balancing-model-performance-and-interpretability)
+- [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key and explanations](#answer-key-and-explanations)
+
 ## Domain overview
 
 Domain 4 makes up roughly **14% of scored questions** on the AWS Certified
@@ -857,3 +871,7 @@ require the same level of per-prediction explainability.
     artifacts for distinct purposes; D is false — both concepts apply
     regardless of whether the underlying model is generative or
     traditional ML.
+
+---
+
+[← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)

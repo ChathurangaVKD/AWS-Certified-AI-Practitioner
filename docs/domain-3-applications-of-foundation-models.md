@@ -12,6 +12,7 @@
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
+- [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
@@ -617,6 +618,80 @@ infrastructure directly, a different team at the same company uses
 > learning workloads specifically — pick Trainium/Inferentia over generic
 > EC2 GPU instances when a scenario emphasizes minimizing the cost of
 > training or serving large models at scale.
+
+---
+
+## Worked example: implementing RAG for an internal policy-lookup assistant
+
+[Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) introduced the RAG pipeline conceptually. This
+walkthrough follows one company through every step of actually building
+it, including the customization-approach decision from [Section
+4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) and the evaluation step from [Section
+7](#7-evaluating-foundation-model-performance) — the level of detail AIF-C01 scenario questions expect
+you to reason through even though the exam itself is multiple-choice.
+
+**Scenario:** An insurance company's HR team fields the same questions
+over and over ("how many vacation days do I have," "what's the parental
+leave policy") against a 300-page internal policy handbook that legal
+revises every quarter. Employees currently search a shared drive full of
+PDFs, and answers are often wrong because employees read an outdated
+version.
+
+1. **Rule out the alternatives first.** The team checks the customization
+   spectrum from [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering): fine-tuning would require creating
+   thousands of labeled question/answer pairs from the handbook *and*
+   re-running that training job every quarter when legal revises it —
+   too slow and too expensive for a document that changes often. Prompt
+   engineering alone can't work either, because the 300-page handbook
+   does not fit in a single prompt. That combination of "frequently
+   changing source data" and "too large for the context window" is the
+   textbook signal for **RAG**.
+2. **Ingestion.** The handbook PDFs (and any policy addenda) are uploaded
+   to an **Amazon S3** bucket, which becomes the data source for an
+   **Amazon Bedrock Knowledge Base**.
+3. **Chunking.** The team lets Bedrock's default chunking strategy split
+   each PDF into passages of a few hundred tokens with slight overlap
+   between consecutive chunks, so a policy detail that falls near a page
+   boundary still appears intact in at least one retrievable chunk.
+4. **Embedding.** Each chunk is converted to a vector with **Amazon Titan
+   Text Embeddings**, chosen because the team is already using other
+   Titan models elsewhere and wants one consistent embedding space.
+5. **Indexing/storage.** The embeddings are stored in **Amazon OpenSearch
+   Serverless**, which the Knowledge Base provisions and manages
+   automatically — the team never has to size or patch a search cluster.
+6. **Retrieval and augmentation at query time.** An employee asks, "How
+   many weeks of parental leave do I get?" The question is embedded with
+   the same Titan model, **Amazon OpenSearch Serverless** returns the most
+   semantically similar handbook chunks (the parental-leave section, even
+   if the employee's wording doesn't match the handbook's exact phrasing),
+   and those chunks are inserted into the prompt sent to the FM via
+   Bedrock's `RetrieveAndGenerate` API.
+7. **Generation with citations.** The FM answers using only the retrieved
+   passages as grounding, and the application surfaces which handbook
+   section the answer came from — directly addressing the "employees
+   trust the wrong answer" problem, since HR can now verify any answer
+   against a cited source.
+8. **Evaluation before rollout.** Using the criteria from [Section
+   7](#7-evaluating-foundation-model-performance), the team checks retrieval quality (are the *right*
+   chunks coming back for a test set of real HR questions?) separately
+   from generation quality (given the right chunks, does the FM produce a
+   correct, well-formed answer?) — because a wrong answer could stem from
+   either half of the pipeline, and conflating them makes the failure
+   impossible to debug.
+9. **Handling the quarterly update.** When legal revises the handbook next
+   quarter, the team simply re-uploads the changed PDFs to the same S3
+   bucket and re-syncs the Knowledge Base's data source — no retraining,
+   no redeployment, and the assistant is answering from the current
+   policy within minutes.
+
+> **Exam tip:** If a scenario emphasizes that source data **changes
+> frequently** and/or is **too large to fit in a prompt**, and the goal is
+> **grounded, current, citable answers**, the answer is **RAG / Amazon
+> Bedrock Knowledge Bases** — not fine-tuning (too slow to keep current)
+> and not prompt engineering alone (can't fit a 300-page document). Watch
+> for distractor scenarios that describe this exact setup but then ask
+> "how do you keep it current" with a fine-tuning-flavored answer choice —
+> re-syncing the S3 data source is always cheaper and faster.
 
 ---
 

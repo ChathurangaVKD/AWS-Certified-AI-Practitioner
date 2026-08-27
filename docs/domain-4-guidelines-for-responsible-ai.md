@@ -89,6 +89,53 @@ configuration that redacts PII touches privacy, a content filter touches
 safety, and a denied-topics list touches controllability — all from one
 feature.
 
+**Visual summary — how the 8 dimensions relate to each other:** none of
+these dimensions exists in isolation; they form a wheel around one hub
+concept (a system trustworthy enough to deploy), and several dimensions
+directly reinforce each other (dashed lines below) — explainability feeds
+transparency, privacy and safety overlap on data leakage, safety and
+controllability overlap on stopping harmful behavior, governance
+formalizes transparency into policy, and fairness problems are frequently
+also veracity problems (a model that is unfair to a group is also
+producing unreliable output for that group):
+
+```mermaid
+graph TD
+    RAI((Responsible AI))
+    RAI --- FAIR[Fairness]
+    RAI --- EXPL[Explainability]
+    RAI --- PRIV["Privacy & Security"]
+    RAI --- TRAN[Transparency]
+    RAI --- VERA["Veracity & Robustness"]
+    RAI --- GOV[Governance]
+    RAI --- SAFE[Safety]
+    RAI --- CTRL[Controllability]
+
+    EXPL -. overlaps .-> TRAN
+    PRIV -. overlaps .-> SAFE
+    SAFE -. overlaps .-> CTRL
+    GOV -. overlaps .-> TRAN
+    FAIR -. overlaps .-> VERA
+```
+
+**Visual summary — how each dimension maps to an AWS tool:** the exam
+frequently asks "which AWS capability addresses dimension X," so it helps
+to see the dimension-to-tool mapping as one graph instead of eight
+separate facts:
+
+```mermaid
+graph LR
+    FAIR[Fairness] --> CLARIFY["Amazon SageMaker Clarify\n(bias metrics)"]
+    EXPL[Explainability] --> CLARIFY2["Amazon SageMaker Clarify\n(SHAP explanations)"]
+    PRIV["Privacy & Security"] --> GUARD1["Guardrails for Amazon Bedrock\n(PII redaction)"]
+    TRAN[Transparency] --> CARDS["SageMaker Model Cards /\nAI Service Cards"]
+    VERA["Veracity & Robustness"] --> GUARD2["Guardrails for Amazon Bedrock\n(contextual grounding)"]
+    GOV[Governance] --> CARDS
+    SAFE[Safety] --> GUARD3["Guardrails for Amazon Bedrock\n(content filters)"]
+    CTRL[Controllability] --> GUARD4["Guardrails for Amazon Bedrock\n(denied topics)"]
+    CTRL --> A2I["Amazon A2I\n(human review)"]
+```
+
 **AWS example:** A healthcare company deploying a generative AI assistant
 needs: **fairness** (the assistant must not give worse guidance to some
 patient demographics), **explainability** (clinicians need to understand

@@ -101,20 +101,44 @@ Core vocabulary you must know cold:
   produce), and the two don't have to match (e.g., a model can take a text
   prompt as input and generate an image as output).
 
-Illustrating the transformer pipeline described above:
+Illustrating the transformer pipeline described above, tracing a short
+example sentence from raw text to the model's next-token prediction:
+
+```mermaid
+%% Input text → Tokenization → Embeddings → Transformer block
+%% (Self-Attention → Feed-Forward) → Output token probabilities
+graph TD
+    subgraph Input["1. Input text"]
+        TEXT["\"The cat sat\""]
+    end
+
+    subgraph Tokenize["2. Tokenization"]
+        TEXT --> T1["Token: The"]
+        TEXT --> T2["Token: cat"]
+        TEXT --> T3["Token: sat"]
+    end
+
+    subgraph Embed["3. Embeddings layer"]
+        T1 --> E1["Vector: [0.12, -0.87, 0.33, ...]"]
+        T2 --> E2["Vector: [0.55, 0.09, -0.61, ...]"]
+        T3 --> E3["Vector: [-0.21, 0.66, 0.18, ...]"]
+        E1 & E2 & E3 --> POS["+ positional encoding\n(preserves word order:\nThe, then cat, then sat)"]
+    end
+
+    subgraph Transformer["4. Transformer block (x N layers)"]
+        POS --> ATTN["Self-Attention\n(each token weighs the relevance\nof every other token, e.g. 'sat'\nattends strongly to 'cat')"]
+        ATTN --> FF["Feed-Forward network"]
+    end
+
+    subgraph Output["5. Output"]
+        FF --> PROB["Output token probabilities"]
+        PROB --> NEXT["Next token generated: \"on\"\n(one token at a time,\nfed back in for the next step)"]
+    end
 ```
-Input text → Tokenization → Embeddings + positional encoding
-                                    ↓
-                    ┌────────────────────────────────┐
-                    │  Transformer block (× N layers)  │
-                    │  Self-Attention → Feed-Forward   │
-                    └────────────────────────────────┘
-                                    ↓
-                     Output token probabilities
-                 (next token generated one at a time)
 
 Self-attention for the token "it" in "The cat sat on the mat because it was tired":
 
+```
   The   cat   sat   on   the   mat   because   it   was   tired
    |     |     |     |     |     |      |       |     |     |
    +-----+-----+-----+-----+-----+------+       |     |     |

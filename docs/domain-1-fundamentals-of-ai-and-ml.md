@@ -99,6 +99,48 @@ simple linear regression to a deep neural network.
 > distinguish a **parameter** from a **hyperparameter** — parameters are
 > *learned*, hyperparameters are *configured by a person before training*.
 
+#### Mini-quiz: Test your understanding of AI/ML/DL terminology
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which of the following correctly orders these fields from broadest to
+   narrowest?
+   A. ML, AI, DL, Generative AI
+   B. AI, ML, DL, Generative AI
+   C. DL, ML, AI, Generative AI
+   D. Generative AI, DL, ML, AI
+
+   **Answer: B** — AI is the broadest field, ML is a subset of AI, DL is a
+   subset of ML, and Generative AI is a subset of DL (AI ⊃ ML ⊃ DL ⊃
+   Generative AI).
+
+2. A data scientist sets the number of training epochs to 50 before
+   launching a training job. Is "number of epochs" a parameter or a
+   hyperparameter?
+   A. A parameter, because it affects the final model
+   B. A hyperparameter, because it is set by a human before training begins
+   C. A parameter, because it is learned automatically during training
+   D. Neither — it is not related to model training
+
+   **Answer: B** — Hyperparameters (learning rate, epochs, batch size,
+   number of trees) are configured by a person before training starts;
+   parameters (like neural network weights) are learned automatically.
+
+3. Which inference option best fits a workload with large payloads that can
+   tolerate minutes of processing time and should be queued rather than
+   served instantly?
+   A. Real-time inference
+   B. Batch inference
+   C. Asynchronous inference
+   D. Serverless inference
+
+   **Answer: C** — Asynchronous inference is designed for large payloads
+   and longer processing times via a queue. Real-time (A) needs low
+   latency; batch (B) is for large offline jobs run on a schedule, not a
+   queued single request; serverless (D) targets intermittent traffic, not
+   payload size.
+
 ---
 
 ## 2. The ML development lifecycle
@@ -208,6 +250,42 @@ when accuracy degrades.
 > specifically to prevent *training/serving skew* (features computed
 > differently at training time vs. inference time).
 
+#### Mini-quiz: Test your understanding of the ML lifecycle
+
+1. Which step comes immediately before model training in the standard ML
+   lifecycle?
+   A. Deployment
+   B. Data preparation / feature engineering
+   C. Monitoring
+   D. Business goal identification
+
+   **Answer: B** — The order is collect → explore (EDA) → prepare/feature
+   engineer → **train** → evaluate/tune → deploy → monitor, so feature
+   engineering is the step immediately before training.
+
+2. What is the primary purpose of SageMaker Feature Store in the
+   lifecycle?
+   A. To visually explore data distributions
+   B. To store and reuse curated features consistently between training and
+      inference
+   C. To tune hyperparameters automatically
+   D. To monitor deployed models for drift
+
+   **Answer: B** — Feature Store exists specifically to prevent
+   training/serving skew by giving training and inference the same curated
+   feature definitions.
+
+3. A model fails its evaluation gate (step 6 in the lifecycle diagram).
+   Where does the loop send the team back to?
+   A. Directly to deployment anyway
+   B. Feature engineering, to retrain
+   C. Business goal identification only
+   D. Nowhere — a failed model is discarded permanently
+
+   **Answer: B** — A failed evaluation loops back to data
+   preparation/feature engineering (step 4) to retrain, rather than
+   shipping a model that misses its target metrics.
+
 ---
 
 ## 3. Types of learning
@@ -248,6 +326,39 @@ reward signal for success, is **reinforcement learning**.
 > sounds like "prediction." Also: RL is defined by *agent + environment +
 > reward*, not simply "learning without labels" — don't confuse it with
 > unsupervised learning.
+
+#### Mini-quiz: Test your understanding of types of learning
+
+1. A retailer has purchase histories with no predefined customer
+   categories and wants to find natural groupings. Which learning type
+   applies?
+   A. Supervised learning
+   B. Unsupervised learning
+   C. Reinforcement learning
+   D. Semi-supervised learning
+
+   **Answer: B** — With no labels/target column, the algorithm must find
+   structure on its own, which is unsupervised clustering.
+
+2. What three elements define reinforcement learning?
+   A. Labels, features, and a loss function
+   B. Clusters, centroids, and distance metrics
+   C. An agent, an environment, and a reward signal
+   D. Training data, validation data, and test data
+
+   **Answer: C** — RL is defined by an agent taking actions in an
+   environment to maximize cumulative reward, not simply "no labels."
+
+3. Which AWS SageMaker built-in algorithm is an example of a supervised
+   learning algorithm?
+   A. k-means
+   B. Random Cut Forest
+   C. PCA
+   D. XGBoost
+
+   **Answer: D** — XGBoost is a supervised algorithm (classification/
+   regression on labeled data). k-means (A) and PCA (C) are unsupervised;
+   Random Cut Forest (B) is used for unsupervised anomaly detection.
 
 ---
 
@@ -296,6 +407,40 @@ different managed services for four different problem categories.
 > demand" → Forecast; "read this scanned form" → Textract (not
 > Comprehend — Textract handles the *layout/extraction*, Comprehend
 > analyzes *plain text meaning*).
+
+#### Mini-quiz: Test your understanding of common AI/ML use cases
+
+1. Which AWS service best fits "extract structured data such as tables and
+   key-value pairs from scanned forms"?
+   A. Amazon Comprehend
+   B. Amazon Textract
+   C. Amazon Rekognition
+   D. Amazon Translate
+
+   **Answer: B** — Textract handles layout/structure extraction from
+   scanned documents; Comprehend (A) analyzes plain text meaning, not
+   document layout.
+
+2. A company wants to predict next quarter's inventory needs from
+   historical time-series data. Which service fits best?
+   A. Amazon Personalize
+   B. Amazon Forecast
+   C. Amazon Fraud Detector
+   D. Amazon Lex
+
+   **Answer: B** — Forecast is purpose-built for time-series forecasting.
+   Personalize (A) is for recommendations, not forecasting.
+
+3. Which service is purpose-built for detecting sentiment and extracting
+   entities from plain text?
+   A. Amazon Textract
+   B. Amazon Comprehend
+   C. Amazon Transcribe
+   D. Amazon Polly
+
+   **Answer: B** — Comprehend performs NLP tasks like sentiment, entities,
+   and key phrases on plain text. Transcribe (C) converts speech to text
+   but doesn't analyze meaning; Polly (D) is text-to-speech.
 
 ---
 
@@ -346,6 +491,38 @@ images, (2) transcribe uploaded video for closed captions, and (3) build a
 support chatbot — three different problems solved by three different
 purpose-built services (Rekognition, Transcribe, and Lex) with no custom
 model training required for any of them.
+
+#### Mini-quiz: Test your understanding of AWS managed AI/ML services
+
+1. A company has no in-house ML expertise and wants to add facial analysis
+   to its app. Which service should it use?
+   A. Amazon SageMaker
+   B. Amazon Rekognition
+   C. Amazon Forecast
+   D. Amazon Lex
+
+   **Answer: B** — Rekognition is the purpose-built computer vision
+   service; SageMaker (A) would require building a custom model.
+
+2. When is Amazon SageMaker the better exam answer over a purpose-built AI
+   service?
+   A. Whenever cost matters
+   B. When the use case needs a custom model or algorithm not covered by a
+      purpose-built service
+   C. Whenever the workload involves text
+   D. Never — purpose-built services always win
+
+   **Answer: B** — SageMaker is the answer only when no purpose-built
+   service fits, or full customization/control is required.
+
+3. Which AWS service converts text into lifelike spoken audio?
+   A. Amazon Transcribe
+   B. Amazon Polly
+   C. Amazon Translate
+   D. Amazon Lex
+
+   **Answer: B** — Polly is text-to-speech; Transcribe (A) does the
+   reverse (speech-to-text).
 
 ---
 
@@ -406,6 +583,39 @@ metrics in production over time to detect quality drift.
 > the classification threshold typically **increases precision and
 > decreases recall**, and vice versa.
 
+#### Mini-quiz: Test your understanding of model evaluation
+
+1. On a dataset that is 98% negative and 2% positive, a model that always
+   predicts "negative" scores 98% accuracy. What does this illustrate?
+   A. The model is excellent
+   B. Accuracy is misleading on imbalanced data
+   C. Precision is always misleading
+   D. AUC-ROC cannot be computed
+
+   **Answer: B** — This is the accuracy paradox: on imbalanced data, a
+   useless model can still post a high accuracy score.
+
+2. Which metric should be prioritized when false positives are especially
+   costly (e.g., blocking a legitimate customer transaction)?
+   A. Recall
+   B. Precision
+   C. RMSE
+   D. MAE
+
+   **Answer: B** — High precision means few false alarms, which is what
+   you want when false positives are expensive.
+
+3. What does raising the classification threshold typically do to
+   precision and recall?
+   A. Increases both
+   B. Decreases both
+   C. Increases precision, decreases recall
+   D. Increases recall, decreases precision
+
+   **Answer: C** — Raising the threshold makes the model more selective
+   about what it flags positive, typically raising precision while
+   lowering recall.
+
 ---
 
 ## 7. Overfitting, underfitting, and the bias–variance trade-off
@@ -439,6 +649,38 @@ before deploying to a SageMaker endpoint.
 > If it says "bad score on *both* training and test data," the answer is
 > **underfitting / high bias**. Regularization and more data are the two
 > most commonly tested overfitting remedies.
+
+#### Mini-quiz: Test your understanding of overfitting, underfitting, and bias-variance
+
+1. A model performs poorly on both training and test data. What is this
+   called?
+   A. Overfitting
+   B. Underfitting
+   C. High variance
+   D. Data leakage
+
+   **Answer: B** — Poor performance on *both* sets is the textbook symptom
+   of underfitting (high bias), not overfitting.
+
+2. Which technique is a standard remedy for overfitting?
+   A. Increasing model complexity
+   B. Removing regularization
+   C. Adding regularization (e.g., L2 penalty)
+   D. Training on less data
+
+   **Answer: C** — Regularization discourages overly complex models and is
+   a standard overfitting remedy, along with more data, cross-validation,
+   and early stopping.
+
+3. In the bias-variance trade-off, high variance is most closely
+   associated with which condition?
+   A. Underfitting
+   B. Overfitting
+   C. Balanced generalization
+   D. Missing data
+
+   **Answer: B** — High variance means the model is overly sensitive to
+   training-data noise, which is the definition of overfitting.
 
 ---
 

@@ -28,9 +28,9 @@ nondeterminism), where generative AI creates real business value, which AWS
 service to reach for, how to steer a foundation model with a prompt, and how
 to choose between competing foundation models for a given use case.
 
-This domain matters because it is the conceptual foundation for Domain 3
+This domain matters because it is the conceptual foundation for [Domain 3](domain-3-applications-of-foundation-models.md)
 (applications of foundation models — RAG, agents, fine-tuning, prompt
-engineering techniques in depth) and Domain 4 (responsible AI). Questions
+engineering techniques in depth) and [Domain 4](domain-4-guidelines-for-responsible-ai.md) (responsible AI). Questions
 here are rarely about writing code; they are scenario-based ("a company
 wants to do X with generative AI — which concept, technique, or AWS service
 fits?") and reward being able to reason about *why* generative AI behaves

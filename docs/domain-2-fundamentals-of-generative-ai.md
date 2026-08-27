@@ -28,9 +28,9 @@ nondeterminism), where generative AI creates real business value, which AWS
 service to reach for, how to steer a foundation model with a prompt, and how
 to choose between competing foundation models for a given use case.
 
-This domain matters because it is the conceptual foundation for Domain 3
+This domain matters because it is the conceptual foundation for [Domain 3](domain-3-applications-of-foundation-models.md)
 (applications of foundation models — RAG, agents, fine-tuning, prompt
-engineering techniques in depth) and Domain 4 (responsible AI). Questions
+engineering techniques in depth) and [Domain 4](domain-4-guidelines-for-responsible-ai.md) (responsible AI). Questions
 here are rarely about writing code; they are scenario-based ("a company
 wants to do X with generative AI — which concept, technique, or AWS service
 fits?") and reward being able to reason about *why* generative AI behaves
@@ -143,19 +143,19 @@ answer.
 ## 2. LLM lifecycle basics
 
 The generative AI / foundation model lifecycle is similar in spirit to the
-traditional ML lifecycle from Domain 1, but the stages and the AWS tooling
+traditional ML lifecycle from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle), but the stages and the AWS tooling
 differ because you are usually **adapting an existing foundation model**
 rather than training one from scratch:
 
 1. **Scope the use case** — define the business problem and whether
    generative AI (versus traditional ML) is even the right fit.
 2. **Select a foundation model** — choose an FM based on modality, cost,
-   latency, context window, and licensing (see Section 7). AWS: browse and
+   latency, context window, and licensing (see [Section 7](#7-foundation-model-selection-criteria)). AWS: browse and
    compare models in **Amazon Bedrock** or **Amazon SageMaker JumpStart**.
 3. **Adapt and customize the model** for your use case, from lightest-touch
    to heaviest-touch:
    - **Prompt engineering** — no training at all; just craft the input
-     (Section 6).
+     ([Section 6](#6-prompt-engineering-fundamentals)).
    - **Retrieval Augmented Generation (RAG)** — ground the model's answers
      in your own data at inference time without changing model weights.
      AWS: **Knowledge Bases for Amazon Bedrock**.
@@ -303,7 +303,7 @@ Bedrock Knowledge Bases).
 > **Exam tip:** When a scenario says a business wants an assistant that
 > answers questions grounded in **their own enterprise data with minimal
 > setup**, prefer the purpose-built **Amazon Q Business** over building a
-> custom Bedrock application from scratch — similar to how Domain 1 favors
+> custom Bedrock application from scratch — similar to how [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview) favors
 > purpose-built AI services over custom SageMaker models when one fits.
 > Reserve a custom Amazon Bedrock build for cases needing deeper
 > customization than a purpose-built assistant offers.
@@ -430,7 +430,7 @@ Other prompt-engineering concepts tested on the exam:
 - **Prompt injection** — a security risk where malicious input tries to
   override or manipulate the original instructions in a prompt (mitigated
   with input validation and **Guardrails for Amazon Bedrock**); covered
-  further in Domain 4/5, but the term itself is fair game in Domain 2.
+  further in [Domain 4](domain-4-guidelines-for-responsible-ai.md)/[5](domain-5-security-compliance-governance.md), but the term itself is fair game in Domain 2.
 
 **AWS example:** A developer testing prompts in **PartyRock** or the
 **Amazon Bedrock** console starts with a **zero-shot** prompt asking a model

@@ -389,7 +389,7 @@ outputs. There is a well-known general tradeoff:
 - **Complex models** (deep neural networks, large foundation models)
   frequently achieve **higher accuracy** on complex tasks (image
   recognition, language generation) but are much harder to interpret —
-  the "black box" problem from [Domain 2](domain-2-fundamentals-of-generative-ai.md) — because their reasoning is
+  the "black box" problem from [Domain 2](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) — because their reasoning is
   distributed across millions or billions of parameters rather than
   explicit, human-readable rules.
 

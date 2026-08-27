@@ -123,6 +123,56 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
             diagram, r"→|↓", "diagram should show the transformer pipeline flow"
         )
 
+    def test_lifecycle_section_has_a_mermaid_flowchart(self):
+        # The LLM lifecycle section must include a Mermaid diagram (not
+        # just prose) showing the six lifecycle stages, the branching
+        # customization options for stage 3, and which AWS service
+        # supports each option.
+        section = _section(self.text, r"\n## 2\. LLM lifecycle basics")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "LLM lifecycle section should include a Mermaid flowchart",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        # All six lifecycle stages must appear as diagram nodes.
+        for stage in [
+            "Scope the use case",
+            "Select a foundation model",
+            "Adapt & customize",
+            "Evaluate the model",
+            "Deploy & integrate",
+            "Monitor",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertIn(stage, diagram)
+
+        # The four customization options branching off stage 3.
+        for option in [
+            "Prompt engineering",
+            "Retrieval Augmented",
+            "Fine-tuning",
+            "Continued pre-training",
+        ]:
+            with self.subTest(option=option):
+                self.assertIn(option, diagram)
+
+        # The AWS services that support each customization path.
+        for service in [
+            "Amazon Bedrock",
+            "Knowledge Bases for",
+            "SageMaker JumpStart",
+        ]:
+            with self.subTest(service=service):
+                self.assertIn(service, diagram)
+
+        # The diagram should show branching out of the adapt/customize
+        # decision node and looping back from monitor for iteration.
+        self.assertRegex(
+            diagram, r"-->\|", "diagram should show labeled branches"
+        )
+
     def test_has_every_required_topic_section(self):
         for heading in REQUIRED_TOPIC_HEADINGS:
             with self.subTest(heading=heading):

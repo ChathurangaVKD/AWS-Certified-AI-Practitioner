@@ -186,6 +186,38 @@ long before you'd consider pretraining a brand-new foundation model, which
 is enormously expensive and rarely the right answer for a business
 application.
 
+**Visual summary — LLM/foundation model lifecycle:** the diagram below
+traces the six stages end-to-end, shows how stage 3 branches into the four
+customization options (lightest to heaviest touch), which AWS service
+supports each option, and how a poor evaluation result can loop back into
+another round of adaptation:
+
+```mermaid
+graph TD
+    SCOPE["1. Scope the use case\n(define the business problem;\ngenerative AI vs. traditional ML)"] --> SELECT["2. Select a foundation model\n(browse/compare in Amazon Bedrock\nor SageMaker JumpStart)"]
+    SELECT --> ADAPT{"3. Adapt & customize\n(lightest to heaviest touch)"}
+
+    ADAPT -->|"no training;\ncraft the input"| PROMPT["Prompt engineering"]
+    ADAPT -->|"ground answers in your\ndata at inference time"| RAG["Retrieval Augmented\nGeneration (RAG)"]
+    ADAPT -->|"train on your own\nlabeled examples"| FINETUNE["Fine-tuning"]
+    ADAPT -->|"train on your own\nunlabeled domain corpus"| PRETRAIN["Continued pre-training"]
+
+    PROMPT -. AWS .-> PROMPTSVC["Amazon Bedrock\n(prompt console/API)"]
+    RAG -. AWS .-> RAGSVC["Knowledge Bases for\nAmazon Bedrock"]
+    FINETUNE -. AWS .-> FTSVC["Amazon Bedrock custom models /\nSageMaker JumpStart fine-tuning"]
+    PRETRAIN -. AWS .-> PTSVC["Amazon Bedrock\ncontinued pre-training"]
+
+    PROMPT --> EVAL["4. Evaluate the model\n(Amazon Bedrock Model Evaluation)"]
+    RAG --> EVAL
+    FINETUNE --> EVAL
+    PRETRAIN --> EVAL
+
+    EVAL --> DEPLOY["5. Deploy & integrate\n(Bedrock API/Provisioned Throughput,\nor a SageMaker endpoint)"]
+    DEPLOY --> MONITOR["6. Monitor\n(CloudWatch metrics,\nGuardrails for Amazon Bedrock)"]
+
+    MONITOR -. "iterate on poor results:\nredesign prompt, change\nretrieval, or re-tune" .-> ADAPT
+```
+
 **AWS example:** A software company wants an internal support assistant.
 They scope the use case (answer questions about internal runbooks), select
 a mid-size text FM in **Amazon Bedrock**, first try plain **prompt

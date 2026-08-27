@@ -112,6 +112,49 @@ compliance corpus rather than the model's general training data.
 > before considering cost or latency at all — a cheap model that can't
 > process images is never the right answer.
 
+#### Mini-quiz: Test your understanding of FM application design considerations
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A company is building a real-time, user-facing chat assistant and wants
+   responses to feel instant. Which design consideration should they weigh
+   most heavily?
+   A. Modality
+   B. Latency
+   C. Customization options
+   D. Cost
+
+   **Answer: B** — Latency-sensitive, real-time use cases favor smaller,
+   faster models (or provisioned throughput) and techniques like response
+   streaming; modality, customization options, and cost are real
+   considerations too, but none of them directly addresses response speed.
+
+2. A scenario requires the application to accept both a text question and
+   an uploaded image in the same request. Which consideration should be
+   filtered on *before* comparing cost or latency across candidate models?
+   A. Cost
+   B. Latency
+   C. Modality
+   D. Customization options
+
+   **Answer: C** — A model that can't process the required input/output
+   type isn't viable no matter how cheap or fast it is, so modality support
+   must be confirmed first, before weighing cost or latency.
+
+3. Which factor most directly drives up Amazon Bedrock on-demand inference
+   cost for a given workload?
+   A. Enabling response streaming
+   B. Longer prompts and choosing a larger, more capable model
+   C. Comparing several providers' models through Bedrock's unified API
+   D. Using a smaller model for a latency-sensitive use case
+
+   **Answer: B** — Cost is driven primarily by token volume (prompt
+   length) and the chosen model's per-token price; streaming changes
+   perceived latency, not cost; comparing models via the unified API
+   carries no extra charge; smaller models for latency-sensitive cases
+   typically cost less, not more.
+
 ---
 
 ## 2. Prompt engineering techniques
@@ -171,6 +214,48 @@ prompt.
 > cheapest and fastest to implement. If a scenario needs a multi-step
 > reasoning improvement (math, logic) with no extra data or cost, the
 > answer is almost always **chain-of-thought prompting**, not fine-tuning.
+
+#### Mini-quiz: Test your understanding of prompt engineering techniques
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A team wants a model to produce consistently formatted output across
+   many different application calls, using a reusable structure with
+   placeholders like `{customer_name}`. Which technique fits best?
+   A. Negative prompting
+   B. Prompt template
+   C. Fine-tuning
+   D. Continued pre-training
+
+   **Answer: B** — Prompt templates are reusable prompt structures with
+   placeholders that standardize how an application constructs prompts, so
+   every call gets a consistent instruction/format without retraining
+   anything.
+
+2. Which of the following is a security risk rather than a legitimate
+   prompt engineering technique?
+   A. Few-shot prompting
+   B. Chain-of-thought prompting
+   C. Prompt injection
+   D. Prompt chaining
+
+   **Answer: C** — Prompt injection is a malicious user embedding
+   instructions designed to override the application's intended
+   prompt/system instructions; it's a risk to mitigate (e.g., with
+   Guardrails), not a technique to apply.
+
+3. A developer breaks a complex task into a sequence of prompts, where the
+   output of one feeds the input of the next, using Amazon Bedrock's
+   visual builder for this. Which capability are they using?
+   A. Amazon Bedrock Prompt Flows
+   B. Amazon Bedrock Guardrails
+   C. Amazon Bedrock Agents
+   D. Amazon Bedrock model evaluation
+
+   **Answer: A** — Amazon Bedrock Prompt Flows provides a visual builder
+   for chaining prompts (and other steps, like Knowledge Base lookups)
+   into a single workflow, which is prompt chaining in practice.
 
 ---
 

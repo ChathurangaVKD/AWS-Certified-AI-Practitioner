@@ -41,24 +41,30 @@ DOMAIN_FILES = {
 # One expected linked substring per prose mention that was converted to a
 # link, keyed by the domain file it lives in.
 EXPECTED_LINKS = {
+    1: [
+        "[generative AI](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts)",
+        "[foundation model applications](domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications)",
+        "[responsible AI](domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai)",
+        "[security/governance](domain-5-security-compliance-governance.md#1-securing-ai-systems)",
+        "[Domain 2](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts), but you should know",
+    ],
     2: [
         "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle)",
         "(see [Section 7](#7-foundation-model-selection-criteria))",
         "([Section 6](#6-prompt-engineering-fundamentals))",
         "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview)",
-        "[Domain 4](domain-4-guidelines-for-responsible-ai.md)/[5](domain-5-security-compliance-governance.md)",
+        "[Domain 4](domain-4-guidelines-for-responsible-ai.md)/[Domain 5](domain-5-security-compliance-governance.md)",
         "[Domain 3](domain-3-applications-of-foundation-models.md)",
     ],
     3: [
         "[Domain 2](domain-2-fundamentals-of-generative-ai.md) tests whether",
         "[Section 5](#5-amazon-bedrock-features)). Larger",
-        "in [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering).",
+        "in [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) that requires no",
         "([Section 5](#5-amazon-bedrock-features)).",
-        "[Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) that requires no",
         "([Section 6](#6-vector-databases-and-embeddings-for-search-and-retrieval))",
         "Covered in [Section 2](#2-prompt-engineering-techniques).",
         "Covered in [Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases).",
-        "[Domain 4](domain-4-guidelines-for-responsible-ai.md) study guide",
+        "[Domain 4 study guide](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai)",
         "in [Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases): automatic ingestion",
     ],
     4: [
@@ -69,9 +75,10 @@ EXPECTED_LINKS = {
         "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off): high bias",
         "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)); the exam",
         "(see [Section 5](#5-balancing-model-performance-and-interpretability)),",
-        "[Domain 2](domain-2-fundamentals-of-generative-ai.md) — because their reasoning",
+        "[Domain 2](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) — because their reasoning",
         "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)).",
         "[Domain 2](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts);",
+        "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md)–[Domain 3](domain-3-applications-of-foundation-models.md)",
     ],
 }
 

@@ -163,6 +163,43 @@ answer.
 > testing that **tokens ≠ words** — a single word can be multiple tokens,
 > which is why context windows and LLM pricing are measured in tokens.
 
+### Mini-quiz: generative AI core concepts
+
+**Q1.** A model converts the sentence "the customer is happy" into an array
+of numbers like `[0.41, -0.19, 0.88, ...]` that captures its meaning.
+What is this array called?
+   A. A token
+   B. A vector
+   C. A prompt template
+   D. A checkpoint
+
+**Answer: B — A vector.** The array of numbers itself is the vector; the
+process of deriving meaning as that array is called embedding. (A) is the
+unit of text the model reads, not the numeric output; (C) and (D) are
+unrelated terms.
+
+**Q2.** Which statement correctly distinguishes a large language model
+(LLM) from a foundation model (FM)?
+   A. An LLM is unrelated to foundation models
+   B. An LLM is a foundation model specialized for natural-language text; all FMs are LLMs
+   C. An LLM is a foundation model specialized for natural-language text; an LLM is one subset of the broader FM category
+   D. A foundation model is always smaller than an LLM
+
+**Answer: C.** LLMs are a subset of foundation models focused on language;
+not every FM is an LLM (e.g., an image-generation FM is not a language
+model). (B) is wrong because FMs also include non-language modalities.
+
+**Q3.** What makes the self-attention mechanism in a transformer different
+from older recurrent, left-to-right architectures?
+   A. It processes tokens strictly in sequential order
+   B. It lets each token weigh the relevance of every other token in the input, regardless of distance
+   C. It eliminates the need for tokenization
+   D. It only considers the immediately preceding token
+
+**Answer: B.** Self-attention compares each token against every other
+token in the input in parallel, which is what allows transformers to
+capture long-range context and train efficiently on large datasets.
+
 ---
 
 ## 2. LLM lifecycle basics

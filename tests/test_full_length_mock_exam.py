@@ -350,14 +350,7 @@ class TestMockExamLinksResolve(unittest.TestCase):
     def test_every_same_document_anchor_matches_a_real_heading(self):
         own_anchors = _heading_anchors(self.text)
         same_doc_anchors = [
-            link.split("#", 1)[1]
-            for link in self.internal_links
-            if link.startswith("#")
-        ]
-        same_doc_anchors += [
-            link.split("#", 1)[1]
-            for link in self.internal_links
-            if "#" in link and link.split("#", 1)[0] == ""
+            link.split("#", 1)[1] for link in self.links if link.startswith("#")
         ]
         self.assertGreater(
             len(same_doc_anchors), 0, "expected at least one same-document anchor link"

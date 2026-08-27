@@ -225,6 +225,40 @@ while performing far worse for a minority subgroup. Common signals:
   group or recalibrate outputs after training completes, without
   retraining the model.
 
+**Visual summary — bias detection and mitigation workflow:** given a
+scenario, first identify which of the six bias types it describes, then
+detect it with the appropriate SageMaker Clarify metric depending on
+whether the model has been trained yet, then select an AWS tool to
+mitigate or govern it:
+
+```mermaid
+flowchart TD
+    A["Scenario describes a possible bias or fairness problem"] --> B{"Identify the bias type"}
+    B --> B1["Sampling bias\n(unrepresentative data)"]
+    B --> B2["Measurement bias\n(proxy variable skew)"]
+    B --> B3["Label / human bias\n(annotator skew)"]
+    B --> B4["Historical bias\n(inequitable past outcomes)"]
+    B --> B5["Exclusion bias\n(removed signal)"]
+    B --> B6["Aggregation bias\n(one model, distinct subgroups)"]
+
+    B1 --> C{"Has the model been trained yet?"}
+    B2 --> C
+    B3 --> C
+    B4 --> C
+    B5 --> C
+    B6 --> C
+
+    C -->|"No - check the dataset"| D["Pre-training detection\nSageMaker Clarify: class imbalance,\ndifference in proportions of labels (DPL)"]
+    C -->|"Yes - check the predictions"| E["Post-training detection\nSageMaker Clarify: disparate impact,\naccuracy/recall difference"]
+
+    D --> F{"Select a mitigation tool"}
+    E --> F
+
+    F --> G["Guardrails for Amazon Bedrock\n(runtime output controls)"]
+    F --> H["SageMaker Model Cards\n(document bias risk and limitations)"]
+    F --> I["Amazon A2I\n(human review of flagged predictions)"]
+```
+
 **AWS example:** A bank builds a credit-approval model. Before training,
 they run **Amazon SageMaker Clarify** on the training dataset and discover
 a large **difference in proportions of labels** between two demographic

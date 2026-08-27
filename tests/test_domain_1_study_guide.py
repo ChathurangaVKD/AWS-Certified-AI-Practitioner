@@ -243,6 +243,40 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
             "(e.g. poor evaluation, drift, degraded accuracy, retraining)",
         )
 
+    def test_ml_lifecycle_mermaid_flowchart_has_evaluation_decision_point(self):
+        # The evaluation stage must be an explicit branch point in the
+        # diagram, not just another straight-through box: a decision node
+        # with distinct "pass" (-> deploy) and "fail" (-> retrain) edges.
+        section = _section(self.text, r"\n## 2\. The ML development lifecycle")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(mermaid_blocks)
+        diagram = "\n".join(mermaid_blocks)
+
+        # A decision node uses Mermaid's diamond syntax: NAME{"..."}
+        decision_nodes = re.findall(r'\w+\{"([^"]+)"\}', diagram)
+        self.assertTrue(
+            decision_nodes,
+            "diagram should include a Mermaid decision node (diamond "
+            'shape, e.g. NAME{"..."}) for the evaluation gate',
+        )
+
+        # Find the decision node's id so we can check its outgoing edges.
+        decision_id_match = re.search(r'(\w+)\{"[^"]+"\}', diagram)
+        decision_id = decision_id_match.group(1)
+        outgoing_edges = re.findall(
+            rf'{decision_id}\s*-[-.]+\s*"([^"]+)"\s*[-.]+>', diagram
+        )
+        self.assertTrue(
+            any(re.search(r"(?i)pass", label) for label in outgoing_edges),
+            "decision node should have an edge labeled for the passing "
+            "case (leading to deployment)",
+        )
+        self.assertTrue(
+            any(re.search(r"(?i)fail", label) for label in outgoing_edges),
+            "decision node should have an edge labeled for the failing "
+            "case (leading back to retraining)",
+        )
+
     def test_has_key_terms_glossary_with_substantial_coverage(self):
         glossary = _section(self.text, r"\n## Key terms glossary")
         entries = re.findall(r"^- \*\*.+?\*\*", glossary, re.M)

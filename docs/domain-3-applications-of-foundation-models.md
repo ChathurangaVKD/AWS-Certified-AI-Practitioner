@@ -87,73 +87,65 @@ weigh against each other, since improving one often costs you on another:
   Claude models on Bedrock support multimodal (text + image) input.
   Choosing a model that doesn't support your required modality is a
   common exam distractor.
-- **Customization options** — how much the base model's behavior needs to
-  change for your use case: prompt engineering only, Retrieval Augmented
-  Generation (RAG) to ground it in your data, fine-tuning to change its
-  behavior/style, or continued pre-training to deepen domain knowledge.
-  These four options form a **cost/complexity spectrum**, covered in full
-  in [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering).
+### Mini-quiz: check your understanding (Section 1)
 
-**AWS example:** A company builds two generative AI features on Amazon
-Bedrock: (1) a real-time customer-support chat widget, where they choose a
-smaller, low-latency model, enable response streaming, and use prompt
-engineering only (cheapest, fastest to ship); and (2) an internal
-compliance-document summarizer, where accuracy matters more than latency,
-so they choose a larger, more capable model and pair it with **Amazon
-Bedrock Knowledge Bases** (RAG) to ground summaries in the actual
-compliance corpus rather than the model's general training data.
+Quick formative check before moving on — try each question, then expand
+the answer.
 
-> **Exam tip:** When a scenario emphasizes "real-time," "responsive," or
-> "conversational," think **latency** and favor a smaller model or
-> provisioned throughput. When it emphasizes "cost-sensitive" or
-> "unpredictable/spiky traffic," favor **on-demand** pricing over
-> provisioned throughput. When it names a specific input/output type
-> (images, audio), first filter to models that support that **modality**
-> before considering cost or latency at all — a cheap model that can't
-> process images is never the right answer.
+1. A team is choosing between two foundation models for a voice assistant
+   that must feel conversational and responsive. Which design
+   consideration should weigh most heavily?
+   A. Latency
+   B. Modality
+   C. Fine-tuning support
+   D. Prompt template versioning
 
-#### Mini-quiz: Test your understanding of FM application design considerations
+   <details><summary>Show answer</summary>
 
-Quick self-check before moving on — try to answer before reading the
-explanation.
+   **A — Latency.** A "conversational, responsive" voice assistant is a
+   latency-sensitive use case, so the team should favor a smaller,
+   faster model or provisioned throughput. Modality (B) only matters if
+   the required input/output type is in question, which it isn't here;
+   fine-tuning support (C) and prompt template versioning (D) are
+   customization/tooling concerns, not what drives a real-time feel.
 
-1. A company is building a real-time, user-facing chat assistant and wants
-   responses to feel instant. Which design consideration should they weigh
-   most heavily?
-   A. Modality
-   B. Latency
-   C. Customization options
-   D. Cost
+   </details>
 
-   **Answer: B** — Latency-sensitive, real-time use cases favor smaller,
-   faster models (or provisioned throughput) and techniques like response
-   streaming; modality, customization options, and cost are real
-   considerations too, but none of them directly addresses response speed.
+2. Which pricing model is generally most cost-effective for a workload
+   with unpredictable, spiky traffic?
+   A. Provisioned throughput
+   B. On-demand
+   C. Continued pre-training
+   D. Reserved model units regardless of volume
 
-2. A scenario requires the application to accept both a text question and
-   an uploaded image in the same request. Which consideration should be
-   filtered on *before* comparing cost or latency across candidate models?
-   A. Cost
-   B. Latency
-   C. Modality
-   D. Customization options
+   <details><summary>Show answer</summary>
 
-   **Answer: C** — A model that can't process the required input/output
-   type isn't viable no matter how cheap or fast it is, so modality support
-   must be confirmed first, before weighing cost or latency.
+   **B — On-demand.** On-demand pricing (pay per token, no commitment)
+   fits variable or unpredictable traffic best. Provisioned throughput
+   (A, D) is cost-effective only for high, steady, predictable volume;
+   continued pre-training (C) is a customization technique, not a
+   pricing model.
 
-3. Which factor most directly drives up Amazon Bedrock on-demand inference
-   cost for a given workload?
-   A. Enabling response streaming
-   B. Longer prompts and choosing a larger, more capable model
-   C. Comparing several providers' models through Bedrock's unified API
-   D. Using a smaller model for a latency-sensitive use case
+   </details>
 
-   **Answer: B** — Cost is driven primarily by token volume (prompt
-   length) and the chosen model's per-token price; streaming changes
-   perceived latency, not cost; comparing models via the unified API
-   carries no extra charge; smaller models for latency-sensitive cases
-   typically cost less, not more.
+3. On Amazon Bedrock, what lets an application swap foundation models
+   from different providers without re-architecting the application?
+   A. A separate SDK per provider
+   B. Amazon Bedrock's single, unified API across providers
+   C. Fine-tuning every candidate model first
+   D. Amazon Bedrock Agents
+
+   <details><summary>Show answer</summary>
+
+   **B — Amazon Bedrock's single, unified API across providers.**
+   Bedrock exposes FMs from Amazon, Anthropic, AI21 Labs, Cohere, Meta,
+   Mistral AI, and Stability AI behind one API, so switching models is a
+   config change rather than a rewrite. A contradicts how Bedrock works;
+   fine-tuning (C) is an optional customization step, not a prerequisite
+   for swapping models; Agents (D) orchestrate multi-step tasks, they
+   don't provide model-provider abstraction.
+
+   </details>
 
 ---
 

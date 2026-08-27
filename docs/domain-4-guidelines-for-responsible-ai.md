@@ -38,7 +38,7 @@ code; they are scenario-based ("a company is concerned about X — which
 practice, metric, or AWS tool addresses it?") and frequently hinge on
 precise terminology (e.g., distinguishing *bias* from *variance*, or a
 **Model Card** from an **AI Service Card**). This domain also sets up
-Domain 5 (security, compliance, and governance for AI solutions), which
+[Domain 5](domain-5-security-compliance-governance.md) (security, compliance, and governance for AI solutions), which
 goes deeper on the organizational and regulatory side of many of the same
 themes.
 
@@ -54,7 +54,7 @@ roughly which AWS capability supports it:
   equitably, without producing outcomes that systematically disadvantage
   people based on protected characteristics (e.g., race, gender, age).
   Fairness problems most often originate from **bias** in training data or
-  model behavior (Section 2).
+  model behavior ([Section 2](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)).
 - **Explainability** — the ability to describe, in human-understandable
   terms, *why* a model produced a particular prediction or output.
   Explainability is closely related to but distinct from **transparency**
@@ -72,7 +72,7 @@ roughly which AWS capability supports it:
   and its known risks, so that users and stakeholders can make informed
   decisions about whether and how to rely on it. AWS: **SageMaker Model
   Cards** and **AI Service Cards** are the primary documentation
-  mechanisms (Section 3).
+  mechanisms ([Section 3](#3-aws-tools-for-responsible-ai)).
 - **Veracity and robustness** — the system produces **correct, reliable
   outputs** and continues to perform well when faced with unexpected,
   noisy, or adversarial inputs, rather than degrading unpredictably or
@@ -84,7 +84,7 @@ roughly which AWS capability supports it:
   an organization puts in place to control how AI systems are built,
   reviewed, approved, deployed, and monitored over their lifecycle. AWS:
   SageMaker Model Cards and ML lineage tracking support governance by
-  creating an auditable record; covered in more depth in Domain 5.
+  creating an auditable record; covered in more depth in [Domain 5](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance).
 - **Safety** — preventing the AI system from causing harm — physical,
   psychological, financial, or societal — including preventing it from
   generating harmful, hateful, or dangerous content. AWS: **Guardrails
@@ -177,7 +177,7 @@ off the assistant at any time).
 **Bias** in ML is a systematic skew in a model's predictions caused by
 problems in the training data or the training process — as distinct from
 **variance**, which is a model's sensitivity to small fluctuations in the
-training data (recall from Domain 1: high bias underfits, high variance
+training data (recall from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off): high bias underfits, high variance
 overfits). Responsible AI bias is about *unfair skew*, most visibly along
 demographic or protected-characteristic lines, and it can be introduced at
 multiple points:
@@ -238,7 +238,7 @@ monitoring bias drift over time with **Amazon SageMaker Model Monitor**.
 > **Exam tip:** Know the difference between **bias** (systematic,
 > unfair skew — a responsible-AI/fairness problem) and **variance**
 > (sensitivity to training data fluctuations — an underfitting/overfitting
-> problem from Domain 1); the exam tests both terms and expects you not to
+> problem from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)); the exam tests both terms and expects you not to
 > conflate them. Also remember that **SageMaker Clarify measures bias both
 > before training (on the dataset) and after training (on model
 > predictions)** — a scenario that mentions checking a *dataset* for bias
@@ -343,7 +343,7 @@ its documented limitations before deciding.
 - **Environmental impact** — training and running large foundation
   models consumes substantial energy and compute resources, with a real
   carbon and resource footprint. Considerations: choosing smaller/more
-  efficient models when they meet the accuracy bar (see Section 5),
+  efficient models when they meet the accuracy bar (see [Section 5](#5-balancing-model-performance-and-interpretability)),
   reusing pretrained foundation models via prompting/RAG/fine-tuning
   instead of pretraining from scratch, and consulting AWS sustainability
   guidance. AWS: the **AWS Customer Carbon Footprint Tool** reports the
@@ -389,7 +389,7 @@ outputs. There is a well-known general tradeoff:
 - **Complex models** (deep neural networks, large foundation models)
   frequently achieve **higher accuracy** on complex tasks (image
   recognition, language generation) but are much harder to interpret —
-  the "black box" problem from Domain 2 — because their reasoning is
+  the "black box" problem from [Domain 2](domain-2-fundamentals-of-generative-ai.md) — because their reasoning is
   distributed across millions or billions of parameters rather than
   explicit, human-readable rules.
 
@@ -480,7 +480,7 @@ require the same level of per-prediction explainability.
   predictions caused by problems in training data or the training
   process.
 - **Variance** — a model's sensitivity to fluctuations in the training
-  data (distinct from bias; see Domain 1).
+  data (distinct from bias; see [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)).
 - **Sampling bias** — training data does not represent the real-world
   population the model will serve.
 - **Historical bias** — training data accurately reflects a real world
@@ -820,7 +820,7 @@ require the same level of per-prediction explainability.
     content similar to copyrighted material, and data privacy obligations
     around personal data used in training or prompts.** These are the
     legal/ethical considerations the exam associates with this domain.
-    Attention heads (C) is a model architecture detail from Domain 2;
+    Attention heads (C) is a model architecture detail from [Domain 2](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts);
     Region selection for latency (D) and VPC subnet configuration (E) are
     infrastructure/networking concerns, not legal or ethical
     considerations.

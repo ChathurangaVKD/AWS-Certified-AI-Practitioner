@@ -21,7 +21,7 @@
 
 Domain 3 is the largest domain on the AWS Certified AI Practitioner
 (AIF-C01) exam, making up roughly **28% of scored questions**. Where
-Domain 2 tests whether you understand *what* generative AI and foundation
+[Domain 2](domain-2-fundamentals-of-generative-ai.md) tests whether you understand *what* generative AI and foundation
 models (FMs) are, Domain 3 tests whether you can reason about how to
 **build a real application on top of one** — how to choose a model for a
 scenario, how to make it accurate and grounded in your own data, how to
@@ -68,7 +68,7 @@ weigh against each other, since improving one often costs you on another:
   single unified API without re-architecting your application.
 - **Cost** — generative AI inference is typically billed per input/output
   **token** (on-demand) or as a flat rate for reserved capacity
-  (**provisioned throughput**, Section 5). Larger, more capable models
+  (**provisioned throughput**, [Section 5](#5-amazon-bedrock-features)). Larger, more capable models
   cost more per token than smaller models. Cost is also driven by prompt
   length (more context = more input tokens) and how many customization
   steps (fine-tuning, continued pre-training) you invest in up front.
@@ -91,7 +91,7 @@ weigh against each other, since improving one often costs you on another:
   Generation (RAG) to ground it in your data, fine-tuning to change its
   behavior/style, or continued pre-training to deepen domain knowledge.
   These four options form a **cost/complexity spectrum**, covered in full
-  in Section 4.
+  in [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering).
 
 **AWS example:** A company builds two generative AI features on Amazon
 Bedrock: (1) a real-time customer-support chat widget, where they choose a
@@ -154,7 +154,7 @@ Key techniques:
   user embeds instructions in their input designed to override the
   application's intended prompt/system instructions (e.g., "ignore all
   previous instructions"). Mitigations include input validation and
-  **Guardrails for Amazon Bedrock** (Section 5).
+  **Guardrails for Amazon Bedrock** ([Section 5](#5-amazon-bedrock-features)).
 
 **AWS example:** A retail company builds a support-ticket triage tool on
 Amazon Bedrock. They use a **few-shot** prompt with five labeled example
@@ -165,7 +165,7 @@ Prompt Management so every application call uses a consistent, tested
 prompt.
 
 > **Exam tip:** Prompt engineering **never changes the model's weights** —
-> it's the only customization option in Section 4 that requires no
+> it's the only customization option in [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) that requires no
 > training data and no training job, which is why it's always the
 > cheapest and fastest to implement. If a scenario needs a multi-step
 > reasoning improvement (math, logic) with no extra data or cost, the
@@ -195,7 +195,7 @@ The typical RAG pipeline:
    (**embedding**) using an embeddings model (e.g., **Amazon Titan Text
    Embeddings**), capturing its semantic meaning.
 4. **Indexing/storage** — the embeddings are stored in a **vector
-   database** (Section 6) for fast similarity search.
+   database** ([Section 6](#6-vector-databases-and-embeddings-for-search-and-retrieval)) for fast similarity search.
 5. **Retrieval** — at query time, the user's question is embedded the same
    way, and the vector store returns the most semantically similar chunks.
 6. **Augmentation and generation** — the retrieved chunks are inserted into
@@ -240,18 +240,18 @@ single spectrum and pick the right one for a scenario:
 
 - **Prompt engineering** — no training, no extra data beyond what's in the
   prompt. Cheapest and fastest. Limited by the model's context window and
-  by what the base model already "knows." Covered in Section 2.
+  by what the base model already "knows." Covered in [Section 2](#2-prompt-engineering-techniques).
 - **Retrieval Augmented Generation (RAG)** — no training; augments prompts
   with retrieved external data at query time. Best for grounding responses
   in **frequently changing or proprietary knowledge** without retraining.
-  Covered in Section 3.
+  Covered in [Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases).
 - **Fine-tuning** — further trains a copy of a pretrained FM on a
   smaller, **labeled** dataset of your own input/output examples, updating
   the model's weights so it reliably produces a particular style,
   format, tone, or task behavior. Requires more time, cost, and ML
   expertise than prompting or RAG, and updates require re-running the
   fine-tuning job. On Bedrock, **fine-tuning creates a custom model** that
-  typically must be accessed via **provisioned throughput** (Section 5).
+  typically must be accessed via **provisioned throughput** ([Section 5](#5-amazon-bedrock-features)).
 - **Continued pre-training (a.k.a. domain adaptation)** — further trains a
   pretrained FM on a large volume of **unlabeled**, domain-specific text
   using the same self-supervised objective as original pretraining (e.g.,
@@ -351,11 +351,11 @@ infrastructure. Its core features, each tested individually on the exam:
 - **Guardrails for Amazon Bedrock** — a configurable safety layer applied
   to model inputs/outputs: denied topics, content filters, word filters,
   sensitive information (PII) filters, and contextual grounding checks
-  (covered in depth in the Domain 4 study guide, since it's primarily a
+  (covered in depth in the [Domain 4](domain-4-guidelines-for-responsible-ai.md) study guide, since it's primarily a
   responsible-AI control — but the exam also tests it here as a Bedrock
   platform feature you attach to any model or Agent).
 - **Amazon Bedrock Knowledge Bases** — the managed RAG feature described
-  in Section 3: automatic ingestion, chunking, embedding, and retrieval
+  in [Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases): automatic ingestion, chunking, embedding, and retrieval
   over your own data.
 - **Model evaluation** — Bedrock lets you run **evaluation jobs** to
   compare FMs or assess a specific model's quality before choosing it for

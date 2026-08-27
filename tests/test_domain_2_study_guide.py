@@ -123,6 +123,41 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
             diagram, r"→|↓", "diagram should show the transformer pipeline flow"
         )
 
+    def test_generative_ai_section_has_a_token_flow_mermaid_diagram(self):
+        # The core-concepts section must include a Mermaid flowchart (not
+        # just the ASCII pipeline summary) that traces a concrete example
+        # sentence through tokenization, embeddings, and the transformer's
+        # self-attention block to the model's output.
+        section = _section(self.text, r"\n## 1\. Generative AI core concepts")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "core concepts section should include a Mermaid token-flow diagram",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        # Concrete example sentence, tokenized word by word.
+        for token in ["The cat sat", "Token: The", "Token: cat", "Token: sat"]:
+            with self.subTest(token=token):
+                self.assertIn(token, diagram)
+
+        # Stages of the token flow: embeddings -> transformer attention -> output.
+        for stage in [
+            "Embeddings layer",
+            "positional encoding",
+            "Transformer block",
+            "Self-Attention",
+            "Feed-Forward",
+            "Output token probabilities",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertIn(stage, diagram)
+
+        # It should be an actual flowchart with connected nodes, not prose.
+        self.assertRegex(
+            diagram, r"-->", "diagram should connect stages with flowchart edges"
+        )
+
     def test_lifecycle_section_has_a_mermaid_flowchart(self):
         # The LLM lifecycle section must include a Mermaid diagram (not
         # just prose) showing the six lifecycle stages, the branching

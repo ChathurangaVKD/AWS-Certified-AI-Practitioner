@@ -144,6 +144,23 @@ This is an **iterative loop**, not a strict waterfall: poor evaluation or
 monitoring results send you back to data collection, feature engineering,
 or retraining.
 
+```mermaid
+flowchart TD
+    A["1. Business Goal Identification"] --> B["2. Data Collection<br/>S3 · Glue · Kinesis / MSK"]
+    B --> C["3. Exploratory Data Analysis<br/>SageMaker Data Wrangler · SageMaker Studio · Athena"]
+    C --> D["4. Data Preparation / Feature Engineering<br/>SageMaker Data Wrangler · SageMaker Feature Store"]
+    D --> E["5. Model Training<br/>SageMaker Training Jobs · JumpStart · Managed Spot Training"]
+    E --> F["6. Hyperparameter Tuning / Evaluation<br/>SageMaker Automatic Model Tuning · SageMaker Clarify"]
+    F --> G["7. Deployment<br/>SageMaker Endpoints · Batch Transform · Serverless Inference"]
+    G --> H["8. Monitoring<br/>SageMaker Model Monitor · Amazon CloudWatch"]
+    F -. "poor evaluation results: retrain" .-> D
+    H -. "data / concept drift detected" .-> B
+    H -. "degraded accuracy: retrain" .-> E
+```
+
+The same lifecycle, shown as plain-text ASCII for readers without Mermaid
+rendering:
+
 ```
 1. Business Goal Identification
         ↓

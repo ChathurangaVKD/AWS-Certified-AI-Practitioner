@@ -180,6 +180,69 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
             "diagram should depict the loop-back to an earlier stage",
         )
 
+    def test_ml_lifecycle_section_has_a_mermaid_flowchart(self):
+        section = _section(self.text, r"\n## 2\. The ML development lifecycle")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "ML lifecycle section should include a ```mermaid fenced flowchart",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        # Diagram must declare a flowchart and use directional edges.
+        self.assertRegex(diagram, r"flowchart\s+(TD|TB|LR|RL|BT)")
+        self.assertRegex(diagram, r"-->")
+
+        # All 8 lifecycle stages must be represented as nodes.
+        for stage in [
+            "Business Goal Identification",
+            "Data Collection",
+            "Exploratory Data Analysis",
+            "Data Preparation / Feature Engineering",
+            "Model Training",
+            "Hyperparameter Tuning / Evaluation",
+            "Deployment",
+            "Monitoring",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertIn(stage, diagram)
+
+        # AWS tools called out per stage in the prose must also appear on
+        # the diagram so the flowchart maps tools to stages, not just names.
+        for tool in [
+            "S3",
+            "Glue",
+            "Kinesis",
+            "SageMaker Data Wrangler",
+            "Athena",
+            "SageMaker Feature Store",
+            "JumpStart",
+            "SageMaker Automatic Model Tuning",
+            "SageMaker Clarify",
+            "SageMaker Endpoints",
+            "SageMaker Model Monitor",
+            "CloudWatch",
+        ]:
+            with self.subTest(tool=tool):
+                self.assertIn(tool, diagram)
+
+        # At least one feedback/loop-back edge must connect a later stage
+        # back to an earlier one (dashed edges using "-." syntax), and it
+        # must be labeled to explain why the loop happens.
+        loopback_edges = re.findall(r'-\.\s*"([^"]+)"\s*\.->', diagram)
+        self.assertTrue(
+            loopback_edges,
+            "diagram should include at least one labeled feedback/loop-back edge",
+        )
+        self.assertTrue(
+            any(
+                re.search(r"(?i)evaluat|drift|degrad|retrain", label)
+                for label in loopback_edges
+            ),
+            "feedback edge labels should explain the loop-back reason "
+            "(e.g. poor evaluation, drift, degraded accuracy, retraining)",
+        )
+
     def test_has_key_terms_glossary_with_substantial_coverage(self):
         glossary = _section(self.text, r"\n## Key terms glossary")
         entries = re.findall(r"^- \*\*.+?\*\*", glossary, re.M)

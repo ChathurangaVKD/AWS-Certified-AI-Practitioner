@@ -249,6 +249,43 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                     f"RAG section missing term: {term!r}",
                 )
 
+    def test_rag_section_has_a_system_architecture_diagram(self):
+        section = _section(
+            self.text,
+            r"\n## 3\. Retrieval Augmented Generation \(RAG\) and Amazon "
+            r"Bedrock Knowledge Bases",
+        )
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences, "RAG section should include a system architecture diagram"
+        )
+        diagram = "\n".join(fences)
+        # Pipeline stages the diagram must depict, per the RAG pipeline
+        # described in prose immediately above it.
+        for stage in [
+            "document",
+            "chunk",
+            "embed",
+            "vector store",
+            "retriev",
+            "LLM",
+            "citation",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertRegex(
+                    diagram,
+                    re.compile(re.escape(stage), re.IGNORECASE),
+                    f"RAG diagram missing pipeline stage: {stage!r}",
+                )
+        # AWS integration points the diagram must call out.
+        for service in ["OpenSearch", "Aurora", "Kendra", "Bedrock"]:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    diagram,
+                    f"RAG diagram missing AWS integration point: {service!r}",
+                )
+
     def test_tradeoff_section_covers_labeled_vs_unlabeled_distinction(self):
         section = _section(
             self.text,

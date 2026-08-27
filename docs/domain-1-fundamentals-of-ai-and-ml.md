@@ -404,6 +404,8 @@ before deploying to a SageMaker endpoint.
 
 ## Key terms glossary
 
+> Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.
+
 - **AI (Artificial Intelligence)** — broad field of systems performing
   tasks that normally require human intelligence.
 - **ML (Machine Learning)** — subset of AI where systems learn patterns

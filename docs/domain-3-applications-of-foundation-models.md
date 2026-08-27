@@ -528,6 +528,8 @@ infrastructure directly, a different team at the same company uses
 
 ## Key terms glossary
 
+> Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.
+
 - **Foundation model (FM) application design** — the process of choosing
   a model and architecture based on task fit, cost, latency, modality, and
   customization needs.

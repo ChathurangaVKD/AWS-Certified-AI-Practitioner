@@ -491,6 +491,8 @@ data before committing.
 
 ## Key terms glossary
 
+> Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.
+
 - **Generative AI** — subset of deep learning where models generate new
   content (text, images, audio, code) rather than only predicting a label.
 - **Foundation model (FM)** — a large model pretrained on broad data that

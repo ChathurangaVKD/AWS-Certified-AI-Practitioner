@@ -437,7 +437,7 @@ Core prompting techniques:
   arithmetic/logic, at the cost of a longer (and more expensive) response.
 - **Negative prompting** — explicitly tell the model what **not** to
   include or do (e.g., in image generation, "no text, no watermark, no
-  blurry background"; in text generation, "do not include any
+ blurry background"; in text generation, "do not include any
   disclaimers"). Most commonly associated with image-generation models,
   but applicable to text generation as well.
 
@@ -462,7 +462,7 @@ Other prompt-engineering concepts tested on the exam:
 - **Prompt injection** — a security risk where malicious input tries to
   override or manipulate the original instructions in a prompt (mitigated
   with input validation and **Guardrails for Amazon Bedrock**); covered
-  further in [Domain 4](domain-4-guidelines-for-responsible-ai.md)/[5](domain-5-security-compliance-governance.md), but the term itself is fair game in Domain 2.
+  further in [Domain 4](domain-4-guidelines-for-responsible-ai.md)/[Domain 5](domain-5-security-compliance-governance.md), but the term itself is fair game in Domain 2.
 
 **AWS example:** A developer testing prompts in **PartyRock** or the
 **Amazon Bedrock** console starts with a **zero-shot** prompt asking a model

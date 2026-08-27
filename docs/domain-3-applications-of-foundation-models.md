@@ -392,7 +392,6 @@ language before fine-tuning on top of it.
 > input/output pairs; continued pre-training needs only unlabeled
 > domain text** — that labeled-vs-unlabeled distinction is exactly what
 > the exam tests between these two.
-
 ---
 
 ## 5. Amazon Bedrock features
@@ -417,7 +416,7 @@ infrastructure. Its core features, each tested individually on the exam:
 - **Guardrails for Amazon Bedrock** — a configurable safety layer applied
   to model inputs/outputs: denied topics, content filters, word filters,
   sensitive information (PII) filters, and contextual grounding checks
-  (covered in depth in the [Domain 4](domain-4-guidelines-for-responsible-ai.md) study guide, since it's primarily a
+  (covered in depth in the [Domain 4 study guide](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai), since it's primarily a
   responsible-AI control — but the exam also tests it here as a Bedrock
   platform feature you attach to any model or Agent).
 - **Amazon Bedrock Knowledge Bases** — the managed RAG feature described

@@ -670,7 +670,7 @@ infrastructure directly, a different team at the same company uses
 
 ## Practice questions
 
-1. A company wants its generative AI assistant to always answer using the
+1. **[Intermediate]** A company wants its generative AI assistant to always answer using the
    most current version of its product catalog, which changes daily, and
    cannot afford to retrain a model every day. Which approach best fits
    this requirement?
@@ -679,14 +679,14 @@ infrastructure directly, a different team at the same company uses
    C. Retrieval Augmented Generation (RAG) with Amazon Bedrock Knowledge Bases
    D. Increasing the model's temperature parameter
 
-2. Which factor should a team prioritize first when a use case requires
+2. **[Beginner]** Which factor should a team prioritize first when a use case requires
    the model to generate both text and images from a single prompt?
    A. Cost per token
    B. Modality support
    C. Provisioned throughput commitment length
    D. Chain-of-thought prompting
 
-3. A developer wants a foundation model to reliably output responses in a
+3. **[Intermediate]** A developer wants a foundation model to reliably output responses in a
    very specific JSON schema by showing it several example input/output
    pairs directly inside the prompt, without any training job. Which
    prompt engineering technique is this?
@@ -695,7 +695,7 @@ infrastructure directly, a different team at the same company uses
    C. Continued pre-training
    D. Fine-tuning
 
-4. A model is prone to giving a final answer to multi-step math word
+4. **[Intermediate]** A model is prone to giving a final answer to multi-step math word
    problems without correctly working through the intermediate steps.
    Which prompting technique would most directly help, at no additional
    training cost?
@@ -704,14 +704,14 @@ infrastructure directly, a different team at the same company uses
    C. Provisioned throughput
    D. Continued pre-training
 
-5. Which of the following best describes the purpose of Amazon Bedrock
+5. **[Beginner]** Which of the following best describes the purpose of Amazon Bedrock
    Knowledge Bases?
    A. It fine-tunes a foundation model's weights on labeled data
    B. It automatically manages ingestion, chunking, embedding, and retrieval of your own data to ground FM responses
    C. It provides dedicated, reserved inference capacity for a model
    D. It filters harmful content from model outputs
 
-6. A company wants a foundation model to deeply understand highly
+6. **[Advanced]** A company wants a foundation model to deeply understand highly
    specialized medical terminology found throughout a large volume of
    unlabeled clinical text, improving its general fluency in that domain
    rather than teaching it one specific task. Which customization approach
@@ -721,14 +721,14 @@ infrastructure directly, a different team at the same company uses
    C. Continued pre-training
    D. Provisioned throughput
 
-7. Which statement correctly distinguishes fine-tuning from continued
+7. **[Advanced]** Which statement correctly distinguishes fine-tuning from continued
    pre-training?
    A. Fine-tuning requires unlabeled data; continued pre-training requires labeled data
    B. Fine-tuning uses labeled input/output examples to adapt a model to a specific task; continued pre-training uses large volumes of unlabeled domain text to deepen general domain knowledge
    C. They are the same process with different names
    D. Neither approach changes the model's weights
 
-8. A company wants a Bedrock-based assistant to look up a customer's order
+8. **[Intermediate]** A company wants a Bedrock-based assistant to look up a customer's order
    status by calling an internal REST API and then answer a follow-up
    question using internal documentation, all within one conversation.
    Which Amazon Bedrock feature is designed for this?
@@ -737,14 +737,14 @@ infrastructure directly, a different team at the same company uses
    C. Provisioned throughput
    D. Amazon Bedrock model evaluation
 
-9. Before an AWS account can invoke a specific foundation model on Amazon
+9. **[Beginner]** Before an AWS account can invoke a specific foundation model on Amazon
    Bedrock, what must first be done?
    A. Purchase provisioned throughput for that model
    B. Request and be granted model access for that model in the Bedrock console
    C. Fine-tune the model on custom data
    D. Deploy the model to Amazon SageMaker JumpStart
 
-10. A company expects high, steady, predictable request volume for a
+10. **[Intermediate]** A company expects high, steady, predictable request volume for a
     custom fine-tuned model in production and wants guaranteed, consistent
     throughput. Which Bedrock capacity option should they choose?
     A. On-demand pricing
@@ -752,7 +752,7 @@ infrastructure directly, a different team at the same company uses
     C. Automatic model evaluation
     D. Continued pre-training
 
-11. A team needs to compare several candidate foundation models on
+11. **[Beginner]** A team needs to compare several candidate foundation models on
     accuracy and robustness quickly, cheaply, and objectively before
     narrowing down to finalists. Which approach fits best?
     A. Human evaluation
@@ -760,7 +760,7 @@ infrastructure directly, a different team at the same company uses
     C. Business metric tracking
     D. Provisioned throughput
 
-12. After launch, which of the following is a business metric (as
+12. **[Intermediate]** After launch, which of the following is a business metric (as
     distinct from a model-quality metric) for a generative AI customer
     support assistant?
     A. BLEU score against a benchmark dataset
@@ -768,14 +768,14 @@ infrastructure directly, a different team at the same company uses
     C. Customer satisfaction (CSAT) score and call-deflection rate
     D. F1 score on a labeled test set
 
-13. Which AWS service should a team use to generate vector embeddings from
+13. **[Beginner]** Which AWS service should a team use to generate vector embeddings from
     text for use in a semantic search application?
     A. AWS Trainium
     B. Amazon Titan Text Embeddings
     C. AWS Inferentia
     D. Amazon SageMaker JumpStart
 
-14. A team already runs its application data in Amazon Aurora PostgreSQL
+14. **[Intermediate]** A team already runs its application data in Amazon Aurora PostgreSQL
     and wants to add vector similarity search without adopting a separate
     dedicated search service. Which option fits best?
     A. Amazon Kendra
@@ -783,7 +783,7 @@ infrastructure directly, a different team at the same company uses
     C. AWS Trainium
     D. Amazon Bedrock Agents
 
-15. A team wants to add natural-language search across its existing
+15. **[Beginner]** A team wants to add natural-language search across its existing
     SharePoint and Amazon S3 document repositories, without building or
     managing an embeddings pipeline themselves. Which AWS service is the
     best fit?
@@ -792,7 +792,7 @@ infrastructure directly, a different team at the same company uses
     C. Amazon Aurora with pgvector
     D. AWS Trainium
 
-16. Which purpose-built AWS chip is optimized specifically for
+16. **[Beginner]** Which purpose-built AWS chip is optimized specifically for
     cost-efficient, high-performance training of deep learning and
     foundation models at scale?
     A. AWS Inferentia
@@ -800,7 +800,7 @@ infrastructure directly, a different team at the same company uses
     C. AWS Graviton
     D. AWS Nitro
 
-17. A company has already trained a large custom model and now needs to
+17. **[Intermediate]** A company has already trained a large custom model and now needs to
     serve it for production inference with low latency and low
     cost-per-request at high volume. Which AWS infrastructure choice
     is purpose-built for this?
@@ -809,7 +809,7 @@ infrastructure directly, a different team at the same company uses
     C. AWS Neuron SDK alone, without any EC2 instance
     D. Amazon Bedrock Knowledge Bases
 
-18. A company wants to quickly deploy and optionally fine-tune a
+18. **[Intermediate]** A company wants to quickly deploy and optionally fine-tune a
     pretrained foundation model with more direct control over hosting than
     Amazon Bedrock's fully managed API provides. Which AWS capability best
     fits this need?
@@ -818,7 +818,7 @@ infrastructure directly, a different team at the same company uses
     C. Amazon Kendra
     D. Amazon Bedrock model evaluation
 
-19. Which combination of factors is part of "design considerations for
+19. **[Advanced]** Which combination of factors is part of "design considerations for
     foundation model applications" as tested on the AIF-C01 exam? (Select
     TWO.)
     A. The modality (text, image, audio) the application must support
@@ -827,7 +827,7 @@ infrastructure directly, a different team at the same company uses
     D. The font used to render the application's UI
     E. The color palette of the company's marketing website
 
-20. A retail company wants a generative AI assistant to consistently
+20. **[Advanced]** A retail company wants a generative AI assistant to consistently
     output product descriptions in the company's exact required tone and
     format, and has hundreds of labeled example descriptions already
     written by their copywriting team. Which customization approach is the

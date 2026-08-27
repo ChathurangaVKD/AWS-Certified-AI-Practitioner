@@ -38,6 +38,43 @@ class TestDomain5StudyGuideExists(unittest.TestCase):
         self.assertTrue(DOC_PATH.is_file(), f"expected study guide at {DOC_PATH}")
 
 
+class TestDomain5PracticeQuestionDifficultyTags(unittest.TestCase):
+    """Domain 5 has no broader practice-question test suite yet (see module
+    docstring), but its practice questions must still carry difficulty tags
+    like Domains 1-4, so this class covers that one requirement directly."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.questions_section = _section(
+            cls.text, r"\n## Practice questions", r"\n## Answer key"
+        )
+
+    def test_every_question_is_tagged_with_a_difficulty_level(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.questions_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        levels_seen = set()
+        for block in blocks:
+            qnum = block.split(".", 1)[0]
+            with self.subTest(question=qnum):
+                match = re.match(
+                    r"^\d+\.\s\*\*\[(Beginner|Intermediate|Advanced)\]\*\*\s",
+                    block,
+                )
+                self.assertTrue(
+                    match,
+                    f"question {qnum} should start with a "
+                    f"**[Beginner|Intermediate|Advanced]** difficulty tag",
+                )
+                if match:
+                    levels_seen.add(match.group(1))
+        self.assertEqual(
+            levels_seen,
+            {"Beginner", "Intermediate", "Advanced"},
+            "practice questions should include all three difficulty levels",
+        )
+
+
 class TestDomain5SharedResponsibilityDiagram(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

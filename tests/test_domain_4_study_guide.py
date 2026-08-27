@@ -160,6 +160,40 @@ class TestDomain4StudyGuideStructure(unittest.TestCase):
                     f"core dimensions section missing dimension: {dimension!r}",
                 )
 
+    def test_core_dimensions_section_has_relationship_diagrams(self):
+        # The section must include a visual diagram of how the 8
+        # dimensions interconnect, plus a diagram mapping each dimension
+        # to the AWS tool(s) that support it (not just prose).
+        dimensions_section = _section(
+            self.text, r"\n## 1\. Core dimensions of responsible AI"
+        )
+        mermaid_blocks = re.findall(
+            r"```mermaid\n(.*?)```", dimensions_section, re.S
+        )
+        self.assertGreaterEqual(
+            len(mermaid_blocks),
+            2,
+            "core dimensions section should contain a dimensions-relationship "
+            "diagram and a dimension-to-AWS-tool mapping diagram",
+        )
+        combined_diagrams = "\n".join(mermaid_blocks)
+        for dimension in REQUIRED_RESPONSIBLE_AI_DIMENSIONS:
+            with self.subTest(dimension=dimension):
+                self.assertRegex(
+                    combined_diagrams,
+                    re.compile(
+                        re.escape(dimension.split(" and ")[0]), re.IGNORECASE
+                    ),
+                    f"relationship diagrams missing dimension node: {dimension!r}",
+                )
+        for tool in REQUIRED_AWS_TOOLS:
+            with self.subTest(tool=tool):
+                self.assertIn(
+                    tool,
+                    combined_diagrams,
+                    f"AWS-tool mapping diagram missing tool: {tool!r}",
+                )
+
     def test_bias_section_covers_bias_and_fairness(self):
         bias_section = _section(
             self.text,

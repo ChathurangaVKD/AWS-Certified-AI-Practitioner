@@ -18,6 +18,29 @@ Each domain document covers the exam guide's task statements in depth, with
 worked examples and a set of practice questions (with answers and
 explanations) at the end.
 
+## Study plan
+
+**Recommended reading order: Domain 1 → Domain 2 → Domain 3 → Domain 4 →
+Domain 5.** The domain guides are numbered for a reason — read them in
+order rather than jumping straight to the domain that interests you most:
+
+- **Domain 1 (Fundamentals of AI and ML) is foundational.** Its ML
+  lifecycle, learning types, and model-evaluation vocabulary reappear —
+  renamed or specialized — in every later domain, so it should be read
+  first regardless of prior experience.
+- **Domains 2 and 3 assume Domain 1 knowledge.** Fundamentals of
+  Generative AI and Applications of Foundation Models both build directly
+  on Domain 1's concepts and terminology, so reading Domain 1 first avoids
+  backfilling gaps mid-domain.
+- **Domains 4 and 5 build on Domains 1–3.** Guidelines for Responsible AI
+  and Security, Compliance, and Governance apply the model and
+  application concepts from the earlier domains to responsible-use and
+  governance scenarios.
+
+For a full explanation of why this order matters, plus ready-made
+1-week/2-week/4-week study schedules, see
+[`docs/exam-preparation-strategy.md`](docs/exam-preparation-strategy.md#3-recommended-reading-order).
+
 ## Cross-domain concept map
 
 The domain guides above are written to stand alone, but the exam and

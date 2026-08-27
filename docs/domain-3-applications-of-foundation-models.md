@@ -21,7 +21,8 @@
 
 Domain 3 is the largest domain on the AWS Certified AI Practitioner
 (AIF-C01) exam, making up roughly **28% of scored questions**. Where
-Domain 2 tests whether you understand *what* generative AI and foundation
+[Domain 2](domain-2-fundamentals-of-generative-ai.md) tests whether you
+understand *what* generative AI and foundation
 models (FMs) are, Domain 3 tests whether you can reason about how to
 **build a real application on top of one** — how to choose a model for a
 scenario, how to make it accurate and grounded in your own data, how to
@@ -351,7 +352,9 @@ infrastructure. Its core features, each tested individually on the exam:
 - **Guardrails for Amazon Bedrock** — a configurable safety layer applied
   to model inputs/outputs: denied topics, content filters, word filters,
   sensitive information (PII) filters, and contextual grounding checks
-  (covered in depth in the Domain 4 study guide, since it's primarily a
+  (covered in depth in the
+  [Domain 4](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai)
+  study guide, since it's primarily a
   responsible-AI control — but the exam also tests it here as a Bedrock
   platform feature you attach to any model or Agent).
 - **Amazon Bedrock Knowledge Bases** — the managed RAG feature described

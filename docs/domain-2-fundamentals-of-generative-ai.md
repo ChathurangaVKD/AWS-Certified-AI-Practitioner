@@ -605,7 +605,7 @@ data before committing.
 
 ## Practice questions
 
-1. A developer notices that the same prompt sent to a foundation model
+1. **[Intermediate]** A developer notices that the same prompt sent to a foundation model
    twice produces two noticeably different responses. Which concept best
    explains this behavior?
    A. Hallucination
@@ -613,7 +613,7 @@ data before committing.
    C. Overfitting
    D. Fine-tuning
 
-2. Which AWS service provides access to a choice of foundation models from
+2. **[Beginner]** Which AWS service provides access to a choice of foundation models from
    Amazon and third-party providers through a single, unified API without
    managing any underlying infrastructure?
    A. Amazon SageMaker JumpStart
@@ -621,7 +621,7 @@ data before committing.
    C. Amazon Bedrock
    D. Amazon Comprehend
 
-3. A company wants its support chatbot to answer questions using its own,
+3. **[Intermediate]** A company wants its support chatbot to answer questions using its own,
    frequently changing internal documentation, without retraining the
    underlying model. Which approach best fits this need?
    A. Full pretraining of a new foundation model
@@ -629,7 +629,7 @@ data before committing.
    C. Retrieval Augmented Generation (RAG)
    D. Increasing the temperature parameter
 
-4. In the transformer architecture, which mechanism allows a model to weigh
+4. **[Advanced]** In the transformer architecture, which mechanism allows a model to weigh
    the relevance of every other token in the input when processing a given
    token, regardless of distance between them?
    A. Convolution
@@ -637,7 +637,7 @@ data before committing.
    C. Gradient descent
    D. Regularization
 
-5. A prompt engineer wants to improve a model's accuracy on a multi-step
+5. **[Intermediate]** A prompt engineer wants to improve a model's accuracy on a multi-step
    arithmetic word problem without fine-tuning or adding examples. Which
    prompting technique is most appropriate?
    A. Zero-shot prompting
@@ -645,14 +645,14 @@ data before committing.
    C. Chain-of-thought prompting
    D. Top-k sampling
 
-6. Which of the following is a genuine disadvantage of generative AI that
+6. **[Beginner]** Which of the following is a genuine disadvantage of generative AI that
    the exam associates with the "black box" nature of large models?
    A. Adaptability
    B. Responsiveness
    C. Lack of interpretability
    D. Scalability
 
-7. A company wants non-technical employees to quickly and freely
+7. **[Beginner]** A company wants non-technical employees to quickly and freely
    experiment with foundation models and prototype a simple app for an
    internal hackathon, with no coding and no infrastructure setup. Which
    AWS offering best fits?
@@ -661,14 +661,14 @@ data before committing.
    C. Amazon Bedrock Agents
    D. Amazon Q Developer
 
-8. Which inference parameter, when lowered, makes a foundation model's
+8. **[Beginner]** Which inference parameter, when lowered, makes a foundation model's
    output more focused and deterministic?
    A. Maximum length
    B. Top-k
    C. Temperature
    D. Context window
 
-9. A marketing team wants to generate product images but wants to exclude
+9. **[Intermediate]** A marketing team wants to generate product images but wants to exclude
    any watermark, logo, or text from appearing in the generated images.
    Which prompting technique should they use?
    A. Few-shot prompting
@@ -676,7 +676,7 @@ data before committing.
    C. Chain-of-thought prompting
    D. Zero-shot prompting
 
-10. Which AWS service is purpose-built to give employees a ready-made,
+10. **[Beginner]** Which AWS service is purpose-built to give employees a ready-made,
     generative-AI assistant that answers questions grounded in company data
     from systems like SharePoint and Salesforce, with minimal setup and
     built-in access controls?
@@ -685,7 +685,7 @@ data before committing.
     C. Amazon Q Business
     D. PartyRock
 
-11. A team is choosing between two foundation models for summarizing very
+11. **[Intermediate]** A team is choosing between two foundation models for summarizing very
     long legal contracts in an overnight batch job where latency is not a
     concern. Which selection criterion should they weigh most heavily?
     A. Latency
@@ -693,14 +693,14 @@ data before committing.
     C. Modality
     D. Cost per invocation only
 
-12. What is the primary difference between few-shot prompting and
+12. **[Intermediate]** What is the primary difference between few-shot prompting and
     fine-tuning?
     A. Few-shot prompting permanently updates the model's weights; fine-tuning does not
     B. Few-shot prompting only works with negative prompts; fine-tuning does not
     C. Few-shot prompting supplies examples within a single prompt and changes nothing about the model; fine-tuning retrains the model's weights on labeled data
     D. There is no meaningful difference; both terms describe the same process
 
-13. Which combination of AWS generative AI concepts would a company use to
+13. **[Advanced]** Which combination of AWS generative AI concepts would a company use to
     let employees search internal documents by meaning rather than exact
     keyword match? (Select TWO.)
     A. Embeddings model to convert documents into vectors
@@ -709,7 +709,7 @@ data before committing.
     D. Fine-tuning a classification model to label documents as spam
     E. Amazon Polly to convert documents to speech
 
-14. A company wants a coding assistant that can suggest code completions,
+14. **[Beginner]** A company wants a coding assistant that can suggest code completions,
     explain code, run security scans, and answer natural-language questions
     about their AWS account resources. Which AWS service is the best fit?
     A. Amazon Q Business
@@ -717,13 +717,13 @@ data before committing.
     C. Amazon Comprehend
     D. Amazon Textract
 
-15. Which statement about foundation models is correct?
+15. **[Beginner]** Which statement about foundation models is correct?
     A. A foundation model must be trained from scratch for every new task
     B. A foundation model is pretrained on broad data and can be adapted to many downstream tasks
     C. A foundation model can only process text input and text output
     D. A foundation model cannot be customized in any way after pretraining
 
-16. A data scientist is comparing two candidate FMs in Amazon Bedrock for a
+16. **[Beginner]** A data scientist is comparing two candidate FMs in Amazon Bedrock for a
     real-time chat application and needs the fastest possible response
     time. Which selection criterion is most directly relevant?
     A. Context window
@@ -731,14 +731,14 @@ data before committing.
     C. Fine-tuning support
     D. Modality
 
-17. Which of the following best describes what a "token" is in the context
+17. **[Beginner]** Which of the following best describes what a "token" is in the context
     of a large language model?
     A. A security credential used to authenticate API calls to the model
     B. The basic unit of text, such as a word or part of a word, that the model processes and generates
     C. A single parameter learned during model pretraining
     D. A unit of measurement for GPU memory usage
 
-18. A retailer needs deep infrastructure control to fine-tune an
+18. **[Intermediate]** A retailer needs deep infrastructure control to fine-tune an
     open-source foundation model and integrate it directly into its
     existing SageMaker-based MLOps pipelines. Which AWS offering is the
     best fit?
@@ -747,14 +747,14 @@ data before committing.
     C. Amazon SageMaker JumpStart
     D. Amazon Q Developer
 
-19. Which of the following is the best example of using generative AI for
+19. **[Beginner]** Which of the following is the best example of using generative AI for
     "summarization" as a business use case?
     A. Automatically flagging fraudulent transactions in real time
     B. Condensing a 40-page customer contract into a one-paragraph summary for a reviewer
     C. Predicting next quarter's inventory demand
     D. Translating a product listing into five languages
 
-20. A company deploys a chatbot built on a foundation model and later finds
+20. **[Beginner]** A company deploys a chatbot built on a foundation model and later finds
     it occasionally states incorrect, fabricated facts with high
     confidence, such as citing a policy clause that does not exist. Which
     concept describes this specific behavior?

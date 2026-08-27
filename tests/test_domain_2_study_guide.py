@@ -285,6 +285,30 @@ class TestDomain2PracticeQuestions(unittest.TestCase):
                     f"answer {anum} should clearly state the correct option letter(s)",
                 )
 
+    def test_every_question_is_tagged_with_a_difficulty_level(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.questions_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        levels_seen = set()
+        for block in blocks:
+            qnum = block.split(".", 1)[0]
+            with self.subTest(question=qnum):
+                match = re.match(
+                    r"^\d+\.\s\*\*\[(Beginner|Intermediate|Advanced)\]\*\*\s",
+                    block,
+                )
+                self.assertTrue(
+                    match,
+                    f"question {qnum} should start with a "
+                    f"**[Beginner|Intermediate|Advanced]** difficulty tag",
+                )
+                if match:
+                    levels_seen.add(match.group(1))
+        self.assertEqual(
+            levels_seen,
+            {"Beginner", "Intermediate", "Advanced"},
+            "practice questions should include all three difficulty levels",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

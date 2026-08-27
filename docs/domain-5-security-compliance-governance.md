@@ -360,122 +360,122 @@ regardless of how managed the service is.
 
 ## Practice questions
 
-1. A company wants its SageMaker training jobs, running in a private VPC subnet with no internet gateway, to read training data from S3 without traversing the public internet. What should they configure?
+1. **[Intermediate]** A company wants its SageMaker training jobs, running in a private VPC subnet with no internet gateway, to read training data from S3 without traversing the public internet. What should they configure?
    A. An internet gateway with a restrictive security group
    B. A gateway VPC endpoint for Amazon S3
    C. A NAT gateway
    D. A site-to-site VPN connection
 
-2. Which AWS service should a compliance team use to download AWS's SOC 2 report and execute a HIPAA Business Associate Addendum?
+2. **[Beginner]** Which AWS service should a compliance team use to download AWS's SOC 2 report and execute a HIPAA Business Associate Addendum?
    A. AWS Audit Manager
    B. AWS Config
    C. AWS Artifact
    D. AWS CloudTrail
 
-3. (Multiple response — select TWO) Which of the following are the customer's responsibility, not AWS's, under the shared responsibility model when using Amazon Bedrock?
+3. **[Advanced]** (Multiple response — select TWO) Which of the following are the customer's responsibility, not AWS's, under the shared responsibility model when using Amazon Bedrock?
    A. Patching the underlying foundation model serving infrastructure
    B. Configuring IAM policies that control who can invoke a model
    C. Physical security of the data center
    D. Choosing whether to use a customer-managed KMS key for fine-tuning data
    E. Maintaining the hardware host operating system
 
-4. A security team needs to know exactly which IAM principal called `bedrock:InvokeModel` on a specific model at 3:14 AM last Tuesday. Which service provides this?
+4. **[Beginner]** A security team needs to know exactly which IAM principal called `bedrock:InvokeModel` on a specific model at 3:14 AM last Tuesday. Which service provides this?
    A. AWS Config
    B. AWS CloudTrail
    C. AWS Audit Manager
    D. Amazon CloudWatch
 
-5. A retail company wants to automatically discover whether any documents in their S3-based product-review dataset contain customer PII before using them to fine-tune a model. Which service should they use?
+5. **[Beginner]** A retail company wants to automatically discover whether any documents in their S3-based product-review dataset contain customer PII before using them to fine-tune a model. Which service should they use?
    A. Amazon GuardDuty
    B. AWS Config
    C. Amazon Macie
    D. AWS Trusted Advisor
 
-6. Which statement about encryption at rest vs. in transit for Amazon Bedrock is correct?
+6. **[Intermediate]** Which statement about encryption at rest vs. in transit for Amazon Bedrock is correct?
    A. Bedrock only encrypts data in transit; data at rest is unencrypted by default
    B. Bedrock encrypts data both at rest and in transit by default, and supports customer-managed KMS keys for custom models
    C. Encryption at rest must be manually enabled by opening a support ticket
    D. Bedrock does not support customer-managed encryption keys under any circumstance
 
-7. A healthcare startup wants to process protected health information (PHI) using Amazon SageMaker. What must they do first, per AWS's HIPAA guidance?
+7. **[Intermediate]** A healthcare startup wants to process protected health information (PHI) using Amazon SageMaker. What must they do first, per AWS's HIPAA guidance?
    A. Nothing — all SageMaker features are automatically HIPAA-eligible with no action required
    B. Execute a Business Associate Addendum (BAA) with AWS via AWS Artifact and use only HIPAA-eligible service configurations
    C. Migrate to a GovCloud Region, which is mandatory for any HIPAA workload
    D. Purchase AWS Shield Advanced
 
-8. Which AWS service continuously evaluates whether a SageMaker endpoint's storage remains encrypted over time and flags a compliance violation if that configuration drifts?
+8. **[Intermediate]** Which AWS service continuously evaluates whether a SageMaker endpoint's storage remains encrypted over time and flags a compliance violation if that configuration drifts?
    A. AWS CloudTrail
    B. AWS Config
    C. AWS Audit Manager
    D. Amazon Inspector
 
-9. A financial institution must produce a consolidated, audit-ready report showing evidence of compliance with an internal risk framework for its AI-powered fraud detection system, pulling from configuration history and API logs automatically. Which service is purpose-built for this?
+9. **[Intermediate]** A financial institution must produce a consolidated, audit-ready report showing evidence of compliance with an internal risk framework for its AI-powered fraud detection system, pulling from configuration history and API logs automatically. Which service is purpose-built for this?
    A. AWS Config
    B. AWS CloudTrail
    C. AWS Audit Manager
    D. Amazon Macie
 
-10. In a GDPR context, when a company uses Amazon Bedrock to process personal data of EU customers, which role does AWS typically play?
+10. **[Advanced]** In a GDPR context, when a company uses Amazon Bedrock to process personal data of EU customers, which role does AWS typically play?
     A. Data controller
     B. Data subject
     C. Data processor
     D. Supervisory authority
 
-11. Which approach best helps a company satisfy an EU data residency requirement for training data used with SageMaker?
+11. **[Beginner]** Which approach best helps a company satisfy an EU data residency requirement for training data used with SageMaker?
     A. Enable AWS Shield Advanced
     B. Store and process the data only within an EU AWS Region
     C. Enable CloudTrail logging
     D. Use a customer-managed KMS key
 
-12. A RAG-based customer support chatbot built on Amazon Bedrock Knowledge Bases should let end users verify which document a generated answer came from. Which capability supports this directly?
+12. **[Beginner]** A RAG-based customer support chatbot built on Amazon Bedrock Knowledge Bases should let end users verify which document a generated answer came from. Which capability supports this directly?
     A. Data lineage tracking
     B. Source citation / attribution returned by Knowledge Bases
     C. AWS Config compliance rules
     D. IAM resource-based policies
 
-13. A data science team must be able to show an auditor exactly which raw dataset and processing job produced a specific deployed SageMaker model. Which capability provides this?
+13. **[Intermediate]** A data science team must be able to show an auditor exactly which raw dataset and processing job produced a specific deployed SageMaker model. Which capability provides this?
     A. Amazon Macie
     B. SageMaker ML Lineage Tracking
     C. AWS Artifact
     D. AWS PrivateLink
 
-14. (Multiple response — select TWO) Which of the following are true about IAM execution roles used by SageMaker training jobs?
+14. **[Advanced]** (Multiple response — select TWO) Which of the following are true about IAM execution roles used by SageMaker training jobs?
     A. They should be granted broad `*` permissions to avoid job failures
     B. They allow the SageMaker service to act on the customer's behalf without embedding long-term credentials
     C. Their trust policy must allow the `sagemaker.amazonaws.com` service principal to assume the role
     D. They are unnecessary if the training data bucket is public
 
-15. Which service provides continuous, ML-driven threat detection for suspicious or malicious activity in an AWS account hosting AI workloads?
+15. **[Beginner]** Which service provides continuous, ML-driven threat detection for suspicious or malicious activity in an AWS account hosting AI workloads?
     A. Amazon Macie
     B. Amazon GuardDuty
     C. AWS Config
     D. AWS Audit Manager
 
-16. A company operating in a country with strict data sovereignty laws must ensure that data used by its AI application never leaves that country's borders, even for disaster recovery replication. What is the most direct AWS mechanism to help meet this requirement?
+16. **[Intermediate]** A company operating in a country with strict data sovereignty laws must ensure that data used by its AI application never leaves that country's borders, even for disaster recovery replication. What is the most direct AWS mechanism to help meet this requirement?
     A. Enabling AWS CloudTrail in all Regions
     B. Restricting data storage and processing to the AWS Region located in that country, and not enabling cross-Region replication
     C. Using AWS Artifact to download a residency certificate
     D. Enabling GuardDuty
 
-17. Under the shared responsibility model, which of the following is always AWS's responsibility, regardless of which AI/ML service (Bedrock or SageMaker) a customer uses?
+17. **[Intermediate]** Under the shared responsibility model, which of the following is always AWS's responsibility, regardless of which AI/ML service (Bedrock or SageMaker) a customer uses?
     A. Configuring the customer's IAM policies correctly
     B. Physical security of the data centers hosting the service
     C. Choosing appropriate training data
     D. Enabling encryption on customer resources
 
-18. A team wants to keep all traffic between their on-premises data center-connected VPC and the Amazon Bedrock Runtime API off the public internet entirely. What should they implement?
+18. **[Intermediate]** A team wants to keep all traffic between their on-premises data center-connected VPC and the Amazon Bedrock Runtime API off the public internet entirely. What should they implement?
     A. A NAT gateway in a public subnet
     B. An interface VPC endpoint for Bedrock Runtime, powered by AWS PrivateLink
     C. A public S3 bucket with restrictive bucket policy
     D. AWS Artifact private connectivity mode
 
-19. Which statement correctly distinguishes AWS Config from AWS CloudTrail?
+19. **[Beginner]** Which statement correctly distinguishes AWS Config from AWS CloudTrail?
     A. Config logs API calls; CloudTrail tracks resource configuration compliance over time
     B. Config tracks resource configuration state and compliance rules over time; CloudTrail logs API call activity
     C. They are interchangeable and provide identical functionality
     D. Config is only for networking resources; CloudTrail is only for IAM resources
 
-20. A company wants to grant a Lambda function used in an AI pipeline only the ability to invoke one specific Bedrock model ARN, nothing else. Which principle and mechanism should they apply?
+20. **[Intermediate]** A company wants to grant a Lambda function used in an AI pipeline only the ability to invoke one specific Bedrock model ARN, nothing else. Which principle and mechanism should they apply?
     A. Attach the `AdministratorAccess` managed policy for simplicity
     B. Apply least privilege via a scoped IAM policy naming the specific model ARN and the `bedrock:InvokeModel` action
     C. Rely on AWS Artifact to restrict access automatically

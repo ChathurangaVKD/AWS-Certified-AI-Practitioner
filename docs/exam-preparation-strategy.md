@@ -401,7 +401,7 @@ exam-specific framing and AWS service mappings.
 | 9 | [AWS service decision guide](aws-service-decision-guide.md), [GLOSSARY.md](GLOSSARY.md), and [cross-domain concept map](cross-domain-concept-map.md) — consolidate cross-domain connections. |
 | 10 | Untimed pass over all ~85 practice questions across all five domains; re-read the explanation for every question you got wrong or were unsure about. |
 | 11 | Re-review Domains 2 and 3 only (52% of the exam combined) using [Section 2](#2-domain-weights-and-high-yield-focus-areas)'s high-yield list — this is a weighted review pass, not a full re-read. |
-| 12 | Take the [full-length mock exam](full-length-mock-exam.md): 65 questions, 90 minutes, weighted and mixed across all five domains. Score it against the 700/1000 passing bar (≈ 54/65 as a rough proxy, since the real scale is nonlinear). |
+| 12 | Take the [full-length mock exam](full-length-mock-exam.md): 65 questions, 90 minutes, weighted and mixed across all five domains. Score it against the 700/1000 passing bar (≈ 54/65 as a rough proxy, since the real scale is nonlinear). Then work through the [cross-domain scenario questions](cross-domain-scenario-questions.md) to practice combining two domains' knowledge in a single question. |
 | 13 | Review every missed mock question against [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) — most missed questions map directly onto one of the consolidated traps. |
 | 14 | Light final review only: skim [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) and the glossary terms you've flagged as weak. Avoid cramming new material the day before the exam. |
 
@@ -425,5 +425,5 @@ per hour studied when time is the binding constraint:
 | 3 | [Domain 1](domain-1-fundamentals-of-ai-and-ml.md) (~20%) — full read + comparison table + practice questions. |
 | 4 | [Domain 4](domain-4-guidelines-for-responsible-ai.md) and [Domain 5](domain-5-security-compliance-governance.md) (~14% each) — full read + comparison tables + practice questions for both. |
 | 5 | [AWS service decision guide](aws-service-decision-guide.md) + [GLOSSARY.md](GLOSSARY.md) skim + [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) in full. |
-| 6 | Take the [full-length mock exam](full-length-mock-exam.md): 65 questions, 90 minutes, weighted and mixed across all five domains. Score it and identify your two weakest domains. |
+| 6 | Take the [full-length mock exam](full-length-mock-exam.md): 65 questions, 90 minutes, weighted and mixed across all five domains. Score it and identify your two weakest domains. Also work through the [cross-domain scenario questions](cross-domain-scenario-questions.md) for practice combining domains in one question. |
 | 7 | Re-review only your two weakest domains from Day 6, plus a final skim of [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts). Keep the day before the exam light — recognition review, not new material. |

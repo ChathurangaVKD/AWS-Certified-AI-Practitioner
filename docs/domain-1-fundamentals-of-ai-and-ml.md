@@ -489,7 +489,7 @@ before deploying to a SageMaker endpoint.
 
 ## Practice questions
 
-1. A company wants to group its customers into segments based on purchasing
+1. **[Intermediate]** A company wants to group its customers into segments based on purchasing
    behavior, but it has no predefined categories or labels. Which type of
    machine learning should it use?
    A. Supervised learning
@@ -497,28 +497,28 @@ before deploying to a SageMaker endpoint.
    C. Reinforcement learning
    D. Semi-supervised learning
 
-2. Which of the following best describes the relationship between AI, ML,
+2. **[Beginner]** Which of the following best describes the relationship between AI, ML,
    and deep learning?
    A. Deep learning is a broader field that contains machine learning, which contains AI
    B. AI, ML, and deep learning are unrelated, independently developed fields
    C. AI is the broadest field; ML is a subset of AI; deep learning is a subset of ML
    D. ML and deep learning are the same technique with different names
 
-3. A data scientist notices a model achieves 98% accuracy on training data
+3. **[Intermediate]** A data scientist notices a model achieves 98% accuracy on training data
    but only 61% accuracy on the test data. What is the most likely problem?
    A. Underfitting
    B. Overfitting
    C. Data leakage prevention
    D. Insufficient hyperparameters
 
-4. Which AWS service should a company with no in-house ML expertise use to
+4. **[Beginner]** Which AWS service should a company with no in-house ML expertise use to
    add real-time, individualized product recommendations to its e-commerce site?
    A. Amazon SageMaker
    B. Amazon Personalize
    C. Amazon Forecast
    D. Amazon Comprehend
 
-5. A hospital is building a diagnostic model to detect a rare disease that
+5. **[Advanced]** A hospital is building a diagnostic model to detect a rare disease that
    occurs in 1% of patients. Which evaluation metric is LEAST appropriate
    on its own for this use case?
    A. Recall
@@ -526,21 +526,21 @@ before deploying to a SageMaker endpoint.
    C. Accuracy
    D. F1 score
 
-6. In the standard ML development lifecycle, which step comes immediately
+6. **[Beginner]** In the standard ML development lifecycle, which step comes immediately
    after model training and before deployment?
    A. Data collection
    B. Exploratory data analysis
    C. Evaluation and hyperparameter tuning
    D. Monitoring
 
-7. Which AWS service is purpose-built to extract text, key-value pairs, and
+7. **[Beginner]** Which AWS service is purpose-built to extract text, key-value pairs, and
    tables (preserving structure) from scanned documents?
    A. Amazon Comprehend
    B. Amazon Rekognition
    C. Amazon Textract
    D. Amazon Transcribe
 
-8. A robotics team is training a warehouse robot to learn the optimal path
+8. **[Intermediate]** A robotics team is training a warehouse robot to learn the optimal path
    for picking items, where the robot receives a numeric reward after each
    action and has no fixed labeled dataset. Which learning type is this?
    A. Supervised learning
@@ -548,13 +548,13 @@ before deploying to a SageMaker endpoint.
    C. Reinforcement learning
    D. Batch learning
 
-9. Which of the following is a hyperparameter rather than a parameter?
+9. **[Beginner]** Which of the following is a hyperparameter rather than a parameter?
    A. A neural network's learned weight values
    B. The learning rate used during training
    C. The bias term learned by a linear regression model
    D. The coefficients learned by a regression model
 
-10. A company wants to convert customer service call recordings into text
+10. **[Intermediate]** A company wants to convert customer service call recordings into text
     transcripts, including identifying which speaker said what. Which AWS
     service best fits this need?
     A. Amazon Polly
@@ -562,7 +562,7 @@ before deploying to a SageMaker endpoint.
     C. Amazon Transcribe
     D. Amazon Lex
 
-11. Which SageMaker capability is specifically designed to store and share
+11. **[Beginner]** Which SageMaker capability is specifically designed to store and share
     curated features consistently between model training and real-time
     inference to avoid training/serving skew?
     A. SageMaker Data Wrangler
@@ -570,7 +570,7 @@ before deploying to a SageMaker endpoint.
     C. SageMaker Clarify
     D. SageMaker Model Monitor
 
-12. A model classifying loan applications as "approve" or "reject" has the
+12. **[Advanced]** A model classifying loan applications as "approve" or "reject" has the
     following confusion matrix on test data: TP = 180, FP = 20, FN = 60,
     TN = 740. What is the recall of the model (rounded)?
     A. 90%
@@ -578,7 +578,7 @@ before deploying to a SageMaker endpoint.
     C. 25%
     D. 96%
 
-13. Which two AWS services would BEST fit a company that wants to (1)
+13. **[Advanced]** Which two AWS services would BEST fit a company that wants to (1)
     forecast next quarter's product demand and (2) automatically translate
     its product listings into five languages? (Select TWO.)
     A. Amazon Forecast
@@ -587,13 +587,13 @@ before deploying to a SageMaker endpoint.
     D. Amazon Comprehend
     E. Amazon Textract
 
-14. Which technique is generally the LEAST effective way to reduce overfitting?
+14. **[Intermediate]** Which technique is generally the LEAST effective way to reduce overfitting?
     A. Adding regularization (e.g., L2 penalty)
     B. Collecting more diverse training data
     C. Increasing model complexity further
     D. Using cross-validation and early stopping
 
-15. A company wants to build a text-based chatbot that can hold a
+15. **[Beginner]** A company wants to build a text-based chatbot that can hold a
     conversation with customers and integrate speech recognition. Which
     AWS service is purpose-built for this?
     A. Amazon Comprehend
@@ -601,14 +601,14 @@ before deploying to a SageMaker endpoint.
     C. Amazon Translate
     D. Amazon Polly
 
-16. Which metric summarizes a binary classifier's ability to rank positive
+16. **[Intermediate]** Which metric summarizes a binary classifier's ability to rank positive
     cases above negative cases across all possible decision thresholds?
     A. Accuracy
     B. Precision
     C. AUC-ROC
     D. Mean Absolute Error (MAE)
 
-17. A team is building a completely custom fraud model using a proprietary
+17. **[Intermediate]** A team is building a completely custom fraud model using a proprietary
     algorithm and unique internal features that no managed AWS AI service
     supports out of the box. Which AWS service should they use?
     A. Amazon Fraud Detector
@@ -616,13 +616,13 @@ before deploying to a SageMaker endpoint.
     C. Amazon Comprehend
     D. Amazon Personalize
 
-18. Which of the following statements about the bias–variance trade-off is correct?
+18. **[Intermediate]** Which of the following statements about the bias–variance trade-off is correct?
     A. High bias and high variance always increase or decrease together
     B. High bias is associated with overfitting, and high variance with underfitting
     C. High bias is associated with underfitting, and high variance with overfitting
     D. Bias and variance are unrelated to model generalization error
 
-19. During exploratory data analysis, a data scientist discovers a dataset
+19. **[Intermediate]** During exploratory data analysis, a data scientist discovers a dataset
     is missing 40% of values in one column and contains several extreme
     outliers in another. In the ML lifecycle, which stage should address
     these issues before training begins?
@@ -631,7 +631,7 @@ before deploying to a SageMaker endpoint.
     C. Model deployment
     D. Hyperparameter tuning
 
-20. A retail company wants to detect potentially fraudulent returns in
+20. **[Beginner]** A retail company wants to detect potentially fraudulent returns in
     real time without building or training its own ML model. Which AWS
     service is the best fit?
     A. Amazon SageMaker

@@ -11,6 +11,7 @@
 - [5. AWS generative AI services and capabilities](#5-aws-generative-ai-services-and-capabilities)
 - [6. Prompt engineering fundamentals](#6-prompt-engineering-fundamentals)
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
+- [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
 - [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
@@ -534,6 +535,76 @@ data before committing.
 > **all** the stated constraints together, not optimize for a single
 > factor — picking the biggest, most capable model is not always the
 > correct exam answer if latency or cost constraints are called out.
+
+---
+
+## Worked example: building an end-to-end generative AI support assistant
+
+The callouts above illustrate one concept at a time. This walkthrough
+combines the [LLM lifecycle](#2-llm-lifecycle-basics), [service
+choices](#5-aws-generative-ai-services-and-capabilities), and [prompt
+engineering](#6-prompt-engineering-fundamentals) into one continuous
+build, since AIF-C01 scenario questions frequently describe a project this
+way and ask which single step is missing or wrong.
+
+**Scenario:** A software company wants to launch a generative AI assistant
+that answers customer questions about its product, drafts first-pass
+replies to support tickets, and never leaks the internal pricing sheet an
+employee accidentally pastes into a prompt.
+
+1. **Define the use case and success criteria.** The team scopes the
+   assistant to two tasks — question answering and reply drafting — and
+   sets a measurable bar (e.g., 80% of drafted replies need no more than a
+   light edit before sending) before selecting any model, mirroring how
+   Domain 1's lifecycle starts with the business goal, not the data (see
+   [Domain 1, Section 2](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle)).
+2. **Choose the foundation model in Amazon Bedrock.** Rather than
+   provisioning GPU infrastructure and hosting an open-source model
+   themselves, the team accesses several candidate FMs (from providers
+   such as Anthropic, Meta, and Amazon) through **Amazon Bedrock**'s
+   single API, so they can swap models without re-architecting the
+   application. They pick a lower-latency, lower-cost model for live chat
+   and evaluate a larger model for offline ticket-reply drafting, applying
+   the selection criteria in [Section 7](#7-foundation-model-selection-criteria).
+3. **Prompt-engineer the base behavior.** Before writing any application
+   code, the team iterates in the **Amazon Bedrock playground**, using
+   **zero-shot** prompts for straightforward FAQ-style questions and
+   **few-shot** prompts (2–3 example ticket/ideal-reply pairs) to steer the
+   tone and format of drafted replies, per the techniques in [Section
+   6](#6-prompt-engineering-fundamentals).
+4. **Add guardrails before exposing it to customers.** The team configures
+   **Amazon Bedrock Guardrails** to block prompts and outputs that mention
+   pricing-sheet-style content, filter harmful content, and redact any PII
+   a customer might paste into the chat — enforced independently of
+   whatever the underlying FM would otherwise do, so a clever prompt can't
+   talk the model out of the policy.
+5. **Wire up business-system actions with an agent.** For the "check my
+   order status" sub-flow, the team configures an **Amazon Bedrock Agent**
+   that can call the company's internal order-lookup API and return a
+   grounded, real-time answer instead of the FM guessing from its training
+   data — turning the assistant from a pure text generator into an
+   application that takes action.
+6. **Evaluate before launch.** The team runs **Amazon Bedrock Model
+   Evaluation**, comparing candidate models and prompt variants on a
+   held-out set of real historical tickets using both automatic metrics
+   and human review, and specifically checks the **advantages/disadvantages
+   trade-offs** from [Section 3](#3-advantages-and-disadvantages-of-generative-ai) — confirming the
+   productivity gain from drafted replies is worth the residual
+   hallucination risk given the guardrails now in place.
+7. **Deploy and monitor.** The assistant goes live behind the existing
+   support-chat UI, calling the Bedrock API for both the chat and
+   ticket-drafting paths. The team logs every prompt/response pair (with
+   PII already redacted by Guardrails) and periodically re-runs Model
+   Evaluation as new FM versions become available in Bedrock, treating
+   model selection as an ongoing decision rather than a one-time choice.
+
+> **Exam tip:** A common scenario pattern describes a generative AI project
+> that skips guardrails, skips evaluation, or has the application call an
+> open-source model directly instead of through a managed service — the
+> correct answer is almost always to add the missing AWS-managed
+> safeguard (**Guardrails**, **Model Evaluation**) rather than to write
+> custom code to solve the same problem, since "least implementation
+> effort using a managed AWS service" is the exam's default preference.
 
 ---
 

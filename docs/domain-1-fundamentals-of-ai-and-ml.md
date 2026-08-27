@@ -11,6 +11,7 @@
 - [5. AWS managed AI/ML services (conceptual overview)](#5-aws-managed-aiml-services-conceptual-overview)
 - [6. Model evaluation basics](#6-model-evaluation-basics)
 - [7. Overfitting, underfitting, and the bias–variance trade-off](#7-overfitting-underfitting-and-the-biasvariance-trade-off)
+- [Worked example: end-to-end ML lifecycle for a loan-default predictor](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
 - [Comparison table: AWS managed AI/ML services at a glance](#comparison-table-aws-managed-aiml-services-at-a-glance)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
@@ -429,6 +430,87 @@ before deploying to a SageMaker endpoint.
 > If it says "bad score on *both* training and test data," the answer is
 > **underfitting / high bias**. Regularization and more data are the two
 > most commonly tested overfitting remedies.
+
+---
+
+## Worked example: end-to-end ML lifecycle for a loan-default predictor
+
+The callouts above show *isolated* AWS-service decisions. This walkthrough
+strings all eight lifecycle stages from [Section 2](#2-the-ml-development-lifecycle)
+together into one continuous scenario, so you can see how the decisions at
+each stage constrain the next one — which is exactly how AIF-C01 scenario
+questions are written (a paragraph describing several stages at once, then
+asking what happens next or what was done wrong).
+
+**Scenario:** A regional bank wants to predict, at the time a loan
+application is submitted, whether the applicant is likely to default. The
+bank has five years of historical loan applications with outcomes (repaid
+vs. defaulted) in an on-premises database, and a compliance requirement to
+explain any adverse decision to a rejected applicant.
+
+1. **Business goal identification.** The team defines the success metric
+   *before* touching data: reduce defaults funded by 15% while keeping the
+   false-decline rate (good applicants wrongly rejected) under 5%, because
+   over-rejecting creditworthy customers has its own business cost. This
+   framing already tells you it is a **binary classification** problem
+   with an explicit precision/recall trade-off ([Section 6](#6-model-evaluation-basics)) — not a
+   regression or clustering problem.
+2. **Data collection.** The historical loan records are exported and
+   landed in **Amazon S3** as the durable, central data lake. A nightly
+   **AWS Glue** ETL job incrementally pulls new applications from the
+   on-premises database into the same S3 bucket so the training data stays
+   current.
+3. **Exploratory data analysis (EDA).** In **SageMaker Studio**, the team
+   profiles the data and discovers two problems: 3% of rows are missing
+   income values, and only 4% of historical applications actually
+   defaulted (severe **class imbalance** — see [Section 6](#6-model-evaluation-basics)). They also
+   run ad hoc SQL over the raw S3 data with **Amazon Athena** to check for
+   duplicate applicant records before committing to a feature design.
+4. **Data preparation / feature engineering.** Using **SageMaker Data
+   Wrangler**, the team imputes missing income with a median-by-region
+   value, one-hot encodes categorical fields (loan purpose, employment
+   type), and engineers a debt-to-income ratio feature. Because this same
+   debt-to-income calculation must be reproduced identically at inference
+   time on live applications, the finished features are published to
+   **SageMaker Feature Store** — this is precisely the training/serving
+   skew problem Feature Store exists to prevent.
+5. **Model training.** The team trains a **SageMaker XGBoost** built-in
+   algorithm job (a strong default for structured/tabular data), and
+   additionally launches a **SageMaker Autopilot** run as a fast baseline
+   to sanity-check that a hand-built model is worth the extra effort.
+   Training jobs use **Managed Spot Training** to cut compute cost, since
+   these are not time-critical, interactive jobs.
+6. **Hyperparameter tuning / evaluation.** **SageMaker automatic model
+   tuning** searches XGBoost's hyperparameters (tree depth, learning rate,
+   number of rounds) against a held-out validation split. Because of the
+   4% default rate identified in EDA, the team evaluates with **precision,
+   recall, and F1** rather than plain accuracy (a model that always
+   predicts "no default" would score 96% accuracy while being useless),
+   and reviews **SageMaker Clarify** bias metrics across protected
+   attributes (age, ZIP code as a proxy for race) to satisfy the
+   compliance requirement for explainable, non-discriminatory decisions.
+7. **Deployment.** The chosen model is deployed to a **SageMaker
+   real-time endpoint** so a yes/no decision (with a Clarify-generated
+   feature-importance explanation attached for compliance) can be returned
+   synchronously while a loan officer has the applicant on the phone. A
+   separate nightly **SageMaker batch transform** job re-scores the entire
+   existing loan portfolio for early-warning risk monitoring, since that
+   workload has no latency requirement.
+8. **Monitoring.** **SageMaker Model Monitor** watches the live endpoint
+   for data drift (e.g., applicant income distributions shifting after a
+   local factory closes) and prediction-quality drift once true default
+   outcomes become known months later. A monitor alarm — say, drift
+   detected in the income feature — triggers exactly the loop-back shown
+   in the [Section 2 lifecycle diagram](#2-the-ml-development-lifecycle):
+   back to data collection to refresh the training set and retrain, not a
+   one-off manual patch.
+
+> **Exam tip:** When a question walks through several lifecycle stages in
+> one paragraph, identify what's *missing* or *out of order* rather than
+> what's present. A classic distractor scenario trains a model, deploys it,
+> and never mentions monitoring — the correct answer is almost always "add
+> monitoring for data/concept drift," because a static model silently
+> degrades as real-world data shifts.
 
 ---
 

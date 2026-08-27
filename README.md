@@ -25,6 +25,8 @@ Domain 5.** The domain guides are numbered for a reason — read them in
 order rather than jumping straight to the domain that interests you most:
 
 - **Domain 1 (Fundamentals of AI and ML) is foundational.** Its ML
+Both sides add a new top-level section after the concept map link, before "## Status." They're independent additions (AWS service decision guide + glossary + exam prep + mock exam vs. end-to-end case study). Combine both.
+
   lifecycle, learning types, and model-evaluation vocabulary reappear —
   renamed or specialized — in every later domain, so it should be read
   first regardless of prior experience.
@@ -85,6 +87,16 @@ Ready to rehearse actual exam conditions? See
 same proportions as the real exam (~20%/24%/28%/14%/14%), mixed in
 exam-like order rather than grouped by domain, with timing guidance and a
 full answer key with explanations.
+
+## End-to-end case study
+
+Each domain guide illustrates its concepts with isolated "AWS example"
+scenarios, but a real AI system moves through every domain over its
+lifetime. See
+[`docs/case-study-ai-system-lifecycle.md`](docs/case-study-ai-system-lifecycle.md)
+for a single company building one AI system — from a classical ML model,
+through evaluating and customizing a foundation model, to addressing bias
+and securing/governing the deployed result — across all five domains.
 
 ## Status
 

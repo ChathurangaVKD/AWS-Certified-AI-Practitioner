@@ -54,6 +54,25 @@ REQUIRED_AWS_TOOLS = [
     "AI Service Cards",
 ]
 
+# The six bias types the bias-detection-and-mitigation workflow diagram
+# must surface as distinct nodes.
+REQUIRED_BIAS_TYPES = [
+    "Sampling bias",
+    "Measurement bias",
+    "Label / human bias",
+    "Historical bias",
+    "Exclusion bias",
+    "Aggregation bias",
+]
+
+# The mitigation tools the bias-detection-and-mitigation workflow diagram
+# must surface as distinct nodes.
+REQUIRED_BIAS_MITIGATION_TOOLS = [
+    "Guardrails for Amazon Bedrock",
+    "SageMaker Model Cards",
+    "Amazon A2I",
+]
+
 # Legal/ethical considerations the task explicitly requires.
 REQUIRED_LEGAL_ETHICAL_TOPICS = [
     "intellectual property",
@@ -206,6 +225,58 @@ class TestDomain4StudyGuideStructure(unittest.TestCase):
                     bias_section,
                     re.compile(re.escape(term), re.IGNORECASE),
                     f"bias/fairness section missing term: {term!r}",
+                )
+
+    def test_bias_section_has_detection_and_mitigation_workflow_diagram(self):
+        # The bias section must include a visual workflow diagram going
+        # from bias type -> detection method -> mitigation tool, not just
+        # prose, mirroring the two diagrams already present in Section 1.
+        bias_section = _section(
+            self.text,
+            r"\n## 2\. Identifying bias and fairness issues in training "
+            r"data and model outputs",
+        )
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", bias_section, re.S)
+        self.assertGreaterEqual(
+            len(mermaid_blocks),
+            1,
+            "bias section should contain a bias detection and mitigation "
+            "workflow diagram",
+        )
+        combined_diagrams = "\n".join(mermaid_blocks)
+        for bias_type in REQUIRED_BIAS_TYPES:
+            with self.subTest(bias_type=bias_type):
+                self.assertRegex(
+                    combined_diagrams,
+                    re.compile(re.escape(bias_type), re.IGNORECASE),
+                    f"bias workflow diagram missing bias type node: {bias_type!r}",
+                )
+        self.assertRegex(
+            combined_diagrams,
+            re.compile(r"pre-training", re.IGNORECASE),
+            "bias workflow diagram missing a pre-training detection path",
+        )
+        self.assertRegex(
+            combined_diagrams,
+            re.compile(r"post-training", re.IGNORECASE),
+            "bias workflow diagram missing a post-training detection path",
+        )
+        self.assertIn(
+            "DPL",
+            combined_diagrams,
+            "bias workflow diagram missing the DPL pre-training metric",
+        )
+        self.assertRegex(
+            combined_diagrams,
+            re.compile(r"disparate impact", re.IGNORECASE),
+            "bias workflow diagram missing the disparate impact post-training metric",
+        )
+        for tool in REQUIRED_BIAS_MITIGATION_TOOLS:
+            with self.subTest(tool=tool):
+                self.assertIn(
+                    tool,
+                    combined_diagrams,
+                    f"bias workflow diagram missing mitigation tool: {tool!r}",
                 )
 
     def test_aws_tools_section_covers_required_tools(self):

@@ -650,6 +650,55 @@ require the same level of per-prediction explainability.
 > way to add *some* transparency to an otherwise complex model rather
 > than a substitute for choosing a simpler one.
 
+#### Mini-quiz: Test your understanding of balancing performance and interpretability
+
+1. A bank must be able to explain individual loan-denial decisions to
+   regulators and rejected applicants. Which type of model should it
+   favor, all else equal?
+   A. A complex deep learning model, for maximum accuracy
+   B. A simpler, more interpretable model, even at some cost to accuracy
+   C. Any model, since interpretability doesn't matter for regulated
+      decisions
+   D. The model with the largest possible number of parameters
+
+   **Answer: B** — High-stakes, regulated decisions like loan denials
+   usually require higher interpretability, even at some accuracy cost,
+   because decisions must be explainable to regulators and affected
+   individuals. A and D optimize for accuracy/scale at the expense of
+   explainability; C ignores the regulatory requirement entirely.
+
+2. Which technique lets a team partially recover interpretability from a
+   complex, high-accuracy model without switching to a simpler model
+   architecture?
+   A. Lowering the model's temperature parameter
+   B. SHAP-based feature attribution via Amazon SageMaker Clarify
+   C. Enabling Guardrails denied topics
+   D. Increasing the size of the training dataset
+
+   **Answer: B** — Post-hoc explainability techniques like SHAP, computed
+   by SageMaker Clarify, show which input features drove a specific
+   prediction without requiring the underlying model to be simple.
+   Temperature (A) affects output randomness, not interpretability;
+   denied topics (C) is a Guardrails content control; a larger dataset
+   (D) can improve accuracy but doesn't add interpretability.
+
+3. For a low-stakes image-tagging task where misclassifications are easily
+   corrected, which side of the performance/interpretability tradeoff
+   should a team typically prioritize?
+   A. Maximum interpretability, even at a significant accuracy cost
+   B. Maximum performance/accuracy, since individual mistakes are
+      low-stakes
+   C. Neither — the team should avoid deploying any model
+   D. Legal compliance requirements dictate the choice regardless of
+      stakes
+
+   **Answer: B** — Lower-stakes, purely performance-driven tasks can
+   usually prioritize maximum accuracy even from a less interpretable
+   model, since the cost of an unexplained individual mistake is low. A
+   sacrifices accuracy unnecessarily; C is not a realistic option; D
+   misapplies a consideration relevant to high-stakes, regulated
+   scenarios, not this one.
+
 ---
 
 ## Comparison table: AWS responsible AI tools at a glance

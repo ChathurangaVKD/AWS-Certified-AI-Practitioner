@@ -1320,14 +1320,16 @@ version.
    C. They are the same process with different names
    D. Neither approach changes the model's weights
 
-8. **[Intermediate]** A company wants a Bedrock-based assistant to look up a customer's order
-   status by calling an internal REST API and then answer a follow-up
-   question using internal documentation, all within one conversation.
-   Which Amazon Bedrock feature is designed for this?
-   A. Guardrails for Amazon Bedrock
-   B. Amazon Bedrock Agents
-   C. Provisioned throughput
-   D. Amazon Bedrock model evaluation
+8. **[Intermediate]** A company wants a Bedrock-based assistant to (1) look up a
+   customer's order status by calling an internal REST API, and (2)
+   answer a follow-up question by retrieving relevant passages from
+   internal documentation, all within one conversation. Which two Amazon
+   Bedrock capabilities respectively fit these two needs? (Select TWO.)
+   A. Amazon Bedrock Agents
+   B. Amazon Bedrock Knowledge Bases
+   C. Guardrails for Amazon Bedrock
+   D. Provisioned throughput
+   E. Amazon Bedrock model evaluation
 
 9. **[Beginner]** Before an AWS account can invoke a specific foundation model on Amazon
    Bedrock, what must first be done?
@@ -1481,12 +1483,14 @@ version.
    tests. A reverses the data requirements; C is false, they are distinct
    processes; D is false, both approaches update model weights.
 
-8. **B — Amazon Bedrock Agents.** Agents are purpose-built to plan and
-   execute multi-step tasks, including invoking external APIs (action
-   groups) and consulting Knowledge Bases within one interaction.
-   Guardrails (A) filters content, it doesn't call APIs or orchestrate
-   steps; provisioned throughput (C) is a capacity feature; model
-   evaluation (D) assesses model quality, it isn't a runtime orchestration
+8. **A and B — Amazon Bedrock Agents, and Amazon Bedrock Knowledge Bases.**
+   Agents are purpose-built to plan and execute multi-step tasks,
+   including invoking external APIs (action groups) such as an order-status
+   lookup; Knowledge Bases retrieves relevant passages from your own
+   documentation via RAG to ground a follow-up answer. Guardrails (C)
+   filters content, it doesn't call APIs or retrieve documents;
+   provisioned throughput (D) is a capacity feature; model evaluation (E)
+   assesses model quality, it isn't a runtime orchestration or retrieval
    feature.
 
 9. **B — Request and be granted model access for that model in the

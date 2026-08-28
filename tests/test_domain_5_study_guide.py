@@ -221,6 +221,44 @@ class TestDomain5EncryptionArchitectureDiagrams(unittest.TestCase):
             with self.subTest(term=term):
                 self.assertIn(term, diagram)
 
+    def test_privatelink_section_has_end_to_end_pipeline_decision_diagram(self):
+        """A third diagram (beyond the KMS key lifecycle and the request/data
+        flow diagrams) should trace the full S3 -> KMS -> SageMaker training
+        -> endpoint data journey and show the encryption decision points
+        (which key to use, whether to route through PrivateLink)."""
+        section = _section(
+            self.text,
+            r"\n### AWS PrivateLink and VPC endpoints for AI services",
+            r"\n### ",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertGreaterEqual(
+            len(fences),
+            2,
+            "PrivateLink section should include both the request/data flow "
+            "diagram and a separate end-to-end encryption pipeline diagram",
+        )
+        pipeline_diagrams = [f for f in fences if "SENSITIVE" in f]
+        self.assertTrue(
+            pipeline_diagrams,
+            "should include an end-to-end pipeline diagram with a "
+            "sensitive-data decision point",
+        )
+        diagram = pipeline_diagrams[0]
+        for term in [
+            "Amazon S3",
+            "customer managed KMS key",
+            "AWS managed key",
+            "SENSITIVE",
+            "SageMaker training job",
+            "AWS PrivateLink",
+            "Model artifacts",
+            "endpoint deployment",
+            "AWS CloudTrail",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+
 
 class TestDomain5StudyGuideStructure(unittest.TestCase):
     @classmethod

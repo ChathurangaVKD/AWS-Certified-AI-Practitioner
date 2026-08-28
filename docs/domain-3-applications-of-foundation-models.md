@@ -207,6 +207,138 @@ prompt.
 > reasoning improvement (math, logic) with no extra data or cost, the
 > answer is almost always **chain-of-thought prompting**, not fine-tuning.
 
+### Worked examples: the same task, four techniques
+
+Concepts are easier to compare side by side. Below, the identical task —
+classify a customer review as **Positive**, **Negative**, or **Neutral** —
+is run through four techniques against the exact same input, so you can
+see how the prompt changes and how that changes the output.
+
+**Input review (same for all four examples):** "The product arrived two
+days late and the box was a little dented, but everything inside works
+perfectly and customer support was quick to apologize."
+
+**1. Zero-shot prompting** — only an instruction, no examples.
+
+Prompt:
+
+```
+Classify the sentiment of this customer review as Positive, Negative, or Neutral.
+
+Review: "The product arrived two days late and the box was a little dented,
+but everything inside works perfectly and customer support was quick to
+apologize."
+```
+
+Model output:
+
+```
+Sentiment: Positive
+```
+
+Fast to write and cheap to run, but with no example to anchor it, the
+model decides the output format on its own — here a single label, but a
+different model or phrasing could just as easily return a full paragraph.
+
+**2. Few-shot prompting** — a couple of labeled examples establish the
+exact output format before the real task.
+
+Prompt:
+
+```
+Classify each review's sentiment as Positive, Negative, or Neutral.
+Respond in the format "Label: <one-sentence reason>".
+
+Review: "Fast shipping and the item matched the description exactly."
+Label: Positive: praises shipping speed and accuracy with no complaints.
+
+Review: "Package never arrived and support never responded to my emails."
+Label: Negative: describes a failed delivery and unresponsive support.
+
+Review: "The product arrived two days late and the box was a little dented,
+but everything inside works perfectly and customer support was quick to
+apologize."
+Label:
+```
+
+Model output:
+
+```
+Label: Positive: minor shipping and packaging issues are outweighed by a
+fully functional product and a responsive apology from support.
+```
+
+The two labeled examples teach the model the exact `Label: <reason>`
+format and the level of nuance expected, so the output is now reliably
+structured instead of just a bare word.
+
+**3. Chain-of-thought prompting** — the model reasons step-by-step before
+committing to a label, which helps on a review with mixed signals like
+this one.
+
+Prompt:
+
+```
+Classify the sentiment of this review as Positive, Negative, or Neutral.
+Think through the positive and negative signals in the review step by
+step, then give your final answer on the last line as
+"Final sentiment: <label>".
+
+Review: "The product arrived two days late and the box was a little dented,
+but everything inside works perfectly and customer support was quick to
+apologize."
+```
+
+Model output:
+
+```
+Step 1 - Negative signals: late arrival, dented box.
+Step 2 - Positive signals: product works perfectly, support apologized
+quickly and took ownership.
+Step 3 - Weighing them: the negative signals are about logistics, not the
+product itself, and were promptly addressed; the positive signals are
+about the core product and service experience.
+Final sentiment: Positive
+```
+
+The visible reasoning makes the borderline call auditable — you can see
+*why* the model landed on Positive instead of Neutral, which the bare
+zero-shot label couldn't show you.
+
+**4. Negative prompting** — an explicit constraint steers the model away
+from an unwanted response shape.
+
+Prompt:
+
+```
+Classify the sentiment of this review as Positive, Negative, or Neutral.
+Do not answer Neutral for a review that describes a fully working product,
+even if there is a delivery or packaging complaint. Do not include any
+text besides the single word label.
+
+Review: "The product arrived two days late and the box was a little dented,
+but everything inside works perfectly and customer support was quick to
+apologize."
+```
+
+Model output:
+
+```
+Positive
+```
+
+Without that constraint, a model faced with mixed signals like this one
+might hedge and answer "Neutral"; explicitly ruling that out — and ruling
+out extra commentary — forces a decisive, single-word answer suited for
+automated downstream processing.
+
+Put side by side, the trade-off is clear: zero-shot is cheapest but least
+controllable, few-shot locks in format and nuance with a couple of
+examples, chain-of-thought spends extra output tokens to make reasoning
+on ambiguous cases auditable, and negative prompting is a cheap way to
+eliminate one specific failure mode (here, over-using "Neutral" as a
+hedge) without restructuring the whole prompt.
+
 #### Mini-quiz: Test your understanding of prompt engineering techniques
 
 Quick self-check before moving on — try to answer before reading the

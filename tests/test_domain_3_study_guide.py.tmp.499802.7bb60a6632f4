@@ -403,7 +403,6 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
 
         # The same input task/review must be reused across every example
         # so the techniques are genuinely comparable.
-        review_snippet = "arrived two\nday" if "arrived two\nday" in examples else "arrived two"
         self.assertGreaterEqual(
             examples.count("customer support was quick to"),
             4,

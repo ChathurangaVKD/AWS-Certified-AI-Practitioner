@@ -402,6 +402,70 @@ class TestDomain5StudyGuideStructure(unittest.TestCase):
         )
 
 
+class TestDomain5WorkedExample(unittest.TestCase):
+    """Domains 1-3 each end with a dedicated '## Worked example: ...'
+    section stitching every concept in the domain into one continuous
+    scenario. Domain 5 previously had only inline 'Example:' callouts and
+    no such section; these tests guard the worked example added to close
+    that gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.toc = _section(
+            cls.text, r"\n## Table of contents", r"\n## Domain overview"
+        )
+        cls.section = _section(cls.text, r"\n## Worked example: .+")
+
+    def test_worked_example_heading_exists(self):
+        self.assertRegex(self.text, r"\n## Worked example: .+")
+
+    def test_worked_example_sits_between_section_5_and_comparison_table(self):
+        section_5_idx = self.text.index(
+            "## 5. AWS shared responsibility model applied to AI/ML services"
+        )
+        worked_example_idx = self.text.index("## Worked example: ")
+        comparison_idx = self.text.index(
+            "## Comparison table: governance and monitoring services"
+        )
+        self.assertLess(section_5_idx, worked_example_idx)
+        self.assertLess(worked_example_idx, comparison_idx)
+
+    def test_worked_example_has_scenario_and_exam_tip(self):
+        self.assertIn("**Scenario:**", self.section)
+        self.assertIn("**Exam tip:**", self.section)
+
+    def test_worked_example_covers_topics_across_all_five_sections(self):
+        for term in [
+            "HIPAA",
+            "data residency",
+            "AWS Artifact",
+            "AWS CloudTrail",
+            "AWS Config",
+            "Audit Manager",
+            "KMS",
+            "shared responsibility",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.section)
+
+    def test_worked_example_has_at_least_six_numbered_steps(self):
+        steps = re.findall(r"^\d+\.\s", self.section, re.M)
+        self.assertGreaterEqual(
+            len(steps),
+            6,
+            "worked example should walk through at least six numbered "
+            "lifecycle steps",
+        )
+
+    def test_table_of_contents_links_to_worked_example(self):
+        self.assertIn("Worked example", self.toc)
+        self.assertIn(
+            "#worked-example-securing-and-governing-a-hipaa-regulated-bedrock-application-across-its-lifecycle",
+            self.toc,
+        )
+
+
 class TestDomain5PracticeQuestions(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

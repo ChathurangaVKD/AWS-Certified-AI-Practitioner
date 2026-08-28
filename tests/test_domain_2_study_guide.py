@@ -302,6 +302,44 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
             "key terms glossary should cover at least 15 terms",
         )
 
+    def test_image_generation_model_reference_is_current(self):
+        # Amazon Nova Canvas (not the discontinued-for-this-purpose Titan
+        # Image Generator) is Amazon's current first-party Bedrock
+        # image-generation model, and the AWS services section should name
+        # it explicitly.
+        services_section = _section(
+            self.text,
+            r"\n## 5\. AWS generative AI services and capabilities",
+        )
+        self.assertIn(
+            "Amazon Nova Canvas",
+            services_section,
+            "AWS services section should name Amazon Nova Canvas as "
+            "Amazon's current first-party image-generation model",
+        )
+        self.assertNotIn(
+            "text, embeddings, and image generation models",
+            services_section,
+            "Amazon Titan bullet should no longer claim image-generation "
+            "capability; that moved to Amazon Nova Canvas",
+        )
+
+        # Elsewhere in the doc, Titan Image Generator must not be presented
+        # as a current, working option (a prior review flagged exactly this
+        # in the business-use-cases mini-quiz and the prompt-engineering
+        # AWS example).
+        use_cases_section = _section(
+            self.text, r"\n## 4\. Business use cases for generative AI"
+        )
+        self.assertNotIn("Titan Image Generator", use_cases_section)
+        self.assertIn("Amazon Nova Canvas", use_cases_section)
+
+        prompting_section = _section(
+            self.text, r"\n## 6\. Prompt engineering fundamentals"
+        )
+        self.assertNotIn("Titan Image Generator", prompting_section)
+        self.assertIn("Amazon Nova Canvas", prompting_section)
+
 
 class TestDomain2PracticeQuestions(unittest.TestCase):
     @classmethod

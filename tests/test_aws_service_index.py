@@ -168,6 +168,20 @@ class TestAwsServiceIndexCoverage(unittest.TestCase):
             f"AWS service index has duplicate service entries: {sorted(duplicates)}",
         )
 
+    def test_titan_entry_does_not_claim_image_generation(self):
+        self.assertNotIn(
+            "text, embeddings, image generation",
+            self.text,
+            "Amazon Titan entry should not claim image-generation "
+            "capability; that moved to Amazon Nova Canvas",
+        )
+        titan_line = next(
+            line
+            for line in self.text.splitlines()
+            if line.startswith("- **Amazon Titan**")
+        )
+        self.assertIn("Amazon Nova Canvas", titan_line)
+
     def test_links_reach_every_domain_guide(self):
         all_targets = []
         for _service, _tags, rest in self.entries:

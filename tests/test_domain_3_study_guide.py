@@ -307,6 +307,24 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                     f"design considerations section missing factor: {factor!r}",
                 )
 
+    def test_modality_consideration_uses_current_image_model_name(self):
+        self.assertNotIn(
+            "Titan Image Generator",
+            self.text,
+            "doc should not reference the superseded Titan Image "
+            "Generator; use Amazon Nova Canvas instead",
+        )
+        section = _section(
+            self.text,
+            r"\n## 1\. Design considerations for foundation model applications",
+        )
+        self.assertIn(
+            "Amazon Nova Canvas",
+            section,
+            "modality design-consideration bullet should cite Amazon "
+            "Nova Canvas as a current image-generation model example",
+        )
+
     def test_prompt_engineering_section_covers_required_techniques(self):
         section = _section(
             self.text, r"\n## 2\. Prompt engineering techniques"

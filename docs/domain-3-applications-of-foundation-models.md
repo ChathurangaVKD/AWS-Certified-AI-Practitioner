@@ -82,7 +82,7 @@ weigh against each other, since improving one often costs you on another:
   throughput to avoid variable on-demand queueing.
 - **Modality** — whether the application needs to handle text, images,
   audio, video, or some combination (**multimodal**). Not every FM
-  supports every modality — e.g., Amazon Titan Image Generator and
+  supports every modality — e.g., **Amazon Nova Canvas** and
   Stability AI models on Bedrock handle image generation, while Anthropic
   Claude models on Bedrock support multimodal (text + image) input.
   Choosing a model that doesn't support your required modality is a

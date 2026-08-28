@@ -510,7 +510,7 @@ explanation.
    A. Search — Amazon OpenSearch Service
    B. Code generation — Amazon Q Developer
    C. Chatbot — Amazon Q Business
-   D. Content creation — Amazon Titan Image Generator
+   D. Content creation — Amazon Nova Canvas
 
    **Answer: B** — Code generation (suggesting, explaining, completing
    code) is the use case, and Amazon Q Developer is the AWS service
@@ -550,7 +550,12 @@ explanation.
     automatic metrics or human evaluators to choose the best model for a
     task.
   - **Amazon Titan** — Amazon's own family of foundation models available
-    in Bedrock (text, embeddings, and image generation models).
+    in Bedrock (text and embeddings models).
+  - **Amazon Nova** — Amazon's newer generation of foundation models on
+    Bedrock, spanning text, image (**Amazon Nova Canvas**), and video
+    (**Amazon Nova Reel**) generation; Nova Canvas is now Amazon's
+    first-party image-generation model on Bedrock, superseding the
+    original Titan Image Generator.
   - **Provisioned Throughput** — reserved model capacity for consistent,
     predictable performance at higher, steady traffic (versus flexible,
     consumption-based **on-demand** pricing).
@@ -700,7 +705,7 @@ switch to **few-shot** prompting with five labeled example tickets, which
 improves consistency. For a tickets-to-refund-decision task requiring
 multi-step reasoning, they add **chain-of-thought** instructions ("first
 list the relevant policy points, then decide"). For an image-generation
-use case with Amazon Titan Image Generator, they add **negative prompting**
+use case with **Amazon Nova Canvas**, they add **negative prompting**
 ("no logos, no people") to avoid unwanted elements, and lower
 **temperature** for more predictable output formatting.
 

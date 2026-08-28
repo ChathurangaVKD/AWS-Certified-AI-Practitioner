@@ -204,6 +204,51 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                 self.assertRegex(tree, cue)
                 self.assertIn(outcome, tree)
 
+    def test_customization_decision_tree_has_a_quick_reference_cheat_sheet(self):
+        # The Mermaid flowchart requires rendering support to read at a
+        # glance; a plain-text if-then cheat sheet right below it gives
+        # readers (and non-rendering viewers) an equally fast lookup for
+        # this domain's most-tested decision.
+        section = _section(
+            self.text,
+            r"\n## 4\. Fine-tuning vs\. continued pre-training vs\. RAG vs\. prompt engineering",
+        )
+        self.assertIn(
+            "Quick reference (if",
+            section,
+            "decision tree should be followed by an if-then quick "
+            "reference list",
+        )
+        quick_ref = section[section.index("Quick reference (if"):]
+        expectations = {
+            "frequently changing/proprietary data maps to RAG": (
+                r"frequently.*?weights shouldn't\s*\n?\s*change",
+                "RAG",
+            ),
+            "formatting/style need maps to prompt engineering": (
+                r"formatting, tone, or\s*\n?\s*output style",
+                "prompt engineering",
+            ),
+            "new proprietary-task skill with labeled data maps to fine-tuning": (
+                r"narrow, proprietary task",
+                "fine-tuning",
+            ),
+            "broad domain fluency from unlabeled text maps to continued pre-training": (
+                r"unlabeled text",
+                "continued pre-training",
+            ),
+        }
+        for description, (cue, outcome) in expectations.items():
+            with self.subTest(mapping=description):
+                self.assertRegex(quick_ref, cue)
+                self.assertIn(outcome, quick_ref)
+        self.assertIn(
+            "→",
+            quick_ref,
+            "quick reference entries should use an if-then arrow ("
+            "→) to state the conclusion",
+        )
+
     def test_customization_section_has_a_visual_comparison_matrix(self):
         # Regression guard: Section 4 originally compared the four
         # customization approaches in narrative form only. A Mermaid

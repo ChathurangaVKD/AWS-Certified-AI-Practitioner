@@ -163,42 +163,47 @@ answer.
 > testing that **tokens ≠ words** — a single word can be multiple tokens,
 > which is why context windows and LLM pricing are measured in tokens.
 
-### Mini-quiz: generative AI core concepts
+#### Mini-quiz: Test your understanding of generative AI core concepts
 
-**Q1.** A model converts the sentence "the customer is happy" into an array
-of numbers like `[0.41, -0.19, 0.88, ...]` that captures its meaning.
-What is this array called?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A model converts the sentence "the customer is happy" into an array of
+   numbers like `[0.41, -0.19, 0.88, ...]` that captures its meaning. What
+   is this array called?
    A. A token
    B. A vector
    C. A prompt template
    D. A checkpoint
 
-**Answer: B — A vector.** The array of numbers itself is the vector; the
-process of deriving meaning as that array is called embedding. (A) is the
-unit of text the model reads, not the numeric output; (C) and (D) are
-unrelated terms.
+   **Answer: B** — A vector. The array of numbers itself is the vector;
+   the process of deriving meaning as that array is called embedding. (A)
+   is the unit of text the model reads, not the numeric output; (C) and
+   (D) are unrelated terms.
 
-**Q2.** Which statement correctly distinguishes a large language model
-(LLM) from a foundation model (FM)?
+2. Which statement correctly distinguishes a large language model (LLM)
+   from a foundation model (FM)?
    A. An LLM is unrelated to foundation models
    B. An LLM is a foundation model specialized for natural-language text; all FMs are LLMs
    C. An LLM is a foundation model specialized for natural-language text; an LLM is one subset of the broader FM category
    D. A foundation model is always smaller than an LLM
 
-**Answer: C.** LLMs are a subset of foundation models focused on language;
-not every FM is an LLM (e.g., an image-generation FM is not a language
-model). (B) is wrong because FMs also include non-language modalities.
+   **Answer: C** — LLMs are a subset of foundation models focused on
+   language; not every FM is an LLM (e.g., an image-generation FM is not
+   a language model). (B) is wrong because FMs also include non-language
+   modalities.
 
-**Q3.** What makes the self-attention mechanism in a transformer different
-from older recurrent, left-to-right architectures?
+3. What makes the self-attention mechanism in a transformer different
+   from older recurrent, left-to-right architectures?
    A. It processes tokens strictly in sequential order
    B. It lets each token weigh the relevance of every other token in the input, regardless of distance
    C. It eliminates the need for tokenization
    D. It only considers the immediately preceding token
 
-**Answer: B.** Self-attention compares each token against every other
-token in the input in parallel, which is what allows transformers to
-capture long-range context and train efficiently on large datasets.
+   **Answer: B** — Self-attention compares each token against every
+   other token in the input in parallel, which is what allows
+   transformers to capture long-range context and train efficiently on
+   large datasets.
 
 ---
 
@@ -298,41 +303,46 @@ gaps are found.
 > almost never the correct exam answer for a business use case — it is
 > the most expensive, slowest option and is rarely necessary.
 
-### Mini-quiz: LLM lifecycle basics
+#### Mini-quiz: Test your understanding of LLM lifecycle basics
 
-**Q1.** A team has already scoped its use case and selected a foundation
-model in Amazon Bedrock. Which lifecycle stage comes next?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A team has already scoped its use case and selected a foundation model
+   in Amazon Bedrock. Which lifecycle stage comes next?
    A. Monitor
    B. Adapt and customize the model
    C. Deploy and integrate
    D. Full pretraining
 
-**Answer: B.** After scoping and selecting a model, the next stage is
-adapting/customizing it (prompt engineering, RAG, fine-tuning, or
-continued pre-training) before evaluation and deployment.
+   **Answer: B** — After scoping and selecting a model, the next stage
+   is adapting/customizing it (prompt engineering, RAG, fine-tuning, or
+   continued pre-training) before evaluation and deployment.
 
-**Q2.** Which customization option involves no training of any kind — only
-crafting the input given to the model?
+2. Which customization option involves no training of any kind — only
+   crafting the input given to the model?
    A. Fine-tuning
    B. Continued pre-training
    C. Prompt engineering
    D. Retrieval Augmented Generation (RAG)
 
-**Answer: C.** Prompt engineering is the lightest-touch option: it changes
-only the input text, not the model's weights or any retrieval pipeline.
+   **Answer: C** — Prompt engineering is the lightest-touch option: it
+   changes only the input text, not the model's weights or any
+   retrieval pipeline.
 
-**Q3.** A team wants to adapt a foundation model to specialized legal
-vocabulary using a large corpus of *unlabeled* legal documents, before
-later fine-tuning it for a specific labeled task. Which lifecycle option
-does this describe?
+3. A team wants to adapt a foundation model to specialized legal
+   vocabulary using a large corpus of *unlabeled* legal documents, before
+   later fine-tuning it for a specific labeled task. Which lifecycle
+   option does this describe?
    A. Continued pre-training
    B. Prompt engineering
    C. Deployment
    D. Monitoring
 
-**Answer: A — Continued pre-training.** It further trains an FM on a large
-corpus of unlabeled, domain-specific data (e.g., legal or medical text) to
-adapt its vocabulary before task-specific fine-tuning.
+   **Answer: A** — Continued pre-training. It further trains an FM on a
+   large corpus of unlabeled, domain-specific data (e.g., legal or
+   medical text) to adapt its vocabulary before task-specific
+   fine-tuning.
 
 ---
 
@@ -394,41 +404,44 @@ the model chose particular wording is not available.
 > answers in retrieved source data, but does not fully restore
 > interpretability or guarantee correctness.
 
-### Mini-quiz: advantages and disadvantages of generative AI
+#### Mini-quiz: Test your understanding of advantages and disadvantages of generative AI
 
-**Q1.** A single foundation model can be prompted to draft emails,
-summarize documents, and answer questions, without building a separate
-model for each task. Which advantage does this illustrate?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A single foundation model can be prompted to draft emails, summarize
+   documents, and answer questions, without building a separate model for
+   each task. Which advantage does this illustrate?
    A. Hallucination
    B. Adaptability
    C. Interpretability
    D. Nondeterminism
 
-**Answer: B — Adaptability.** One FM handling many different tasks through
-prompting alone is the definition of adaptability; the other options are
-either disadvantages or unrelated.
+   **Answer: B** — Adaptability. One FM handling many different tasks
+   through prompting alone is the definition of adaptability; the other
+   options are either disadvantages or unrelated.
 
-**Q2.** A generative AI model confidently states a legal precedent that
-does not actually exist. What specific disadvantage is this an example of?
+2. A generative AI model confidently states a legal precedent that does
+   not actually exist. What specific disadvantage is this an example of?
    A. Nondeterminism
    B. Cost and compute intensity
    C. Hallucination
    D. Scalability
 
-**Answer: C — Hallucination.** Fluent, confident, but fabricated output is
-the defining characteristic of hallucination, distinct from run-to-run
-output variation (nondeterminism).
+   **Answer: C** — Hallucination. Fluent, confident, but fabricated
+   output is the defining characteristic of hallucination, distinct from
+   run-to-run output variation (nondeterminism).
 
-**Q3.** Which technique reduces (without fully eliminating) run-to-run
-output variation for the same prompt?
+3. Which technique reduces (without fully eliminating) run-to-run output
+   variation for the same prompt?
    A. Raising the temperature parameter
    B. Lowering the temperature parameter
    C. Increasing the context window
    D. Switching to a multimodal model
 
-**Answer: B.** Lowering temperature makes the model's next-token
-probability distribution more peaked, reducing (but not eliminating)
-nondeterminism.
+   **Answer: B** — Lowering temperature makes the model's next-token
+   probability distribution more peaked, reducing (but not eliminating)
+   nondeterminism.
 
 ---
 
@@ -474,42 +487,46 @@ Bedrock Knowledge Bases).
 > Reserve a custom Amazon Bedrock build for cases needing deeper
 > customization than a purpose-built assistant offers.
 
-### Mini-quiz: business use cases for generative AI
+#### Mini-quiz: Test your understanding of business use cases for generative AI
 
-**Q1.** A company wants to condense long customer support call transcripts
-into short digests for supervisors to skim. Which business use case is
-this?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A company wants to condense long customer support call transcripts
+   into short digests for supervisors to skim. Which business use case is
+   this?
    A. Code generation
    B. Search
    C. Summarization
    D. Data augmentation
 
-**Answer: C — Summarization.** Condensing long content into a shorter
-digestible form is the definition of the summarization use case.
+   **Answer: C** — Summarization. Condensing long content into a
+   shorter digestible form is the definition of the summarization use
+   case.
 
-**Q2.** An engineering team wants developers to get natural-language
-explanations and completions of existing code. Which use case and AWS
-service pairing best fits?
+2. An engineering team wants developers to get natural-language
+   explanations and completions of existing code. Which use case and AWS
+   service pairing best fits?
    A. Search — Amazon OpenSearch Service
    B. Code generation — Amazon Q Developer
    C. Chatbot — Amazon Q Business
    D. Content creation — Amazon Titan Image Generator
 
-**Answer: B.** Code generation (suggesting, explaining, completing code) is
-the use case, and Amazon Q Developer is the AWS service purpose-built for
-it.
+   **Answer: B** — Code generation (suggesting, explaining, completing
+   code) is the use case, and Amazon Q Developer is the AWS service
+   purpose-built for it.
 
-**Q3.** A retailer wants employees to find internal documents by meaning
-rather than by typing the exact keywords used in the document. Which use
-case does this describe?
+3. A retailer wants employees to find internal documents by meaning
+   rather than by typing the exact keywords used in the document. Which
+   use case does this describe?
    A. Personalization
    B. Search (semantic search)
    C. Translation
    D. Content creation
 
-**Answer: B.** Finding results by meaning rather than exact keyword match
-is the definition of semantic search, powered by embeddings and vector
-similarity.
+   **Answer: B** — Finding results by meaning rather than exact keyword
+   match is the definition of semantic search, powered by embeddings and
+   vector similarity.
 
 ---
 
@@ -578,41 +595,46 @@ JumpStart**).
 > infra, or to mix with traditional SageMaker ML pipelines" → **SageMaker
 > JumpStart**.
 
-### Mini-quiz: AWS generative AI services and capabilities
+#### Mini-quiz: Test your understanding of AWS generative AI services and capabilities
 
-**Q1.** Which Amazon Bedrock capability connects a foundation model to your
-own data sources (e.g., Amazon S3) for grounded, up-to-date answers,
-without retraining the model?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which Amazon Bedrock capability connects a foundation model to your
+   own data sources (e.g., Amazon S3) for grounded, up-to-date answers,
+   without retraining the model?
    A. Guardrails for Amazon Bedrock
    B. Knowledge Bases for Amazon Bedrock
    C. Amazon Bedrock Model Evaluation
    D. Provisioned Throughput
 
-**Answer: B.** Knowledge Bases for Amazon Bedrock is the managed RAG
-capability that grounds FM answers in your own connected data sources.
+   **Answer: B** — Knowledge Bases for Amazon Bedrock is the managed
+   RAG capability that grounds FM answers in your own connected data
+   sources.
 
-**Q2.** A company wants reserved, dedicated model capacity in Amazon
-Bedrock for consistent performance under steady, high-volume traffic,
-instead of flexible consumption-based pricing. Which capability fits?
+2. A company wants reserved, dedicated model capacity in Amazon Bedrock
+   for consistent performance under steady, high-volume traffic, instead
+   of flexible consumption-based pricing. Which capability fits?
    A. Provisioned Throughput
    B. Agents for Amazon Bedrock
    C. Amazon Titan
    D. PartyRock
 
-**Answer: A.** Provisioned Throughput reserves model capacity for
-predictable performance at steady, high-volume traffic, versus on-demand
-pricing.
+   **Answer: A** — Provisioned Throughput reserves model capacity for
+   predictable performance at steady, high-volume traffic, versus
+   on-demand pricing.
 
-**Q3.** Which AWS offering lets a foundation model plan and execute
-multi-step tasks by calling your own APIs or Lambda functions and
-reasoning over the results?
+3. Which AWS offering lets a foundation model plan and execute multi-step
+   tasks by calling your own APIs or Lambda functions and reasoning over
+   the results?
    A. Amazon Bedrock Guardrails
    B. Agents for Amazon Bedrock
    C. Amazon Q Developer
    D. Amazon SageMaker JumpStart
 
-**Answer: B.** Agents for Amazon Bedrock is specifically built for FMs to
-plan and execute multi-step tasks against your APIs/Lambda functions.
+   **Answer: B** — Agents for Amazon Bedrock is specifically built for
+   FMs to plan and execute multi-step tasks against your APIs/Lambda
+   functions.
 
 ---
 
@@ -690,53 +712,58 @@ use case with Amazon Titan Image Generator, they add **negative prompting**
 > improve accuracy *without* retraining, **chain-of-thought prompting** is
 > almost always the correct answer.
 
-### Mini-quiz: prompt engineering fundamentals
+#### Mini-quiz: Test your understanding of prompt engineering fundamentals
 
-**Q1.** A prompt engineer asks a model to classify support tickets with no
-examples in the prompt, relying entirely on what the model learned during
-pretraining. Which technique is this?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A prompt engineer asks a model to classify support tickets with no
+   examples in the prompt, relying entirely on what the model learned
+   during pretraining. Which technique is this?
    A. Few-shot prompting
    B. Zero-shot prompting
    C. Chain-of-thought prompting
    D. Negative prompting
 
-**Answer: B — Zero-shot prompting.** Asking a model to perform a task with
-no examples at all is the definition of zero-shot prompting.
+   **Answer: B** — Zero-shot prompting. Asking a model to perform a
+   task with no examples at all is the definition of zero-shot
+   prompting.
 
-**Q2.** Which inference parameter restricts the model to sampling only
-from the smallest set of next-token candidates whose cumulative
-probability exceeds a threshold p?
+2. Which inference parameter restricts the model to sampling only from
+   the smallest set of next-token candidates whose cumulative
+   probability exceeds a threshold p?
    A. Temperature
    B. Top-k
    C. Top-p (nucleus sampling)
    D. Maximum length
 
-**Answer: C — Top-p (nucleus sampling).** Top-p restricts sampling to the
-smallest set of candidates whose cumulative probability exceeds p; top-k
-(B) instead restricts to a fixed count of the k most-likely tokens.
+   **Answer: C** — Top-p (nucleus sampling). Top-p restricts sampling to
+   the smallest set of candidates whose cumulative probability exceeds
+   p; top-k (B) instead restricts to a fixed count of the k most-likely
+   tokens.
 
-**Q3.** A developer includes three example question/answer pairs in the
-prompt before asking the model to answer a new, similar question. Which
-technique is this?
+3. A developer includes three example question/answer pairs in the
+   prompt before asking the model to answer a new, similar question.
+   Which technique is this?
    A. Zero-shot prompting
    B. Few-shot prompting
    C. Fine-tuning
    D. Continued pre-training
 
-**Answer: B — Few-shot prompting.** Including a small number of
-input/output examples in the prompt to show the desired pattern is
-few-shot prompting; unlike fine-tuning (C), it changes nothing about the
-model's weights.
+   **Answer: B** — Few-shot prompting. Including a small number of
+   input/output examples in the prompt to show the desired pattern is
+   few-shot prompting; unlike fine-tuning (C), it changes nothing about
+   the model's weights.
 
-**Q4.** Which string, when generated by the model, tells it to stop
-producing further output?
+4. Which string, when generated by the model, tells it to stop producing
+   further output?
    A. A prompt template
    B. A stop sequence
    C. A negative prompt
    D. A context window
 
-**Answer: B — A stop sequence.** Stop sequences are strings that, once
-generated, signal the model to stop generating further tokens.
+   **Answer: B** — A stop sequence. Stop sequences are strings that,
+   once generated, signal the model to stop generating further tokens.
 
 ---
 
@@ -790,40 +817,45 @@ data before committing.
 > factor — picking the biggest, most capable model is not always the
 > correct exam answer if latency or cost constraints are called out.
 
-### Mini-quiz: foundation model selection criteria
+#### Mini-quiz: Test your understanding of foundation model selection criteria
 
-**Q1.** A team building a real-time chatbot needs the fastest possible
-response time above all else. Which selection criterion matters most?
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A team building a real-time chatbot needs the fastest possible
+   response time above all else. Which selection criterion matters most?
    A. Context window
    B. Latency
    C. Licensing
    D. Model size alone
 
-**Answer: B — Latency.** Real-time, interactive use cases are highly
-latency-sensitive, so response speed is the most directly relevant
-criterion.
+   **Answer: B** — Latency. Real-time, interactive use cases are highly
+   latency-sensitive, so response speed is the most directly relevant
+   criterion.
 
-**Q2.** A team summarizing very long legal contracts in a single prompt,
-without chunking the document, cares most about which selection criterion?
+2. A team summarizing very long legal contracts in a single prompt,
+   without chunking the document, cares most about which selection
+   criterion?
    A. Context window
    B. Latency
    C. Modality
    D. Cost per invocation only
 
-**Answer: A — Context window.** The maximum number of tokens a model can
-consider at once determines whether a long document fits in a single
-prompt without splitting it into chunks.
+   **Answer: A** — Context window. The maximum number of tokens a model
+   can consider at once determines whether a long document fits in a
+   single prompt without splitting it into chunks.
 
-**Q3.** Which factor determines whether a foundation model can accept
-image input and produce text output, versus text-only input and output?
+3. Which factor determines whether a foundation model can accept image
+   input and produce text output, versus text-only input and output?
    A. Cost
    B. Modality
    C. Context window
    D. Fine-tuning support
 
-**Answer: B — Modality.** Modality describes what type(s) of data a model
-accepts as input and can produce as output (text, image, multimodal), and
-the model must support the modalities the use case needs.
+   **Answer: B** — Modality. Modality describes what type(s) of data a
+   model accepts as input and can produce as output (text, image,
+   multimodal), and the model must support the modalities the use case
+   needs.
 
 ---
 

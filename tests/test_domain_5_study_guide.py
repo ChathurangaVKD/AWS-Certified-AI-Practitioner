@@ -260,6 +260,60 @@ class TestDomain5EncryptionArchitectureDiagrams(unittest.TestCase):
                 self.assertIn(term, diagram)
 
 
+class TestDomain5SecurityThreatWorkedExamples(unittest.TestCase):
+    """Guards the three concrete attack-scenario 'Example:' callouts added
+    to the "Common security threats" subsection (data poisoning, prompt
+    injection, model inversion/extraction) so a future edit can't silently
+    drop or water down the worked scenarios readers need to recognize
+    these threats when described narratively in exam questions."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.section = _section(
+            cls.text,
+            r"\n### Common security threats to AI systems and how to mitigate them",
+            r"\n### ",
+        )
+
+    def test_subsection_has_at_least_three_worked_examples(self):
+        examples = re.findall(r"\*\*Example:\*\*", self.section)
+        self.assertGreaterEqual(
+            len(examples),
+            3,
+            "Common security threats subsection should have a worked "
+            "'Example:' scenario for at least three of the named threats",
+        )
+
+    def test_data_poisoning_example_present(self):
+        self.assertIn("**data poisoning**", self.section)
+        self.assertIn("retrain", self.section.lower())
+
+    def test_prompt_injection_example_includes_a_concrete_payload(self):
+        self.assertIn("**indirect prompt injection**", self.section)
+        # The scenario should show a concrete attacker payload, not just an
+        # abstract description of the attack.
+        self.assertRegex(
+            self.section,
+            r"`[^`]*[Ii]gnore[^`]*instructions[^`]*`",
+            "prompt injection example should include a concrete quoted/"
+            "code-formatted attacker payload",
+        )
+
+    def test_model_inversion_example_describes_systematic_api_querying(self):
+        self.assertIn("**model inversion / extraction attack**", self.section)
+        self.assertIn("inference endpoint", self.section)
+
+    def test_worked_examples_appear_before_the_section_mini_quiz(self):
+        examples_idx = self.text.index(
+            "### Common security threats to AI systems and how to mitigate them"
+        )
+        quiz_idx = self.text.index(
+            "#### Mini-quiz: Test your understanding of securing AI systems"
+        )
+        self.assertLess(examples_idx, quiz_idx)
+
+
 class TestDomain5StudyGuideStructure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

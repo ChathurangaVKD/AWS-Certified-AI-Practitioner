@@ -170,6 +170,51 @@ off the assistant at any time).
 > human step in and stop it?" → **controllability**; "is the output
 > trustworthy/accurate under stress?" → **veracity and robustness**.
 
+#### Mini-quiz: Test your understanding of the core dimensions of responsible AI
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which responsible AI dimension is most directly supported by Amazon
+   SageMaker Clarify's SHAP-based feature attribution explanations?
+   A. Governance
+   B. Explainability
+   C. Environmental impact
+   D. Data residency
+
+   **Answer: B** — Explainability is about describing, in
+   human-understandable terms, why a model produced a specific prediction;
+   SageMaker Clarify generates SHAP-based per-prediction explanations
+   specifically for this purpose.
+
+2. A hospital wants clinicians to be able to override or shut down a
+   generative AI assistant at any time. Which dimension does this
+   capability most directly address?
+   A. Controllability
+   B. Fairness
+   C. Transparency
+   D. Veracity and robustness
+
+   **Answer: A** — Controllability is the ability of a human operator to
+   monitor, override, adjust, or stop an AI system's behavior; letting
+   clinicians shut off the assistant is a direct expression of that
+   dimension.
+
+3. Which AWS capability primarily supports the "transparency" dimension by
+   documenting how a model was built, its training data, and its known
+   limitations?
+   A. Guardrails for Amazon Bedrock content filters
+   B. Amazon SageMaker Model Cards
+   C. Amazon Macie
+   D. AWS Customer Carbon Footprint Tool
+
+   **Answer: B** — SageMaker Model Cards are the primary mechanism for
+   documenting a model's build details, intended use, and limitations,
+   which is exactly what the transparency dimension requires. Guardrails
+   (A) filters live inference content rather than documenting the model;
+   Macie (C) discovers sensitive data at rest; the Carbon Footprint Tool
+   (D) reports emissions, unrelated to transparency.
+
 ---
 
 ## 2. Identifying bias and fairness issues in training data and model outputs
@@ -279,6 +324,52 @@ monitoring bias drift over time with **Amazon SageMaker Model Monitor**.
 > before a model is even built is still a Clarify pre-training bias
 > metric, not a post-training one.
 
+#### Mini-quiz: Test your understanding of identifying bias and fairness issues
+
+1. A facial recognition dataset contains mostly images of one demographic
+   group, causing the trained model to perform far worse on
+   underrepresented groups. Which type of bias does this describe?
+   A. Historical bias
+   B. Sampling bias
+   C. Aggregation bias
+   D. Measurement bias
+
+   **Answer: B** — Sampling bias occurs when the training data does not
+   represent the real-world population the model will be used on, exactly
+   as described here. Historical bias (A) is about accurately-collected
+   data reflecting pre-existing societal inequities; aggregation bias (C)
+   is about applying one model where subgroups need distinct treatment;
+   measurement bias (D) is about how data is collected or labeled
+   differing systematically across groups.
+
+2. Which SageMaker Clarify metric would you use, *before* a model is even
+   trained, to check whether a positive outcome label appears at a
+   different rate across demographic groups in the dataset?
+   A. Disparate impact
+   B. Difference in proportions of labels (DPL)
+   C. SHAP value
+   D. Accuracy difference
+
+   **Answer: B** — DPL is a pre-training metric measuring how differently
+   a positive label appears across groups in the dataset. Disparate impact
+   (A) and accuracy difference (D) are post-training metrics computed on
+   model predictions; a SHAP value (C) explains a specific prediction, it
+   isn't a bias metric.
+
+3. A team adds a fairness constraint to the training objective so the
+   model is penalized during training for producing unfair outcomes
+   across groups. Which stage of bias mitigation does this describe?
+   A. Pre-processing
+   B. Post-processing
+   C. In-processing
+   D. Data collection
+
+   **Answer: C** — In-processing mitigation adds fairness constraints or
+   regularization terms to the training objective itself. Pre-processing
+   (A) adjusts the data before training starts; post-processing (B)
+   adjusts outputs/thresholds after training without retraining; "data
+   collection" (D) is not one of the three defined mitigation stages.
+
 ---
 
 ## 3. AWS tools for responsible AI
@@ -346,6 +437,52 @@ its documented limitations before deciding.
 > content/safety/privacy filtering** — they solve different problems at
 > different stages (dataset/model evaluation vs. live inference).
 
+#### Mini-quiz: Test your understanding of AWS tools for responsible AI
+
+1. Which AWS capability would you use to redact personally identifiable
+   information (PII) from a live generative AI application's prompts and
+   responses?
+   A. Amazon SageMaker Clarify
+   B. Guardrails for Amazon Bedrock sensitive information filters
+   C. Amazon SageMaker Model Cards
+   D. AI Service Cards
+
+   **Answer: B** — Guardrails' sensitive information filters detect and
+   redact or block PII in prompts and responses at inference time.
+   SageMaker Clarify (A) detects bias and generates explanations, not PII
+   redaction; Model Cards (C) and AI Service Cards (D) are documentation
+   artifacts, not runtime controls.
+
+2. A fraud-detection team wants low-confidence predictions automatically
+   routed to a human reviewer before any action is taken. Which AWS
+   service is purpose-built for this?
+   A. Amazon Augmented AI (Amazon A2I)
+   B. Amazon SageMaker Clarify
+   C. Guardrails for Amazon Bedrock
+   D. AI Service Cards
+
+   **Answer: A** — Amazon A2I is designed specifically for
+   human-in-the-loop review workflows for low-confidence or high-stakes
+   predictions. Clarify (B) measures bias/explainability; Guardrails (C)
+   filters generative AI content at inference time; AI Service Cards (D)
+   are documentation, not a review workflow tool.
+
+3. Which statement correctly distinguishes a SageMaker Model Card from an
+   AI Service Card?
+   A. Both document AWS-managed services only
+   B. A Model Card documents a model the customer built; an AI Service
+      Card is AWS-published documentation for an AWS-managed AI service
+   C. A Model Card is a runtime content filter; an AI Service Card is a
+      training data quality report
+   D. They are interchangeable terms for the same artifact
+
+   **Answer: B** — A Model Card is filled in by the organization that
+   built the model (typically in SageMaker), while an AI Service Card is
+   authored and published by AWS for one of its own managed AI services.
+   A reverses this; C mischaracterizes both artifacts as technical
+   controls rather than documentation; D is false since they serve
+   distinct, non-interchangeable purposes.
+
 ---
 
 ## 4. Legal and ethical considerations
@@ -408,6 +545,52 @@ peak load, aligning with the **Well-Architected Sustainability Pillar**.
 > owns/may be liable for content) — the exam tests these as separate,
 > non-overlapping legal/ethical categories.
 
+#### Mini-quiz: Test your understanding of legal and ethical considerations
+
+1. A company is concerned that its generative AI model on Amazon Bedrock
+   could infringe copyright by reproducing training content too closely.
+   Which consideration most directly helps mitigate this specific legal
+   risk?
+   A. Choosing a Bedrock model whose provider offers IP indemnification
+   B. Enabling Guardrails content filters for violence
+   C. Reducing the model's context window
+   D. Enabling Amazon SageMaker Model Monitor
+
+   **Answer: A** — IP indemnification is a contractual protection some
+   Bedrock model providers offer that shifts legal risk of IP
+   infringement claims on generated content away from the customer.
+   Content filters (B) address harmful content categories, not copyright;
+   context window size (C) and Model Monitor (D) are unrelated to legal
+   IP exposure.
+
+2. Which AWS tool helps an organization estimate the carbon emissions
+   associated with its AWS usage, supporting environmental-impact
+   considerations?
+   A. AWS Customer Carbon Footprint Tool
+   B. Amazon SageMaker Clarify
+   C. Guardrails for Amazon Bedrock
+   D. Amazon A2I
+
+   **Answer: A** — The AWS Customer Carbon Footprint Tool reports the
+   estimated carbon emissions associated with a customer's AWS usage.
+   Clarify (B) measures bias, Guardrails (C) filters live content, and
+   A2I (D) routes predictions for human review — none report emissions.
+
+3. A generative AI chatbot must avoid producing hateful or harassing
+   output. Which category of legal/ethical consideration does this
+   concern fall under?
+   A. Intellectual property
+   B. Toxicity
+   C. Data residency
+   D. Environmental impact
+
+   **Answer: B** — Toxicity refers to hateful, harassing, obscene, or
+   otherwise harmful generated content. Intellectual property (A)
+   concerns ownership/infringement of content; data residency (C)
+   concerns where data is geographically stored/processed; environmental
+   impact (D) concerns the energy/resource footprint of training and
+   running models.
+
 ---
 
 ## 5. Balancing model performance and interpretability
@@ -466,6 +649,55 @@ require the same level of per-prediction explainability.
 > you to favor **performance**, and treat SHAP/Clarify explanations as a
 > way to add *some* transparency to an otherwise complex model rather
 > than a substitute for choosing a simpler one.
+
+#### Mini-quiz: Test your understanding of balancing performance and interpretability
+
+1. A bank must be able to explain individual loan-denial decisions to
+   regulators and rejected applicants. Which type of model should it
+   favor, all else equal?
+   A. A complex deep learning model, for maximum accuracy
+   B. A simpler, more interpretable model, even at some cost to accuracy
+   C. Any model, since interpretability doesn't matter for regulated
+      decisions
+   D. The model with the largest possible number of parameters
+
+   **Answer: B** — High-stakes, regulated decisions like loan denials
+   usually require higher interpretability, even at some accuracy cost,
+   because decisions must be explainable to regulators and affected
+   individuals. A and D optimize for accuracy/scale at the expense of
+   explainability; C ignores the regulatory requirement entirely.
+
+2. Which technique lets a team partially recover interpretability from a
+   complex, high-accuracy model without switching to a simpler model
+   architecture?
+   A. Lowering the model's temperature parameter
+   B. SHAP-based feature attribution via Amazon SageMaker Clarify
+   C. Enabling Guardrails denied topics
+   D. Increasing the size of the training dataset
+
+   **Answer: B** — Post-hoc explainability techniques like SHAP, computed
+   by SageMaker Clarify, show which input features drove a specific
+   prediction without requiring the underlying model to be simple.
+   Temperature (A) affects output randomness, not interpretability;
+   denied topics (C) is a Guardrails content control; a larger dataset
+   (D) can improve accuracy but doesn't add interpretability.
+
+3. For a low-stakes image-tagging task where misclassifications are easily
+   corrected, which side of the performance/interpretability tradeoff
+   should a team typically prioritize?
+   A. Maximum interpretability, even at a significant accuracy cost
+   B. Maximum performance/accuracy, since individual mistakes are
+      low-stakes
+   C. Neither — the team should avoid deploying any model
+   D. Legal compliance requirements dictate the choice regardless of
+      stakes
+
+   **Answer: B** — Lower-stakes, purely performance-driven tasks can
+   usually prioritize maximum accuracy even from a less interpretable
+   model, since the cost of an unexplained individual mistake is low. A
+   sacrifices accuracy unnecessarily; C is not a realistic option; D
+   misapplies a consideration relevant to high-stakes, regulated
+   scenarios, not this one.
 
 ---
 

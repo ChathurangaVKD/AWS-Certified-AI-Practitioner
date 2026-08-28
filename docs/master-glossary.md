@@ -12,7 +12,7 @@ Each entry follows the pattern **Term** `[D#, ...]` — one-line definition, fol
 | `D4` | [Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md) |
 | `D5` | [Domain 5: Security, Compliance, and Governance for AI Solutions](domain-5-security-compliance-governance.md) |
 
-A term tagged `[D2, D3]` is defined or used in both Domain 2 and Domain 3 -- follow either link to reach that domain's explanation. See also [`GLOSSARY.md`](GLOSSARY.md) for the same merged term set written as full backlinked prose entries, and [`cross-domain-concept-map.md`](cross-domain-concept-map.md) for how the underlying concepts (not just the terms) connect across domains.
+A term tagged `[D2, D3]` is defined or used in both Domain 2 and Domain 3 -- follow either link to reach that domain's explanation. See also [`GLOSSARY.md`](GLOSSARY.md) for the same merged term set written as full backlinked prose entries, [`cross-domain-concept-map.md`](cross-domain-concept-map.md) for how the underlying concepts (not just the terms) connect across domains, and [`aws-service-index.md`](aws-service-index.md) for an AWS-service-centric view of the same five guides -- every AWS service referenced anywhere in the series, linked to every section/domain that discusses it, for readers who want "all SageMaker mentions" or "all Bedrock capabilities" in one place instead of scanning an alphabetical term list.
 
 ## Jump to a letter
 

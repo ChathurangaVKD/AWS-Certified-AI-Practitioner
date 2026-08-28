@@ -52,6 +52,34 @@ service referenced anywhere across the five domain guides, listed
 alphabetically and linked to every section/domain that covers it (e.g.,
 find every mention of Amazon SageMaker or Amazon Bedrock in one place).
 
+Each domain guide ends with its own "Key terms" section, but those are
+scoped to that guide alone. See [`docs/GLOSSARY.md`](docs/GLOSSARY.md) for
+a single alphabetical glossary of every key term across all five domains,
+each with a brief definition and a backlink to the domain section that
+explains it in full.
+
+Domains 1, 2, 3, and 5 each include their own service comparison table,
+scoped to that domain. See
+[`docs/aws-service-decision-guide.md`](docs/aws-service-decision-guide.md)
+for a consolidated quick reference: a decision flow for choosing between
+SageMaker, Bedrock, and purpose-built AI services, plus cross-domain
+comparison tables for security/compliance/governance services and
+encryption/privacy options.
+
+The domain guides above are written to stand alone, but the exam and
+real-world practice both draw on them together. See
+[`docs/cross-domain-concept-map.md`](docs/cross-domain-concept-map.md) for
+a map of how Domain 1 fundamentals (model evaluation, the ML lifecycle,
+bias–variance) flow into Domain 3 foundation-model applications, Domain 4
+responsible-AI concerns, and Domain 5 security/governance requirements.
+
+Ready to rehearse actual exam conditions? See
+[`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) for a
+65-question, 90-minute mock exam weighted across all five domains in the
+same proportions as the real exam (~20%/24%/28%/14%/14%), mixed in
+exam-like order rather than grouped by domain, with timing guidance and a
+full answer key with explanations.
+
 ## Cross-domain scenario questions
 
 Every domain guide's practice questions are scoped to that one domain, but

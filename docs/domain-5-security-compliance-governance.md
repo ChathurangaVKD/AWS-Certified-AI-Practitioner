@@ -163,6 +163,30 @@ graph LR
     KMS -. "key usage logged to" .-> CT["AWS CloudTrail"]
 ```
 
+**Visual summary — end-to-end encryption pipeline and key-choice decision
+points:** the diagram below traces raw data from Amazon S3 through a
+SageMaker training job to a deployed inference endpoint, showing exactly
+where each encryption decision is made and how PrivateLink fits into the
+path:
+
+```mermaid
+graph TD
+    RAW["Raw data lands in Amazon S3\n(training data, documents)"] --> SENSITIVE{"Sensitive or regulated data?\n(PII, PHI, financial records)"}
+    SENSITIVE -- "Yes" --> CMK["Use a customer managed KMS key (CMK)\ncontrol the key policy, rotation,\nand auditability"]
+    SENSITIVE -- "No" --> AWSKEY["Use an AWS managed key\n(e.g. aws/s3) for convenience"]
+    CMK --> ENCS3["S3 objects encrypted at rest (SSE-KMS)"]
+    AWSKEY --> ENCS3
+    ENCS3 --> NETCHECK{"Must training/inference traffic\navoid the public internet?"}
+    NETCHECK -- "Yes" --> PL["AWS PrivateLink\ninterface VPC endpoint\ntraffic stays on the AWS network"]
+    NETCHECK -- "No" --> PUBLIC["Public service endpoint\n(still TLS-encrypted in transit)"]
+    PL --> TRAIN["SageMaker training job\ndecrypts input data with the chosen KMS key;\nencrypts storage volumes and\ninter-node traffic during distributed training"]
+    PUBLIC --> TRAIN
+    TRAIN --> ARTIFACT["Model artifacts written back to S3,\nencrypted at rest with the same KMS key"]
+    ARTIFACT --> DEPLOY["SageMaker endpoint deployment\nencrypts the endpoint's storage volume\nwith the KMS key"]
+    DEPLOY --> INFER["Inference requests\nTLS/HTTPS in transit, optionally via\nthe same PrivateLink VPC endpoint"]
+    CMK -. "every Encrypt/Decrypt/GenerateDataKey\ncall is recorded" .-> CT2["AWS CloudTrail"]
+```
+
 ### Source citation and data lineage
 - **Source citation / attribution**: Retrieval-Augmented Generation (RAG)
   systems should cite the source documents used to generate a response,

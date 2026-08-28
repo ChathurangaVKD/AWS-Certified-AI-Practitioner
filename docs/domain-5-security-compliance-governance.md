@@ -278,6 +278,71 @@ applications*, it's the OWASP Top 10 for LLM Applications. Neither is an
 AWS service — both are external, vendor-neutral frameworks the exam
 expects you to recognize by name.
 
+#### Mini-quiz: Test your understanding of securing AI systems
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A SageMaker training job needs to read training data from Amazon S3 and
+   write model artifacts back, without embedding any long-term AWS
+   credentials in the training container. What should be configured?
+   A. A hardcoded IAM user access key pair stored in the training script
+   B. An IAM execution role with a trust policy allowing the
+      `sagemaker.amazonaws.com` service principal to assume it, scoped to
+      only the needed S3 actions
+   C. A public S3 bucket policy allowing anonymous access
+   D. A VPN connection between the training job and S3
+
+   **Answer: B** — IAM execution roles let a SageMaker training job assume
+   permissions on the customer's behalf without embedding long-term
+   credentials, and least privilege means scoping the role to only the
+   needed S3 actions.
+
+2. A company invokes Amazon Bedrock Runtime from a client application and
+   stores the resulting model artifacts in Amazon S3. Which pairing
+   correctly matches the encryption mechanism to what it protects?
+   A. TLS/HTTPS encrypts the data in transit to Bedrock Runtime; a KMS key
+      encrypts the S3-stored artifacts at rest
+   B. A KMS key encrypts data in transit; TLS/HTTPS encrypts data at rest
+   C. TLS/HTTPS handles both at rest and in transit; KMS is not used
+   D. Neither at-rest nor in-transit encryption applies to Bedrock by
+      default
+
+   **Answer: A** — TLS/HTTPS protects data moving over the network
+   (encryption in transit); AWS KMS protects stored data like S3 model
+   artifacts (encryption at rest). Reversing the two (B) is a common
+   distractor.
+
+3. A SageMaker notebook instance runs in a private VPC subnet with no
+   internet gateway and needs to call the Bedrock Runtime API. What should
+   be configured so the traffic never traverses the public internet?
+   A. A NAT gateway with a route to the internet
+   B. An interface VPC endpoint for Bedrock Runtime, powered by AWS
+      PrivateLink
+   C. A site-to-site VPN connection to AWS
+   D. A public IP address attached to the notebook instance
+
+   **Answer: B** — An interface VPC endpoint (AWS PrivateLink) keeps
+   traffic to Bedrock entirely within the AWS network. A NAT gateway (A)
+   still routes through the public internet, and a VPN (C) connects
+   networks rather than a VPC to an AWS service.
+
+4. An attacker gains write access to a training data S3 bucket and subtly
+   alters a small number of labels to bias a fraud-detection model's
+   behavior. Which threat is this?
+   A. Prompt injection
+   B. Data poisoning
+   C. Model inversion / extraction
+   D. Model drift
+
+   **Answer: B** — Corrupting training data itself to manipulate a
+   model's behavior is data poisoning. Prompt injection (A) hijacks
+   instructions at inference time, model inversion (C) targets a deployed
+   model through crafted queries, and model drift (D) is gradual
+   degradation, not an attack.
+
+---
+
 ## 2. AWS compliance standards relevant to AI workloads
 
 ### AWS Artifact
@@ -369,6 +434,51 @@ chooses to adopt; the **Algorithmic Accountability Act** is *proposed*
 (not-yet-binding) US legislation. A question asking "which of these is
 legally mandatory" hinges on this distinction.
 
+#### Mini-quiz: Test your understanding of AWS compliance standards for AI workloads
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. A compliance team needs to download AWS's SOC 2 report and execute a
+   HIPAA Business Associate Addendum (BAA) before processing PHI on AWS.
+   Which service should they use?
+   A. AWS Config
+   B. AWS Artifact
+   C. AWS Audit Manager
+   D. AWS CloudTrail
+
+   **Answer: B** — AWS Artifact is the self-service portal for AWS's own
+   compliance reports (like SOC 2) and agreements (like the HIPAA BAA).
+   Audit Manager (C) builds evidence for *your* account, not AWS's own
+   certifications.
+
+2. When a company uses Amazon Bedrock to process the personal data of EU
+   customers, which role does AWS typically play under GDPR?
+   A. Data controller
+   B. Data subject
+   C. Data processor
+   D. Supervisory authority
+
+   **Answer: C** — AWS is generally the data processor, processing
+   personal data on the customer's behalf, while the customer (as data
+   controller) decides the purpose and means of processing.
+
+3. Which statement correctly distinguishes the NIST AI Risk Management
+   Framework (AI RMF) from the EU AI Act?
+   A. Both are legally binding laws enforced identically worldwide
+   B. The NIST AI RMF is a voluntary framework organizations may choose to
+      adopt; the EU AI Act is a binding regulation that imposes
+      risk-tiered legal obligations
+   C. The NIST AI RMF only applies to healthcare AI; the EU AI Act only
+      applies to financial AI
+   D. The EU AI Act is voluntary guidance; the NIST AI RMF is binding law
+
+   **Answer: B** — The NIST AI RMF is voluntary US guidance an
+   organization chooses to adopt; the EU AI Act is a binding EU regulation
+   that classifies AI systems into risk tiers with mandatory obligations.
+
+---
+
 ## 3. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance
 
 These three services are frequently confused on the exam because they all
@@ -420,6 +530,48 @@ NEED TO ANSWER: which governance/monitoring service applies?
     → AWS Audit Manager (built on evidence from CloudTrail and Config)
 ```
 
+#### Mini-quiz: Test your understanding of AWS Config, Audit Manager, and CloudTrail for AI governance
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which service answers the question "who invoked this specific Bedrock
+   model, and exactly when?"
+   A. AWS Config
+   B. AWS CloudTrail
+   C. AWS Audit Manager
+   D. Amazon CloudWatch
+
+   **Answer: B** — AWS CloudTrail logs API calls, including who invoked a
+   model and when, directly answering "who did what, when."
+
+2. Which service continuously evaluates whether a SageMaker endpoint's
+   storage remains encrypted over time, and flags a compliance violation
+   if that configuration drifts?
+   A. AWS CloudTrail
+   B. AWS Config
+   C. AWS Audit Manager
+   D. Amazon Inspector
+
+   **Answer: B** — AWS Config continuously records resource configuration
+   state and evaluates it against rules, flagging drift such as
+   encryption being disabled. CloudTrail (A) only logs the API call that
+   changed it, without evaluating ongoing compliance.
+
+3. Which service produces a consolidated, audit-ready report mapping
+   CloudTrail and Config evidence to a compliance framework like
+   ISO 27001?
+   A. AWS Config
+   B. AWS CloudTrail
+   C. AWS Audit Manager
+   D. Amazon Macie
+
+   **Answer: C** — AWS Audit Manager collects evidence (leveraging
+   CloudTrail and Config, among other sources) and maps it to prebuilt or
+   custom frameworks to streamline audit preparation.
+
+---
+
 ## 4. Data governance strategies
 
 ### Data lifecycle
@@ -461,6 +613,51 @@ excluded or redacted before ingestion.
 *operational metrics/logs*, it's CloudWatch. If it's about *threat
 detection*, it's GuardDuty. These three are commonly offered as
 distractors for each other.
+
+#### Mini-quiz: Test your understanding of data governance strategies
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Before ingesting an internal document store into a Bedrock Knowledge
+   Base, a company wants to automatically discover whether any of the
+   source documents contain PII. Which service should they use?
+   A. AWS Config
+   B. Amazon Macie
+   C. Amazon GuardDuty
+   D. AWS Audit Manager
+
+   **Answer: B** — Amazon Macie uses machine learning to automatically
+   discover and classify sensitive data like PII stored in S3, directly
+   fitting this pre-ingestion check.
+
+2. A company operating in a country with strict data sovereignty laws
+   must ensure AI training data never leaves that country's borders, even
+   for disaster-recovery replication. What is the most direct AWS
+   mechanism to help meet this requirement?
+   A. Enabling AWS CloudTrail in all Regions
+   B. Restricting storage and processing to the AWS Region located in
+      that country, and not enabling cross-Region replication
+   C. Downloading a residency certificate from AWS Artifact
+   D. Enabling Amazon GuardDuty
+
+   **Answer: B** — Choosing and restricting processing to the in-country
+   Region, without cross-Region replication, is the direct AWS mechanism
+   for controlling where data is geographically stored and processed.
+
+3. A team wants aging training data automatically transitioned to
+   cheaper storage tiers, and eventually expired, without manual
+   intervention. What should they configure?
+   A. Amazon S3 Lifecycle policies
+   B. AWS Config rules
+   C. AWS CloudTrail retention settings
+   D. Amazon Macie classification jobs
+
+   **Answer: A** — S3 Lifecycle policies automate transitioning data to
+   cheaper storage tiers or expiring it, which is exactly how the data
+   lifecycle stage of data governance is implemented on AWS.
+
+---
 
 ## 5. AWS shared responsibility model applied to AI/ML services
 
@@ -516,6 +713,53 @@ service (Bedrock > SageMaker JumpStart > SageMaker custom training), the
 less infrastructure security the customer must handle — but the customer
 is **always** responsible for their data and access configuration,
 regardless of how managed the service is.
+
+#### Mini-quiz: Test your understanding of the AWS shared responsibility model
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Regardless of whether a workload uses Amazon Bedrock or Amazon
+   SageMaker, which of the following is always AWS's responsibility under
+   the shared responsibility model?
+   A. Configuring the customer's IAM policies
+   B. Physical security of the data centers hosting the service
+   C. Choosing which training data to use
+   D. Enabling encryption on customer resources
+
+   **Answer: B** — Physical data center security is always "security of
+   the cloud," which is AWS's responsibility regardless of which AI/ML
+   service abstraction level is used. The other options are always the
+   customer's responsibility.
+
+2. Why does a custom Amazon SageMaker training and inference setup place
+   a larger security responsibility on the customer than using
+   fully-managed Amazon Bedrock?
+   A. Because SageMaker is less secure than Bedrock by design
+   B. Because the customer must secure their own training containers,
+      data pipeline, and custom code, while AWS still secures the
+      underlying infrastructure
+   C. Because AWS takes no responsibility at all for SageMaker
+   D. Because SageMaker does not support IAM
+
+   **Answer: B** — With SageMaker's build/train/deploy model, the
+   customer takes on more of the "in the cloud" slice (custom containers,
+   data pipeline, code), while AWS continues to secure the underlying
+   compute/storage infrastructure.
+
+3. If a vulnerability is discovered in the underlying infrastructure that
+   serves Amazon Bedrock foundation models, who is responsible for
+   patching it?
+   A. The customer
+   B. AWS
+   C. A third-party auditor
+   D. Whichever party accepted the EU AI Act obligations
+
+   **Answer: B** — Patching the underlying foundation-model serving
+   infrastructure is "security of the cloud," which is AWS's
+   responsibility for a fully managed service like Bedrock.
+
+---
 
 ## Comparison table: governance and monitoring services
 

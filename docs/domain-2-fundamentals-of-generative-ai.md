@@ -136,14 +136,50 @@ graph TD
     end
 ```
 
-Self-attention for the token "it" in "The cat sat on the mat because it was tired":
+Self-attention for the token "it" in "The cat sat on the mat because it was
+tired" — this is the row of the attention-weight matrix for query token
+"it" against every other token (all keys) in the sentence, with the actual
+numeric weights that a trained self-attention layer might produce (each
+row of the full matrix sums to 1.0):
 
+```mermaid
+%% Attention-weight matrix, query token = "it"
+%% Edge labels are the attention weight "it" assigns to each key token.
+graph LR
+    IT(("it"))
+    IT -->|"0.62"| CAT["cat"]
+    IT -->|"0.15"| TIRED["tired"]
+    IT -->|"0.08"| MAT["mat"]
+    IT -->|"0.05"| SAT["sat"]
+    IT -->|"0.04"| BECAUSE["because"]
+    IT -->|"0.03"| WAS["was"]
+    IT -->|"0.02"| THE1["The (1st word)"]
+    IT -->|"0.01"| ON["on"]
+    IT -->|"0.00"| THE2["the (before mat)"]
 ```
-  The   cat   sat   on   the   mat   because   it   was   tired
-   |     |     |     |     |     |      |       |     |     |
-   +-----+-----+-----+-----+-----+------+       |     |     |
-                   (attention weights point back to "cat")
-```
+
+| Key token (attended to) | Attention weight from "it" |
+| ------------------------ | --------------------------: |
+| cat                       |                         0.62 |
+| tired                     |                         0.15 |
+| mat                       |                         0.08 |
+| sat                       |                         0.05 |
+| because                   |                         0.04 |
+| was                       |                         0.03 |
+| The (1st word)            |                         0.02 |
+| on                        |                         0.01 |
+| the (before mat)          |                         0.00 |
+| **Total**                 |                     **1.00** |
+
+The token "it" assigns its highest weight (0.62) back to "cat" — six
+tokens earlier in the sentence — correctly resolving the pronoun's
+antecedent, with a secondary weight (0.15) on "tired" to capture what "it"
+is being described as. Because self-attention computes a weight between
+*every* pair of tokens directly (rather than propagating state
+step-by-step through intermediate tokens), this long-range link costs the
+same to compute as a link between adjacent tokens — which is exactly why
+transformers handle long-range dependencies so much better than older
+recurrent architectures.
 
 **AWS example:** A retailer wants a chatbot that can answer natural-language
 questions using its internal product catalog. The catalog documents are

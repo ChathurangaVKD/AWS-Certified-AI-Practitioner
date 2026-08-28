@@ -158,6 +158,59 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
             diagram, r"-->", "diagram should connect stages with flowchart edges"
         )
 
+    def test_generative_ai_section_has_an_attention_weight_matrix_diagram(self):
+        # Beyond the high-level pipeline diagram, the core-concepts section
+        # must include a *detailed* self-attention example: a concrete
+        # sentence with numeric attention weights showing how one token
+        # ("it") attends to every other token, to make the "long-range
+        # dependency" claim concrete rather than just asserted in prose.
+        section = _section(self.text, r"\n## 1\. Generative AI core concepts")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertGreaterEqual(
+            len(mermaid_blocks),
+            2,
+            "core concepts section should include a separate attention-weight "
+            "matrix diagram in addition to the token-flow pipeline diagram",
+        )
+        # The attention diagram is the one keyed on the query token "it".
+        attention_diagrams = [b for b in mermaid_blocks if '"it"' in b]
+        self.assertTrue(
+            attention_diagrams,
+            "expected a Mermaid diagram rooted at the query token \"it\"",
+        )
+        diagram = "\n".join(attention_diagrams)
+
+        # Every token of the example sentence must appear as a key node.
+        for token in [
+            "cat",
+            "sat",
+            "on",
+            "mat",
+            "because",
+            "was",
+            "tired",
+        ]:
+            with self.subTest(token=token):
+                self.assertIn(f'"{token}"', diagram)
+
+        # Edges must carry actual numeric attention weights, and "it" must
+        # attend most strongly back to "cat" (its antecedent).
+        weights = re.findall(r'\|"([0-9]*\.[0-9]+)"\|', diagram)
+        self.assertTrue(
+            weights, "diagram edges should be labeled with numeric attention weights"
+        )
+        self.assertRegex(
+            diagram,
+            r'IT -->\|"0\.62"\|\s*CAT',
+            "highest attention weight from \"it\" should point to \"cat\"",
+        )
+
+        # The full weight distribution should be documented as a matrix
+        # table that sums to 1.0, reinforcing that this is a proper
+        # attention-weight matrix row and not just an arbitrary graph.
+        self.assertIn("Attention weight from \"it\"", section)
+        self.assertIn("**1.00**", section)
+
     def test_lifecycle_section_has_a_mermaid_flowchart(self):
         # The LLM lifecycle section must include a Mermaid diagram (not
         # just prose) showing the six lifecycle stages, the branching

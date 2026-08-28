@@ -133,6 +133,67 @@ For the full walkthrough of each concept, see Domain 5:
 
 ---
 
+## 4. Bedrock model reference: capabilities and use-case fit
+
+The domain guides mention Titan, Claude, Llama, Nova, and other Bedrock
+models throughout, but scattered mentions aren't a substitute for a single
+place to compare them. Use this table when a scenario names a use case
+(or a required modality) and you need to reason about *which family* of
+model fits — not the exact model version, which changes too often to be
+exam-testable.
+
+> **Staleness warning:** Amazon Bedrock's model catalog changes
+> frequently — AWS adds new model versions and deprecates old ones on an
+> ongoing basis. The exam tests **model-family capabilities and
+> selection criteria** (context window trade-offs, which modality a
+> family supports, when multimodal beats text-only), not specific
+> version numbers. This table is a conceptual snapshot, current as of
+> **August 2026**; always verify exact model names/versions against the
+> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html)
+> before relying on it outside exam prep.
+
+| Model family | Provider | Modalities | Context window (relative) | Best-fit use case | Exam-style cue |
+|---|---|---|---|---|---|
+| **Amazon Titan Text** (Lite/Express/Premier) | Amazon | Text in → text out | Small → large across tiers | General-purpose text generation, summarization, classification at low cost | "Cost-effective," "Amazon-native," no mention of images |
+| **Amazon Titan Text Embeddings** | Amazon | Text in → vector out | N/A (embeddings, not generation) | Converting chunked documents/queries into vectors for RAG / semantic search | "Embeddings," "semantic search," "vector database" |
+| **Amazon Titan Image Generator** | Amazon | Text/image in → image out | N/A | Image generation and editing with built-in invisible watermarking for provenance | "Generate an image," "watermark," "responsible image generation" |
+| **Amazon Nova** (Micro/Lite/Pro/Premier) | Amazon | Text; Lite/Pro/Premier add image and video understanding | Micro smallest/fastest → Premier largest/most capable | Latency- and cost-sensitive text tasks (Micro) up to complex multimodal reasoning (Premier) | "Fast and low-cost," "understand video," "tiered by speed vs. capability" |
+| **Amazon Nova Canvas** | Amazon | Text/image in → image out | N/A | Studio-quality image generation and editing (inpainting, outpainting, background removal) | "Image generation," "edit an existing image" |
+| **Amazon Nova Reel** | Amazon | Text/image in → video out | N/A | Short-form video generation from a text or image prompt | "Generate a video" |
+| **Anthropic Claude** | Anthropic | Text, and multimodal text+image input | Large (tens of thousands of tokens+) | Complex reasoning, long-document analysis, agentic tool use, careful instruction-following | "Long document," "reasoning," "agents," "analyze an image and answer questions about it" |
+| **Meta Llama** | Meta | Text in → text out (open-weight family) | Mid → large depending on version | Open-weight model needs — fine-tuning control, on-prem/portability considerations, cost-efficient general text tasks | "Open source," "open-weight," "fine-tune and control the weights" |
+| **AI21 Labs Jamba/Jurassic** | AI21 Labs | Text in → text out | Large, efficient long-context handling | Long-context summarization and text generation with efficient inference | "Long context," "efficient at scale" |
+| **Cohere Command / Embed / Rerank** | Cohere | Command: text in → text out; Embed: text → vector; Rerank: reorders search results | Mid-large (Command) | Enterprise text generation (Command), embeddings (Embed), improving RAG retrieval relevance (Rerank) | "Improve search relevance," "rerank retrieved documents" |
+| **Mistral AI models** | Mistral AI | Text in → text out | Small (efficient) → large | Cost-efficient, low-latency text generation; some models support function calling | "Low latency," "function calling," "efficient" |
+| **Stability AI (Stable Diffusion / Stable Image)** | Stability AI | Text/image in → image out | N/A | High-control, style-flexible image generation and editing | "Image generation," "fine-grained style control" |
+
+> **Exam tip — pick the *capability*, not the brand name.** Exam
+> scenarios rarely ask "which company makes this model?" They describe a
+> requirement — "must generate an image," "must reason over a 200-page
+> document," "must run fine-tuning on open weights," "must support video
+> understanding" — and the correct answer is whichever **family**
+> natively supports that modality or trait. Choosing a text-only model
+> (e.g., Titan Text) for an image-generation scenario, or a small/fast
+> model (e.g., Nova Micro) for a task that needs deep multi-step
+> reasoning, is a classic distractor pattern.
+
+> **Exam tip — modality mismatch is the #1 trap.** Not every Bedrock
+> model supports every modality. Before matching a model to a scenario,
+> confirm it: (1) accepts the required **input** modality (text, image,
+> or both), (2) produces the required **output** modality (text, image,
+> video, embeddings), and (3) if long input is described (a large
+> document, a long conversation history), favor a model family known for
+> large context windows (Claude, AI21) over one optimized for speed/cost
+> (Nova Micro, Titan Lite).
+
+For the underlying Bedrock feature set these models plug into (Knowledge
+Bases, Agents, Guardrails, Model Evaluation, Provisioned Throughput), see
+[Domain 3 §5 — Amazon Bedrock features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features).
+For where each model family is mentioned elsewhere across the series, see
+[`aws-service-index.md`](aws-service-index.md).
+
+---
+
 ## How this guide relates to the domain guides
 
 This page is intentionally short: it is a **decision aid**, not a

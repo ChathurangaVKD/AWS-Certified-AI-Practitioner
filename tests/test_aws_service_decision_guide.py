@@ -56,6 +56,18 @@ REQUIRED_ENCRYPTION_CONCEPTS = [
     "BAA",
 ]
 
+# Model families the Bedrock model reference section must cover -- these
+# are the families the five domain guides mention by name without ever
+# consolidating them into one comparison (the gap this section closes).
+REQUIRED_BEDROCK_MODEL_FAMILIES = [
+    "Titan",
+    "Nova",
+    "Claude",
+    "Llama",
+    "Cohere",
+    "Mistral",
+]
+
 REQUIRED_LINKED_DOMAINS = [
     "domain-1-fundamentals-of-ai-and-ml.md",
     "domain-2-fundamentals-of-generative-ai.md",
@@ -168,6 +180,64 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
             re.compile(r"decision flow", re.IGNORECASE),
             "expected an explicit decision-flow section for choosing "
             "between SageMaker, Bedrock, and purpose-built services",
+        )
+
+    def test_has_bedrock_model_reference_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^##\s+4\.\s+Bedrock model reference", re.M),
+            "expected a numbered 'Bedrock model reference' section "
+            "closing the model-capability content gap",
+        )
+
+    def test_bedrock_model_reference_covers_required_families(self):
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(
+            section_match, "could not locate the Bedrock model reference section"
+        )
+        section_text = section_match.group(0)
+        for family in REQUIRED_BEDROCK_MODEL_FAMILIES:
+            with self.subTest(family=family):
+                self.assertIn(
+                    family,
+                    section_text,
+                    f"Bedrock model reference section missing model "
+                    f"family: {family!r}",
+                )
+
+    def test_bedrock_model_reference_has_a_comparison_table(self):
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            1,
+            "expected the Bedrock model reference section to include a "
+            "markdown comparison table",
+        )
+
+    def test_bedrock_model_reference_flags_staleness(self):
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        self.assertRegex(
+            section_text,
+            re.compile(r"staleness|changes frequently|snapshot", re.IGNORECASE),
+            "expected the Bedrock model reference to warn readers that "
+            "Bedrock's model catalog changes frequently",
         )
 
 

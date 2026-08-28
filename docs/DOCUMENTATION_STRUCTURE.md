@@ -10,7 +10,7 @@ The repository organizes material by **exam domain**, not by document type. Each
 
 **Entry-point material:** `README.md` is the single index — a brief overview with a table linking the five domains, their exam weights (~20%, ~24%, ~28%, ~14%, ~14%), and file paths. It is purely navigational with no content.
 
-**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), each 700–940 lines and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
+**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 774–1,441 lines each (Domain 1: 1,118 lines; Domain 2: 1,307 lines; Domain 3: 1,441 lines; Domain 4: 910 lines; Domain 5: 774 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
 
 **Self-assessment material:** embedded in each domain file: practice questions (15–20 per domain, ~85 total) with detailed answer explanations ruling out distractors.
 
@@ -35,6 +35,8 @@ Five exam domains totaling 100% coverage:
 4. **Domain 4 — Guidelines for Responsible AI (~14%):** Responsible AI dimensions (fairness, explainability, privacy/security, transparency, veracity/robustness, governance, safety, controllability), bias in training data (sampling, measurement, label, historical, exclusion, aggregation bias), bias detection methods (DPL, disparate impact ratio), AWS tools (SageMaker Clarify, SageMaker Model Cards, AI Service Cards, Guardrails), legal/ethical considerations (IP rights, privacy, toxicity/bias, environmental impact), performance vs. interpretability trade-off.
 
 5. **Domain 5 — Security, Compliance, and Governance for AI Solutions (~14%):** Securing AI systems (IAM roles/policies, least privilege, execution roles, encryption at rest/transit, KMS/CMKs, PrivateLink/VPC endpoints, source citation, data lineage), AWS compliance (AWS Artifact, GDPR, HIPAA/BAA), governance services (CloudTrail, Config, Audit Manager), data governance (data lifecycle, data residency, data monitoring with Macie/GuardDuty), shared responsibility model (AWS "of the cloud," customer "in the cloud").
+
+**Cross-domain support materials:** Beyond the five domain guides, `docs/cross-domain-scenario-questions.md` (182 lines) supplies 12 scenario questions that each require knowledge from two or more domains (e.g., a Domain 3 customization choice that also satisfies a Domain 5 security requirement), tagged by difficulty (beginner/intermediate/advanced) like the domain guides' own questions. It sits alongside the repo's other cross-domain support material: `cross-domain-concept-map.md`, `case-study-ai-system-lifecycle.md`, `exam-preparation-strategy.md`, `full-length-mock-exam.md`, `aws-service-decision-guide.md`, and `master-glossary.md`.
 
 **Structural gaps:** No integrated concept map showing how Domain 1 fundamentals (e.g., model evaluation) flow into Domain 3 applications or Domain 4 responsible AI concerns. No exam preparation guide, no quick-reference cheat sheet, no mock exam.
 
@@ -61,7 +63,7 @@ Five exam domains totaling 100% coverage:
 **Discoverability gaps:**
 - No master glossary index or keyword-to-domain mapping (e.g., "where is 'prompt injection' explained?").
 - No AWS service index or hyperlinked service references across domains.
-- No table of contents within each 700+ line domain file.
+- No table of contents within each 770+ line domain file.
 - No "if you're weak on Domain X, prioritize these sections" guidance.
 
 **Navigation issues:**

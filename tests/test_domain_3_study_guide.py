@@ -382,6 +382,66 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                     f"prompt engineering section missing technique: {technique!r}",
                 )
 
+    def test_prompt_engineering_section_has_side_by_side_worked_examples(self):
+        # The prompt engineering section previously only described
+        # techniques conceptually. It should also walk through the same
+        # concrete task (classifying a customer review) with several
+        # techniques side by side, each showing actual prompt text and
+        # the resulting model output.
+        section = _section(
+            self.text, r"\n## 2\. Prompt engineering techniques"
+        )
+        self.assertIn(
+            "Worked examples: the same task, four techniques",
+            section,
+            "prompt engineering section should include a worked-examples "
+            "subsection comparing techniques on one task",
+        )
+        examples = section[
+            section.index("Worked examples: the same task, four techniques"):
+        ]
+
+        # The same input task/review must be reused across every example
+        # so the techniques are genuinely comparable.
+        self.assertGreaterEqual(
+            examples.count("customer support was quick to"),
+            4,
+            "worked examples should reuse the same input review across "
+            "every technique for a fair side-by-side comparison",
+        )
+
+        # Each of at least four techniques must show both a labeled
+        # prompt and a labeled model output.
+        for technique in [
+            "Zero-shot prompting",
+            "Few-shot prompting",
+            "Chain-of-thought prompting",
+            "Negative prompting",
+        ]:
+            with self.subTest(technique=technique):
+                self.assertIn(technique, examples)
+
+        self.assertGreaterEqual(
+            examples.count("Prompt:"),
+            4,
+            "expected at least 4 labeled prompts in the worked examples",
+        )
+        self.assertGreaterEqual(
+            examples.count("Model output:"),
+            4,
+            "expected at least 4 labeled model outputs in the worked examples",
+        )
+
+        # Prompts and outputs should be shown as actual text in fenced
+        # code blocks, not just described in prose.
+        fences = re.findall(r"```(.*?)```", examples, re.S)
+        self.assertGreaterEqual(
+            len(fences),
+            8,
+            "expected at least 8 fenced code blocks (prompt + output per "
+            "technique) in the worked examples",
+        )
+
     def test_rag_section_covers_knowledge_bases_and_pipeline(self):
         section = _section(
             self.text,

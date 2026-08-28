@@ -46,6 +46,12 @@ For a quicker "where is X explained?" lookup, see
 cross-domain term set as a compact alphabetical index, with a `[D1, D3]`
 -style domain tag and direct links per term.
 
+For "where does this series discuss AWS service X?" specifically, see
+[`docs/aws-service-index.md`](docs/aws-service-index.md) — every AWS
+service referenced anywhere across the five domain guides, listed
+alphabetically and linked to every section/domain that covers it (e.g.,
+find every mention of Amazon SageMaker or Amazon Bedrock in one place).
+
 ## Cross-domain scenario questions
 
 Every domain guide's practice questions are scoped to that one domain, but

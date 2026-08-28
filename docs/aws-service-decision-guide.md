@@ -12,7 +12,10 @@ it doesn't replace them, it points back to them for the full detail.
 
 Use this page when a scenario gives you a use case and you need to jump
 straight to "which AWS service is the exam answer here?" without re-reading
-an entire domain guide.
+an entire domain guide. If instead you already know the service and want
+every place it's discussed across the series (e.g., "everywhere Amazon
+Bedrock is mentioned"), see [`aws-service-index.md`](aws-service-index.md) --
+an alphabetical, per-service index rather than a decision flow.
 
 ---
 

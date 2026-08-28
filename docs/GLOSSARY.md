@@ -4,7 +4,7 @@ Every domain guide in this series ends with its own **Key terms** section, scope
 
 Each entry gives a one-line working definition plus a backlink — or, for terms that show up in more than one domain, several backlinks — to the "Key terms" section where the concept is explained in full, with surrounding context and examples.
 
-See also the [cross-domain concept map](cross-domain-concept-map.md) for how Domain 1 fundamentals flow into Domains 3–5, rather than just which terms they share. For the same term set as a compact index with `[D1, D3]`-style domain tags per term, see [`master-glossary.md`](master-glossary.md).
+See also the [cross-domain concept map](cross-domain-concept-map.md) for how Domain 1 fundamentals flow into Domains 3–5, rather than just which terms they share. For the same term set as a compact index with `[D1, D3]`-style domain tags per term, see [`master-glossary.md`](master-glossary.md). For an index organized by AWS service instead of by term -- e.g. every mention of Amazon SageMaker or Amazon Bedrock across all five guides -- see [`aws-service-index.md`](aws-service-index.md).
 
 ## Jump to a letter
 

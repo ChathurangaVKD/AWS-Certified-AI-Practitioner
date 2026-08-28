@@ -472,6 +472,18 @@ flowchart TD
     Q4 -->|"YES"| CPT["CONTINUED PRE-TRAINING\n(self-supervised training on\nunlabeled domain-specific text)"]
 ```
 
+**Quick reference (if–then):** the same branches as one-line lookups, for
+the fastest possible exam-time recall:
+
+- Data changes frequently or is proprietary, but model weights shouldn't
+  change → **RAG**
+- Just need better formatting, tone, or output style, with no extra
+  training data → **prompt engineering**
+- Model needs to reliably perform a new, narrow, proprietary task and you
+  have labeled input/output examples for it → **fine-tuning**
+- Model needs broader domain vocabulary/fluency from a large body of
+  unlabeled text, not one specific task → **continued pre-training**
+
 These are not mutually exclusive — a production application commonly
 combines several, e.g., prompt engineering **and** RAG together, or a
 fine-tuned model accessed **through** a RAG pipeline.

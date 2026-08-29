@@ -210,7 +210,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("13", diagrams_section)
+        self.assertIn("15", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -373,6 +373,109 @@ class TestDocumentationStructureCrossDomainMaterialsAccuracy(unittest.TestCase):
                     f"domain {domain_number} guide ({path.name}) is missing "
                     "its breadcrumb navigation line",
                 )
+
+
+class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously stated 13 total Mermaid
+    diagrams (actually 15, with Domains 2 and 3 having four each rather
+    than three), didn't state the actual subsection mini-quiz total (31),
+    and didn't describe aws-service-index.md's actual letter-section
+    coverage (A, C, G, I, M, P, S). These tests derive the true figures
+    directly from the domain guides / index file and assert
+    DOCUMENTATION_STRUCTURE.md matches them, guarding against the doc
+    drifting stale again."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def test_stated_total_diagram_count_matches_actual_mermaid_diagrams(self):
+        actual_total = 0
+        for path in DOMAIN_FILES.values():
+            text = path.read_text(encoding="utf-8")
+            actual_total += len(re.findall(r"```mermaid", text))
+        self.assertEqual(
+            actual_total,
+            15,
+            "sanity check: expected 15 total Mermaid diagrams across the "
+            "five domain guides",
+        )
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        self.assertNotEqual(diagrams_idx, -1)
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
+        self.assertIn(
+            f"All {actual_total} flowchart-style diagrams",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md's stated total diagram count does "
+            "not match the actual number of ```mermaid blocks across the "
+            "domain guides",
+        )
+        self.assertNotIn(
+            "not among the 13 flowcharts",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md still references the stale "
+            "13-diagram count",
+        )
+
+    def test_stated_per_domain_diagram_counts_match_actual(self):
+        expected_words = {1: "one", 2: "four", 3: "four", 4: "three", 5: "three"}
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
+        for domain_number, path in DOMAIN_FILES.items():
+            text = path.read_text(encoding="utf-8")
+            actual_count = len(re.findall(r"```mermaid", text))
+            expected_word = expected_words[domain_number]
+            word_to_count = {"one": 1, "three": 3, "four": 4}
+            with self.subTest(domain=domain_number):
+                self.assertEqual(
+                    actual_count,
+                    word_to_count[expected_word],
+                    f"sanity check failed for domain {domain_number}'s "
+                    "actual Mermaid diagram count",
+                )
+                self.assertIn(f"Domain {domain_number} has {expected_word}", diagrams_section)
+
+    def test_stated_mini_quiz_total_matches_actual(self):
+        actual_total = 0
+        for path in DOMAIN_FILES.values():
+            text = path.read_text(encoding="utf-8")
+            actual_total += len(re.findall(r"^#### Mini-quiz:", text, re.M))
+        self.assertEqual(
+            actual_total,
+            31,
+            "sanity check: expected 31 total subsection mini-quizzes "
+            "across the five domain guides",
+        )
+        self.assertIn(
+            f"mini quizzes ({actual_total} in total",
+            self.structure_text,
+            "DOCUMENTATION_STRUCTURE.md does not state the actual total "
+            "subsection mini-quiz count",
+        )
+        self.assertNotIn("32 in total", self.structure_text)
+
+    def test_stated_service_index_letter_sections_match_actual(self):
+        service_index_path = DOCS_DIR / "aws-service-index.md"
+        text = service_index_path.read_text(encoding="utf-8")
+        actual_letters = re.findall(r"(?m)^## ([A-Z])$", text)
+        self.assertEqual(
+            actual_letters,
+            ["A", "C", "G", "I", "M", "P", "S"],
+            "sanity check: expected aws-service-index.md's actual letter "
+            "sections to be A, C, G, I, M, P, S",
+        )
+        idx = self.structure_text.find("**`aws-service-index.md`**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        letters_match = re.search(r"letter sections ([A-Z](?:, [A-Z])*, and [A-Z])", window)
+        self.assertIsNotNone(
+            letters_match,
+            "expected DOCUMENTATION_STRUCTURE.md's aws-service-index.md "
+            "entry to spell out its actual letter sections",
+        )
+        stated_letters = re.findall(r"[A-Z]", letters_match.group(1))
+        self.assertEqual(stated_letters, actual_letters)
+        self.assertNotIn("only sections A, G, I, P", window)
 
 
 if __name__ == "__main__":

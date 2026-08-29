@@ -10,16 +10,16 @@ The repository organizes material by **exam domain**, not by document type. Each
 
 **Entry-point material:** `README.md` is the single index — a brief overview with a table linking the five domains, their exam weights (~20%, ~24%, ~28%, ~14%, ~14%), and file paths. It is purely navigational with no content.
 
-**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 1,042–1,441 lines each (Domain 1: 1,118 lines; Domain 2: 1,344 lines; Domain 3: 1,441 lines; Domain 4: 1,232 lines; Domain 5: 1,042 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
+**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 1,118–1,441 lines each (Domain 1: 1,118 lines; Domain 2: 1,344 lines; Domain 3: 1,441 lines; Domain 4: 1,142 lines; Domain 5: 1,164 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
 
-**Self-assessment material:** embedded in each domain file: practice questions (15–20 per domain, ~85 total) with detailed answer explanations ruling out distractors.
+**Self-assessment material:** embedded in each domain file: practice questions (15–20 per domain, ~85 total) with detailed answer explanations ruling out distractors. Domain 5 is currently the only domain with multiple-response ("select TWO") questions — Q3 and Q14; every other domain uses single-answer multiple choice.
 
-**Validation tests:** `tests/test_domain_N_study_guide.py` for Domains 1–4 only — structural checks (required topic headings, AWS services, glossary size, question counts, answer coverage). Domain 5 has no corresponding test file.
+**Validation tests:** `tests/test_domain_N_study_guide.py` for all five domains — structural checks (required topic headings, AWS services, glossary size, question counts, answer coverage).
 
 **Mermaid flowchart showing reader flow:**
 ```
 README.md (index) → Domain 1 (fundamentals) → Domain 2 (GenAI) → Domain 3 (FM applications) → Domain 4 (responsible AI) → Domain 5 (security/governance)
-Tests: D1–D4 have validation tests; D5 lacks test file
+Tests: D1–D5 all have validation tests
 ```
 
 ## Coverage
@@ -35,7 +35,6 @@ Five exam domains totaling 100% coverage:
 4. **Domain 4 — Guidelines for Responsible AI (~14%):** Responsible AI dimensions (fairness, explainability, privacy/security, transparency, veracity/robustness, governance, safety, controllability), bias in training data (sampling, measurement, label, historical, exclusion, aggregation bias), bias detection methods (DPL, disparate impact ratio), AWS tools (SageMaker Clarify, SageMaker Model Cards, AI Service Cards, Guardrails), legal/ethical considerations (IP rights, privacy, toxicity/bias, environmental impact), performance vs. interpretability trade-off.
 
 5. **Domain 5 — Security, Compliance, and Governance for AI Solutions (~14%):** Securing AI systems (IAM roles/policies, least privilege, execution roles, encryption at rest/transit, KMS/CMKs, PrivateLink/VPC endpoints, source citation, data lineage), AWS compliance (AWS Artifact, GDPR, HIPAA/BAA), governance services (CloudTrail, Config, Audit Manager), data governance (data lifecycle, data residency, data monitoring with Macie/GuardDuty), shared responsibility model (AWS "of the cloud," customer "in the cloud").
-
 **Cross-domain support materials:** Beyond the five domain guides, `docs/cross-domain-scenario-questions.md` (182 lines) supplies 12 scenario questions that each require knowledge from two or more domains (e.g., a Domain 3 customization choice that also satisfies a Domain 5 security requirement), tagged by difficulty (beginner/intermediate/advanced) like the domain guides' own questions. It sits alongside the repo's other cross-domain support material: `cross-domain-concept-map.md`, `case-study-ai-system-lifecycle.md`, `exam-preparation-strategy.md`, `full-length-mock-exam.md`, `aws-service-decision-guide.md`, and `master-glossary.md`.
 
 **Structural gaps:** No integrated concept map showing how Domain 1 fundamentals (e.g., model evaluation) flow into Domain 3 applications or Domain 4 responsible AI concerns. No exam preparation guide, no quick-reference cheat sheet, no mock exam.
@@ -48,13 +47,15 @@ Five exam domains totaling 100% coverage:
 
 **Quality:** Practice questions are authentic exam style (scenario-based, multiple-choice, clear distractors). Answer explanations are substantive and rule out each wrong answer. Comparison tables provide quick reference (e.g., "AWS managed AI/ML services at a glance" in D1, "AWS generative AI services" in D2).
 
-**Diagrams:** Domain 1 has an ASCII diagram for the AI ⊃ ML ⊃ DL ⊃ GenAI hierarchy (Section 1) and for the 8-stage ML lifecycle loop (Section 2). Domain 2 has an ASCII diagram for the transformer/self-attention pipeline (Section 1). Domain 3 has an ASCII decision-tree diagram for FM customization approaches (Section 4). Domain 5 has an ASCII diagram of shared-responsibility boundaries for Bedrock vs. SageMaker (Section 5).
+**Diagrams:** All 13 flowchart-style diagrams across the guide are Mermaid flowcharts, not ASCII art: Domain 1 has one (the 8-stage ML lifecycle loop, Section 2); Domain 2 has three (including the transformer/self-attention pipeline, Section 1); Domain 3 has three (including the FM-customization decision tree, Section 4); Domain 4 has three (including the bias detection/mitigation workflow, Section 2); Domain 5 has three (covering the KMS key lifecycle and data-security/encryption architecture, Section 1). Two domains also carry separate plain-text ASCII notations for readers without Mermaid rendering, which are not among the 13 flowcharts: Domain 1's AI ⊃ ML ⊃ DL ⊃ GenAI nesting notation (Section 1) and Domain 5's shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section 5).
+
+**Worked examples:** Domains 1, 2, 3, and 5 each close with a dedicated "## Worked example" section stitching the domain's concepts into one end-to-end scenario: a loan-default predictor (D1), a generative AI support assistant (D2), a RAG-based policy-lookup assistant (D3), and a HIPAA-regulated Bedrock application (D5). Domain 4 has no worked-example section.
 
 **Missing examples:** Each section has one "AWS example," but no deep end-to-end case study showing a single company's AI evolution through multiple domains. No code examples (appropriate for exam prep, but limits hands-on learning).
 
 **Missing self-assessment:** No mock exam simulating real exam length/time. No answer analytics or topic-difficulty data.
 
-**Test coverage gaps:** Domain 5 has no `test_domain_5_study_guide.py` file; Domains 1–4 do. Domain 5 glossary heading is "Key terms" instead of "Key terms glossary," creating inconsistency with D1–D4 and would fail any unified test.
+**Test coverage:** All five domains have a corresponding `test_domain_N_study_guide.py` file with consistent structural checks. Domain 5's glossary heading is "Key terms glossary," matching the convention used by D1–D4.
 
 ## Navigation
 
@@ -76,8 +77,8 @@ Five exam domains totaling 100% coverage:
 
 ## Additional findings
 
-**Test coverage:** `test_domain_5_study_guide.py` is missing. Domains 1–4 validate: required topic headings, AWS service mentions, evaluation term coverage (D1 only), glossary size (≥15 entries), practice question count (15–20), answer explanations (≥120 chars each, bolded answer letter), sequential numbering. Domain 5 should have the same checks.
+**Test coverage:** `test_domain_5_study_guide.py` exists alongside the other four domain test files. Domains 1–5 validate: required topic headings, AWS service mentions, evaluation term coverage (D1 only), glossary size (≥15 entries), practice question count (15–20), answer explanations (≥120 chars each, bolded answer letter), sequential numbering.
 
-**Consistency:** All domains follow the same template (overview → sections → table → glossary → questions → answers), yet only Domains 1–4 are validated structurally. Domain 5's glossary heading divergence ("Key terms" vs. "Key terms glossary") breaks the pattern.
+**Consistency:** All domains follow the same template (overview → sections → table → glossary → questions → answers) and all five are validated structurally by their respective test files. Domain 5's glossary heading is "Key terms glossary," matching the convention used by D1–D4.
 
 **sonar-project.properties:** Exists but unchecked for correctness by tests; verify it's tuned for documentation (markdown) rather than code.

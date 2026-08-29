@@ -194,6 +194,92 @@ For where each model family is mentioned elsewhere across the series, see
 
 ---
 
+## 5. Consolidated service matrix: all services across domains
+
+Sections 1–4 above are decision aids scoped to a single question each
+(which compute/model service, which governance service, which encryption
+option, which Bedrock model family). This section is different: it's a
+**single flat matrix covering every one of the 45+ AWS services**
+referenced anywhere across the five domain guides — the same population of
+services [`aws-service-index.md`](aws-service-index.md) lists
+alphabetically with jump-links, but reshaped here into one multi-dimensional
+table you can scan for "which domain(s) is this tested in, how much does
+that domain count on the exam, when do I actually reach for it, and what's
+the trap." Use the service index when you know the service and want every
+place it's discussed; use this matrix when you want the whole landscape in
+one scroll, or want to sanity-check a service you're unsure you've fully
+placed.
+
+> **How to read "Exam weight relevance":** each domain's share of the exam
+> is fixed — Domain 1 ~20%, Domain 2 ~24%, Domain 3 ~28%, Domain 4 ~14%,
+> Domain 5 ~14% (see the [domain weighting table in
+> README.md](../README.md#exam-domains)). A service tagged with more than
+> one domain isn't "more heavily weighted" by itself — it just means it can
+> legitimately show up in scenario questions scored under either domain's
+> percentage, so confusing it with a same-domain neighbor costs you twice.
+
+| Service | Domain(s) | Exam weight relevance | When to use it | Common point of confusion |
+|---|---|---|---|---|
+| **AI Service Cards** | D4 | ~14% | Look up the documented intended use, limitations, and design considerations of a specific pre-built AWS AI service before deploying it | Confused with **SageMaker Model Cards** — Service Cards are AWS-authored docs about a managed service (e.g., Rekognition); Model Cards are documentation *you* author about *your own* trained model |
+| **Amazon Augmented AI (Amazon A2I)** | D4 | ~14% | Insert a human reviewer into the loop for low-confidence or high-stakes ML predictions | Confused with SageMaker Ground Truth (labeling *training* data) — A2I reviews *inference-time* predictions, not training labels |
+| **Amazon Aurora (PostgreSQL, with pgvector)** | D3 | ~28% | Store vector embeddings as a column type inside a relational database you already run, via the pgvector extension | Confused with Amazon OpenSearch and Amazon Kendra as "the RAG vector store" — Aurora/pgvector is the right pick specifically when you need embeddings *alongside* existing relational data and SQL joins, not a dedicated search engine |
+| **Amazon Bedrock** | D2, D3, D4, D5 | ~24% + ~28% | Access a choice of foundation models from Amazon and third parties through one unified API, and layer on Knowledge Bases, Agents, Guardrails, and Model Evaluation | Confused with Amazon SageMaker — Bedrock is for consuming/customizing *existing* foundation models; SageMaker is for building/training a *bespoke* model or when deep infrastructure control is required |
+| **Amazon Bedrock Agents** | D2, D3 | ~24% + ~28% | Let a foundation model plan and execute multi-step tasks by calling your own APIs | Confused with Bedrock Knowledge Bases — Agents take *action*; Knowledge Bases *retrieve information* (RAG). A scenario needing both grounded answers and task execution needs both together |
+| **Amazon Bedrock Knowledge Bases** | D2, D3, D5 | ~24% + ~28% | Ground a foundation model's answers in your own data (RAG) with source attribution, without managing the retrieval pipeline yourself | Confused with a raw vector database (OpenSearch/Aurora/Kendra) — Knowledge Bases is the managed *orchestration layer* on top of one of those stores, not a replacement for picking one |
+| **Amazon Bedrock Model Evaluation** | D2, D3 | ~24% + ~28% | Compare foundation model quality using automatic metrics or human evaluators before committing to a model choice | Confused with SageMaker Clarify — Model Evaluation compares *FM output quality/fit*; Clarify measures *bias and explainability*, mostly for traditional ML models |
+| **Amazon CloudWatch** | D5 | ~14% | Monitor operational metrics/logs to detect anomalous invocation patterns or model drift in near-real time | Confused with AWS CloudTrail — CloudWatch answers "is something behaving abnormally *right now*"; CloudTrail answers "who called what API, and when" |
+| **Amazon Comprehend** | D1, D5 | ~20% + ~14% | Run managed NLP for sentiment, entities, key phrases, PII detection, or topic modeling; use Comprehend Medical for HIPAA-eligible clinical text | Confused with Amazon Textract — Comprehend analyzes/understands text that's already digitized; Textract extracts text/structure *out of* scanned documents in the first place |
+| **Amazon Forecast** | D1 | ~20% | Generate time-series forecasts (demand, inventory, financial metrics) without building a custom model | Confused with Amazon Fraud Detector as "another prediction service" — Forecast predicts *future numeric trends over time*; Fraud Detector scores *risk of a single transaction/event* |
+| **Amazon Fraud Detector** | D1 | ~20% | Get real-time fraud-risk scores for transactions or account activity using a managed model | Confused with Amazon GuardDuty — Fraud Detector scores *business transaction risk* (an ML/AI service, Domain 1); GuardDuty detects *account/infrastructure security threats* (a security service, Domain 5) |
+| **Amazon GuardDuty** | D5 | ~14% | Continuously detect threats and anomalies across an AWS account's infrastructure and API activity | Confused with Amazon Macie — GuardDuty watches for *threats/intrusions*; Macie watches for *sensitive data exposure* in S3 specifically |
+| **Amazon Kendra** | D3 | ~28% | Stand up enterprise search where the service manages embeddings and relevance ranking internally, with minimal tuning | Confused with Amazon OpenSearch Service — Kendra is fully managed and opinionated (less control, faster to stand up); OpenSearch gives you direct control over the vector engine and hybrid search tuning |
+| **Amazon Lex** | D1 | ~20% | Build a conversational chatbot or voice-bot interface with built-in speech recognition and language understanding | Confused with Amazon Q Business — Lex builds a *custom* conversational interface you design intents for; Q Business is a pre-built enterprise assistant grounded in your existing company data |
+| **Amazon Macie** | D5 | ~14% | Discover and classify sensitive data (e.g., PII) already stored in Amazon S3 | Confused with Amazon Comprehend PII detection — Macie scans *data at rest in S3 buckets*; Comprehend's PII feature analyzes *text passed to it*, regardless of where it's stored |
+| **Amazon OpenSearch Service / Serverless** | D3 | ~28% | Run vector search with a built-in vector engine, especially when you need hybrid vector + keyword search and want direct control over indexing | Confused with Amazon Kendra — OpenSearch is infrastructure you configure; Kendra is a managed search product. Also confused with Aurora/pgvector — OpenSearch is purpose-built for search/analytics, not a general relational store |
+| **Amazon Personalize** | D1 | ~20% | Add real-time, individualized recommendations or re-ranking without needing in-house ML expertise | Confused with Bedrock Agents for "personalized responses" — Personalize is a purpose-built recommendation engine (classic ML, Domain 1); it does not involve a foundation model |
+| **Amazon Polly** | D1 | ~20% | Convert text into natural, lifelike speech audio | Confused with Amazon Transcribe — Polly goes *text → speech*; Transcribe goes *speech → text*. Easy to swap under exam time pressure |
+| **Amazon Q Business** | D2 | ~24% | Deploy a pre-built enterprise generative AI assistant grounded in company data and systems with minimal setup | Confused with Bedrock Knowledge Bases — Q Business is a ready-made *application*; Knowledge Bases is a *building block* you assemble into your own application on top of Bedrock |
+| **Amazon Q Developer** | D2 | ~24% | Get a generative AI coding companion and AWS resource assistant integrated into an IDE or the console | Confused with Amazon Q Business — Developer targets *building software and AWS resources*; Business targets *enterprise knowledge work* grounded in company documents |
+| **Amazon Rekognition** | D1, D4 | ~20% + ~14% | Run pre-trained or custom computer vision for object/scene detection, facial analysis, or content moderation | Confused with SageMaker for "any vision task" — Rekognition is purpose-built and should win whenever the use case is a standard vision task; only reach for SageMaker when Rekognition's built-in capabilities don't fit |
+| **Amazon SageMaker** | D1, D2, D3, D4, D5 | ~20% + ~24% + ~28% + ~14% + ~14% | Build, train, tune, deploy, and monitor a bespoke ML model when no managed/purpose-built service covers the use case, or when deep customization is required | Confused with Bedrock across every domain it touches — the reflex fix is "does a purpose-built or Bedrock option already cover this?" before defaulting to SageMaker |
+| **Amazon SageMaker Clarify** | D4 | ~14% | Detect bias in a dataset or trained model and generate SHAP-based explainability reports | Confused with Amazon A2I — Clarify is an automated *analysis* tool run against data/models; A2I inserts a *human* into the review loop. They're complementary, not substitutes |
+| **Amazon SageMaker JumpStart** | D2, D3 | ~24% + ~28% | Deploy or fine-tune a pretrained foundation model when you need deep infrastructure control alongside the model (custom training pipelines, Trainium/Inferentia) | Confused with Bedrock — JumpStart is chosen specifically *because* Bedrock's managed abstraction isn't enough; if the scenario doesn't mention needing that infra control, Bedrock is the simpler correct answer |
+| **Amazon SageMaker Model Cards** | D4, D5 | ~14% + ~14% | Produce structured, auditable documentation of a model's intended use, training data, evaluation results, and limitations | Confused with AWS Audit Manager — Model Cards document *a specific model*; Audit Manager assembles *account-wide evidence* against a compliance framework, which may include Model Cards as one input |
+| **Amazon Textract** | D1 | ~20% | Extract text, handwriting, forms, and tables from scanned documents while preserving structure | Confused with Amazon Comprehend — Textract's job ends once text/structure is extracted; understanding/analyzing that text (sentiment, entities) is Comprehend's job |
+| **Amazon Titan** | D2, D3, D4 | ~24% + ~28% + ~14% | Use Amazon's own foundation model family in Bedrock for text generation or embeddings at low cost | Confused with claiming image-generation capability — that moved to **Amazon Nova Canvas**; Titan today is text and embeddings only |
+| **Amazon Transcribe** | D1, D4 | ~20% + ~14% | Convert audio/video speech into text via automatic speech recognition | Confused with Amazon Polly (see Polly's row) and with Amazon Comprehend — Transcribe only produces a text transcript, it does not analyze the transcript's content |
+| **Amazon Translate** | D1 | ~20% | Perform neural machine translation between languages | Confused with treating it as a generative/Bedrock capability — Translate is a purpose-built managed service (Domain 1), not a foundation-model use case |
+| **AWS Artifact** | D5 | ~14% | Download AWS's own compliance reports (SOC, ISO) or execute a Business Associate Addendum (BAA) for HIPAA | Confused with AWS Audit Manager — Artifact hands you evidence *about AWS itself*; Audit Manager assembles evidence *about your account*. See section 2 above |
+| **AWS Audit Manager** | D5 | ~14% | Automate collection of audit-ready evidence mapped to a named compliance framework (HIPAA, ISO 27001, SOC 2) | See AWS Artifact's row — the two are the most frequently confused pair in Domain 5's compliance content |
+| **AWS CloudTrail** | D5 | ~14% | Get a record of a specific API call — who invoked it and when (e.g., a specific `InvokeModel` call) | Confused with AWS Config (see section 2 above) — CloudTrail is events/actions, Config is resource state over time |
+| **AWS Config** | D5 | ~14% | Detect that a resource (e.g., a SageMaker endpoint or S3 bucket) drifted out of a compliant configuration, and see its configuration history | See AWS CloudTrail's row |
+| **AWS Customer Carbon Footprint Tool** | D4 | ~14% | Report estimated carbon emissions associated with your AWS usage | Confused with the Well-Architected Sustainability Pillar — the Footprint Tool *measures* emissions; the Sustainability Pillar *prescribes design principles* to reduce them |
+| **AWS Inferentia** | D3 | ~28% | Run inference at high throughput and low cost on a purpose-built ML chip | Confused with AWS Trainium — Inferentia is for **inference**, Trainium is for **training**. The names are the mnemonic, but under time pressure they get swapped |
+| **AWS KMS (Key Management Service)** | D5 | ~14% | Encrypt sensitive data at rest and control exactly who can decrypt it, ideally with a customer-managed key (CMK) for audit-logged access control | Confused with AWS PrivateLink — KMS protects data *at rest*; PrivateLink protects data *in transit*. A scenario needing both encryption and network isolation needs both services together |
+| **AWS Neuron SDK** | D3 | ~28% | Compile and run ML workloads on Trainium and Inferentia chips | Confused with treating Trainium/Inferentia as usable "out of the box" without it — Neuron SDK is the software layer that makes the chips usable, not a separate hardware choice |
+| **AWS PrivateLink** | D5 | ~14% | Keep traffic between your VPC and an AWS service like Bedrock or SageMaker off the public internet via an interface VPC endpoint | See AWS KMS's row; also confused with a VPN or Direct Connect — PrivateLink connects your VPC directly to an AWS *service*, not to another network |
+| **AWS Trainium** | D3 | ~28% | Train models cost-efficiently at high performance on a purpose-built ML chip | See AWS Inferentia's row |
+| **AWS Well-Architected Framework Sustainability Pillar** | D4 | ~14% | Apply design principles to minimize the environmental impact of an AI/ML workload's architecture | See AWS Customer Carbon Footprint Tool's row |
+| **Guardrails for Amazon Bedrock** | D2, D3, D4, D5 | ~24% + ~28% + ~14% + ~14% | Apply configurable safety/compliance filters (denied topics, content filters, PII redaction, contextual grounding checks) to foundation model inputs and outputs | Confused with IAM — Guardrails filters *content*; IAM controls *who can call the API at all*. Both are commonly needed together in a responsible-AI scenario |
+| **IAM (AWS Identity and Access Management)** | D5 | ~14% | Control which user, group, or service can do what, on which AI resource | Confused with IAM Access Analyzer — IAM sets the policies; Access Analyzer *audits* those policies for unintended external sharing |
+| **IAM Access Analyzer** | D5 | ~14% | Identify resources (e.g., S3 buckets, Bedrock model resource policies) that are shared with entities outside your AWS account | See IAM's row |
+| **PartyRock** | D2 | ~24% | Prototype with foundation models in a free, no-code Bedrock playground | Confused with Amazon Bedrock itself — PartyRock is a *no-code experimentation front-end*; production applications still integrate against Bedrock's API directly |
+| **Provisioned Throughput (Amazon Bedrock)** | D2, D3 | ~24% + ~28% | Reserve Bedrock model capacity for consistent performance under steady, high-volume traffic | Confused with on-demand Bedrock pricing as "always cheaper" — Provisioned Throughput is a deliberate trade of flexibility for guaranteed capacity/latency, and is the exam answer specifically when traffic is described as steady and high-volume |
+
+> **Exam tip:** a service appearing in multiple domains is the matrix's
+> biggest signal, not noise — it means the *same* service can be the
+> correct answer to differently-framed scenario questions. Amazon Bedrock,
+> Amazon SageMaker, and Guardrails for Amazon Bedrock are the three
+> services with the widest domain spread; make sure you can articulate
+> what changes about *how* each is tested from one domain to the next
+> (e.g., Bedrock-as-a-generative-AI-service in Domain 2 vs.
+> Bedrock-under-the-shared-responsibility-model in Domain 5).
+
+For the full definition and every per-domain jump-link behind each row
+above, see [`aws-service-index.md`](aws-service-index.md).
+
+---
+
 ## How this guide relates to the domain guides
 
 This page is intentionally short: it is a **decision aid**, not a

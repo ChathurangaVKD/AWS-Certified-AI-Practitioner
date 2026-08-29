@@ -13,6 +13,7 @@
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
 - [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
+- [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
 - [Answer key and explanations](#answer-key-and-explanations)
@@ -987,6 +988,83 @@ employee accidentally pastes into a prompt.
 > toward Amazon Q or PartyRock; the more custom, production-grade
 > integration and control it needs, the more the answer shifts toward
 > Amazon Bedrock or SageMaker JumpStart.**
+
+---
+
+## Quick-reference cheat sheet
+
+A condensed, one-page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam.
+Domain 2 is the largest single knowledge domain on the exam (**~24%** of
+scored questions), so this page is worth a final pass the morning of the
+exam. It restates material covered in full in [Section 1](#1-generative-ai-core-concepts), [Section 6](#6-prompt-engineering-fundamentals), and [Section 7](#7-foundation-model-selection-criteria) —
+it is not a substitute for reading those sections, only a fast recall
+aid once you already have.
+
+**Transformer architecture and self-attention at a glance (Section 1):**
+
+| Stage | What happens |
+|---|---|
+| Input text | Raw text the model will process |
+| Tokenization | Text split into tokens (word/sub-word units) |
+| Embeddings | Each token mapped to a numeric vector capturing meaning |
+| Positional encoding | Added to embeddings so word order is preserved |
+| Self-attention (× N layers) | Each token weighs the relevance of **every other token**, regardless of distance |
+| Feed-forward network | Per-token transformation applied after attention |
+| Output | Next-token probabilities, generated **one token at a time** |
+
+- **Self-attention is the defining innovation** — unlike older recurrent
+  (left-to-right, one-token-at-a-time-dependency) architectures, it
+  computes a relevance weight between *every* pair of tokens directly, so
+  a long-range link (e.g., resolving a pronoun several sentences back)
+  costs no more to compute than a link between adjacent tokens.
+- This is what gives transformers both **long-range context** and
+  **efficient parallel training** on huge datasets.
+
+**Inference parameters — qualitative effect cheat sheet (Section 6):**
+
+| Parameter | Controls | Low / small value | High / large value |
+|---|---|---|---|
+| Temperature | Randomness of next-token choice | More focused, deterministic, repeatable | More creative, varied, random |
+| Top-p (nucleus sampling) | Cumulative-probability candidate pool | Narrower candidate pool → safer, less varied | Wider candidate pool → more diverse |
+| Top-k | Fixed-size candidate pool (k most-likely tokens) | Small k → safer, less varied | Large k → more diverse |
+| Max tokens (maximum length) | Cap on response length | Shorter responses, may truncate | Longer responses allowed |
+| Stop sequences | N/A — not a scale | A matched string halts generation immediately (no gradient) | |
+
+- Temperature, top-p, and top-k all trade off **predictability vs.
+  creativity/diversity** — none of them retrain or change model weights.
+- None of these parameters reduce **hallucination**; only grounding
+  techniques like RAG address factual accuracy.
+
+**Foundation model selection criteria checklist (Section 7) — weigh all together, not one at a time:**
+
+| Factor | Ask yourself |
+|---|---|
+| Cost | Per-token (on-demand) or Provisioned Throughput — bigger/more capable models cost more per token |
+| Modality | Does the model accept/produce the needed input/output types (text, image, audio, video)? |
+| Latency | Real-time/interactive use cases need fast (usually smaller) models; batch/async workloads can tolerate more |
+| Context window | Is the input (plus any retrieved context) small enough to fit without chunking? |
+| Fine-tuning / customization support | Can this model/provider be fine-tuned or continued-pre-trained if needed? |
+| Model size, accuracy, licensing | Parameter count as a rough capability/cost proxy; task-specific accuracy (validate with Bedrock Model Evaluation); compliance/licensing terms |
+
+**Common exam traps:**
+
+- A scenario giving **two or three constraints at once** (e.g.,
+  "real-time" + "must process very long documents" + "fixed budget")
+  wants you to weigh **all** stated constraints — the biggest, most
+  capable model is not automatically correct if latency or cost is
+  called out.
+- **Top-p** restricts sampling to the smallest set of candidates whose
+  *cumulative probability* exceeds a threshold; **top-k** restricts to a
+  *fixed count* of the most-likely tokens — don't swap these under
+  pressure.
+- **Few-shot prompting** (examples in the prompt) changes nothing about
+  the model's weights and only affects that one request; **fine-tuning**
+  retrains the weights on labeled data. Don't confuse the two.
+- Lowering **temperature** reduces (but does not eliminate)
+  nondeterminism — it does not remove hallucination risk, which comes
+  from the model's underlying knowledge/training, not its sampling
+  parameters.
 
 ---
 

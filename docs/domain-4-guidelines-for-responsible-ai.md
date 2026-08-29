@@ -11,6 +11,7 @@
 - [5. Balancing model performance and interpretability](#5-balancing-model-performance-and-interpretability)
 - [Worked example: auditing and documenting a responsible e-commerce recommendation engine](#worked-example-auditing-and-documenting-a-responsible-e-commerce-recommendation-engine)
 - [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
+- [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
 - [Answer key and explanations](#answer-key-and-explanations)
@@ -807,6 +808,86 @@ customers see.
 > documented limits?" (self-authored vs. AWS-authored), **Guardrails**
 > answers "what should this live application never say or leak?", and
 > **A2I** answers "who double-checks this before it's used?"
+
+---
+
+## Quick-reference cheat sheet
+
+A condensed, one-to-two page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam. It
+restates material covered in full in [Section 1](#1-core-dimensions-of-responsible-ai), [Section 2](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs), and [Section 3](#3-aws-tools-for-responsible-ai) —
+it is not a substitute for reading those sections, only a fast recall
+aid once you already have.
+
+**The 8 dimensions of responsible AI (Section 1) — recognize the keyword, know the AWS tool:**
+
+| Dimension | Key question it answers | Primary AWS tool |
+|---|---|---|
+| Fairness | Does it treat individuals/groups equitably, without disadvantaging protected characteristics? | Amazon SageMaker Clarify (bias metrics) |
+| Explainability | Why did the model produce *this specific* prediction? | Amazon SageMaker Clarify (SHAP explanations) |
+| Privacy and security | Is personal data protected, and is the model protected from misuse/leakage? | Guardrails for Amazon Bedrock (PII redaction); Amazon Macie |
+| Transparency | Is how the system was built, trained, and limited openly documented? | SageMaker Model Cards / AI Service Cards |
+| Veracity and robustness | Is the output correct and reliable, even under noisy/adversarial input? | Guardrails for Amazon Bedrock (contextual grounding) |
+| Governance | Are there policies/processes controlling the AI lifecycle and accountability? | SageMaker Model Cards; ML lineage tracking |
+| Safety | Does the system avoid causing harm or generating dangerous content? | Guardrails for Amazon Bedrock (content filters) |
+| Controllability | Can a human monitor, override, adjust, or stop the system? | Guardrails (denied topics); Amazon A2I (human review) |
+
+**Fast disambiguation:** "why did it say that?" → **explainability**
+(one prediction) vs. "is it documented/disclosed?" → **transparency**
+(whole system). "does it work fairly across groups?" → **fairness**
+vs. "is the output accurate/trustworthy under stress?" → **veracity and
+robustness**. "can a human step in?" → **controllability**.
+
+**The 6 bias categories in training data (Section 2) — match the scenario to the category:**
+
+| Bias type | One-line definition | Scenario clue |
+|---|---|---|
+| Sampling bias | Training data doesn't represent the real-world population | Dataset overrepresents one demographic group |
+| Measurement bias | Data collection/labeling systematically differs across groups | A proxy variable correlates with a protected characteristic more than the real outcome |
+| Label bias / human bias | Human annotators inject conscious/unconscious bias while labeling | Annotators rate similar content differently depending on subject group |
+| Historical bias | Data accurately reflects a real world that is itself inequitable | Past lending/hiring decisions reflected discriminatory practices |
+| Exclusion bias | Relevant data/features are removed, dropping signal a group needs | A feature important for fair treatment of a subgroup was dropped during cleaning |
+| Aggregation bias | One model is applied uniformly to groups that need distinct treatment | A single model hides subgroup differences that actually matter |
+
+**Bias mitigation stages — one-line-per-stage recall:**
+
+- **Pre-processing** → before training → rebalance/augment data, remove/transform biased features.
+- **In-processing** → during training → add fairness constraints/regularization to the training objective.
+- **Post-processing** → after training, no retraining → adjust prediction thresholds or recalibrate outputs per group.
+
+**Bias detection metrics — pick by lifecycle stage:**
+
+| Question | Metric | Stage |
+|---|---|---|
+| "Does a positive label appear at a different rate across groups in the dataset?" | Difference in proportions of labels (DPL) | Pre-training (dataset) |
+| "Is one class/group significantly underrepresented in the dataset?" | Class imbalance | Pre-training (dataset) |
+| "Does a facially-neutral model produce different outcome rates across groups?" | Disparate impact | Post-training (predictions) |
+
+**Key definitions to have cold:** bias (systematic, unfair skew from
+training data/process — a fairness problem) vs. variance (sensitivity to
+training-data fluctuations — an underfitting/overfitting problem, not a
+responsible-AI concept) · SHAP (feature-attribution values explaining a
+single prediction) · PII (data that can identify a specific individual)
+· disparate impact (post-training group-outcome gap) · DPL (pre-training
+label-rate gap across groups).
+
+**Common exam traps:**
+
+- **Bias vs. variance** — bias is a fairness/training-data problem;
+  variance is a model-sensitivity/overfitting problem from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off).
+  Don't conflate them.
+- **SageMaker Clarify measures bias both before *and* after training** —
+  a scenario checking a *dataset* for bias pre-model is still a Clarify
+  pre-training metric (DPL, class imbalance), not disparate impact.
+- **Guardrails filters live inference content**; it does not detect bias
+  in training data or generate explanations — that's Clarify's job, not
+  Guardrails'.
+- **Explainability ≠ transparency** — explainability is per-prediction
+  ("why this output?"); transparency is system-wide documentation ("what
+  is this model, and what are its limits?").
+- A model can have **high overall accuracy while still being unfair to a
+  minority subgroup** — always compare behavior across groups, not just
+  aggregate accuracy.
 
 ---
 

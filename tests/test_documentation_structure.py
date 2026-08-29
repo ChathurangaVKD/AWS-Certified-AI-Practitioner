@@ -210,7 +210,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("15", diagrams_section)
+        self.assertIn("16", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -377,8 +377,9 @@ class TestDocumentationStructureCrossDomainMaterialsAccuracy(unittest.TestCase):
 
 class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously stated 13 total Mermaid
-    diagrams (actually 15, with Domains 2 and 3 having four each rather
-    than three), didn't state the actual subsection mini-quiz total (31),
+    diagrams (actually 16, with Domain 2 having four and Domain 3 having
+    five rather than three), didn't state the actual subsection mini-quiz
+    total (31),
     and didn't describe aws-service-index.md's actual letter-section
     coverage (A, C, G, I, M, P, S). These tests derive the true figures
     directly from the domain guides / index file and assert

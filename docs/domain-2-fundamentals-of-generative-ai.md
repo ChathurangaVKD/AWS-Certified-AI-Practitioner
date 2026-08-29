@@ -730,6 +730,10 @@ Other prompt-engineering concepts tested on the exam:
     contain.
   - **Stop sequences** — strings that, when generated, tell the model to
     stop generating further output.
+- **Prompt injection** — a security risk where malicious input tries to
+  override or manipulate the original instructions in a prompt (mitigated
+  with input validation and **Guardrails for Amazon Bedrock**); covered
+  further in [Domain 4](domain-4-guidelines-for-responsible-ai.md)/[Domain 5](domain-5-security-compliance-governance.md), but the term itself is fair game in Domain 2.
 
 **How temperature, top-p, and top-k interact:** these three parameters are
 not independent dials — they apply in sequence to the same underlying
@@ -777,11 +781,6 @@ non-obvious combinations that the exam likes to test:
 > regardless of sampling settings. "Set temperature to 0" is wrong because
 > it removes the creativity the use case requires; "raise top-k" alone is
 > wrong because it does nothing to address harm — only guardrails do.
-
-- **Prompt injection** — a security risk where malicious input tries to
-  override or manipulate the original instructions in a prompt (mitigated
-  with input validation and **Guardrails for Amazon Bedrock**); covered
-  further in [Domain 4](domain-4-guidelines-for-responsible-ai.md)/[Domain 5](domain-5-security-compliance-governance.md), but the term itself is fair game in Domain 2.
 
 **AWS example:** A developer testing prompts in **PartyRock** or the
 **Amazon Bedrock** console starts with a **zero-shot** prompt asking a model

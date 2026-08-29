@@ -649,6 +649,57 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
             with self.subTest(service=service):
                 self.assertIn(service, section)
 
+    def test_vector_database_section_has_a_decision_tree_diagram(self):
+        # Regression guard: Section 6 (vector databases and embeddings)
+        # previously covered OpenSearch/Aurora+pgvector/RDS/Kendra with
+        # prose bullets only -- no visual decision-support diagram, unlike
+        # the Section 4 customization decision tree and the Section 3
+        # vector store decision guide's own flowchart. This adds a Mermaid
+        # flowchart walking through RDS/Aurora infrastructure, vector-only
+        # vs. hybrid search, and scale/throughput, to a recommended service.
+        section = _section(
+            self.text,
+            r"\n## 6\. Vector databases and embeddings for search and "
+            r"retrieval",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "vector databases section should include a Mermaid "
+            "decision-tree flowchart",
+        )
+        diagram = "\n".join(fences)
+        self.assertRegex(
+            diagram,
+            r"flowchart\s+\w+|graph\s+\w+",
+            "decision tree should use Mermaid flowchart/graph syntax",
+        )
+        self.assertIn(
+            "?", diagram, "diagram should pose branching decision questions"
+        )
+        decision_points = {
+            "existing RDS/Aurora infrastructure is asked about": (
+                r"RDS/Aurora",
+                "PGVECTOR",
+            ),
+            "hybrid vs. vector-only search is a branch point": (
+                r"HYBRID",
+                "OPENSEARCH",
+            ),
+            "scale/throughput is a branch point": (
+                r"scale/throughput",
+                "OPENSEARCH SERVERLESS",
+            ),
+            "enterprise search without an embeddings pipeline maps to Kendra": (
+                r"embeddings",
+                "KENDRA",
+            ),
+        }
+        for description, (cue, outcome) in decision_points.items():
+            with self.subTest(decision_point=description):
+                self.assertRegex(diagram, cue)
+                self.assertIn(outcome, diagram)
+
     def test_evaluation_section_covers_required_approaches(self):
         section = _section(
             self.text, r"\n## 7\. Evaluating foundation model performance"

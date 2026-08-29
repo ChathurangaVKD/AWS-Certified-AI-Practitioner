@@ -568,6 +568,53 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                     f"RAG diagram missing AWS integration point: {service!r}",
                 )
 
+    def test_vector_store_decision_guide_has_a_decision_tree_diagram(self):
+        # Regression guard: the vector store decision guide (OpenSearch vs.
+        # Aurora + pgvector vs. Amazon Kendra) previously only had a
+        # comparison table plus three worked scenarios, with no
+        # decision-flow visualization tying the choice to a sequence of
+        # yes/no questions, unlike the Section 4 FM-customization decision
+        # tree.
+        section = _section(
+            self.text,
+            r"\n### Vector store decision guide: OpenSearch vs\. Aurora \+ "
+            r"pgvector vs\. Amazon Kendra",
+            end_heading_regex=r"\n(?:## |### )",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "vector store decision guide should include a Mermaid "
+            "decision-tree flowchart",
+        )
+        diagram = "\n".join(fences)
+        self.assertRegex(
+            diagram,
+            r"flowchart\s+\w+|graph\s+\w+",
+            "decision tree should use Mermaid flowchart/graph syntax",
+        )
+        self.assertIn(
+            "?", diagram, "diagram should pose branching decision questions"
+        )
+        decision_points = {
+            "hybrid search maps to OpenSearch": (
+                r"[Hh]ybrid search",
+                "OPENSEARCH",
+            ),
+            "already running PostgreSQL maps to Aurora + pgvector": (
+                r"Aurora/PostgreSQL",
+                "PGVECTOR",
+            ),
+            "fully managed with connectors maps to Kendra": (
+                r"connectors",
+                "KENDRA",
+            ),
+        }
+        for description, (cue, outcome) in decision_points.items():
+            with self.subTest(decision_point=description):
+                self.assertRegex(diagram, cue)
+                self.assertIn(outcome, diagram)
+
     def test_tradeoff_section_covers_labeled_vs_unlabeled_distinction(self):
         section = _section(
             self.text,

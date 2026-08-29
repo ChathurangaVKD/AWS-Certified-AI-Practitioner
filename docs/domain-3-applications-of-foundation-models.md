@@ -558,6 +558,22 @@ compares them on the dimensions the exam tests most.
 | **Scalability model** | Horizontal — add nodes/shards (OpenSearch Service) or let capacity auto-scale with load (OpenSearch Serverless); built for large, high-throughput vector + text workloads. | Scales with the underlying Aurora database — storage auto-scales, compute scales vertically or via read replicas; vector search performance is bounded by the relational engine and pgvector index. | Scales automatically and transparently with document volume and number of connectors; AWS manages capacity behind the scenes. |
 | **Exam keywords that signal this choice** | "hybrid search," "keyword *and* semantic search," "large-scale vector search," "default vector store for Bedrock Knowledge Bases." | "we already run Aurora/PostgreSQL," "query embeddings with SQL," "avoid standing up a separate search service." | "enterprise search," "automatic relevance ranking," "no infrastructure to manage," "connectors to S3/SharePoint/Salesforce," "natural-language search without building a RAG pipeline." |
 
+**Decision tree:** the flowchart below turns the table above into a
+sequence of yes/no questions — the fastest way to work an exam scenario
+that describes requirements instead of naming a service:
+
+```mermaid
+flowchart TD
+    START(["Choosing a vector store /\nsearch backend for RAG?"])
+    START --> Q1{"Do you need hybrid search —\nkeyword AND vector search in\none query, at large scale?"}
+    Q1 -->|"YES"| OS["AMAZON OPENSEARCH\n(Service or Serverless)\nbuilt-in vector engine +\nkeyword search, bring your\nown embedding model"]
+    Q1 -->|"NO"| Q2{"Do you already run\nAurora/PostgreSQL and want to\nquery embeddings with SQL?"}
+    Q2 -->|"YES"| PGV["AURORA + PGVECTOR\n(bring your own embeddings,\nquery via familiar SQL,\nnormal DB administration)"]
+    Q2 -->|"NO"| Q3{"Do you want a fully managed\nservice with built-in connectors\n(S3, SharePoint, Salesforce) and\nno embeddings pipeline to build?"}
+    Q3 -->|"YES"| KEN["AMAZON KENDRA\n(managed relevance ranking,\nzero infrastructure to operate)"]
+    Q3 -->|"NO"| RECHECK["Re-check requirements —\nyou likely still need OpenSearch\nor Aurora/pgvector with a\ncustom embeddings pipeline"]
+```
+
 **Worked scenario — Amazon OpenSearch:** A retail company needs its
 product-search RAG assistant to combine exact filtering (SKU codes, brand
 names) with semantic similarity over product descriptions, at a scale of

@@ -437,14 +437,20 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
                 self.assertIn(f"Domain {domain_number} has {expected_word}", diagrams_section)
 
     def test_stated_mini_quiz_total_matches_actual(self):
+        # Counts every "Mini-quiz" heading regardless of level: Domain 3's
+        # Section 1 checkpoint predates the "#### Mini-quiz: Test your
+        # understanding of ..." convention adopted for the other seven and
+        # is still a level-3 "### Mini-quiz: check your understanding
+        # (Section 1)" heading, so a count restricted to "####" headings
+        # undercounts Domain 3 by one.
         actual_total = 0
         for path in DOMAIN_FILES.values():
             text = path.read_text(encoding="utf-8")
-            actual_total += len(re.findall(r"^#### Mini-quiz:", text, re.M))
+            actual_total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
         self.assertEqual(
             actual_total,
-            31,
-            "sanity check: expected 31 total subsection mini-quizzes "
+            32,
+            "sanity check: expected 32 total subsection mini-quizzes "
             "across the five domain guides",
         )
         self.assertIn(
@@ -453,7 +459,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "DOCUMENTATION_STRUCTURE.md does not state the actual total "
             "subsection mini-quiz count",
         )
-        self.assertNotIn("32 in total", self.structure_text)
+        self.assertNotIn("31 in total", self.structure_text)
 
     def test_stated_service_index_letter_sections_match_actual(self):
         service_index_path = DOCS_DIR / "aws-service-index.md"
@@ -477,6 +483,59 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         stated_letters = re.findall(r"[A-Z]", letters_match.group(1))
         self.assertEqual(stated_letters, actual_letters)
         self.assertNotIn("only sections A, G, I, P", window)
+
+
+class TestDocumentationStructureLastVerifiedAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's 'Content health' section must not claim
+    domain guides are missing a freshness/version-date stamp now that all
+    five carry a '**Last verified:**' line (see
+    tests/test_domain_last_verified_date.py, which locks that invariant at
+    the domain-guide level)."""
+
+    LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*\d{4}-\d{2}-\d{2}")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def test_all_domain_guides_actually_have_a_last_verified_stamp(self):
+        # Sanity check the underlying fact before asserting the doc
+        # reflects it.
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                text = path.read_text(encoding="utf-8")
+                self.assertRegex(
+                    text,
+                    self.LAST_VERIFIED_RE,
+                    f"domain {domain_number} guide is missing a "
+                    "'**Last verified:** YYYY-MM-DD' line",
+                )
+
+    def test_structure_doc_notes_domain_guides_carry_last_verified_stamps(self):
+        health_idx = self.structure_text.find("## Content health")
+        self.assertNotEqual(health_idx, -1)
+        health_section = self.structure_text[health_idx : health_idx + 1200]
+        self.assertIn(
+            "Last verified",
+            health_section,
+            "DOCUMENTATION_STRUCTURE.md's Content health section does not "
+            "mention that domain guides carry a 'Last verified' stamp",
+        )
+
+    def test_structure_doc_does_not_claim_guides_lack_a_date_stamp(self):
+        lowered = self.structure_text.lower()
+        for phrase in (
+            "missing a version-date",
+            "lack a version-date",
+            "lack version-date",
+            "missing a last verified",
+            "lacks a last verified",
+            "no version-date stamp",
+            "don't carry a version-date",
+            "do not carry a version-date",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, lowered)
 
 
 if __name__ == "__main__":

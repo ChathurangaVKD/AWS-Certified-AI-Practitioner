@@ -104,8 +104,9 @@ evaluation term coverage (D1), glossary size (≥15 entries), practice
 question count (15–20 per domain, **26 for Domain 5**), answer
 explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
-sheet, its subsection mini quizzes (31 in total: 7 each for Domains 1–3
-and 5 each for Domains 4–5), and its footer breadcrumb navigation.
+sheet, its subsection mini quizzes (32 in total: 7 each for Domains 1 and
+2, 8 for Domain 3, and 5 each for Domains 4 and 5), and its footer
+breadcrumb navigation.
 
 ## Cross-domain support documents
 
@@ -208,7 +209,10 @@ cross-references) actually resolves to a real file and heading anchor.
 **Staleness:** Content is kept current as AWS service names, capabilities
 (Bedrock Knowledge Bases, Guardrails, Model Evaluation, Provisioned
 Throughput), and terminology evolve, and is checked against public AWS
-documentation.
+documentation. All five domain guides carry a `**Last verified:**
+2026-08-29` line near the top, matching the same freshness marker used in
+`aws-service-decision-guide.md`; `tests/test_domain_last_verified_date.py`
+guards that every domain guide keeps one.
 
 **Correctness:** No contradictions between domains or against AWS service
 descriptions. Each section includes an "AWS example" (concrete scenario)

@@ -46,9 +46,15 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,206–1,842 lines each (Domain 1: 1,206 lines; Domain 2:
-1,505 lines; Domain 3: 1,842 lines; Domain 4: 1,313 lines; Domain 5: 1,274
-lines). All five follow the same template:
+domain, currently 1,206–1,842 lines each:
+
+- Domain 1: 1,206 lines
+- Domain 2: 1,505 lines
+- Domain 3: 1,842 lines
+- Domain 4: 1,313 lines
+- Domain 5: 1,274 lines
+
+All five follow the same template:
 
 - a breadcrumb navigation line (previous domain · position in sequence ·
   next domain) and a `## Table of contents` linking every numbered section
@@ -66,18 +72,20 @@ lines). All five follow the same template:
   glance" in D1, "AWS generative AI services" in D2);
 - a `## Key terms glossary` (15–50 entries; Domain 5's heading matches the
   same "Key terms glossary" convention used by D1–D4);
-- a dedicated `## Worked example` section closing out the domain — Domains
-  1, 2, 3, 4, and 5 each have one: a loan-default predictor (D1), a
-  generative AI support assistant (D2), a RAG-based policy-lookup
-  assistant (D3), auditing and documenting a responsible e-commerce
-  recommendation engine (D4), and a HIPAA-regulated Bedrock application
-  (D5);
+- a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **26 for Domain 5**,
   including exactly 2 multiple-response ["select TWO"] questions) and a
   full `## Answer key` with justifications ruling out each wrong answer.
 
-**Diagrams:** All 13 flowchart-style diagrams across the guide are Mermaid
-flowcharts, not ASCII art: Domain 1 has one (the 8-stage ML lifecycle loop,
+**Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated
+"## Worked example" section stitching the domain's concepts into one
+end-to-end scenario: a loan-default predictor (D1), a generative AI
+support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing
+and documenting a responsible e-commerce recommendation engine (D4), and a
+HIPAA-regulated Bedrock application (D5).
+
+**Diagrams:** All 13 flowchart-style diagrams across the guide are Mermaid flowchart
+diagrams, not ASCII art: Domain 1 has one (the 8-stage ML lifecycle loop,
 Section 2); Domain 2 has three (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has three (including the FM-customization
 decision tree, Section 4); Domain 4 has three (including the bias
@@ -89,8 +97,8 @@ without Mermaid rendering, which are not among the 13 flowcharts: Domain
 shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section
 5).
 
-**Test coverage:** `tests/test_domain_N_study_guide.py` for all five
-domains validates required topic headings, AWS service mentions,
+**Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
+validates required topic headings, AWS service mentions,
 evaluation term coverage (D1), glossary size (≥15 entries), practice
 question count (15–20 per domain, **26 for Domain 5**), answer
 explanations (≥120 chars each, bolded answer letter), and sequential

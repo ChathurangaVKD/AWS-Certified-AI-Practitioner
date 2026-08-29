@@ -241,6 +241,102 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
         )
 
 
+CONSOLIDATED_MATRIX_HEADING_RE = re.compile(
+    r"^##\s+5\.\s+Consolidated service matrix.*?(?=^## |\Z)", re.M | re.S
+)
+
+# A markdown table row belonging to the consolidated matrix, e.g.:
+# | **Amazon Bedrock** | D2, D3, D4, D5 | ~24% + ~28% | ... | ... |
+MATRIX_ROW_RE = re.compile(r"^\|\s*\*\*(?P<service>[^*]+)\*\*\s*\|", re.M)
+
+# A representative sample spanning multiple domains -- enough to catch a
+# regression that drops a whole domain's services from the matrix, without
+# requiring the test to enumerate all 45+ rows verbatim.
+REQUIRED_MATRIX_SAMPLE_SERVICES = [
+    "Amazon SageMaker",
+    "Amazon Bedrock",
+    "Amazon Rekognition",
+    "Guardrails for Amazon Bedrock",
+    "AWS CloudTrail",
+    "AWS PrivateLink",
+    "Amazon Kendra",
+    "AWS Trainium",
+    "AWS Inferentia",
+]
+
+
+class TestAwsServiceDecisionGuideConsolidatedMatrix(unittest.TestCase):
+    """Section 5 -- the consolidated matrix spanning all 45+ services
+    referenced across the domain guides, with domain, exam-weight,
+    when-to-use, and common-confusion columns."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = CONSOLIDATED_MATRIX_HEADING_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 5"
+        cls.section_text = section_match.group(0)
+
+    def test_has_consolidated_matrix_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^##\s+5\.\s+Consolidated service matrix", re.M),
+            "expected a numbered 'Consolidated service matrix' section "
+            "spanning all domains",
+        )
+
+    def test_matrix_has_required_columns(self):
+        header_line = next(
+            line
+            for line in self.section_text.splitlines()
+            if line.strip().startswith("| Service")
+        )
+        for column in [
+            "Domain",
+            "Exam weight relevance",
+            "When to use it",
+            "Common point of confusion",
+        ]:
+            with self.subTest(column=column):
+                self.assertIn(column, header_line)
+
+    def test_matrix_has_at_least_45_service_rows(self):
+        rows = MATRIX_ROW_RE.findall(self.section_text)
+        self.assertGreaterEqual(
+            len(rows),
+            45,
+            "expected the consolidated matrix to cover at least 45 "
+            f"services (found {len(rows)})",
+        )
+
+    def test_matrix_covers_required_sample_services(self):
+        rows = MATRIX_ROW_RE.findall(self.section_text)
+        for service in REQUIRED_MATRIX_SAMPLE_SERVICES:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    rows,
+                    f"consolidated matrix missing service row: {service!r}",
+                )
+
+    def test_matrix_row_count_matches_service_index_entry_count(self):
+        # The whole point of this matrix is to cover the exact same
+        # population of services as aws-service-index.md -- just reshaped
+        # into a multi-dimensional table instead of an alphabetical list.
+        index_text = _read(DOCS_DIR / "aws-service-index.md")
+        index_entries = re.findall(r"^- \*\*(?P<service>.+?)\*\* `\[", index_text, re.M)
+        matrix_rows = MATRIX_ROW_RE.findall(self.section_text)
+        self.assertEqual(
+            sorted(s.lower() for s in index_entries),
+            sorted(s.lower() for s in matrix_rows),
+            "consolidated matrix service set does not match "
+            "aws-service-index.md's service set",
+        )
+
+    def test_matrix_links_back_to_service_index(self):
+        self.assertIn("aws-service-index.md", self.section_text)
+
+
 class TestAwsServiceDecisionGuideLinksResolve(unittest.TestCase):
     """The whole point of this doc is pointing back at the domain guides
     it consolidates. Verify every relative markdown link (optionally with

@@ -280,6 +280,45 @@ class TestDomain4StudyGuideStructure(unittest.TestCase):
             "rest of Section 2's content",
         )
 
+    def test_bias_vs_variance_clarification_forward_references_clarify(self):
+        # Regression test: the terminology clarification must forward-
+        # reference Amazon SageMaker Clarify and make explicit that it
+        # measures fairness bias specifically, not statistical bias or
+        # variance, so readers don't assume Clarify's metrics have
+        # anything to do with the Domain 1 bias-variance trade-off.
+        bias_section = _section(
+            self.text,
+            r"\n## 2\. Identifying bias and fairness issues in training "
+            r"data and model outputs",
+        )
+        clarification_section = _section(
+            bias_section,
+            r"\n### Bias \W+ Variance: Terminology Clarification",
+            end_heading_regex=r"\n\*\*Bias\*\* in ML",
+        )
+        self.assertRegex(
+            clarification_section,
+            re.compile(r"Amazon\s+SageMaker\s+Clarify"),
+            "bias-vs-variance clarification should forward-reference "
+            "Amazon SageMaker Clarify",
+        )
+        self.assertRegex(
+            clarification_section,
+            re.compile(r"fairness bias", re.IGNORECASE),
+            "clarification's Clarify forward-reference should tie Clarify "
+            "to fairness bias specifically",
+        )
+        self.assertRegex(
+            clarification_section,
+            re.compile(
+                r"Clarify[^.]*(?:no role|not[^.]*statistical bias"
+                r"|nothing to do with statistical bias)",
+                re.IGNORECASE,
+            ),
+            "clarification should explicitly state Clarify does not "
+            "measure statistical bias/variance",
+        )
+
     def test_bias_section_has_detection_and_mitigation_workflow_diagram(self):
         # The bias section must include a visual workflow diagram going
         # from bias type -> detection method -> mitigation tool, not just

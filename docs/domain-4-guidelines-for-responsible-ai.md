@@ -223,6 +223,39 @@ explanation.
 
 ## 2. Identifying bias and fairness issues in training data and model outputs
 
+### Bias ≠ Variance: Terminology Clarification
+
+Before going further, pause on a terminology trap that trips up readers who
+jump straight into this section: the word **bias** means two unrelated
+things depending on which domain of the exam you're in.
+
+- **Statistical bias ([Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off))**
+  — a property of how well a model *fits* the data, paired with variance in
+  the bias-variance trade-off. High bias means the model is too simple and
+  systematically misses the underlying pattern (**underfitting**) — e.g., a
+  straight-line (linear regression) model forced to fit a clearly curved
+  relationship will systematically mispredict across the range, no matter
+  how much training data you add. The fix is a more complex model, more
+  features, or less regularization.
+- **Fairness bias (this section, Domain 4)** — a property of a model's
+  *outcomes* across groups of people, with nothing to do with underfitting
+  or overfitting. It means the system systematically disadvantages one
+  group relative to another — e.g., a résumé-screening model trained mostly
+  on résumés from one gender that, as a result, scores equally-qualified
+  candidates of another gender lower. The fix is rebalanced data, fairness
+  constraints, or output calibration across groups (the mitigation
+  techniques covered later in this section) — not a bigger or more complex
+  model.
+
+These two meanings are not interchangeable, and a fix for one will not
+resolve the other: a model can be statistically low-bias/low-variance (it
+fits the training distribution well) and still be badly unfair to a
+demographic group, because "fits the data well" says nothing about whether
+the data itself, or the outcomes across groups, are equitable. The rest of
+this section uses **bias** exclusively in the fairness sense unless a
+sentence explicitly says "statistical bias" or references the Domain 1
+bias-variance trade-off.
+
 **Bias** in ML is a systematic skew in a model's predictions caused by
 problems in the training data or the training process — as distinct from
 **variance**, which is a model's sensitivity to small fluctuations in the

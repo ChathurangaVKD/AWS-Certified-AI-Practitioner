@@ -188,9 +188,9 @@ exam-testable.
 > document," "must run fine-tuning on open weights," "must support video
 > understanding" — and the correct answer is whichever **family**
 > natively supports that modality or trait. Choosing a text-only model
-> (e.g., Titan Text) for an image-generation scenario, or a small/fast
-> model (e.g., Nova Micro) for a task that needs deep multi-step
-> reasoning, is a classic distractor pattern.
+> (e.g., Meta Llama's 3.x line) for an image-generation scenario, or a
+> small/fast model (e.g., Nova Micro) for a task that needs deep
+> multi-step reasoning, is a classic distractor pattern.
 
 > **Exam tip — modality mismatch is the #1 trap.** Not every Bedrock
 > model supports every modality. Before matching a model to a scenario,
@@ -199,7 +199,7 @@ exam-testable.
 > video, embeddings), and (3) if long input is described (a large
 > document, a long conversation history), favor a model family known for
 > large context windows (Claude, AI21) over one optimized for speed/cost
-> (Nova Micro, Titan Lite).
+> (Nova Micro).
 
 For the underlying Bedrock feature set these models plug into (Knowledge
 Bases, Agents, Guardrails, Model Evaluation, Provisioned Throughput), see

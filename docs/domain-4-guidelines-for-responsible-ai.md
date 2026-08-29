@@ -2,6 +2,8 @@
 
 [← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)
 
+**Last verified:** 2026-08-29
+
 ## Table of contents
 
 - [1. Core dimensions of responsible AI](#1-core-dimensions-of-responsible-ai)

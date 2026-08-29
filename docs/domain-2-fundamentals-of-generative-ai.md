@@ -2,6 +2,8 @@
 
 [← Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md) · **Domain 2 of 5** · [Domain 3: Applications of Foundation Models →](domain-3-applications-of-foundation-models.md)
 
+**Last verified:** 2026-08-29
+
 ## Table of contents
 
 - [1. Generative AI core concepts](#1-generative-ai-core-concepts)

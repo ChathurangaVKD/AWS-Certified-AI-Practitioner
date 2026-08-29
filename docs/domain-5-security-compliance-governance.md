@@ -4,6 +4,8 @@
 
 [← Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md) · **Domain 5 of 5** · [README →](../README.md)
 
+**Last verified:** 2026-08-29
+
 ## Table of contents
 
 - [1. Securing AI systems](#1-securing-ai-systems)

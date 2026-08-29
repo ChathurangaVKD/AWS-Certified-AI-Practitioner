@@ -46,13 +46,13 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,206–1,890 lines each:
+domain, currently 1,208–1,918 lines each:
 
-- Domain 1: 1,206 lines
-- Domain 2: 1,505 lines
-- Domain 3: 1,890 lines
-- Domain 4: 1,313 lines
-- Domain 5: 1,274 lines
+- Domain 1: 1,208 lines
+- Domain 2: 1,507 lines
+- Domain 3: 1,918 lines
+- Domain 4: 1,362 lines
+- Domain 5: 1,418 lines
 
 All five follow the same template:
 

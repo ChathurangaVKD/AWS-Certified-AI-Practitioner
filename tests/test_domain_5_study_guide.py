@@ -314,6 +314,58 @@ class TestDomain5SecurityThreatWorkedExamples(unittest.TestCase):
         self.assertLess(examples_idx, quiz_idx)
 
 
+class TestDomain5GovernanceWorkedScenarios(unittest.TestCase):
+    """Guards the CloudTrail vs. Config vs. Audit Manager worked
+    scenario-to-answer mini-examples added to Section 3, so a future edit
+    can't silently drop the concrete "which service is the right answer"
+    drills that back up the section's one-line distinction / exam tip."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.section = _section(
+            cls.text,
+            r"\n## 3\. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance",
+            r"\n## ",
+        )
+
+    def test_worked_scenarios_lead_in_present(self):
+        self.assertIn("**Worked scenarios:**", self.section)
+
+    def test_at_least_three_scenario_answer_pairs(self):
+        scenarios = re.findall(r"\*\*Scenario:\*\*", self.section)
+        answers = re.findall(r"\*\*Answer:\*\*", self.section)
+        self.assertGreaterEqual(
+            len(scenarios),
+            3,
+            "Section 3 should have at least three worked '**Scenario:**' "
+            "mini-examples distinguishing CloudTrail, Config, and Audit "
+            "Manager",
+        )
+        self.assertEqual(
+            len(scenarios),
+            len(answers),
+            "every '**Scenario:**' should be paired with an '**Answer:**'",
+        )
+
+    def test_each_governance_service_is_a_scenario_answer(self):
+        for service in ("AWS Config", "AWS CloudTrail", "AWS Audit Manager"):
+            with self.subTest(service=service):
+                self.assertRegex(
+                    self.section,
+                    r"\*\*Answer:\*\*\s*" + re.escape(service),
+                    f"expected a worked scenario whose answer is {service}",
+                )
+
+    def test_worked_scenarios_appear_before_the_section_mini_quiz(self):
+        scenarios_idx = self.text.index("**Worked scenarios:**")
+        quiz_idx = self.text.index(
+            "#### Mini-quiz: Test your understanding of AWS Config, Audit "
+            "Manager, and CloudTrail for AI governance"
+        )
+        self.assertLess(scenarios_idx, quiz_idx)
+
+
 class TestDomain5StudyGuideStructure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

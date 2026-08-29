@@ -53,6 +53,48 @@ REQUIRED_SAMPLE_SERVICES = [
     "Amazon Kendra",  # D3
 ]
 
+# AWS services that are referenced by name in the domain guides but were
+# historically missing their own service-index entry -- regression guard
+# for that specific documentation gap.
+REQUIRED_FORMERLY_MISSING_AWS_SERVICES = [
+    "Amazon S3",  # D1, D3, D5
+    "AWS Lambda",  # D2, D3
+    "Amazon EC2",  # D3
+    "Amazon RDS",  # D3
+    "Amazon Athena",  # D1
+    "Amazon Kinesis",  # D1
+    "AWS Glue",  # D1
+    "Amazon Inspector",  # D5
+    "AWS Shield",  # D5
+    "AWS Trusted Advisor",  # D5
+    "AWS Organizations",  # D5
+    "Amazon VPC",  # D5
+    "Amazon DynamoDB",  # D5
+    "Amazon SageMaker Data Wrangler",  # D1
+    "Amazon SageMaker Feature Store",  # D1
+]
+
+# The five third-party foundation model providers referenced in Bedrock
+# coverage (D2, D3) that were previously missing their own entries.
+REQUIRED_THIRD_PARTY_FM_PROVIDERS = [
+    "Anthropic Claude",
+    "Meta Llama",
+    "Cohere",
+    "Mistral AI",
+    "Stability AI",
+]
+
+# The Amazon Nova model family variants mentioned in the AWS service
+# decision guide that were previously missing their own index entries.
+REQUIRED_NOVA_VARIANTS = [
+    "Amazon Nova Canvas",
+    "Amazon Nova Reel",
+    "Amazon Nova Micro",
+    "Amazon Nova Lite",
+    "Amazon Nova Pro",
+    "Amazon Nova Premier",
+]
+
 # - **Service** `[D1, D3]` — definition. [D1](link) · [D3](link)
 ENTRY_RE = re.compile(
     r"^- \*\*(?P<service>.+?)\*\* `\[(?P<tags>D\d(?:, D\d)*)\]` — (?P<rest>.+)$",
@@ -144,6 +186,37 @@ class TestAwsServiceIndexCoverage(unittest.TestCase):
                     service,
                     services,
                     f"AWS service index missing service entry: {service!r}",
+                )
+
+    def test_covers_formerly_missing_aws_services(self):
+        services = [service for service, _tags, _rest in self.entries]
+        for service in REQUIRED_FORMERLY_MISSING_AWS_SERVICES:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    services,
+                    f"AWS service index missing service entry: {service!r}",
+                )
+
+    def test_covers_third_party_foundation_model_providers(self):
+        services = [service for service, _tags, _rest in self.entries]
+        for provider in REQUIRED_THIRD_PARTY_FM_PROVIDERS:
+            with self.subTest(provider=provider):
+                self.assertIn(
+                    provider,
+                    services,
+                    "AWS service index missing third-party foundation "
+                    f"model provider entry: {provider!r}",
+                )
+
+    def test_covers_nova_model_family_variants(self):
+        services = [service for service, _tags, _rest in self.entries]
+        for variant in REQUIRED_NOVA_VARIANTS:
+            with self.subTest(variant=variant):
+                self.assertIn(
+                    variant,
+                    services,
+                    f"AWS service index missing Amazon Nova variant entry: {variant!r}",
                 )
 
     def test_entries_are_sorted_alphabetically(self):

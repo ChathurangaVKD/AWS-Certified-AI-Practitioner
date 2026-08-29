@@ -485,5 +485,58 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertNotIn("only sections A, G, I, P", window)
 
 
+class TestDocumentationStructureLastVerifiedAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's 'Content health' section must not claim
+    domain guides are missing a freshness/version-date stamp now that all
+    five carry a '**Last verified:**' line (see
+    tests/test_domain_last_verified_date.py, which locks that invariant at
+    the domain-guide level)."""
+
+    LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*\d{4}-\d{2}-\d{2}")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def test_all_domain_guides_actually_have_a_last_verified_stamp(self):
+        # Sanity check the underlying fact before asserting the doc
+        # reflects it.
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                text = path.read_text(encoding="utf-8")
+                self.assertRegex(
+                    text,
+                    self.LAST_VERIFIED_RE,
+                    f"domain {domain_number} guide is missing a "
+                    "'**Last verified:** YYYY-MM-DD' line",
+                )
+
+    def test_structure_doc_notes_domain_guides_carry_last_verified_stamps(self):
+        health_idx = self.structure_text.find("## Content health")
+        self.assertNotEqual(health_idx, -1)
+        health_section = self.structure_text[health_idx : health_idx + 1200]
+        self.assertIn(
+            "Last verified",
+            health_section,
+            "DOCUMENTATION_STRUCTURE.md's Content health section does not "
+            "mention that domain guides carry a 'Last verified' stamp",
+        )
+
+    def test_structure_doc_does_not_claim_guides_lack_a_date_stamp(self):
+        lowered = self.structure_text.lower()
+        for phrase in (
+            "missing a version-date",
+            "lack a version-date",
+            "lack version-date",
+            "missing a last verified",
+            "lacks a last verified",
+            "no version-date stamp",
+            "don't carry a version-date",
+            "do not carry a version-date",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, lowered)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -242,6 +242,42 @@ MLOps practice), not implement a fix yourself.
   diverge from training data. Mitigate with continuous monitoring (Amazon
   CloudWatch, SageMaker Model Monitor) and a retraining pipeline as part of
   MLOps practice.
+- **Insecure output handling** — an application trusts and acts on raw LLM
+  output without validation, passing it directly to a shell, database
+  query, renderer, or downstream API. Mitigate by treating all model
+  output as untrusted input: validate and sanitize it before use, and
+  enable **Guardrails for Amazon Bedrock** output filtering.
+- **Model denial of service** — resource-exhausting or adversarially
+  crafted inputs (e.g., extremely long prompts or recursive context) are
+  used to degrade availability or drive up inference cost. Mitigate with
+  request throttling, **Amazon API Gateway** usage plans, and **Service
+  Quotas** limits on inference endpoints.
+- **Supply chain vulnerabilities** — a compromised or untrusted
+  third-party model, dataset, or plugin is integrated into the pipeline,
+  introducing a backdoor or vulnerability the team didn't create. Mitigate
+  by sourcing vetted, curated models from **Amazon Bedrock** or **SageMaker
+  JumpStart** and tracking only approved versions in **SageMaker Model
+  Registry**.
+- **Sensitive information disclosure** — the model reveals PII, secrets,
+  or confidential business data in its responses, either memorized during
+  training/fine-tuning or leaked into its context. Mitigate with **Amazon
+  Macie** to discover and classify sensitive data in training sources, and
+  PII filters in **Guardrails for Amazon Bedrock**.
+- **Insecure plugin design** — a tool or plugin invoked by an LLM-based
+  agent accepts unvalidated input or is granted overly broad permissions,
+  letting a manipulated prompt trigger unintended actions. Mitigate with
+  least-privilege **IAM** roles scoped to specific actions for each
+  Bedrock Agents action group or invoked Lambda function.
+- **Excessive agency** — an LLM-based agent is granted more permissions,
+  tools, or autonomy than its task requires, so a hijacked or mistaken
+  decision has an outsized real-world blast radius. Mitigate by scoping
+  IAM execution roles/action groups to least privilege and requiring
+  human approval for high-impact agent actions.
+- **Overreliance** — users or downstream systems trust LLM output without
+  verification, even when it is fabricated or wrong. Mitigate with
+  contextual grounding checks in **Guardrails for Amazon Bedrock** and by
+  requiring the application to cite the specific source backing each
+  claim.
 
 AI-specific security also differs from traditional software security in a
 key way: traditional software is deterministic (the same input always
@@ -297,6 +333,93 @@ the original training data. This is a
 limiting, output filtering (e.g., withholding raw confidence scores), and
 least-privilege access to the inference endpoint are the mitigations.
 
+**Example:** A company's internal Bedrock-powered support tool lets an
+agent draft SQL queries from natural-language requests and execute them
+directly against the production support database, with no review step in
+between. A support rep asks the assistant to "find the customer named
+O'Brien," and the apostrophe in the generated SQL breaks out of the
+query's string literal exactly as it would in a classic SQL-injection
+attack — except the "attacker" here is the LLM's own unsanitized output,
+not a human typing malicious input. In the best case the malformed query
+just errors out; in the worst case, an adversarial prompt could shape the
+generated SQL to leak or modify rows belonging to other customers. This
+is **insecure output handling**; validating and sanitizing (or
+parameterizing) any LLM-generated query before execution, and enabling
+**Guardrails for Amazon Bedrock** output filtering, are the mitigations.
+
+**Example:** A publicly reachable Bedrock-powered chatbot on a company's
+marketing site has no per-user rate limit and no cap on prompt length. An
+attacker scripts thousands of concurrent sessions, each submitting a
+maximum-length prompt asking the model to write an exhaustive essay, and
+repeats this continuously throughout the day. The flood of expensive,
+long-running inference requests exhausts the account's throughput
+capacity, causing legitimate customers' requests to queue or time out,
+while simultaneously running up a large inference bill. This is a
+**model denial of service** attack; request throttling, **Amazon API
+Gateway** usage plans, and **Service Quotas** limits on the inference
+endpoint are the mitigations.
+
+**Example:** A startup wants to ship a new feature quickly, so an
+engineer downloads a pretrained model checkpoint from a public, unaudited
+model-sharing site and deploys it directly to a SageMaker endpoint
+without scanning it or verifying its provenance. Weeks later, security
+researchers discover the checkpoint contains a hidden backdoor trigger: a
+rare token sequence that, when present in a prompt, causes the model to
+emit attacker-controlled text that bypasses the application's safety
+instructions. Because the model came from an unvetted third party outside
+the team's own pipeline, no internal control caught it before launch.
+This is a **supply chain vulnerability**; sourcing vetted, curated models
+through **Amazon Bedrock** or **SageMaker JumpStart**, and tracking only
+approved versions in **SageMaker Model Registry**, are the mitigations.
+
+**Example:** A healthcare company fine-tunes a customer-service model on
+a raw export of historical support tickets that were never scrubbed of
+personally identifiable information. Months later, a curious user asks
+the deployed assistant to "give an example of a typical support
+conversation," and the model reproduces, nearly verbatim, a real ticket
+containing a previous customer's name, phone number, and diagnosis —
+information it memorized from the fine-tuning data rather than generated
+fresh. This is **sensitive information disclosure**; scanning and
+classifying training sources with **Amazon Macie** before fine-tuning,
+and enabling PII filters in **Guardrails for Amazon Bedrock** on the
+output path, are the mitigations.
+
+**Example:** A company builds a Bedrock Agents-based assistant with a
+plugin (action group) that can look up and update customer billing
+records, invoked through a Lambda function that trusts whatever account
+ID the model passes to it without checking it against the current
+session's authenticated user. An attacker crafts a prompt that
+manipulates the agent into calling the plugin with a different
+customer's account ID, and the overly permissive Lambda function updates
+that unrelated customer's billing record. This is **insecure plugin
+design**; scoping the Lambda function and its **IAM** role to least
+privilege — including validating the account ID server-side against the
+authenticated session rather than trusting model-supplied input — is the
+mitigation.
+
+**Example:** An operations team gives an LLM-based agent broad IAM
+permissions to "manage cloud resources as needed," including the ability
+to terminate EC2 instances and delete S3 objects, so it can autonomously
+clean up unused infrastructure. An ambiguous user request ("remove the
+old test resources"), combined with the agent's own misinterpretation,
+causes it to identify and delete a set of instances and objects that were
+actually still in production use, with no human approval step in
+between. This is **excessive agency**; scoping the agent's IAM execution
+role and action groups to only the specific, narrow actions its task
+requires, and requiring human approval before high-impact actions like
+deletion, are the mitigations.
+
+**Example:** A financial analyst asks a Bedrock-powered research
+assistant to summarize a company's quarterly earnings and the assistant
+confidently states a specific revenue-growth percentage. The analyst
+includes that figure, unverified, in a report to clients — but the model
+fabricated the number; it does not appear anywhere in the source filing
+the assistant was supposed to be summarizing. This is **overreliance**;
+enabling contextual grounding checks in **Guardrails for Amazon Bedrock**
+and requiring the assistant to cite the specific source passage backing
+each claim (see [Source citation and data
+lineage](#source-citation-and-data-lineage)) are the mitigations.
+
 **Exam tip:** Distinguish the threats by *what* is attacked: data
 poisoning corrupts training data, prompt injection hijacks instructions at
 inference time, and model inversion/extraction targets the deployed model
@@ -340,10 +463,9 @@ expects you to recognize by name.
 
 **OWASP Top 10 for LLM Applications — category-to-AWS-mitigation
 reference:** the exam expects you to link each named risk to a concrete
-AWS control, not just recognize the framework's name. Three categories
-(data poisoning, prompt injection, model inversion/extraction) are
-detailed with worked examples in the previous subsection; the table below
-covers all ten so no named category is left unmapped.
+AWS control, not just recognize the framework's name. All ten categories
+are now detailed with worked examples in the previous subsection; the
+table below summarizes each one's AWS mitigation for quick reference.
 
 | OWASP category | What it covers | AWS mitigation example |
 |---|---|---|

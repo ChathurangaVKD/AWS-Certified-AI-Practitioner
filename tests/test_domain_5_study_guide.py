@@ -314,6 +314,86 @@ class TestDomain5SecurityThreatWorkedExamples(unittest.TestCase):
         self.assertLess(examples_idx, quiz_idx)
 
 
+class TestDomain5ExpandedSecurityThreatWorkedExamples(unittest.TestCase):
+    """Guards the seven additional named threats + worked 'Example:'
+    scenarios added to the "Common security threats" subsection to close
+    the depth gap where only 3 of the ~10 OWASP Top 10 for LLM Applications
+    categories (data poisoning, prompt injection, model inversion/
+    extraction) had full description + example + mitigation treatment,
+    while insecure output handling, model denial of service, supply chain
+    vulnerabilities, sensitive information disclosure, insecure plugin
+    design, excessive agency, and overreliance only appeared as a
+    one-line row in the summary table."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.section = _section(
+            cls.text,
+            r"\n### Common security threats to AI systems and how to mitigate them",
+            r"\n### ",
+        )
+
+    def test_subsection_has_at_least_ten_worked_examples(self):
+        examples = re.findall(r"\*\*Example:\*\*", self.section)
+        self.assertGreaterEqual(
+            len(examples),
+            10,
+            "Common security threats subsection should have a worked "
+            "'Example:' scenario for all ten OWASP LLM Top 10 categories, "
+            "not just the original three",
+        )
+
+    def test_each_new_threat_is_named_and_mapped_to_an_aws_mitigation(self):
+        # Each of the seven previously-undetailed OWASP categories should be
+        # named in this subsection with a nearby concrete AWS mitigation,
+        # not just left to the summary table in the next subsection.
+        expectations = {
+            "insecure output handling": "Guardrails for Amazon Bedrock",
+            "model denial of service": "API Gateway",
+            "supply chain vulnerability": "SageMaker",
+            "sensitive information disclosure": "Macie",
+            "insecure plugin design": "IAM",
+            "excessive agency": "IAM",
+            "overreliance": "Guardrails for Amazon Bedrock",
+        }
+        for threat, aws_service in expectations.items():
+            with self.subTest(threat=threat):
+                self.assertIn(
+                    threat,
+                    self.section.lower(),
+                    f"expected threat {threat!r} to be named in the "
+                    "Common security threats subsection",
+                )
+                pattern = re.compile(
+                    re.escape(threat) + r".{0,600}?" + re.escape(aws_service),
+                    re.IGNORECASE | re.DOTALL,
+                )
+                self.assertRegex(
+                    self.section,
+                    pattern,
+                    f"{threat!r} should be followed nearby by a mention of "
+                    f"{aws_service!r}",
+                )
+
+    def test_new_threats_appear_before_the_section_mini_quiz(self):
+        quiz_idx = self.text.index(
+            "#### Mini-quiz: Test your understanding of securing AI systems"
+        )
+        for threat in [
+            "insecure output handling",
+            "model denial of service",
+            "supply chain vulnerability",
+            "sensitive information disclosure",
+            "insecure plugin design",
+            "excessive agency",
+            "overreliance",
+        ]:
+            with self.subTest(threat=threat):
+                idx = self.text.lower().index(threat)
+                self.assertLess(idx, quiz_idx)
+
+
 REQUIRED_OWASP_LLM_CATEGORIES = [
     "Prompt injection",
     "Insecure output handling",

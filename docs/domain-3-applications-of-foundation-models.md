@@ -959,6 +959,39 @@ and points it at those repositories directly.
 > embeddings, that's **Amazon Kendra** — a fully managed enterprise search
 > service, not a database you architect yourself.
 
+**Decision tree: choosing a vector database or search backend.** The
+bullets above describe what each option *is*; the flowchart below turns
+the same choice into a sequence of yes/no questions centered on whether
+Amazon RDS/Aurora infrastructure already exists, whether the use case
+needs vector-only search or hybrid (vector + keyword) search, and
+scale/throughput requirements — a visual complement to the table above,
+consistent with the customization decision tree in [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering):
+
+```mermaid
+flowchart TD
+    START(["Choosing a vector database /\nsearch backend?"])
+    START --> Q0{"Need natural-language search across\nexisting document repos (S3, SharePoint,\nSalesforce) with NO embeddings\npipeline to build yourself?"}
+    Q0 -->|"YES"| KEN["AMAZON KENDRA\n(managed embeddings + ranking,\nzero vector infrastructure)"]
+    Q0 -->|"NO"| Q1{"Does Amazon RDS or Aurora\n(PostgreSQL-compatible) infrastructure\nALREADY exist for this application?"}
+    Q1 -->|"YES"| Q2{"Is the search VECTOR-ONLY -\nno built-in keyword/full-text\nfused into the same query?"}
+    Q2 -->|"YES"| Q3{"High throughput / large scale,\nor already running on Aurora\n(vs. plain RDS)?"}
+    Q3 -->|"YES"| AUR["AURORA (PostgreSQL) + PGVECTOR\nauto-scaling storage, read replicas,\nvectors alongside relational data"]
+    Q3 -->|"NO"| RDSV["AMAZON RDS FOR POSTGRESQL +\nPGVECTOR\nsmaller/steady workloads, normal\nRDS administration"]
+    Q2 -->|"NO - need hybrid search too"| OS1["AMAZON OPENSEARCH\n(Service or Serverless)\nbuilt-in vector engine + keyword\nsearch in one query"]
+    Q1 -->|"NO"| Q4{"Need hybrid (vector + keyword)\nsearch, or large-scale/\nhigh-throughput vector search?"}
+    Q4 -->|"YES"| OS2["AMAZON OPENSEARCH SERVERLESS\nbuilt-in vector engine, autoscaling,\nhybrid search out of the box"]
+    Q4 -->|"NO"| AUR2["AURORA (PostgreSQL) + PGVECTOR\n(new deployment)\nvector-only, moderate scale,\nSQL-native querying"]
+```
+
+> **Exam tip:** Amazon RDS and Amazon Aurora both support `pgvector`, and
+> the exam distinguishes them by what the application already standardizes
+> on: a scenario that says the team already runs **RDS for PostgreSQL**
+> points to **RDS + pgvector**, while "needs auto-scaling storage, read
+> replicas, or is already on Aurora" points to **Aurora + pgvector**. If
+> the scenario adds "and we also need keyword/full-text search fused into
+> the same query," that pulls the answer toward **OpenSearch** instead,
+> regardless of which relational database is already in place.
+
 #### Mini-quiz: Test your understanding of vector databases and embeddings
 
 Quick self-check before moving on — try to answer before reading the

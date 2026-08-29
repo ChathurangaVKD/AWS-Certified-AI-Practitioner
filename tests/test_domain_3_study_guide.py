@@ -615,6 +615,66 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                 self.assertRegex(diagram, cue)
                 self.assertIn(outcome, diagram)
 
+    def test_infrastructure_section_has_inference_type_decision_tree_diagram(self):
+        # Regression guard: cross-domain-concept-map.md previously only
+        # described, in prose, how the Domain 1 inference-type decision
+        # (real-time vs. batch vs. serverless) flows into the Domain 3
+        # Bedrock on-demand vs. provisioned-throughput decision, with no
+        # diagram anywhere in the series visualizing that decision path.
+        section = _section(
+            self.text,
+            r"\n## 8\. AWS infrastructure for generative AI workloads",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "AWS infrastructure section should include a Mermaid "
+            "inference-type decision-tree flowchart",
+        )
+        # The vector store decision tree (Section 6) also renders as a
+        # Mermaid flowchart; make sure we're looking at *this* section's
+        # own diagram, not accidentally matching another section's.
+        diagram = "\n".join(fences)
+        self.assertRegex(
+            diagram,
+            r"flowchart\s+\w+|graph\s+\w+",
+            "decision tree should use Mermaid flowchart/graph syntax",
+        )
+        self.assertIn(
+            "?", diagram, "diagram should pose branching decision questions"
+        )
+        for cue in [
+            "real-time",
+            "batch",
+            "ON-DEMAND",
+            "PROVISIONED",
+        ]:
+            with self.subTest(cue=cue):
+                self.assertRegex(diagram, re.compile(re.escape(cue), re.IGNORECASE))
+        # The three deciding factors the task requires must be named in the
+        # surrounding prose, not just implied by the diagram shape.
+        for factor in ["traffic predictability", "latency", "cost model"]:
+            with self.subTest(factor=factor):
+                self.assertRegex(
+                    section,
+                    re.compile(re.escape(factor), re.IGNORECASE),
+                    f"inference-type decision tree section missing deciding "
+                    f"factor: {factor!r}",
+                )
+
+    def test_concept_map_links_to_inference_type_decision_tree(self):
+        # The cross-domain concept map's D1-inference-type-to-D3-Bedrock-
+        # throughput row should point readers at the new diagram, not just
+        # the section that contains it.
+        concept_map_path = DOC_PATH.parent / "cross-domain-concept-map.md"
+        concept_map_text = concept_map_path.read_text(encoding="utf-8")
+        self.assertIn(
+            "inference-type decision tree",
+            concept_map_text,
+            "cross-domain-concept-map.md should cross-link the new "
+            "inference-type decision tree diagram",
+        )
+
     def test_tradeoff_section_covers_labeled_vs_unlabeled_distinction(self):
         section = _section(
             self.text,

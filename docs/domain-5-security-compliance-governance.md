@@ -463,10 +463,9 @@ expects you to recognize by name.
 
 **OWASP Top 10 for LLM Applications — category-to-AWS-mitigation
 reference:** the exam expects you to link each named risk to a concrete
-AWS control, not just recognize the framework's name. Three categories
-(data poisoning, prompt injection, model inversion/extraction) are
-detailed with worked examples in the previous subsection; the table below
-covers all ten so no named category is left unmapped.
+AWS control, not just recognize the framework's name. All ten categories
+are now detailed with worked examples in the previous subsection; the
+table below summarizes each one's AWS mitigation for quick reference.
 
 | OWASP category | What it covers | AWS mitigation example |
 |---|---|---|

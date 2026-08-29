@@ -227,6 +227,59 @@ class TestDomain4StudyGuideStructure(unittest.TestCase):
                     f"bias/fairness section missing term: {term!r}",
                 )
 
+    def test_bias_section_opens_with_bias_vs_variance_clarification(self):
+        # Regression test: the bias/fairness section must open with a
+        # dedicated subsection distinguishing statistical bias/variance
+        # (Domain 1, tied to overfitting/underfitting) from fairness bias
+        # (systematic disadvantage against a group), so readers who jump
+        # straight into Domain 4 don't conflate the two meanings of "bias".
+        bias_section = _section(
+            self.text,
+            r"\n## 2\. Identifying bias and fairness issues in training "
+            r"data and model outputs",
+        )
+        heading_match = re.search(
+            r"### Bias \W+ Variance: Terminology Clarification", bias_section
+        )
+        self.assertIsNotNone(
+            heading_match,
+            "bias/fairness section is missing the 'Bias vs. Variance: "
+            "Terminology Clarification' subsection",
+        )
+        clarification_section = _section(
+            bias_section,
+            r"\n### Bias \W+ Variance: Terminology Clarification",
+            end_heading_regex=r"\n\*\*Bias\*\* in ML",
+        )
+        for term in ["underfitting", "overfitting", "Domain 1"]:
+            with self.subTest(term=term):
+                self.assertIn(
+                    term,
+                    clarification_section,
+                    f"bias-vs-variance clarification missing term: {term!r}",
+                )
+        self.assertRegex(
+            clarification_section,
+            re.compile(r"statistical bias", re.IGNORECASE),
+            "bias-vs-variance clarification should explicitly name "
+            "'statistical bias'",
+        )
+        self.assertRegex(
+            clarification_section,
+            re.compile(r"fairness bias", re.IGNORECASE),
+            "bias-vs-variance clarification should explicitly name "
+            "'fairness bias'",
+        )
+        # The clarification must appear before the rest of the section's
+        # existing bias-type content (e.g. sampling bias), i.e. it must be
+        # the very first thing under the "## 2." heading.
+        self.assertLess(
+            heading_match.start(),
+            bias_section.index("Sampling bias"),
+            "the terminology clarification subsection must come before the "
+            "rest of Section 2's content",
+        )
+
     def test_bias_section_has_detection_and_mitigation_workflow_diagram(self):
         # The bias section must include a visual workflow diagram going
         # from bias type -> detection method -> mitigation tool, not just

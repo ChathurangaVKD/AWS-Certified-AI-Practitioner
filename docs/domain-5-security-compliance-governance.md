@@ -588,6 +588,32 @@ NEED TO ANSWER: which governance/monitoring service applies?
     → AWS Audit Manager (built on evidence from CloudTrail and Config)
 ```
 
+**Worked scenarios:** These short scenario-to-answer pairs drill the
+one-line distinction above using the kind of narrative phrasing the exam
+favors — read the scenario, commit to an answer, then check it.
+
+**Scenario:** A bank must prove that a Bedrock endpoint's encryption
+settings haven't changed in the last 30 days for a compliance audit.
+**Answer:** AWS Config. The question asks about a resource's
+*configuration state over time* ("haven't changed"), which is exactly
+what Config's configuration history and compliance rules track — not an
+API call log.
+
+**Scenario:** An investigator needs to show every API call made to a
+set of SageMaker training jobs for a forensic analysis after a suspected
+insider-misuse incident. **Answer:** AWS CloudTrail. The question asks
+*"who did what, and when"* at the API-call level, which is CloudTrail's
+job; Config would show configuration drift, not a call-by-call activity
+log.
+
+**Scenario:** A healthcare company must assemble an audit-ready evidence
+package mapping its AI system's controls to the HIPAA framework for an
+upcoming external audit. **Answer:** AWS Audit Manager. The question
+asks for a consolidated, framework-mapped evidence report, which is
+Audit Manager's purpose — it draws on CloudTrail and Config data
+underneath but is the service that produces the audit-ready package
+itself.
+
 #### Mini-quiz: Test your understanding of AWS Config, Audit Manager, and CloudTrail for AI governance
 
 Quick self-check before moving on — try to answer before reading the

@@ -1138,7 +1138,7 @@ infrastructure directly, a different team at the same company uses
 > training or serving large models at scale.
 
 **Decision tree: from the Domain 1 inference-type question to the Domain 3
-Bedrock throughput decision.** [The cross-domain concept map](cross-domain-concept-map.md#domain-1--domain-3-applications-of-foundation-models)
+Bedrock throughput decision.** [The cross-domain concept map](cross-domain-concept-map.md#domain-1-domain-3-applications-of-foundation-models)
 notes that Bedrock's on-demand vs. provisioned-throughput choice ([Section
 5](#5-amazon-bedrock-features)) is the generative-AI-specific version of the
 Domain 1 inference-type decision (real-time, batch, asynchronous, or

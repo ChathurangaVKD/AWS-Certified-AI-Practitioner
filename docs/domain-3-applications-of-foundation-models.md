@@ -942,6 +942,30 @@ and is the retrieval half of RAG. AWS options tested on the exam:
   Bedrock Knowledge Bases can also use an existing **Amazon Kendra
   GenAI Index** as a retriever.
 
+**Decision tree:** the comparison table in [Section 3](#vector-store-decision-guide-opensearch-vs-aurora--pgvector-vs-amazon-kendra)
+lines up OpenSearch, Aurora/RDS + pgvector, and Kendra side by side; the
+flowchart below turns that same guidance into a sequence of yes/no
+questions — whether RDS/Aurora infrastructure already exists, whether the
+use case needs vector-only search or hybrid (vector + keyword) search, and
+how demanding the scale/throughput requirements are — so a scenario's
+requirements can be walked step by step to a recommended service:
+
+```mermaid
+flowchart TD
+    START(["Choosing a vector database\nfor embeddings storage and search?"])
+    START --> Q1{"Natural-language search over existing\nenterprise documents (S3, SharePoint,\nSalesforce) with no custom embeddings\npipeline wanted?"}
+    Q1 -->|"YES"| KEN["AMAZON KENDRA\n(managed connectors + ranking,\nno vector index to build)"]
+    Q1 -->|"NO"| Q2{"Does the use case need HYBRID\nsearch -- keyword AND vector\nsearch in the same query?"}
+    Q2 -->|"YES"| Q3{"Is scale/throughput high --\nlarge document volumes or\nunpredictable/high query traffic?"}
+    Q3 -->|"YES"| OSS["AMAZON OPENSEARCH SERVERLESS\n(autoscaled vector engine +\nkeyword search, no cluster to size)"]
+    Q3 -->|"NO - moderate, steady load"| OSD["AMAZON OPENSEARCH SERVICE\n(provisioned domain, still gets\nhybrid vector + keyword search)"]
+    Q2 -->|"NO - vector-only\nsearch is enough"| Q4{"Does Amazon RDS/Aurora\nPostgreSQL infrastructure\nalready exist for this workload?"}
+    Q4 -->|"YES"| PGV["AURORA/RDS FOR POSTGRESQL\n+ PGVECTOR\n(add a vector column to the\ndatabase you already run,\nquery embeddings with SQL)"]
+    Q4 -->|"NO"| Q5{"Is throughput/scale expected\nto stay moderate -- no need for\nhorizontal search-cluster scale?"}
+    Q5 -->|"YES"| PGV2["NEW AMAZON AURORA POSTGRESQL\n+ PGVECTOR\n(stand up a managed Postgres\ndatabase, avoid a separate\nsearch service)"]
+    Q5 -->|"NO"| OSS2["AMAZON OPENSEARCH SERVERLESS\n(no existing database to build on,\nand high scale points to a\ndedicated vector engine)"]
+```
+
 **AWS example:** A healthcare software vendor builds a clinical-reference
 chatbot. They generate embeddings for medical documents using **Amazon
 Titan Text Embeddings** and store them in **Amazon OpenSearch Service**

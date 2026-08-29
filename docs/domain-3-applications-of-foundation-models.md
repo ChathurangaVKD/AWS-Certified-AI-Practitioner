@@ -8,6 +8,7 @@
 
 - [1. Design considerations for foundation model applications](#1-design-considerations-for-foundation-model-applications)
 - [2. Prompt engineering techniques](#2-prompt-engineering-techniques)
+  - [Comparison table: prompt engineering techniques at a glance](#comparison-table-prompt-engineering-techniques-at-a-glance)
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
 - [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
@@ -384,6 +385,35 @@ explanation.
    **Answer: A** — Amazon Bedrock Prompt Flows provides a visual builder
    for chaining prompts (and other steps, like Knowledge Base lookups)
    into a single workflow, which is prompt chaining in practice.
+
+### Comparison table: prompt engineering techniques at a glance
+
+Eight techniques were just introduced across four worked examples — the
+table below puts all of them side by side against the dimensions the exam
+actually tests (cost, complexity, control over output, use-case fit, and
+the keywords a question stem tends to use to signal each one), so the
+trade-offs can be scanned at a glance instead of re-reading the narrative
+above:
+
+| Technique | Cost | Complexity | Control over output | Best use-case fit | Exam keywords |
+|---|---|---|---|---|---|
+| **Zero-shot prompting** | Lowest — just an instruction, no examples | Lowest — single prompt, no setup | Low — model decides format/structure on its own | Simple tasks a large, well-trained FM already generalizes to | "no examples," "instruction only," "simplest task" |
+| **Few-shot prompting** | Low — a few example pairs added to the prompt | Low/medium — must author and maintain good examples | Medium/high — examples anchor the exact output format and tone | Tasks needing a specific, consistent output structure | "example input/output pairs," "learn the format," "consistent structure" |
+| **Chain-of-thought (CoT) prompting** | Low — extra output tokens for the reasoning steps | Medium — prompt must explicitly request step-by-step reasoning | High for reasoning tasks — makes the logic auditable | Multi-step reasoning, math, logic, ambiguous/borderline cases | "step by step," "reasoning," "multi-step," "show your work" |
+| **Prompt templates** | Lowest — one-time authoring, reused across calls | Low — placeholders defined once, versioned centrally | High for consistency — every call gets the same instructions/format | Standardizing prompts across many application calls | "reusable structure," "placeholders," "{variable}," "Bedrock Prompt Management" |
+| **Negative prompting** | Lowest — a short added constraint | Lowest — one or two extra sentences in the prompt | Medium — rules out specific unwanted outputs, doesn't dictate the whole shape | Eliminating one specific failure mode (a hedge answer, unwanted content/text) | "do not include," "avoid," "no text/watermark," "steer away from" |
+| **Prompt chaining / Prompt Flows** | Medium — multiple prompt calls per task, more tokens overall | Medium/high — must design and orchestrate the sequence of steps | High — each stage's output is validated/shaped before feeding the next | Complex multi-step tasks that are unreliable as a single prompt | "sequence of prompts," "output feeds the next," "Amazon Bedrock Prompt Flows," "visual builder" |
+| **System prompts / role prompting** | Lowest — set once per conversation/application | Low — a single persistent instruction block | High for persona/tone/guardrails across an entire conversation | Enforcing a consistent persona, tone, or behavioral constraint app-wide | "persona," "role," "persistent instructions," "across the conversation" |
+| **Prompt injection** | N/A — not a technique, a security risk | N/A — attacker-controlled, not designed by the application | None (from the defender's perspective) — attacker attempts to hijack output | Something to *mitigate*, not apply — via input validation and Guardrails | "ignore previous instructions," "malicious input," "override the system prompt" |
+
+> **Exam tip:** If a table row reads "N/A" or "not a technique," that's
+> your cue — the exam likes to plant **prompt injection** in a list of
+> techniques and ask which one is actually a *security risk* rather than
+> a legitimate customization tool (see question 2 above). For everything
+> else, notice that cost and complexity track together (zero-shot,
+> negative prompting, and system prompts are all cheap, low-setup ways to
+> nudge output) while chain-of-thought and prompt chaining spend more
+> tokens/effort in exchange for auditability or multi-step reliability.
 
 ---
 

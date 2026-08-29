@@ -141,5 +141,77 @@ class TestDocumentationStructureCrossDomainMaterials(unittest.TestCase):
         )
 
 
+class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously described Domain 5 as lacking
+    a test file, multiple-response questions, and a worked example section,
+    and described every domain's diagrams as ASCII art. All four claims are
+    now false -- these tests guard against the doc drifting back to them."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.domain_5_text = DOMAIN_FILES[5].read_text(encoding="utf-8")
+
+    def test_domain_5_test_file_exists(self):
+        test_file = REPO_ROOT / "tests" / "test_domain_5_study_guide.py"
+        self.assertTrue(
+            test_file.is_file(),
+            "tests/test_domain_5_study_guide.py should exist",
+        )
+
+    def test_structure_doc_does_not_claim_domain_5_lacks_a_test_file(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("domain 5 has no", lowered)
+        self.assertNotIn("d5 lacks test file", lowered)
+        self.assertNotIn("test_domain_5_study_guide.py` is missing", lowered)
+        self.assertNotIn("test_domain_5_study_guide.py` file; domains 1", lowered)
+
+    def test_structure_doc_documents_validation_tests_for_all_five_domains(self):
+        self.assertIn(
+            "`tests/test_domain_N_study_guide.py` for all five domains",
+            self.structure_text,
+        )
+
+    def test_domain_5_has_multiple_response_questions(self):
+        self.assertEqual(
+            self.domain_5_text.count("(Multiple response — select TWO)"),
+            2,
+            "expected exactly 2 multiple-response questions (Q3 and Q14) "
+            "in the Domain 5 guide",
+        )
+
+    def test_structure_doc_documents_domain_5_multiple_response_questions(self):
+        self.assertIn("multiple-response", self.structure_text.lower())
+        self.assertIn("Domain 5", self.structure_text)
+        # The sentence documenting this fact should reference Domain 5.
+        idx = self.structure_text.lower().find("multiple-response")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[max(0, idx - 200) : idx + 200]
+        self.assertIn("Domain 5", window)
+
+    def test_domain_5_has_worked_example_section(self):
+        self.assertIn(
+            "## Worked example: securing and governing a HIPAA-regulated "
+            "Bedrock application",
+            self.domain_5_text,
+        )
+
+    def test_structure_doc_documents_domain_5_worked_example(self):
+        self.assertIn("Worked example", self.structure_text)
+        idx = self.structure_text.find("Worked examples")
+        self.assertNotEqual(
+            idx, -1, "expected a 'Worked examples' entry in DOCUMENTATION_STRUCTURE.md"
+        )
+        window = self.structure_text[idx : idx + 500]
+        self.assertIn("D5", window)
+
+    def test_structure_doc_describes_flowcharts_as_mermaid_not_ascii(self):
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        self.assertNotEqual(diagrams_idx, -1)
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
+        self.assertIn("Mermaid flowchart", diagrams_section)
+        self.assertIn("13", diagrams_section)
+
+
 if __name__ == "__main__":
     unittest.main()

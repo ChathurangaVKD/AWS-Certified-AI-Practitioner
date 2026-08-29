@@ -314,6 +314,72 @@ class TestDomain5SecurityThreatWorkedExamples(unittest.TestCase):
         self.assertLess(examples_idx, quiz_idx)
 
 
+REQUIRED_OWASP_LLM_CATEGORIES = [
+    "Prompt injection",
+    "Insecure output handling",
+    "Training data poisoning",
+    "Model denial of service",
+    "Supply chain vulnerabilities",
+    "Sensitive information disclosure",
+    "Insecure plugin design",
+    "Excessive agency",
+    "Overreliance",
+    "Model theft",
+]
+
+
+class TestDomain5OwaspReferenceTable(unittest.TestCase):
+    """Guards the OWASP Top 10 for LLM Applications category-to-AWS-
+    mitigation reference table added to the "Security frameworks for AI
+    systems" subsection so all ten categories stay mapped to a concrete
+    AWS control instead of silently regressing to just the 3 detailed
+    earlier in the "Common security threats" subsection."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.section = _section(
+            cls.text,
+            r"\n### Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications",
+            r"\n#### Mini-quiz",
+        )
+
+    def test_section_has_a_markdown_table(self):
+        self.assertRegex(self.section, r"\|\s*-{2,}\s*\|")
+
+    def test_table_covers_all_ten_owasp_llm_categories(self):
+        for category in REQUIRED_OWASP_LLM_CATEGORIES:
+            with self.subTest(category=category):
+                self.assertRegex(
+                    self.section,
+                    re.compile(re.escape(category), re.IGNORECASE),
+                    f"OWASP reference table missing category: {category!r}",
+                )
+
+    def test_previously_unmitigated_categories_map_to_an_aws_service(self):
+        # These five were named in the task description as present-but-
+        # unmitigated before this change; assert each now sits on a table
+        # row naming a concrete AWS service.
+        expectations = {
+            "Insecure output handling": "Guardrails for Amazon Bedrock",
+            "Model denial of service": "API Gateway",
+            "Supply chain vulnerabilities": "SageMaker",
+            "Excessive agency": "IAM",
+            "Model theft": "KMS",
+        }
+        for category, aws_service in expectations.items():
+            with self.subTest(category=category):
+                pattern = re.compile(
+                    re.escape(category) + r".{0,400}?" + re.escape(aws_service),
+                    re.IGNORECASE | re.DOTALL,
+                )
+                self.assertRegex(
+                    self.section,
+                    pattern,
+                    f"{category!r} row should mention {aws_service!r} nearby",
+                )
+
+
 class TestDomain5GovernanceWorkedScenarios(unittest.TestCase):
     """Guards the CloudTrail vs. Config vs. Audit Manager worked
     scenario-to-answer mini-examples added to Section 3, so a future edit

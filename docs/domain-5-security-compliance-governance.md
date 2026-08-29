@@ -338,6 +338,26 @@ applications*, it's the OWASP Top 10 for LLM Applications. Neither is an
 AWS service — both are external, vendor-neutral frameworks the exam
 expects you to recognize by name.
 
+**OWASP Top 10 for LLM Applications — category-to-AWS-mitigation
+reference:** the exam expects you to link each named risk to a concrete
+AWS control, not just recognize the framework's name. Three categories
+(data poisoning, prompt injection, model inversion/extraction) are
+detailed with worked examples in the previous subsection; the table below
+covers all ten so no named category is left unmapped.
+
+| OWASP category | What it covers | AWS mitigation example |
+|---|---|---|
+| **Prompt injection** | Malicious input overrides the model's or application's instructions, directly or via retrieved content | **Guardrails for Amazon Bedrock** (content filters, denied topics, contextual grounding checks) |
+| **Insecure output handling** | Downstream systems trust and act on raw LLM output without validation (e.g., passing it to a shell, database query, or renderer) | Validate/sanitize model output before use; **Guardrails for Amazon Bedrock** output filtering |
+| **Training data poisoning** | Training or fine-tuning data is deliberately corrupted to bias or backdoor the model | IAM/S3 bucket policies restricting write access, data validation, and **SageMaker** dataset versioning |
+| **Model denial of service** | Resource-exhausting or crafted inputs degrade availability or drive up inference cost | Request throttling and **Service Quotas**/**Amazon API Gateway** usage plans on inference endpoints |
+| **Supply chain vulnerabilities** | Compromised or untrusted third-party models, datasets, or plugins are integrated into the pipeline | Use vetted, curated models from **Amazon Bedrock** or **SageMaker JumpStart**, and track approved model versions in **SageMaker Model Registry** |
+| **Sensitive information disclosure** | The model leaks PII, secrets, or confidential data in its responses | **Amazon Macie** to discover/classify sensitive data in training sources, plus **Guardrails for Amazon Bedrock** PII filters |
+| **Insecure plugin design** | A tool/plugin invoked by the model accepts unvalidated input or has overly broad permissions | Least-privilege **IAM** roles scoped to specific actions for each Bedrock Agents action group or invoked Lambda function |
+| **Excessive agency** | An LLM-based agent is granted more permissions, tools, or autonomy than its task requires | Scope **IAM** execution roles/action groups to least privilege, and require human approval for high-impact agent actions |
+| **Overreliance** | Users or systems trust LLM output without verification, even when it's wrong or fabricated | Contextual grounding checks in **Guardrails for Amazon Bedrock** and citing sources (see [Source citation and data lineage](#source-citation-and-data-lineage)) |
+| **Model theft** | An adversary exfiltrates model weights or reconstructs the model via extraction attacks | Least-privilege **IAM** access to model artifacts, **AWS KMS** encryption at rest, and request throttling on inference endpoints |
+
 #### Mini-quiz: Test your understanding of securing AI systems
 
 Quick self-check before moving on — try to answer before reading the

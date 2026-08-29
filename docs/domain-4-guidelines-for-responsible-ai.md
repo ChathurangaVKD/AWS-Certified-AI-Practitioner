@@ -9,6 +9,7 @@
 - [3. AWS tools for responsible AI](#3-aws-tools-for-responsible-ai)
 - [4. Legal and ethical considerations](#4-legal-and-ethical-considerations)
 - [5. Balancing model performance and interpretability](#5-balancing-model-performance-and-interpretability)
+- [Worked example: auditing and documenting a responsible e-commerce recommendation engine](#worked-example-auditing-and-documenting-a-responsible-e-commerce-recommendation-engine)
 - [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
@@ -698,6 +699,95 @@ require the same level of per-prediction explainability.
    sacrifices accuracy unnecessarily; C is not a realistic option; D
    misapplies a consideration relevant to high-stakes, regulated
    scenarios, not this one.
+
+---
+
+## Worked example: auditing and documenting a responsible e-commerce recommendation engine
+
+Sections 1–5 introduced the responsible AI dimensions, bias detection and
+mitigation, the AWS tools that support them, legal/ethical considerations,
+and the performance/interpretability tradeoff as separate topics. This
+walkthrough follows one company through building a single system that has
+to address all of them together, the way AIF-C01 scenario questions
+combine them.
+
+**Scenario:** ShopSmart, an online marketplace, is replacing its generic
+"most popular items" carousel with a personalized recommendation engine
+trained on two years of customer browsing, purchase, and return history.
+Before launch, the company's responsible-AI review board requires the
+team to address fairness, explainability, transparency, and governance —
+the four [core dimensions](#1-core-dimensions-of-responsible-ai) it flags
+as highest-risk for a system that directly shapes what products different
+customers see.
+
+1. **Audit the training data for bias before training.** Following the
+   pre-training half of the [bias detection and mitigation
+   workflow](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs),
+   the data science team runs **Amazon SageMaker Clarify** on the
+   two-year browsing/purchase dataset. It surfaces a **class imbalance**
+   and a large **difference in proportions of labels (DPL)**: customers
+   in one age bracket have far fewer recorded "purchased" labels, not
+   because they buy less, but because ShopSmart's catalog historically
+   under-stocked items relevant to that group — a textbook case of
+   **historical bias** (the data was collected accurately, but reflects a
+   pre-existing inequity in the catalog itself).
+2. **Mitigate what was found.** The team applies a **pre-processing**
+   fix — rebalancing and augmenting the underrepresented segment of the
+   training data — rather than an in-processing fairness constraint,
+   since the root problem is the data, not the training objective.
+3. **Recheck after training.** Once trained, they rerun **SageMaker
+   Clarify's** post-training metrics and confirm **disparate impact**
+   across those age groups has dropped to an acceptable range; a residual
+   gap is closed with a **post-processing** score adjustment rather than
+   a full retrain.
+4. **Choose a point on the performance/interpretability tradeoff.** Per
+   [Section 5](#5-balancing-model-performance-and-interpretability), an
+   individual recommendation is low-stakes — a bad suggestion costs a
+   lost click, not a denied loan — so the team favors a complex,
+   higher-accuracy deep learning ranking model and plans to recover
+   explainability with **post-hoc SHAP** instead of sacrificing accuracy.
+5. **Add explainability.** They enable **SageMaker Clarify** feature
+   attribution on the deployed model so that, for any individual
+   recommendation, a support agent or auditor can see which signals
+   (recent views, past category purchases, items frequently bought
+   together) drove that specific suggestion — turning the "black box"
+   ranking model into something a human can inspect on demand.
+6. **Document with a Model Card.** The team fills in a **SageMaker Model
+   Card** capturing the model's intended use (personalized product
+   ranking, not eligibility or pricing decisions), a description of the
+   training data and its two-year window, the pre- and post-training bias
+   metrics from steps 1–3 and the mitigations applied, evaluation
+   results, a risk rating, and known limitations — including a
+   **cold-start** limitation for brand-new customers with no browsing
+   history, who fall back to the old "most popular" ranking.
+7. **Close the legal/ethical gaps.** Per [Section
+   4](#4-legal-and-ethical-considerations), browsing and purchase history is personal data, so the
+   team pseudonymizes customer identifiers before they reach the training
+   pipeline and confirms **Amazon Macie** finds no raw PII sitting
+   unencrypted in the S3 training bucket. Because the model will be
+   retrained on a recurring schedule rather than continuously, they also
+   check the **AWS Customer Carbon Footprint Tool** and settle on a
+   monthly retraining cadence instead of daily, balancing freshness
+   against unnecessary compute and environmental cost.
+8. **Establish governance and ongoing monitoring.** The review board signs
+   off on launch only after the Model Card is complete, and the team
+   attaches **Amazon SageMaker Model Monitor** to the production endpoint
+   to watch for bias drift as customer behavior evolves after launch.
+   They schedule a recurring quarterly review where the board re-reads
+   the Model Card against the latest Clarify metrics, and route any
+   recommendation flagged as high-risk (for example, a sudden spike in
+   disparate impact for one segment) through **Amazon A2I** for human
+   review before the ranking logic ships to all customers — closing the
+   loop from one-time bias mitigation into continuous **governance**.
+
+> **Exam tip:** Notice that fairness, explainability, transparency, and
+> governance aren't solved by one tool each in isolation — **SageMaker
+> Clarify** shows up twice (bias metrics *and* SHAP explanations), and the
+> **Model Card** created in step 6 becomes the artifact the governance
+> process in step 8 keeps re-checking. When a scenario describes an
+> ongoing review cadence *referencing* a model's documented bias metrics
+> and limitations, that's **governance built on top of transparency** —
+> not a new, separate tool.
 
 ---
 

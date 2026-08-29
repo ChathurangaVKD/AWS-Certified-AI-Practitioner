@@ -13,6 +13,7 @@
 - [7. Overfitting, underfitting, and the bias–variance trade-off](#7-overfitting-underfitting-and-the-biasvariance-trade-off)
 - [Worked example: end-to-end ML lifecycle for a loan-default predictor](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
 - [Comparison table: AWS managed AI/ML services at a glance](#comparison-table-aws-managed-aiml-services-at-a-glance)
+- [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
 - [Answer key and explanations](#answer-key-and-explanations)
@@ -790,6 +791,93 @@ explain any adverse decision to a rejected applicant.
 > custom SageMaker model** — SageMaker is for cases the purpose-built
 > services don't cover, or when deep customization/control is explicitly
 > required.
+
+---
+
+## Quick-reference cheat sheet
+
+A condensed, one-to-two-page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam. It
+restates material covered in full in [Section 2](#2-the-ml-development-lifecycle),
+[Section 3](#3-types-of-learning), and
+[Section 5](#5-aws-managed-aiml-services-conceptual-overview) — it is not a
+substitute for reading those sections, only a fast recall aid once you
+already have.
+
+**The 8-stage ML development lifecycle — memorize the order:**
+
+| # | Stage | Key AWS tools |
+|---|---|---|
+| 1 | Business goal identification | (no tooling — define the problem/success metric first) |
+| 2 | Data collection | S3, AWS Glue, Kinesis / MSK |
+| 3 | Exploratory data analysis (EDA) | SageMaker Data Wrangler, SageMaker Studio, Athena |
+| 4 | Data preparation / feature engineering | SageMaker Data Wrangler, SageMaker Feature Store |
+| 5 | Model training | SageMaker Training Jobs, JumpStart, Managed Spot Training |
+| 6 | Hyperparameter tuning / evaluation | SageMaker automatic model tuning, SageMaker Clarify |
+| 7 | Deployment | SageMaker endpoints (real-time), batch transform, serverless inference |
+| 8 | Monitoring | SageMaker Model Monitor, Amazon CloudWatch |
+
+Collect → explore (EDA) → prepare/feature-engineer → train → evaluate/tune
+→ deploy → monitor. It's an **iterative loop**: a **failed** evaluation
+(step 6) loops back to feature engineering (step 4) to retrain; drift or
+degraded accuracy detected during monitoring (step 8) loops back to data
+collection (step 2) or retraining (step 5). **Feature Store** exists to
+prevent *training/serving skew*.
+
+**Three learning types — one-line distinguishers:**
+
+| Type | Data | Distinguisher | AWS SageMaker examples |
+|---|---|---|---|
+| **Supervised** | Labeled | Predicts a known target (classification/regression) | Linear Learner, XGBoost, k-NN |
+| **Unsupervised** | Unlabeled | Finds structure with no target column (clustering/dimensionality reduction) | k-means, PCA, Random Cut Forest |
+| **Reinforcement (RL)** | None (trial-and-error) | An **agent** takes **actions** in an **environment** to maximize cumulative **reward** | SageMaker RL, AWS DeepRacer |
+
+> No labels/target column → **unsupervised**, even if the goal sounds like
+> "prediction." RL is defined by *agent + environment + reward*, not
+> merely "no labels" — don't conflate it with unsupervised learning.
+
+**AWS managed AI/ML service decision table — match the scenario keyword to the service:**
+
+| If the scenario says... | The service is... |
+|---|---|
+| "no ML expertise, needs a custom model or algorithm not covered below" | Amazon SageMaker |
+| "images/video: objects, faces, moderation" | Amazon Rekognition |
+| "convert speech/audio to text" | Amazon Transcribe |
+| "analyze text: sentiment, entities, key phrases, PII" | Amazon Comprehend |
+| "convert text to lifelike speech" | Amazon Polly |
+| "translate between languages" | Amazon Translate |
+| "build a chatbot or voice bot" | Amazon Lex |
+| "personalized product/content recommendations" | Amazon Personalize |
+| "forecast demand, inventory, or other time-series values" | Amazon Forecast |
+| "extract text, forms, and tables from scanned documents" | Amazon Textract |
+| "real-time fraud-risk scoring" | Amazon Fraud Detector |
+
+**Decision tree for choosing a service:**
+
+```
+Does a purpose-built managed AI service match the described input/task?
+├── Yes → use that purpose-built service (Rekognition, Transcribe,
+│         Comprehend, Polly, Translate, Lex, Personalize, Forecast,
+│         Textract, Fraud Detector) — no ML expertise required.
+└── No → does the use case need a custom model/algorithm, or full
+          control over training and deployment?
+          ├── Yes → Amazon SageMaker
+          └── No  → re-check the table above; a purpose-built service
+                    almost always exists for AIF-C01 scenarios.
+```
+
+**Common exam traps:**
+
+- "No ML expertise + standard task (vision/speech/text/forecast/rec)" →
+  the **purpose-built service**, not SageMaker. SageMaker wins only when
+  the use case needs a **custom** model.
+- A scenario with **no labels/target column** → **unsupervised**, not
+  supervised — even if it sounds like a prediction task.
+- **Accuracy is misleading on imbalanced data** (e.g., fraud, disease
+  detection) — look for precision, recall, F1, or AUC-ROC instead.
+- A **failed** evaluation gate loops back to **feature engineering**
+  (step 4), not straight back to business goal identification or straight
+  to deployment.
 
 ---
 

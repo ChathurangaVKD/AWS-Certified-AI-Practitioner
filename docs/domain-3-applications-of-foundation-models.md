@@ -1226,6 +1226,26 @@ that fails it, the same way you should on the exam:
    the answer — not because it "wins" on any single dimension, but because
    it's the only one that fails none of them.
 
+**Visual summary — multi-constraint elimination decision tree:** the
+diagram below traces the exact same walkthrough as a flowchart, so you can
+see all five constraints applied in sequence against all five candidate
+models in one picture, instead of re-reading the numbered steps:
+
+```mermaid
+flowchart TD
+    START(["5 candidate models:\nA, B, C, D, E"])
+    START --> Q1{"MODALITY:\nmust accept image + text\n(customers attach photos)"}
+    Q1 -->|"Model B is text-only -\nELIMINATED"| R1["Remaining: A, C, D, E"]
+    R1 --> Q2{"COST:\nmust stay within finance's\ninference budget"}
+    Q2 -->|"Model A is the most\nexpensive, frontier-tier -\nELIMINATED"| R2["Remaining: C, D, E"]
+    R2 --> Q3{"FINE-TUNING SUPPORT:\nmust support customization\non labeled transcripts"}
+    Q3 -->|"Model C is on-demand\nonly, no fine-tuning -\nELIMINATED"| R3["Remaining: D, E"]
+    R3 --> Q4{"CONTEXT WINDOW:\nmust fit a full ticket\nhistory in one prompt"}
+    Q4 -->|"Model D's 4K-token window\nis too small - ELIMINATED"| R4["Remaining: E"]
+    R4 --> Q5{"LATENCY (confirm):\nmust feel conversational\nin a live chat widget"}
+    Q5 -->|"Model E is low-latency -\nCONFIRMED"| SURVIVOR["MODEL E\nonly candidate that fails\nno stated constraint"]
+```
+
 Notice what this process avoids: picking Model A because it looks most
 capable on paper (it fails cost), or picking Model C because it looks
 cheapest and fastest (it fails fine-tuning support). A model that's

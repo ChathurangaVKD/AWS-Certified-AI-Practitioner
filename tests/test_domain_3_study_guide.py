@@ -648,6 +648,44 @@ class TestDomain3MultiConstraintWorkedExample(unittest.TestCase):
                     f"surviving candidates down to {remaining!r}",
                 )
 
+    def test_worked_example_has_a_mermaid_elimination_decision_tree(self):
+        # The worked example narrates a five-constraint elimination process
+        # in prose; it should also depict the same elimination sequence as
+        # a Mermaid flowchart so learners can trace it visually.
+        section = _section(
+            self.text,
+            r"\n## Worked example: selecting a foundation model under "
+            r"multiple competing constraints",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "worked example should include a Mermaid decision-tree diagram",
+        )
+        diagram = "\n".join(fences)
+        self.assertRegex(
+            diagram,
+            r"flowchart|graph",
+            "expected a Mermaid flowchart/graph, not another diagram type",
+        )
+        for constraint in [
+            "MODALITY",
+            "COST",
+            "LATENCY",
+            "FINE-TUNING SUPPORT",
+            "CONTEXT WINDOW",
+        ]:
+            with self.subTest(constraint=constraint):
+                self.assertIn(constraint, diagram)
+        for model in ["Model A", "Model B", "Model C", "Model D", "Model E"]:
+            with self.subTest(model=model):
+                self.assertIn(model, diagram)
+        self.assertIn(
+            "MODEL E",
+            diagram,
+            "diagram should land on Model E as the sole survivor",
+        )
+
     def test_worked_example_has_an_exam_tip(self):
         section = _section(
             self.text,

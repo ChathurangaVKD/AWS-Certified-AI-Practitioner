@@ -213,5 +213,70 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertIn("13", diagrams_section)
 
 
+class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously claimed Domain 4 has no
+    worked-example section and that only Domains 1-3 and 5 have one, and
+    that all five domains use a uniform 15-20 practice question count.
+    Domain 4 actually has a worked example ("## Worked example: auditing
+    and documenting a responsible e-commerce recommendation engine") and
+    Domain 5 actually has 26 practice questions, not 15-20. These tests
+    guard against the doc drifting back to those stale claims."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.domain_4_text = DOMAIN_FILES[4].read_text(encoding="utf-8")
+        cls.domain_5_text = DOMAIN_FILES[5].read_text(encoding="utf-8")
+
+    def test_domain_4_has_worked_example_section(self):
+        self.assertIn(
+            "## Worked example: auditing and documenting a responsible "
+            "e-commerce recommendation engine",
+            self.domain_4_text,
+        )
+
+    def test_structure_doc_does_not_claim_domain_4_lacks_a_worked_example(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("domain 4 has no worked-example section", lowered)
+
+    def test_structure_doc_documents_domain_4_worked_example(self):
+        idx = self.structure_text.find("Worked examples")
+        self.assertNotEqual(
+            idx, -1, "expected a 'Worked examples' entry in DOCUMENTATION_STRUCTURE.md"
+        )
+        window = self.structure_text[idx : idx + 500]
+        self.assertIn("Domains 1, 2, 3, 4, and 5", window)
+        self.assertIn("D4", window)
+
+    def test_domain_5_actual_practice_question_count(self):
+        questions_section_match = re.search(
+            r"\n## Practice questions(.*?)\n## Answer key",
+            self.domain_5_text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(questions_section_match)
+        numbers = re.findall(
+            r"(?m)^(\d+)\.\s", questions_section_match.group(1)
+        )
+        self.assertEqual(
+            len(numbers),
+            26,
+            "expected Domain 5 to currently have 26 practice questions",
+        )
+
+    def test_structure_doc_documents_domain_5s_26_practice_questions(self):
+        self.assertIn("26", self.structure_text)
+        idx = self.structure_text.find("15–20 per domain")
+        self.assertNotEqual(
+            idx,
+            -1,
+            "expected DOCUMENTATION_STRUCTURE.md to describe the 15-20 "
+            "per-domain practice question norm",
+        )
+        window = self.structure_text[idx : idx + 200]
+        self.assertIn("26", window)
+        self.assertIn("Domain 5", window)
+
+
 if __name__ == "__main__":
     unittest.main()

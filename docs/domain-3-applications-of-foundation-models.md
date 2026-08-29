@@ -13,6 +13,7 @@
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
+- [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
@@ -1144,6 +1145,101 @@ version.
 > for distractor scenarios that describe this exact setup but then ask
 > "how do you keep it current" with a fine-tuning-flavored answer choice —
 > re-syncing the S3 data source is always cheaper and faster.
+
+---
+
+## Worked example: selecting a foundation model under multiple competing constraints
+
+[Section 1](#1-design-considerations-for-foundation-model-applications) and
+[Domain 2, Section 7](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria)
+each introduce foundation model selection criteria (modality, cost,
+latency, context window, fine-tuning support) one at a time. Real exam
+scenarios rarely give you just one constraint — they stack four or five at
+once and expect you to eliminate candidate models constraint by constraint
+until exactly one survives. This walkthrough works through a scenario that
+way.
+
+**Scenario:** A media company is adding an AI-assisted support-triage
+feature to its live chat widget. The requirements gathered from three
+different stakeholders are:
+
+- **Modality:** customers frequently attach a photo of the damaged or
+  defective product, so the model must accept **image input alongside
+  text** (multimodal).
+- **Latency:** the feature sits inside a **live chat widget** — replies
+  must feel conversational, not delayed.
+- **Cost:** finance has capped inference spend, ruling out the account's
+  most expensive, largest frontier-tier model for this feature.
+- **Fine-tuning support:** the support team wants to later fine-tune the
+  model on thousands of labeled historical transcripts so it reliably
+  matches the brand's exact tone and escalation format — the model must be
+  a Bedrock model that supports customization, not an on-demand-only
+  model.
+- **Context window:** when an issue escalates, the assistant must
+  summarize the **entire ticket history** for that customer — sometimes
+  tens of thousands of tokens of past messages — in a single prompt,
+  without chunking it across multiple calls.
+
+Five foundation models are available in the team's Amazon Bedrock model
+catalog:
+
+| Model | Modality | Relative cost | Latency | Fine-tuning support | Context window |
+|---|---|---|---|---|---|
+| **Model A** | Text + image | High (largest, frontier-tier) | High | Yes | 200K tokens |
+| **Model B** | Text only | Low | Low | Yes | 8K tokens |
+| **Model C** | Text + image | Low | Low | No (on-demand only) | 32K tokens |
+| **Model D** | Text + image | Moderate | Moderate | Yes | 4K tokens |
+| **Model E** | Text + image | Moderate | Low | Yes | 128K tokens |
+
+Rather than trying to weigh all five constraints against all five models at
+once, work through them one constraint at a time, eliminating any model
+that fails it, the same way you should on the exam:
+
+1. **Modality eliminates Model B first.** The feature must accept
+   image attachments, and Model B is text-only. Modality is usually the
+   right constraint to apply first ([Section 1](#1-design-considerations-for-foundation-model-applications) calls this out explicitly),
+   because no amount of low cost or low latency makes a model that can't
+   even read the required input viable. Remaining: **A, C, D, E**.
+2. **Cost eliminates Model A next.** Model A satisfies every other
+   requirement — it's multimodal, fine-tunable, and has the largest
+   context window of the group — but it's the account's most expensive,
+   frontier-tier model, and finance has explicitly capped inference spend
+   for this feature. A model that's disqualified on cost stays
+   disqualified regardless of how well it scores elsewhere. Remaining:
+   **C, D, E**.
+3. **Fine-tuning support eliminates Model C.** Model C is cheap and
+   low-latency, but it's only available for on-demand inference and
+   doesn't support customization — and the support team has a firm
+   requirement to fine-tune on labeled transcripts later. Remaining:
+   **D, E**.
+4. **Context window eliminates Model D.** Both D and E are multimodal,
+   moderately priced, and fine-tunable. But D's 4K-token context window
+   can't hold a tens-of-thousands-of-token ticket history in one prompt,
+   while E's 128K-token window can. Remaining: **E**.
+5. **Confirm the survivor against every constraint.** Model E is
+   multimodal (✓ modality), low-latency (✓ latency for a live chat
+   widget), moderately priced and within budget (✓ cost), fine-tunable
+   (✓ customization), and has a 128K-token context window large enough for
+   a full escalation history (✓ context window). Because it is the only
+   model left standing after each constraint was applied, **Model E** is
+   the answer — not because it "wins" on any single dimension, but because
+   it's the only one that fails none of them.
+
+Notice what this process avoids: picking Model A because it looks most
+capable on paper (it fails cost), or picking Model C because it looks
+cheapest and fastest (it fails fine-tuning support). A model that's
+excellent on three out of four stated constraints is still the wrong
+answer if a scenario states all four as requirements — the exam is testing
+whether you'll eliminate on every stated constraint, not just the
+most obvious one.
+
+> **Exam tip:** When a scenario lists several requirements at once, don't
+> try to mentally rank or average them — **eliminate candidates one
+> constraint at a time**, in whatever order the constraints are easiest to
+> check (a hard modality or cost cutoff is usually fastest to apply
+> first), until only one candidate remains. A distractor answer choice in
+> this kind of question is almost always a model that satisfies most, but
+> not all, of the stated constraints.
 
 ---
 

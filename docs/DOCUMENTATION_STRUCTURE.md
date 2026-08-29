@@ -35,9 +35,9 @@ Five exam domains totaling 100% coverage:
 4. **Domain 4 — Guidelines for Responsible AI (~14%):** Responsible AI dimensions (fairness, explainability, privacy/security, transparency, veracity/robustness, governance, safety, controllability), bias in training data (sampling, measurement, label, historical, exclusion, aggregation bias), bias detection methods (DPL, disparate impact ratio), AWS tools (SageMaker Clarify, SageMaker Model Cards, AI Service Cards, Guardrails), legal/ethical considerations (IP rights, privacy, toxicity/bias, environmental impact), performance vs. interpretability trade-off.
 
 5. **Domain 5 — Security, Compliance, and Governance for AI Solutions (~14%):** Securing AI systems (IAM roles/policies, least privilege, execution roles, encryption at rest/transit, KMS/CMKs, PrivateLink/VPC endpoints, source citation, data lineage), AWS compliance (AWS Artifact, GDPR, HIPAA/BAA), governance services (CloudTrail, Config, Audit Manager), data governance (data lifecycle, data residency, data monitoring with Macie/GuardDuty), shared responsibility model (AWS "of the cloud," customer "in the cloud").
-**Cross-domain support materials:** Beyond the five domain guides, `docs/cross-domain-scenario-questions.md` (182 lines) supplies 12 scenario questions that each require knowledge from two or more domains (e.g., a Domain 3 customization choice that also satisfies a Domain 5 security requirement), tagged by difficulty (beginner/intermediate/advanced) like the domain guides' own questions. It sits alongside the repo's other cross-domain support material: `cross-domain-concept-map.md`, `case-study-ai-system-lifecycle.md`, `exam-preparation-strategy.md`, `full-length-mock-exam.md`, `aws-service-decision-guide.md`, and `master-glossary.md`.
+**Cross-domain support materials:** Beyond the five domain guides, `docs/cross-domain-scenario-questions.md` (182 lines) supplies 12 scenario questions that each require knowledge from two or more domains (e.g., a Domain 3 customization choice that also satisfies a Domain 5 security requirement), tagged by difficulty (beginner/intermediate/advanced) like the domain guides' own questions. It sits alongside the repo's other cross-domain support material: `cross-domain-concept-map.md` (traces how Domain 1 fundamentals flow into Domains 3–5), `case-study-ai-system-lifecycle.md` (a single company's AI system followed through all five domains), `exam-preparation-strategy.md`, `full-length-mock-exam.md` (65 questions, weighted across all five domains), `aws-service-decision-guide.md`, `master-glossary.md`, `GLOSSARY.md`, and `aws-service-index.md`.
 
-**Structural gaps:** No integrated concept map showing how Domain 1 fundamentals (e.g., model evaluation) flow into Domain 3 applications or Domain 4 responsible AI concerns. No exam preparation guide, no quick-reference cheat sheet, no mock exam.
+**Structural coverage:** `cross-domain-concept-map.md` shows how Domain 1 fundamentals (e.g., model evaluation) flow into Domain 3 applications and Domain 4 responsible AI concerns. `exam-preparation-strategy.md` provides an exam preparation guide with a day-by-day study plan, and `full-length-mock-exam.md` provides a full 65-question mock exam. `aws-service-decision-guide.md` serves as the quick-reference cheat sheet for choosing between similar AWS services.
 
 ## Content Health
 
@@ -51,27 +51,26 @@ Five exam domains totaling 100% coverage:
 
 **Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated "## Worked example" section stitching the domain's concepts into one end-to-end scenario: a loan-default predictor (D1), a generative AI support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing and documenting a responsible e-commerce recommendation engine (D4), and a HIPAA-regulated Bedrock application (D5).
 
-**Missing examples:** Each section has one "AWS example," but no deep end-to-end case study showing a single company's AI evolution through multiple domains. No code examples (appropriate for exam prep, but limits hands-on learning).
+**Missing examples:** Each section has one "AWS example," and `case-study-ai-system-lifecycle.md` now provides a deep end-to-end case study (Solstice Outdoors' AI shopping assistant) showing a single company's AI evolution through all five domains. No code examples (appropriate for exam prep, but limits hands-on learning).
 
-**Missing self-assessment:** No mock exam simulating real exam length/time. No answer analytics or topic-difficulty data.
+**Self-assessment:** `full-length-mock-exam.md` provides a 65-question mock exam simulating real exam length and time (90 minutes), weighted across all five domains, with a scoring guide for identifying weak domains from the results. No automated answer analytics or topic-difficulty data beyond that self-scoring guidance.
 
 **Test coverage:** All five domains have a corresponding `test_domain_N_study_guide.py` file with consistent structural checks. Domain 5's glossary heading is "Key terms glossary," matching the convention used by D1–D4.
 
 ## Navigation
 
-**Cross-linking:** README.md links to all five domains via a simple table (minimal prose). Within each domain, sections reference one another via text mentions (not hyperlinks). No breadcrumb or "previous/next" navigation. Each domain file is standalone.
+**Cross-linking:** README.md links to all five domains via a simple table (minimal prose). Each domain guide opens with a breadcrumb line (e.g. `[← Domain 1: Fundamentals of AI and ML] · **Domain 2 of 5** · [Domain 3: Applications of Foundation Models →]`) that links to the previous and next domain and signals its position in the five-domain sequence, and each domain file also carries its own `## Table of contents` section linking to every numbered section within it.
 
-**Discoverability gaps:**
-- No master glossary index or keyword-to-domain mapping (e.g., "where is 'prompt injection' explained?").
-- No AWS service index or hyperlinked service references across domains.
-- No table of contents within each 770+ line domain file.
-- No "if you're weak on Domain X, prioritize these sections" guidance.
+**Discoverability:**
+- `master-glossary.md` and `GLOSSARY.md` provide a master glossary index / keyword-to-domain mapping (e.g., "where is 'prompt injection' explained?"), each entry tagged with the domain(s) that define or use the term and linked to the relevant section.
+- `aws-service-index.md` provides a service-centric index — every AWS service referenced anywhere across the five guides, tagged by domain and linked to the discussing section — and `aws-service-decision-guide.md` complements it by answering "which service is the exam answer for this scenario?"
+- Each domain file has its own table of contents.
+- `exam-preparation-strategy.md` includes day-by-day guidance to take the mock exam, identify your two weakest domains, and prioritize re-review of those domains before the exam.
 
-**Navigation issues:**
-- Linear reading required (D1 → D5) but not signaled; learners may jump to D3 and miss D1 prerequisites.
-- No progress tracker or completion checkpoint across domains.
-- No exam strategy or time-management guidance.
-- Difficult to jump between related topics in different domains (e.g., "model evaluation in D1" vs. "FM evaluation in D3").
+**Navigation:**
+- Linear reading order (D1 → D5) is signaled by each domain's breadcrumb (e.g. "Domain 3 of 5"), reducing the risk of learners jumping to D3 and missing D1 prerequisites.
+- `exam-preparation-strategy.md` provides a full exam strategy and time-management guidance (Section 1: exam format and time management, plus a day-by-day study plan).
+- `cross-domain-concept-map.md` and `master-glossary.md` make it straightforward to jump between related topics in different domains (e.g., "model evaluation in D1" vs. "FM evaluation in D3").
 
 ---
 

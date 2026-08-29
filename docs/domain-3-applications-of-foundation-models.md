@@ -2,6 +2,8 @@
 
 [← Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md) · **Domain 3 of 5** · [Domain 4: Guidelines for Responsible AI →](domain-4-guidelines-for-responsible-ai.md)
 
+**Last verified:** 2026-08-29
+
 ## Table of contents
 
 - [1. Design considerations for foundation model applications](#1-design-considerations-for-foundation-model-applications)

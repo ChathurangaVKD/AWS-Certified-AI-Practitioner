@@ -29,6 +29,7 @@
 - [Worked example: securing and governing a HIPAA-regulated Bedrock application across its lifecycle](#worked-example-securing-and-governing-a-hipaa-regulated-bedrock-application-across-its-lifecycle)
 - [Comparison table: governance and monitoring services](#comparison-table-governance-and-monitoring-services)
 - [Comparison table: governance and compliance regulations at a glance](#comparison-table-governance-and-compliance-regulations-at-a-glance)
+- [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
 - [Answer key](#answer-key)
@@ -930,6 +931,89 @@ must never leave EU AWS Regions.
 | NIST AI Risk Management Framework (AI RMF) | Voluntary US framework | AI risk management process | Govern, Map, Measure, Manage functions |
 | ISO/IEC 42001 | Voluntary international standard | AI management system (AIMS) processes | Certifiable AI governance program, analogous to ISO 27001 |
 | Algorithmic Accountability Act | Proposed US legislation | Automated decision systems | Would require algorithmic impact assessments |
+
+---
+
+## Quick-reference cheat sheet
+
+A condensed, one-page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam.
+Domain 5 carries about **~14%** of scored questions, and its questions
+hinge on a small set of easily-confused service pairs, so this page is
+the fastest way to lock those distinctions in the morning of the exam.
+It restates material covered in full in [Section 1](#1-securing-ai-systems)
+and [Section 3](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance),
+plus the [Comparison table: governance and monitoring services](#comparison-table-governance-and-monitoring-services) —
+it is not a substitute for reading those in full, only a fast recall
+aid once you already have.
+
+**CloudTrail vs. Config vs. Audit Manager (Section 3) — the one-line distinction:**
+
+| Service | Answers the question... | Example |
+|---|---|---|
+| AWS CloudTrail | "Who did what, and when?" | Every `bedrock:InvokeModel` or `sagemaker:CreateEndpoint` call, by whom, when |
+| AWS Config | "What is my resource's configuration, and is it compliant?" | Flags a SageMaker endpoint or S3 bucket that became unencrypted/public, and when the drift happened |
+| AWS Audit Manager | "Can I produce audit-ready evidence for a compliance framework?" | Assembles evidence (built on CloudTrail + Config) mapped to GDPR, HIPAA, or ISO 27001 |
+
+**IAM least privilege (Section 1) — key facts:**
+
+- Scope IAM policies to specific **actions on specific resource ARNs** —
+  e.g., `bedrock:InvokeModel` on one model ARN, never `bedrock:*` on `*`.
+- An AWS service acting on your behalf (e.g., a SageMaker training job)
+  should assume an IAM **execution role** — never embed long-term
+  access keys.
+- **Resource-based policies** (an S3 bucket policy, a Bedrock model
+  resource policy) restrict access independently of the caller's
+  identity policy.
+- **IAM Access Analyzer** continuously checks resource-based policies
+  and flags anything shared with a principal outside your account or
+  organization — it validates that least privilege actually holds.
+
+**KMS/CMK encryption (Section 1) — at rest vs. in transit:**
+
+| Facet | Key fact |
+|---|---|
+| At rest | AWS KMS; AWS-managed keys (e.g. `aws/s3`) for convenience, or **customer managed keys (CMKs)** when you need to control the key policy, rotation, and auditability |
+| In transit | TLS/HTTPS by default for Bedrock and SageMaker API calls — no extra configuration needed |
+| CMK usage | Every CMK `Encrypt`/`Decrypt`/`GenerateDataKey` call is logged to **CloudTrail** — KMS manages the *keys*, CloudTrail logs their *usage* |
+| SageMaker | Encrypts notebook storage, training/inference storage volumes, and inter-node traffic during distributed training |
+| Bedrock | Encrypts data at rest and in transit by default; supports customer-managed KMS keys for custom models and fine-tuning data |
+
+**PrivateLink / VPC endpoints (Section 1) — key facts:**
+
+- An **interface VPC endpoint** (powered by AWS PrivateLink) keeps
+  traffic to Bedrock or SageMaker entirely within the AWS network — no
+  internet gateway, NAT gateway, or public IP required.
+- Amazon S3 (and DynamoDB) instead use a distinct **gateway VPC
+  endpoint** type — don't default to "interface" for every service.
+- "Must never traverse the public internet" or "isolated/air-gapped
+  VPC" → a **VPC endpoint (PrivateLink)**, not a NAT gateway (still
+  routes through the public internet) and not a VPN (connects
+  networks, not a VPC to an AWS service).
+
+**Common exam traps:**
+
+- "Which service shows a bucket became public **three days ago**?" →
+  **AWS Config** (configuration history), not CloudTrail — CloudTrail
+  would only show the API call that changed it, not whether it stayed
+  non-compliant afterward.
+- Don't conflate **AWS KMS** (manages and stores encryption keys) with
+  **AWS CloudTrail** (logs when those keys are used) — a frequent
+  distractor pairing.
+- A scenario needing S3 access privately from a VPC wants a **gateway
+  VPC endpoint**; a scenario needing Bedrock or SageMaker access
+  privately wants an **interface VPC endpoint** — the two endpoint
+  types aren't interchangeable on the exam.
+- "An AWS service needs to call another AWS service on your behalf" →
+  attach an **IAM role** (execution role) scoped with least privilege —
+  not embedded access keys, and not a broad `*` wildcard action/resource.
+- **AWS Audit Manager** doesn't independently collect raw evidence from
+  scratch — it's built on top of **CloudTrail and Config** data, mapped
+  to a compliance framework. Don't pick Audit Manager for a question
+  that's really just asking for an API activity log or a configuration
+  check.
+
+---
 
 ## Key terms glossary
 

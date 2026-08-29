@@ -256,6 +256,20 @@ this section uses **bias** exclusively in the fairness sense unless a
 sentence explicitly says "statistical bias" or references the Domain 1
 bias-variance trade-off.
 
+Keep this distinction in mind as this section introduces
+**Amazon SageMaker Clarify** (covered in full in
+[AWS tools for responsible AI](#3-aws-tools-for-responsible-ai) below):
+every metric Clarify computes — class imbalance and difference in
+proportions of labels (DPL) pre-training, disparate impact and
+accuracy/recall difference post-training — measures **fairness bias**
+across groups of people. Clarify plays no role in diagnosing statistical
+bias or variance; a model Clarify flags as unfair can simultaneously have
+low statistical bias and low variance (a good numerical fit), and a model
+with high statistical bias (underfitting) can still pass every one of
+Clarify's fairness checks. If an exam question pairs "SageMaker Clarify"
+with "bias," read it as the fairness sense from this section, not the
+Domain 1 bias-variance trade-off.
+
 **Bias** in ML is a systematic skew in a model's predictions caused by
 problems in the training data or the training process — as distinct from
 **variance**, which is a model's sensitivity to small fluctuations in the

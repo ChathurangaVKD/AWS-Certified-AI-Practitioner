@@ -437,14 +437,20 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
                 self.assertIn(f"Domain {domain_number} has {expected_word}", diagrams_section)
 
     def test_stated_mini_quiz_total_matches_actual(self):
+        # Counts every "Mini-quiz" heading regardless of level: Domain 3's
+        # Section 1 checkpoint predates the "#### Mini-quiz: Test your
+        # understanding of ..." convention adopted for the other seven and
+        # is still a level-3 "### Mini-quiz: check your understanding
+        # (Section 1)" heading, so a count restricted to "####" headings
+        # undercounts Domain 3 by one.
         actual_total = 0
         for path in DOMAIN_FILES.values():
             text = path.read_text(encoding="utf-8")
-            actual_total += len(re.findall(r"^#### Mini-quiz:", text, re.M))
+            actual_total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
         self.assertEqual(
             actual_total,
-            31,
-            "sanity check: expected 31 total subsection mini-quizzes "
+            32,
+            "sanity check: expected 32 total subsection mini-quizzes "
             "across the five domain guides",
         )
         self.assertIn(
@@ -453,7 +459,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "DOCUMENTATION_STRUCTURE.md does not state the actual total "
             "subsection mini-quiz count",
         )
-        self.assertNotIn("32 in total", self.structure_text)
+        self.assertNotIn("31 in total", self.structure_text)
 
     def test_stated_service_index_letter_sections_match_actual(self):
         service_index_path = DOCS_DIR / "aws-service-index.md"

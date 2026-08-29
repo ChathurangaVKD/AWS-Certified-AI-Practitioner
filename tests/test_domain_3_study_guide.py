@@ -563,6 +563,116 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
         )
 
 
+class TestDomain3MultiConstraintWorkedExample(unittest.TestCase):
+    """Domain 2 Section 7 and Domain 3 Section 1 each introduce foundation
+    model selection criteria one at a time, but neither showed a worked
+    example reasoning through several competing constraints (modality,
+    cost, latency, fine-tuning support, context window) simultaneously --
+    the pattern real scenario questions test. These tests guard the
+    dedicated worked example added to close that gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.heading = (
+            "## Worked example: selecting a foundation model under "
+            "multiple competing constraints"
+        )
+
+    def test_worked_example_section_exists(self):
+        self.assertIn(self.heading, self.text)
+
+    def test_worked_example_is_linked_from_the_table_of_contents(self):
+        toc = _section(self.text, r"\n## Table of contents")
+        self.assertIn(
+            "[Worked example: selecting a foundation model under multiple "
+            "competing constraints]"
+            "(#worked-example-selecting-a-foundation-model-under-multiple-"
+            "competing-constraints)",
+            toc,
+        )
+
+    def test_worked_example_covers_at_least_four_competing_constraints(self):
+        section = _section(
+            self.text,
+            r"\n## Worked example: selecting a foundation model under "
+            r"multiple competing constraints",
+        )
+        for constraint in [
+            "Modality",
+            "Latency",
+            "Cost",
+            "Fine-tuning support",
+            "Context window",
+        ]:
+            with self.subTest(constraint=constraint):
+                self.assertIn(constraint, section)
+
+    def test_worked_example_has_a_candidate_model_comparison_table(self):
+        section = _section(
+            self.text,
+            r"\n## Worked example: selecting a foundation model under "
+            r"multiple competing constraints",
+        )
+        # A markdown table needs a header separator row like |---|---|.
+        self.assertRegex(section, r"\|\s*-{2,}\s*\|")
+        for model in ["Model A", "Model B", "Model C", "Model D", "Model E"]:
+            with self.subTest(model=model):
+                self.assertIn(model, section)
+
+    def test_worked_example_eliminates_candidates_down_to_one_survivor(self):
+        # The walkthrough should narrow the five candidates step by step
+        # until exactly one remains, not just describe the criteria in the
+        # abstract.
+        section = _section(
+            self.text,
+            r"\n## Worked example: selecting a foundation model under "
+            r"multiple competing constraints",
+        )
+        self.assertRegex(
+            section,
+            r"eliminat\w*",
+            "worked example should describe eliminating candidate models",
+        )
+        for remaining in [
+            "**A, C, D, E**",
+            "**C, D, E**",
+            "**D, E**",
+            "**E**",
+        ]:
+            with self.subTest(remaining=remaining):
+                self.assertIn(
+                    remaining,
+                    section,
+                    "expected the elimination steps to narrow the "
+                    f"surviving candidates down to {remaining!r}",
+                )
+
+    def test_worked_example_has_an_exam_tip(self):
+        section = _section(
+            self.text,
+            r"\n## Worked example: selecting a foundation model under "
+            r"multiple competing constraints",
+        )
+        self.assertIn("Exam tip:", section)
+
+    def test_worked_example_cross_references_related_sections(self):
+        section = _section(
+            self.text,
+            r"\n## Worked example: selecting a foundation model under "
+            r"multiple competing constraints",
+        )
+        self.assertIn(
+            "#1-design-considerations-for-foundation-model-applications",
+            section,
+        )
+        self.assertIn(
+            "domain-2-fundamentals-of-generative-ai.md#7-foundation-model-"
+            "selection-criteria",
+            section,
+        )
+
+
 class TestDomain3PracticeQuestions(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

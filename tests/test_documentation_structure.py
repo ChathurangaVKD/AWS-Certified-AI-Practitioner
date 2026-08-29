@@ -278,5 +278,102 @@ class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
         self.assertIn("Domain 5", window)
 
 
+class TestDocumentationStructureCrossDomainMaterialsAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously claimed cross-domain materials
+    (concept map, mock exam, case study, master glossary/AWS service index,
+    breadcrumb navigation) were missing or gapped. All of these now exist
+    and are well-integrated; these tests guard against the doc drifting
+    back to describing that stale, earlier snapshot."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def test_all_cross_domain_support_files_exist_on_disk(self):
+        # cross-domain-scenario-questions.md, cross-domain-concept-map.md,
+        # case-study-ai-system-lifecycle.md, full-length-mock-exam.md,
+        # master-glossary.md, and aws-service-index.md all ship today.
+        for filename in (
+            "cross-domain-concept-map.md",
+            "full-length-mock-exam.md",
+            "case-study-ai-system-lifecycle.md",
+            "cross-domain-scenario-questions.md",
+            "master-glossary.md",
+            "GLOSSARY.md",
+            "aws-service-index.md",
+        ):
+            with self.subTest(filename=filename):
+                self.assertTrue(
+                    (DOCS_DIR / filename).is_file(),
+                    f"expected {filename} to exist in docs/",
+                )
+
+    def test_does_not_claim_no_integrated_concept_map(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("no integrated concept map", lowered)
+
+    def test_does_not_claim_no_mock_exam(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("no mock exam", lowered)
+        self.assertNotIn("no exam preparation guide", lowered)
+
+    def test_does_not_claim_no_case_study(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn(
+            "no deep end-to-end case study showing a single company",
+            lowered,
+        )
+
+    def test_does_not_claim_no_breadcrumb_navigation(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn('no breadcrumb or "previous/next" navigation', lowered)
+        self.assertNotIn("no breadcrumb or", lowered)
+
+    def test_does_not_claim_no_master_glossary_or_service_index(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("no master glossary index", lowered)
+        self.assertNotIn("no aws service index", lowered)
+
+    def test_does_not_claim_no_table_of_contents_in_domain_files(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("no table of contents within each", lowered)
+
+    def test_does_not_claim_no_exam_strategy_guidance(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("no exam strategy or time-management guidance", lowered)
+
+    def test_mentions_mock_exam_with_question_count(self):
+        self.assertIn("full-length-mock-exam.md", self.structure_text)
+        idx = self.structure_text.find("full-length-mock-exam.md")
+        window = self.structure_text[idx : idx + 300]
+        self.assertIn("65", window)
+
+    def test_mentions_case_study_file(self):
+        self.assertIn("case-study-ai-system-lifecycle.md", self.structure_text)
+
+    def test_mentions_master_glossary_and_service_index(self):
+        self.assertIn("master-glossary.md", self.structure_text)
+        self.assertIn("aws-service-index.md", self.structure_text)
+
+    def test_navigation_section_documents_breadcrumbs(self):
+        nav_idx = self.structure_text.find("## Navigation")
+        self.assertNotEqual(nav_idx, -1)
+        nav_section = self.structure_text[nav_idx : nav_idx + 1500]
+        self.assertIn("breadcrumb", nav_section.lower())
+
+    def test_all_five_domain_guides_actually_have_breadcrumb_navigation(self):
+        # Guards the underlying fact the doc now asserts: every domain
+        # guide opens with a prev/next breadcrumb line.
+        for domain_number, path in DOMAIN_FILES.items():
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(domain=domain_number):
+                self.assertRegex(
+                    text,
+                    re.compile(r"^\[← .*Domain \d of 5", re.MULTILINE),
+                    f"domain {domain_number} guide ({path.name}) is missing "
+                    "its breadcrumb navigation line",
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

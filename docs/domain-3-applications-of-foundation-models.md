@@ -92,10 +92,10 @@ weigh against each other, since improving one often costs you on another:
   Claude models on Bedrock support multimodal (text + image) input.
   Choosing a model that doesn't support your required modality is a
   common exam distractor.
-### Mini-quiz: check your understanding (Section 1)
+#### Mini-quiz: Test your understanding of FM application design considerations
 
-Quick formative check before moving on — try each question, then expand
-the answer.
+Quick self-check before moving on — try to answer before reading the
+explanation.
 
 1. A team is choosing between two foundation models for a voice assistant
    that must feel conversational and responsive. Which design
@@ -105,16 +105,12 @@ the answer.
    C. Fine-tuning support
    D. Prompt template versioning
 
-   <details><summary>Show answer</summary>
-
-   **A — Latency.** A "conversational, responsive" voice assistant is a
+   **Answer: A** — A "conversational, responsive" voice assistant is a
    latency-sensitive use case, so the team should favor a smaller,
    faster model or provisioned throughput. Modality (B) only matters if
    the required input/output type is in question, which it isn't here;
    fine-tuning support (C) and prompt template versioning (D) are
    customization/tooling concerns, not what drives a real-time feel.
-
-   </details>
 
 2. Which pricing model is generally most cost-effective for a workload
    with unpredictable, spiky traffic?
@@ -123,15 +119,11 @@ the answer.
    C. Continued pre-training
    D. Reserved model units regardless of volume
 
-   <details><summary>Show answer</summary>
-
-   **B — On-demand.** On-demand pricing (pay per token, no commitment)
+   **Answer: B** — On-demand pricing (pay per token, no commitment)
    fits variable or unpredictable traffic best. Provisioned throughput
    (A, D) is cost-effective only for high, steady, predictable volume;
    continued pre-training (C) is a customization technique, not a
    pricing model.
-
-   </details>
 
 3. On Amazon Bedrock, what lets an application swap foundation models
    from different providers without re-architecting the application?
@@ -140,17 +132,13 @@ the answer.
    C. Fine-tuning every candidate model first
    D. Amazon Bedrock Agents
 
-   <details><summary>Show answer</summary>
-
-   **B — Amazon Bedrock's single, unified API across providers.**
-   Bedrock exposes FMs from Amazon, Anthropic, AI21 Labs, Cohere, Meta,
-   Mistral AI, and Stability AI behind one API, so switching models is a
-   config change rather than a rewrite. A contradicts how Bedrock works;
-   fine-tuning (C) is an optional customization step, not a prerequisite
-   for swapping models; Agents (D) orchestrate multi-step tasks, they
-   don't provide model-provider abstraction.
-
-   </details>
+   **Answer: B** — Bedrock exposes FMs from Amazon, Anthropic, AI21
+   Labs, Cohere, Meta, Mistral AI, and Stability AI behind one API, so
+   switching models is a config change rather than a rewrite. A
+   contradicts how Bedrock works; fine-tuning (C) is an optional
+   customization step, not a prerequisite for swapping models; Agents
+   (D) orchestrate multi-step tasks, they don't provide model-provider
+   abstraction.
 
 ---
 

@@ -1137,6 +1137,34 @@ infrastructure directly, a different team at the same company uses
 > EC2 GPU instances when a scenario emphasizes minimizing the cost of
 > training or serving large models at scale.
 
+**Decision tree: from the Domain 1 inference-type question to the Domain 3
+Bedrock throughput decision.** [The cross-domain concept map](cross-domain-concept-map.md#domain-1--domain-3-applications-of-foundation-models)
+notes that Bedrock's on-demand vs. provisioned-throughput choice ([Section
+5](#5-amazon-bedrock-features)) is the generative-AI-specific version of the
+Domain 1 inference-type decision (real-time, batch, asynchronous, or
+serverless inference) -- both trade latency and cost against traffic
+predictability. The flowchart below turns that cross-domain link into a
+walkable sequence of questions:
+
+```mermaid
+flowchart TD
+    START(["D1 QUESTION:\nWhat inference type does\nthe workload need?\n(real-time, batch,\nasynchronous, or serverless)"])
+    START -->|"Real-time or\nasynchronous\n(a user or system waits\non a live response)"| RT["Needs low-latency,\nsynchronous inference"]
+    START -->|"Batch\n(large volume scored\noffline, no one waiting\non an individual request)"| BATCH["Needs high-throughput,\nasynchronous inference"]
+    RT --> Q1{"D3 QUESTION:\nIs Bedrock request volume\nhigh, steady, and predictable?"}
+    BATCH --> Q1
+    Q1 -->|"NO -\nvariable, spiky,\nor low volume"| OD["BEDROCK ON-DEMAND\nTHROUGHPUT\npay per token, no\ncommitment - fits\nunpredictable traffic"]
+    Q1 -->|"YES -\nhigh, steady,\npredictable volume"| Q2{"Do you also need a custom\n(fine-tuned) model, or a\nlatency SLA guaranteed\nregardless of other tenants'\ntraffic?"}
+    Q2 -->|"YES"| PT["BEDROCK PROVISIONED\nTHROUGHPUT\ndedicated capacity (model\nunits), 1- or 6-month\ncommitment - required for\nmost custom models"]
+    Q2 -->|"NO -\nbase model, no hard\nlatency guarantee needed"| OD2["BEDROCK ON-DEMAND\nTHROUGHPUT\nstill the cheaper choice\nunless volume justifies a\ncapacity commitment"]
+```
+
+The three deciding factors are the same ones Domain 1 already trades off for
+real-time vs. batch inference, just re-applied to Bedrock's pricing model:
+**traffic predictability** (steady/high volume vs. variable/spiky),
+**latency needs** (a guaranteed, consistent SLA vs. best-effort), and
+**cost model** (a flat-rate capacity commitment vs. pay-per-token).
+
 #### Mini-quiz: Test your understanding of AWS infrastructure for generative AI workloads
 
 Quick self-check before moving on — try to answer before reading the

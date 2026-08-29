@@ -240,6 +240,85 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
             "Bedrock's model catalog changes frequently",
         )
 
+    def test_bedrock_model_reference_records_last_verification_date(self):
+        # The staleness warning alone doesn't tell a future reviewer
+        # whether the table has ever actually been checked against AWS's
+        # docs, or when. This asserts the section records a concrete
+        # "last verified" checkpoint with a real ISO date, not just the
+        # general warning that the catalog changes often.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        self.assertRegex(
+            section_text,
+            re.compile(r"last verified\W{0,6}\d{4}-\d{2}-\d{2}", re.IGNORECASE),
+            "expected the Bedrock model reference section to record a "
+            "'Last verified: YYYY-MM-DD' checkpoint against the official "
+            "Bedrock model catalog",
+        )
+
+    def test_bedrock_model_reference_retires_titan_text_generation_row(self):
+        # As of the most recent verification pass, Titan Text
+        # (Lite/Express/Premier) has been retired from the Bedrock catalog
+        # in favor of Nova. The row should stay (for exam-history context)
+        # but must be clearly marked retired rather than presented as a
+        # currently available choice.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        titan_text_row = next(
+            (
+                line
+                for line in section_text.splitlines()
+                if line.strip().startswith("| **Amazon Titan Text**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            titan_text_row,
+            "expected an Amazon Titan Text row in the Bedrock model table",
+        )
+        self.assertRegex(
+            titan_text_row,
+            re.compile(r"retired", re.IGNORECASE),
+            "Titan Text (Lite/Express/Premier) is retired in the current "
+            "Bedrock catalog and should be labeled as such rather than "
+            "listed as a currently available family",
+        )
+
+    def test_bedrock_model_reference_jurassic_family_removed(self):
+        # AI21's Jurassic line is no longer offered in Bedrock -- Jamba is
+        # AI21's only current family there. Verify it isn't still listed
+        # as an available option in the table.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        table_match = re.search(
+            r"^\| Model family \|.*?\n\|---.*?\n(?P<rows>(?:\|.*\n)+)",
+            section_text,
+            re.M,
+        )
+        self.assertIsNotNone(table_match, "could not locate the model table rows")
+        family_column_text = table_match.group("rows")
+        self.assertNotIn(
+            "Jamba/Jurassic",
+            family_column_text,
+            "Jurassic should no longer be listed alongside Jamba as a "
+            "currently available AI21 family name",
+        )
+
 
 CONSOLIDATED_MATRIX_HEADING_RE = re.compile(
     r"^##\s+5\.\s+Consolidated service matrix.*?(?=^## |\Z)", re.M | re.S

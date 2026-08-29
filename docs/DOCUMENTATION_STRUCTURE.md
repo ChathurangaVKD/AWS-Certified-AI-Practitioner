@@ -10,9 +10,9 @@ The repository organizes material by **exam domain**, not by document type. Each
 
 **Entry-point material:** `README.md` is the single index — a brief overview with a table linking the five domains, their exam weights (~20%, ~24%, ~28%, ~14%, ~14%), and file paths. It is purely navigational with no content.
 
-**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 1,118–1,441 lines each (Domain 1: 1,118 lines; Domain 2: 1,344 lines; Domain 3: 1,441 lines; Domain 4: 1,142 lines; Domain 5: 1,164 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
+**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 1,118–1,589 lines each (Domain 1: 1,118 lines; Domain 2: 1,380 lines; Domain 3: 1,589 lines; Domain 4: 1,232 lines; Domain 5: 1,164 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions (26 for Domain 5), and full answer key with justifications.
 
-**Self-assessment material:** embedded in each domain file: practice questions (15–20 per domain, ~85 total) with detailed answer explanations ruling out distractors. Domain 5 is currently the only domain with multiple-response ("select TWO") questions — Q3 and Q14; every other domain uses single-answer multiple choice.
+**Self-assessment material:** embedded in each domain file: practice questions (15–20 per domain for Domains 1–4, 26 for Domain 5; 106 total) with detailed answer explanations ruling out distractors. Domain 5 is currently the only domain with multiple-response ("select TWO") questions — Q3 and Q14; every other domain uses single-answer multiple choice.
 
 **Validation tests:** `tests/test_domain_N_study_guide.py` for all five domains — structural checks (required topic headings, AWS services, glossary size, question counts, answer coverage).
 
@@ -49,7 +49,7 @@ Five exam domains totaling 100% coverage:
 
 **Diagrams:** All 13 flowchart-style diagrams across the guide are Mermaid flowcharts, not ASCII art: Domain 1 has one (the 8-stage ML lifecycle loop, Section 2); Domain 2 has three (including the transformer/self-attention pipeline, Section 1); Domain 3 has three (including the FM-customization decision tree, Section 4); Domain 4 has three (including the bias detection/mitigation workflow, Section 2); Domain 5 has three (covering the KMS key lifecycle and data-security/encryption architecture, Section 1). Two domains also carry separate plain-text ASCII notations for readers without Mermaid rendering, which are not among the 13 flowcharts: Domain 1's AI ⊃ ML ⊃ DL ⊃ GenAI nesting notation (Section 1) and Domain 5's shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section 5).
 
-**Worked examples:** Domains 1, 2, 3, and 5 each close with a dedicated "## Worked example" section stitching the domain's concepts into one end-to-end scenario: a loan-default predictor (D1), a generative AI support assistant (D2), a RAG-based policy-lookup assistant (D3), and a HIPAA-regulated Bedrock application (D5). Domain 4 has no worked-example section.
+**Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated "## Worked example" section stitching the domain's concepts into one end-to-end scenario: a loan-default predictor (D1), a generative AI support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing and documenting a responsible e-commerce recommendation engine (D4), and a HIPAA-regulated Bedrock application (D5).
 
 **Missing examples:** Each section has one "AWS example," but no deep end-to-end case study showing a single company's AI evolution through multiple domains. No code examples (appropriate for exam prep, but limits hands-on learning).
 
@@ -77,7 +77,7 @@ Five exam domains totaling 100% coverage:
 
 ## Additional findings
 
-**Test coverage:** `test_domain_5_study_guide.py` exists alongside the other four domain test files. Domains 1–5 validate: required topic headings, AWS service mentions, evaluation term coverage (D1 only), glossary size (≥15 entries), practice question count (15–20), answer explanations (≥120 chars each, bolded answer letter), sequential numbering.
+**Test coverage:** `test_domain_5_study_guide.py` exists alongside the other four domain test files. Domains 1–5 validate: required topic headings, AWS service mentions, evaluation term coverage (D1 only), glossary size (≥15 entries), practice question count (15–20 for Domains 1–4; 15–26 for Domain 5), answer explanations (≥120 chars each, bolded answer letter), sequential numbering.
 
 **Consistency:** All domains follow the same template (overview → sections → table → glossary → questions → answers) and all five are validated structurally by their respective test files. Domain 5's glossary heading is "Key terms glossary," matching the convention used by D1–D4.
 

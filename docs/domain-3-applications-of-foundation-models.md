@@ -1263,6 +1263,86 @@ most obvious one.
 
 ---
 
+## Quick-reference cheat sheet
+
+A condensed, one-page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam.
+Domain 3 carries the largest single share of scored questions
+(**~28%**), so this is the single most valuable page-and-a-half in this
+guide to re-read the morning of the exam. It restates material covered
+in full in [Section 1](#1-design-considerations-for-foundation-model-applications), [Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases), [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering), and [Section 5](#5-amazon-bedrock-features) —
+it is not a substitute for reading those sections, only a fast recall
+aid once you already have.
+
+**FM selection criteria (Section 1) — weigh all six against each other:**
+
+| Factor | Ask yourself |
+|---|---|
+| Task fit | Does the model handle this task type (summarization, code, classification, chat) well? |
+| Context window | Is the input (plus retrieved/RAG context) small enough to fit? |
+| Modality | Does the model accept/produce the needed input/output types (text, image, audio, video)? |
+| Accuracy | Does it perform well enough on *this* use case, not just on generic benchmarks? |
+| Cost | Per-token (on-demand) or reserved-capacity (provisioned throughput) — bigger models cost more per token |
+| Latency | Smaller models respond faster; streaming improves *perceived* latency only |
+| Customization | Can it be fine-tuned or continued-pre-trained if prompt engineering/RAG isn't enough? |
+
+**RAG architecture (Section 3) — six steps, in order:**
+
+Ingestion (S3) → Chunking → Embedding (e.g., Amazon Titan Text
+Embeddings) → Indexing/storage (vector database) → Retrieval (similarity
+search on the embedded query) → Augmentation and generation (retrieved
+chunks inserted into the prompt, FM generates a grounded answer). Amazon
+Bedrock Knowledge Bases automates all six steps for you via the
+`Retrieve` / `RetrieveAndGenerate` APIs. **RAG never changes model
+weights** — it changes what goes into the prompt.
+
+**Customization spectrum (Section 4) — one-line-per-approach recall:**
+
+- **Prompt engineering** → no data, no training, cheapest/fastest → style/format tweaks.
+- **RAG** → external data, no training → current/frequently changing/proprietary facts, less hallucination.
+- **Fine-tuning** → labeled data, retrains weights → a specific narrow task/style done reliably.
+- **Continued pre-training** → unlabeled data, retrains weights, priciest/slowest → broad domain vocabulary/fluency.
+
+**Bedrock feature set (Section 5) — match the keyword to the feature:**
+
+| If the scenario says... | The feature is... |
+|---|---|
+| "explicitly enable a model before calling it" | Model access |
+| "take actions / call APIs / multi-step tasks" | Agents (action groups) |
+| "block harmful, off-topic, or PII content" | Guardrails |
+| "answer from our own documents" | Knowledge Bases |
+| "compare model quality objectively/at scale" | Automatic model evaluation |
+| "judge subjective quality like tone" | Human evaluation |
+| "guaranteed throughput, high/steady/predictable volume, custom model" | Provisioned throughput |
+| "unpredictable/low/spiky volume, pay per use" | On-demand |
+
+**Key definitions to have cold:** embedding (numeric vector capturing
+semantic meaning) · chunking (splitting documents before embedding) ·
+vector database (optimized for similarity/k-NN search) · hallucination
+(a model confidently generating incorrect information) · provisioned
+throughput (reserved capacity, in *model units*, for a commitment
+period) · action group (the APIs a Bedrock Agent can invoke, typically
+via Lambda).
+
+**Common exam traps:**
+
+- "Frequently changing data" or "reduce hallucination from our own
+  documents" → **RAG**, not fine-tuning. Fine-tuning is slow/expensive to
+  update and doesn't ground answers in facts outside its training data.
+- A **fine-tuned or continued-pre-trained** model almost always needs
+  **provisioned throughput** to serve reliably — don't pick on-demand for
+  a custom model under steady high load.
+- **Guardrails** filters content; it does **not** retrieve knowledge or
+  invoke APIs — don't confuse it with Knowledge Bases or Agents.
+- **Streaming** improves *perceived* latency (tokens appear sooner); it
+  does not reduce total generation time or cost.
+- Continued pre-training uses **unlabeled** text for broad domain
+  fluency; fine-tuning uses **labeled** input/output pairs for a narrow
+  task — the labeled/unlabeled distinction is the fastest way to tell
+  the two apart under exam pressure.
+
+---
+
 ## Key terms glossary
 
 > Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.

@@ -414,5 +414,84 @@ class TestDomain4PracticeQuestions(unittest.TestCase):
         )
 
 
+class TestDomain4WorkedExample(unittest.TestCase):
+    """Domains 1, 2, 3, and 5 each end with a dedicated
+    '## Worked example: ...' section stitching every concept in the domain
+    into one continuous scenario. Domain 4 previously had only inline
+    'AWS example:' callouts and no such section; these tests guard the
+    worked example added to close that gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+        cls.toc = _section(
+            cls.text, r"\n## Table of contents", r"\n## Domain overview"
+        )
+        cls.section = _section(cls.text, r"\n## Worked example: .+")
+
+    def test_worked_example_heading_exists(self):
+        self.assertRegex(self.text, r"\n## Worked example: .+")
+
+    def test_worked_example_sits_between_section_5_and_comparison_table(self):
+        section_5_idx = self.text.index(
+            "## 5. Balancing model performance and interpretability"
+        )
+        worked_example_idx = self.text.index("## Worked example: ")
+        comparison_idx = self.text.index(
+            "## Comparison table: AWS responsible AI tools at a glance"
+        )
+        self.assertLess(section_5_idx, worked_example_idx)
+        self.assertLess(worked_example_idx, comparison_idx)
+
+    def test_worked_example_has_scenario_and_exam_tip(self):
+        self.assertIn("**Scenario:**", self.section)
+        self.assertIn("**Exam tip:**", self.section)
+
+    def test_worked_example_covers_fairness_explainability_transparency_and_governance(
+        self,
+    ):
+        for term in [
+            "bias",
+            "disparate impact",
+            "Amazon SageMaker Clarify",
+            "SHAP",
+            "Model Card",
+            "SageMaker Model Monitor",
+            "Amazon A2I",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.section)
+
+    def test_worked_example_has_at_least_six_numbered_steps(self):
+        steps = re.findall(r"^\d+\.\s", self.section, re.M)
+        self.assertGreaterEqual(
+            len(steps),
+            6,
+            "worked example should walk through at least six numbered "
+            "steps",
+        )
+
+    def test_worked_example_word_count_within_expected_range(self):
+        words = re.findall(r"\w+", self.section)
+        self.assertGreaterEqual(
+            len(words),
+            500,
+            "worked example should be at least 500 words",
+        )
+        self.assertLessEqual(
+            len(words),
+            800,
+            "worked example should be at most 800 words",
+        )
+
+    def test_table_of_contents_links_to_worked_example(self):
+        self.assertIn("Worked example", self.toc)
+        self.assertIn(
+            "#worked-example-auditing-and-documenting-a-responsible-"
+            "e-commerce-recommendation-engine",
+            self.toc,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

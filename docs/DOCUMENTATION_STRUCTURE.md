@@ -10,7 +10,7 @@ The repository organizes material by **exam domain**, not by document type. Each
 
 **Entry-point material:** `README.md` is the single index — a brief overview with a table linking the five domains, their exam weights (~20%, ~24%, ~28%, ~14%, ~14%), and file paths. It is purely navigational with no content.
 
-**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 1,042–1,441 lines each (Domain 1: 1,118 lines; Domain 2: 1,344 lines; Domain 3: 1,441 lines; Domain 4: 1,142 lines; Domain 5: 1,042 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
+**Topic subdirectories (by domain):** `docs/domain-N-fundamentals-of-*.md` — five markdown files (one per domain), currently 1,042–1,441 lines each (Domain 1: 1,118 lines; Domain 2: 1,344 lines; Domain 3: 1,441 lines; Domain 4: 1,232 lines; Domain 5: 1,042 lines) and following an identical template: domain overview, 5–8 major numbered sections (## 1, ## 2, …), a comparison/reference table, a key terms glossary (15–50 entries), 15–20 practice questions, and full answer key with justifications.
 
 **Self-assessment material:** embedded in each domain file: practice questions (15–20 per domain, ~85 total) with detailed answer explanations ruling out distractors.
 

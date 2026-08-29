@@ -59,6 +59,28 @@ REQUIRED_PROMPTING_TECHNIQUES = [
     "Prompt injection",
 ]
 
+# The eight prompt engineering techniques the comparison matrix must
+# cover, one row each.
+REQUIRED_PROMPT_MATRIX_TECHNIQUES = [
+    "Zero-shot prompting",
+    "Few-shot prompting",
+    "Chain-of-thought (CoT) prompting",
+    "Prompt templates",
+    "Negative prompting",
+    "Prompt chaining / Prompt Flows",
+    "System prompts / role prompting",
+    "Prompt injection",
+]
+
+# The comparison dimensions the matrix must score every technique on.
+REQUIRED_PROMPT_MATRIX_DIMENSIONS = [
+    "Cost",
+    "Complexity",
+    "Control over output",
+    "Best use-case fit",
+    "Exam keywords",
+]
+
 # Amazon Bedrock features the task explicitly requires.
 REQUIRED_BEDROCK_FEATURES = [
     "model access",
@@ -440,6 +462,54 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
             8,
             "expected at least 8 fenced code blocks (prompt + output per "
             "technique) in the worked examples",
+        )
+
+    def test_prompt_engineering_section_has_a_technique_comparison_matrix(self):
+        # Regression guard: Section 2 covers eight prompt engineering
+        # techniques across four worked examples but previously had no
+        # single table comparing all eight at a glance. A markdown
+        # comparison matrix should map every technique against cost,
+        # complexity, control over output, use-case fit, and exam
+        # keywords, following the same pattern as the customization
+        # trade-offs table under "## Comparison table: customization
+        # approaches for foundation model applications".
+        section = _section(
+            self.text, r"\n## 2\. Prompt engineering techniques"
+        )
+        self.assertIn(
+            "Comparison table: prompt engineering techniques at a glance",
+            section,
+            "prompt engineering section should include a dedicated "
+            "comparison-matrix subsection",
+        )
+        matrix = section[
+            section.index(
+                "Comparison table: prompt engineering techniques at a glance"
+            ):
+        ]
+        # A markdown table needs a header separator row like |---|---|.
+        self.assertRegex(matrix, r"\|\s*-{2,}\s*\|")
+        for technique in REQUIRED_PROMPT_MATRIX_TECHNIQUES:
+            with self.subTest(technique=technique):
+                self.assertIn(
+                    technique,
+                    matrix,
+                    f"comparison matrix missing technique row: {technique!r}",
+                )
+        for dimension in REQUIRED_PROMPT_MATRIX_DIMENSIONS:
+            with self.subTest(dimension=dimension):
+                self.assertIn(
+                    dimension,
+                    matrix,
+                    f"comparison matrix missing dimension column: {dimension!r}",
+                )
+
+    def test_prompt_engineering_matrix_is_linked_from_the_table_of_contents(self):
+        toc = _section(self.text, r"\n## Table of contents")
+        self.assertIn(
+            "[Comparison table: prompt engineering techniques at a glance]"
+            "(#comparison-table-prompt-engineering-techniques-at-a-glance)",
+            toc,
         )
 
     def test_rag_section_covers_knowledge_bases_and_pipeline(self):

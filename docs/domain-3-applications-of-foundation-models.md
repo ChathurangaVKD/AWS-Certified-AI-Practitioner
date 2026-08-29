@@ -507,6 +507,62 @@ explanation.
    the matching chunks without generating an answer, and the other two
    options aren't Knowledge Bases retrieval/generation calls.
 
+### Vector store decision guide: OpenSearch vs. Aurora + pgvector vs. Amazon Kendra
+
+The RAG pipeline above names three AWS options for the "indexing/storage"
+step — **Amazon OpenSearch**, **Amazon Aurora with pgvector**, and
+**Amazon Kendra** — and the exam expects you to pick the right one from a
+scenario description, not just recognize the names. They aren't
+interchangeable: OpenSearch and Aurora/pgvector are vector databases *you*
+architect and query, while Kendra is a fully managed enterprise search
+service that hides the embeddings/indexing layer entirely. The table below
+compares them on the dimensions the exam tests most.
+
+| Dimension | Amazon OpenSearch (Service / Serverless) | Amazon Aurora (PostgreSQL) + pgvector | Amazon Kendra |
+|---|---|---|---|
+| **Hybrid search support** | Native — a built-in **vector engine** does k-NN vector search alongside traditional keyword/full-text search in the same query. Strongest hybrid-search story of the three. | Possible (combine a SQL `WHERE` filter or Postgres full-text search with a `pgvector` similarity query) but you assemble it yourself — no single built-in "hybrid" query type. | Built in and automatic — Kendra's ranking model blends semantic and keyword relevance internally; you don't configure it. |
+| **Embedding model options** | Bring your own — you pick an embeddings model (e.g., **Amazon Titan Text Embeddings**, Cohere Embed) and generate vectors yourself, then index them. Full control over which model, and you can change models later. | Bring your own, same as OpenSearch — embeddings are computed outside the database and stored as a `vector` column type via SQL. | None to choose — Kendra generates and manages relevance signals internally; there's no user-facing "pick an embeddings model" step. |
+| **Management overhead** | Moderate (OpenSearch Service — you size and manage a cluster/domain) to low (**OpenSearch Serverless** — AWS autoscales capacity, still your index to design). | Low if the team already operates Aurora/RDS PostgreSQL — it's normal database administration plus enabling and tuning the `pgvector` extension and its index type. | Lowest — fully managed; no cluster, index, or embeddings pipeline to build, size, or patch. Point it at a data source connector and it handles the rest. |
+| **Scalability model** | Horizontal — add nodes/shards (OpenSearch Service) or let capacity auto-scale with load (OpenSearch Serverless); built for large, high-throughput vector + text workloads. | Scales with the underlying Aurora database — storage auto-scales, compute scales vertically or via read replicas; vector search performance is bounded by the relational engine and pgvector index. | Scales automatically and transparently with document volume and number of connectors; AWS manages capacity behind the scenes. |
+| **Exam keywords that signal this choice** | "hybrid search," "keyword *and* semantic search," "large-scale vector search," "default vector store for Bedrock Knowledge Bases." | "we already run Aurora/PostgreSQL," "query embeddings with SQL," "avoid standing up a separate search service." | "enterprise search," "automatic relevance ranking," "no infrastructure to manage," "connectors to S3/SharePoint/Salesforce," "natural-language search without building a RAG pipeline." |
+
+**Worked scenario — Amazon OpenSearch:** A retail company needs its
+product-search RAG assistant to combine exact filtering (SKU codes, brand
+names) with semantic similarity over product descriptions, at a scale of
+tens of millions of documents and unpredictable traffic spikes during
+sales events. The requirement for *both* keyword and vector search in one
+query, at large scale, with autoscaling, points to **Amazon OpenSearch
+Serverless** with its vector engine.
+
+**Worked scenario — Aurora with pgvector:** A fintech startup already
+stores all of its account and transaction metadata in **Amazon Aurora
+PostgreSQL** and wants to add semantic search over its compliance
+documents so support staff can ask natural-language questions. The team
+knows SQL well and doesn't want to operate a second, dedicated search
+service just for this one feature. Because the data already lives in
+Aurora and the team wants to query embeddings with familiar SQL rather
+than adopt new infrastructure, **Aurora PostgreSQL with the pgvector
+extension** is the fit.
+
+**Worked scenario — Amazon Kendra:** A company wants employees to search
+natural-language questions across documents scattered over S3, SharePoint,
+and Salesforce, with automatic relevance ranking, and explicitly does not
+want to build or manage an embeddings pipeline or a vector index — "a
+company wants automatic relevance ranking without managing
+infrastructure." That combination — multiple document-repository
+connectors, managed ranking, zero infrastructure — is the signature of
+**Amazon Kendra**, not a vector database the team would have to architect
+itself.
+
+> **Exam tip:** If a scenario says the team **chooses an embeddings model**
+> and **manages a vector index**, it's OpenSearch or Aurora/pgvector — and
+> between those two, "we already run PostgreSQL/Aurora" points to
+> **pgvector**, while "we need hybrid keyword + vector search at scale"
+> points to **OpenSearch**. If the scenario emphasizes **no embeddings
+> pipeline to build** and **automatic relevance ranking** over existing
+> enterprise repositories, it's **Amazon Kendra**. [Section 6](#6-vector-databases-and-embeddings-for-search-and-retrieval)
+> goes deeper on vector databases and embeddings in general.
+
 ---
 
 ## 4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering

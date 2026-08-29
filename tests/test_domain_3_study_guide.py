@@ -709,6 +709,47 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
             with self.subTest(service=service):
                 self.assertIn(service, section)
 
+    def test_vector_database_section_has_a_selection_decision_tree_diagram(self):
+        # Regression guard: Section 6 previously explained the vector
+        # database options (OpenSearch Serverless, Aurora/RDS + pgvector,
+        # Kendra) with prose and bullets only, unlike other decision points
+        # in this domain (e.g. the Section 4 customization decision tree),
+        # which pair the narrative with a Mermaid flowchart.
+        section = _section(
+            self.text,
+            r"\n## 6\. Vector databases and embeddings for search and "
+            r"retrieval",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "vector database section should include a Mermaid "
+            "selection decision-tree flowchart",
+        )
+        diagram = "\n".join(fences)
+        self.assertRegex(
+            diagram,
+            r"flowchart\s+\w+|graph\s+\w+",
+            "decision tree should use Mermaid flowchart/graph syntax",
+        )
+        self.assertIn(
+            "?", diagram, "diagram should pose branching decision questions"
+        )
+        # The three deciding factors the task requires must drive the
+        # diagram's branches.
+        for cue in [
+            r"RDS.*Aurora",
+            r"VECTOR-ONLY",
+            r"[Hh]ybrid",
+            r"throughput",
+        ]:
+            with self.subTest(cue=cue):
+                self.assertRegex(diagram, cue)
+        # It must terminate in a recommended service for each branch.
+        for outcome in ["KENDRA", "PGVECTOR", "OPENSEARCH"]:
+            with self.subTest(outcome=outcome):
+                self.assertIn(outcome, diagram)
+
     def test_evaluation_section_covers_required_approaches(self):
         section = _section(
             self.text, r"\n## 7\. Evaluating foundation model performance"

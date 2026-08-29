@@ -730,6 +730,54 @@ Other prompt-engineering concepts tested on the exam:
     contain.
   - **Stop sequences** — strings that, when generated, tell the model to
     stop generating further output.
+
+**How temperature, top-p, and top-k interact:** these three parameters are
+not independent dials — they apply in sequence to the same underlying
+probability distribution, so changing one changes what the others actually
+do. The exam expects you to reason about the *combination*, not just each
+parameter in isolation:
+
+```mermaid
+%% Conceptual order of operations for a single next-token prediction
+graph TD
+    LOGITS["Raw next-token probability\ndistribution (from the model)"] --> TEMP{"1. Apply temperature\n(reshapes the distribution)"}
+    TEMP -->|"low temp (e.g. 0.2)\nsharpens toward\nthe top few tokens"| SHARP["Sharper distribution\n(probability mass concentrated\non a few tokens)"]
+    TEMP -->|"high temp (e.g. 1.0+)\nflattens toward\nmore uniform"| FLAT["Flatter distribution\n(many tokens have\nreal probability mass)"]
+
+    SHARP --> POOL{"2. Apply top-k / top-p\n(prunes the candidate pool)"}
+    FLAT --> POOL
+
+    POOL -->|"small k / low p"| NARROW["Narrow candidate pool"]
+    POOL -->|"large k / high p"| WIDE["Wide candidate pool"]
+
+    NARROW --> SAMPLE["3. Sample the next token"]
+    WIDE --> SAMPLE
+```
+
+Because temperature is applied *first*, it determines how much probability
+mass is even available for top-p/top-k to work with. This produces some
+non-obvious combinations that the exam likes to test:
+
+| Temperature | Top-p | Top-k | Qualitative effect | Why |
+|---|---|---|---|---|
+| Low (0.1–0.3) | Low (0.3–0.5) | Small (10–20) | **Deterministic, repeatable, narrowly focused** | Sharp distribution + narrow pool both push toward the same few high-probability tokens — good for classification, extraction, structured/JSON output. |
+| Low (0.1–0.3) | High (0.9–1.0) | Large (200+) | **Still mostly deterministic**, despite the "wide" pool settings | Low temperature already concentrates almost all probability mass on a handful of tokens, so widening top-p/top-k barely changes what gets sampled — the extra candidates have near-zero probability anyway. |
+| High (0.8–1.0) | High (0.9–1.0) | Large (200+) | **Highly creative, varied, less predictable** | Flat distribution *and* a wide candidate pool mean many tokens have a genuine chance of being picked. |
+| High (0.8–1.0) | Low (0.2–0.3) | Small (5–10) | **Unexpectedly narrow / repetitive despite "high creativity" settings** — the classic interaction trap | Raising temperature alone flattens the distribution, but a small top-k/top-p still throws away the long tail immediately, so the model is forced back onto a handful of tokens — the creativity that temperature was supposed to add never survives the pruning step. This is why setting **top-k without adjusting temperature** (or vice versa) can produce surprising behavior. |
+| Moderate (0.4–0.6) | Moderate (0.6–0.8) | Moderate (40–50) | **Balanced** — some variation without going off the rails | A middle setting on all three avoids both extremes; a common starting point for general-purpose chat. |
+
+> **Exam scenario:** A chatbot needs to sound engaging and creative, but
+> must never produce harmful or unsafe content. Simply raising temperature
+> (or top-p/top-k) to get more creativity also raises the chance that an
+> unsafe or off-policy response slips through — inference parameters only
+> control *how tokens are sampled*, they cannot enforce a content policy.
+> The correct approach combines a **low-to-moderate temperature** (enough
+> creativity without maximizing randomness) with **Guardrails for Amazon
+> Bedrock** as a separate safety layer that filters harmful content
+> regardless of sampling settings. "Set temperature to 0" is wrong because
+> it removes the creativity the use case requires; "raise top-k" alone is
+> wrong because it does nothing to address harm — only guardrails do.
+
 - **Prompt injection** — a security risk where malicious input tries to
   override or manipulate the original instructions in a prompt (mitigated
   with input validation and **Guardrails for Amazon Bedrock**); covered

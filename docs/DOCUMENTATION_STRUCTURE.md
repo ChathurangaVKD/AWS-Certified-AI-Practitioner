@@ -84,15 +84,15 @@ support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing
 and documenting a responsible e-commerce recommendation engine (D4), and a
 HIPAA-regulated Bedrock application (D5).
 
-**Diagrams:** All 13 flowchart-style diagrams across the guide are Mermaid flowchart
+**Diagrams:** All 15 flowchart-style diagrams across the guide are Mermaid flowchart
 diagrams, not ASCII art: Domain 1 has one (the 8-stage ML lifecycle loop,
-Section 2); Domain 2 has three (including the transformer/self-attention
-pipeline, Section 1); Domain 3 has three (including the FM-customization
+Section 2); Domain 2 has four (including the transformer/self-attention
+pipeline, Section 1); Domain 3 has four (including the FM-customization
 decision tree, Section 4); Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has three (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1).
 Two domains also carry separate plain-text ASCII notations for readers
-without Mermaid rendering, which are not among the 13 flowcharts: Domain
+without Mermaid rendering, which are not among the 15 flowcharts: Domain
 1's AI ⊃ ML ⊃ DL ⊃ GenAI nesting notation (Section 1) and Domain 5's
 shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section
 5).
@@ -103,7 +103,8 @@ evaluation term coverage (D1), glossary size (≥15 entries), practice
 question count (15–20 per domain, **26 for Domain 5**), answer
 explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
-sheet, its subsection mini quizzes, and its footer breadcrumb navigation.
+sheet, its subsection mini quizzes (31 in total: 7 each for Domains 1–3
+and 5 each for Domains 4–5), and its footer breadcrumb navigation.
 
 ## Cross-domain support documents
 
@@ -112,8 +113,10 @@ of duplicating material inside them:
 
 - **`aws-service-index.md`** — a service-centric index: every AWS service
   referenced anywhere across the five guides, alphabetical, tagged by
-  domain(s) `[D#, ...]` and linked to the discussing section. Answers
-  "where does this series mention Amazon SageMaker?"
+  domain(s) `[D#, ...]` and linked to the discussing section. Currently
+  spans letter sections A, C, G, I, M, P, and S (only the letters that
+  have at least one referenced service). Answers "where does this series
+  mention Amazon SageMaker?"
 - **`aws-service-decision-guide.md`** — a consolidated quick reference
   sitting on top of each domain's own comparison table: a decision flow
   for SageMaker vs. Bedrock vs. purpose-built AI services, plus

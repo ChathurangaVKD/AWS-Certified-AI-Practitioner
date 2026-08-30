@@ -323,6 +323,54 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
             with self.subTest(outcome=outcome):
                 self.assertIn(outcome, diagram)
 
+    def test_bias_variance_section_has_a_trade_off_mermaid_diagram(self):
+        # Section 7 explained the bias-variance trade-off in prose only,
+        # with no visual anchor for the underfitting/optimal/overfitting
+        # spectrum that recurs across later domains. This asserts a real
+        # Mermaid flowchart exists and actually depicts the spectrum:
+        # complexity increasing left-to-right, with underfitting, an
+        # optimal sweet spot, and overfitting as distinct stops, plus a
+        # reference to error being minimized at the sweet spot.
+        section = _section(
+            self.text,
+            r"\n## 7\. Overfitting, underfitting, and the bias",
+        )
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "bias-variance section should include a ```mermaid fenced "
+            "flowchart showing the underfitting/optimal/overfitting "
+            "spectrum",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        self.assertRegex(diagram, r"flowchart\s+(TD|TB|LR|RL|BT)")
+        self.assertRegex(diagram, r"-->")
+
+        # The x-axis (complexity) and y-axis (error) framing from the task
+        # must be explicit in the diagram, not just implied.
+        self.assertRegex(diagram, r"(?i)model complexity")
+        self.assertRegex(diagram, r"(?i)error")
+
+        # The three stops on the spectrum must all be present, in order.
+        for stop in ["UNDERFITTING", "OPTIMAL FIT", "OVERFITTING"]:
+            with self.subTest(stop=stop):
+                self.assertIn(stop, diagram)
+        self.assertLess(
+            diagram.index("UNDERFITTING"),
+            diagram.index("OPTIMAL FIT"),
+            "underfitting should appear before the optimal sweet spot",
+        )
+        self.assertLess(
+            diagram.index("OPTIMAL FIT"),
+            diagram.index("OVERFITTING"),
+            "the optimal sweet spot should appear before overfitting",
+        )
+
+        # Bias/variance should be tied to the correct ends of the spectrum.
+        self.assertRegex(diagram, r"(?i)high bias")
+        self.assertRegex(diagram, r"(?i)high variance")
+
     def test_has_key_terms_glossary_with_substantial_coverage(self):
         glossary = _section(self.text, r"\n## Key terms glossary")
         entries = re.findall(r"^- \*\*.+?\*\*", glossary, re.M)

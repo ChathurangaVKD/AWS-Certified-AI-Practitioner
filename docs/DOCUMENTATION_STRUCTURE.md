@@ -21,57 +21,7 @@ AWS-Certified-AI-Practitioner/
 │   ├── domain-3-applications-of-foundation-models.md
 │   ├── domain-4-guidelines-for-responsible-ai.md
 │   ├── domain-5-security-compliance-governance.md
-│   │
-│   │   Nine cross-domain support documents ────────────────────────
-│   ├── aws-service-index.md                    every AWS service, indexed across all 5 guides
-│   ├── aws-service-decision-guide.md           "which service is the exam answer here?"
-│   ├── cross-domain-concept-map.md             how D1 concepts flow into D3/D4/D5
-│   ├── cross-domain-scenario-questions.md      18 questions spanning 2+ domains
-│   ├── case-study-ai-system-lifecycle.md       one company, one system, all 5 domains
-│   ├── exam-preparation-strategy.md            reading order, schedules, mock-exam plan
-│   ├── full-length-mock-exam.md                65-question, 90-minute mock exam
-│   ├── master-glossary.md                      alphabetical term index, `[D#, ...]` tags
-│   └── GLOSSARY.md                             the same term set as backlinked prose
-│
-└── tests/
-    ├── test_domain_N_study_guide.py            structural checks, one file per domain
-    ├── test_domain_N_quick_reference_cheat_sheet.py
-    ├── test_domain_N_subsection_mini_quizzes.py
-    ├── test_domain_footer_navigation.py        breadcrumb link checks, all 5 domains
-    ├── test_cross_reference_links.py           every internal link/anchor resolves
-    ├── test_documentation_structure.py         this file stays in sync with reality
-    └── ...                                      one test file per cross-domain doc above
-```
-
-## Domain guides: per-domain coverage breakdown
-
-`docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,235–1,939 lines each:
-
-- Domain 1: 1,235 lines
-- Domain 2: 1,507 lines
-- Domain 3: 1,939 lines
-- Domain 4: 1,362 lines
-- Domain 5: 1,418 lines
-
-All five follow the same template:
-
-- a breadcrumb navigation line (previous domain · position in sequence ·
-  next domain) and a `## Table of contents` linking every numbered section
-  within the file;
-- a domain overview, then 5–8 major numbered sections (`## 1`, `## 2`, …),
-  each with an "AWS example" and an "Exam tip";
-- a condensed **"## Quick-reference cheat sheet"** section — every domain
-  now has one (Domain 3 got it first; Domains 1, 2, 4, and 5 each later
-  added their own), sitting between the comparison table and the glossary
-  for last-minute review;
-- domain-specific supplementary sections beyond the shared template, e.g.
-  Domain 2's inference-parameter interaction visual guide and per-domain
-  "mini quiz" call-outs embedded under individual subsections;
-- a comparison/reference table (e.g., "AWS managed AI/ML services at a
-  glance" in D1, "AWS generative AI services" in D2);
-- a `## Key terms glossary` (15–50 entries; Domain 5's heading matches the
-  same "Key terms glossary" convention used by D1–D4);
+domain, currently 1,235–1,976 lines each:
 - a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **26 for Domain 5**,
   including exactly 2 multiple-response ["select TWO"] questions) and a

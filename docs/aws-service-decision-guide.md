@@ -151,7 +151,7 @@ exam-testable.
 > [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
 > before relying on this table outside exam prep.
 >
-> **Last verified:** 2026-08-29, against the official Bedrock model
+> **Last verified:** 2026-08-30, against the official Bedrock model
 > catalog above. Changes found and applied in that pass: **Titan Text**
 > (Lite/Express/Premier) has been retired from the catalog — Amazon's
 > current text-generation line is **Nova**; Titan's embeddings and image

@@ -1151,6 +1151,102 @@ explanation.
    subjective criteria like tone and creativity that automatic metrics
    can't capture.
 
+### Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?
+
+A benchmark score by itself doesn't say whether an improvement is real or
+just noise. The exam expects you to connect "automatic metrics" and "human
+evaluation" (above) to the statistical rigor needed to actually trust a
+comparison: **sample size**, **confidence intervals**, and **inter-rater
+agreement**.
+
+**Scenario:** A team fine-tunes a candidate summarization model and
+evaluates it against the current production model on a held-out set of
+prompts, scoring each output with ROUGE-L. The candidate's *mean* ROUGE-L
+is 2.0 points higher than the baseline's. Is that a real improvement, or
+could it be sampling noise?
+
+**Step 1: Compare paired differences, not two separate averages.**
+Because both models scored the *same* prompts, compute one difference per
+prompt (candidate score − baseline score) instead of just subtracting the
+two overall averages. This paired comparison cancels out prompt-to-prompt
+difficulty and isolates the model effect.
+
+**Step 2: Build a confidence interval for the mean difference.**
+
+| Quantity | Symbol | Value |
+| --- | --- | --- |
+| Held-out prompts evaluated | n | 200 |
+| Mean per-prompt score difference | d̄ | 2.1 |
+| Standard deviation of the differences | σ | 9.4 |
+| Standard error of the mean difference | SE = σ/√n | 9.4/√200 ≈ 0.66 |
+| 95% confidence interval | d̄ ± 1.96·SE | 2.1 ± 1.30 → **[0.80, 3.40]** |
+
+Because the 95% CI does not cross zero, the 2-point gain is statistically
+significant at the conventional 95% confidence level — the team can be
+reasonably confident the candidate model is genuinely better on this
+metric, not merely luckier on this particular sample.
+
+**Step 3: See what happens with too few examples.**
+Run the identical calculation with only n = 20 held-out prompts (same
+σ = 9.4): SE = 9.4/√20 ≈ 2.10, so the 95% CI becomes
+2.1 ± 4.12 → **[−2.02, 6.22]**. The interval now spans zero — with too
+small a sample, the same 2-point improvement is statistically
+indistinguishable from noise. **Sample size, not just the point estimate,
+determines whether an improvement can be trusted.**
+
+**Step 4: Size the evaluation set before you run it, not after.**
+A standard formula for the minimum sample size needed to reliably detect a
+mean difference δ, given standard deviation σ, significance level α, and
+power (1 − β):
+
+n ≈ (z_α/2 + z_β)² · σ² / δ²
+
+For a 95%-confidence, 80%-power test (z_0.025 = 1.96, z_0.20 = 0.84) aiming
+to reliably detect a δ = 2-point improvement with σ = 9.4:
+
+n ≈ (1.96 + 0.84)² × 9.4² / 2² = 7.84 × 88.36 / 4 ≈ **174 held-out
+prompts**
+
+That's why the n = 200 evaluation set in Step 2 was adequate and the n = 20
+one in Step 3 wasn't: 200 clears the minimum sample size needed to detect a
+2-point effect reliably, while 20 falls well short of it.
+
+**Step 5: Apply the same logic to human evaluation — one rater isn't a
+consensus.**
+A single human rater's score is itself a noisy estimate, subject to that
+rater's fatigue, bias, and interpretation of the rubric. Two practices turn
+human evaluation from anecdote into evidence:
+
+- **Use multiple raters per output** — typically **3–5** — and aggregate
+  with a majority vote (categorical judgments) or a median/mean score
+  (numeric ratings), rather than shipping a decision based on a single
+  rater's opinion.
+- **Measure inter-rater agreement** before trusting the aggregate score:
+  **Cohen's kappa** for two raters, or **Krippendorff's alpha** for three
+  or more. Agreement below roughly 0.4 means the rubric or raters are
+  inconsistent and the resulting "consensus" isn't reliable evidence of
+  anything; 0.6+ is generally treated as "substantial" agreement worth
+  trusting.
+
+**AWS example:** Using **Amazon Bedrock automatic model evaluation**, a
+team measures a 2-point ROUGE-L improvement over 200 held-out prompts and
+computes a 95% confidence interval of [0.80, 3.40], confirming the gain is
+real rather than noise. They then submit the same 200 outputs to a
+**Bedrock human evaluation** job with **3 human raters** per output.
+Because Bedrock reports the automatic metric and the raw human ratings but
+not statistical significance or inter-rater agreement, the team computes
+the confidence interval and Krippendorff's alpha themselves before
+declaring the candidate model ready to replace the baseline in production.
+
+> **Exam tip:** Evaluation questions can go beyond "which evaluation type
+> fits" to "is this result trustworthy." Remember three levers: (1) a
+> **larger evaluation set narrows the confidence interval**, making small
+> true improvements detectable; (2) **a confidence interval that spans
+> zero means "not statistically significant,"** no matter how good the
+> point estimate looks; (3) **human evaluation needs multiple raters plus
+> a measured agreement score** (Cohen's kappa / Krippendorff's alpha) — a
+> single rater's opinion is not a reliable evaluation result.
+
 ---
 
 ## 8. AWS infrastructure for generative AI workloads

@@ -46,9 +46,9 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,281–2,201 lines each:
+domain, currently 1,319–2,201 lines each:
 
-- Domain 1: 1,281 lines
+- Domain 1: 1,319 lines
 - Domain 2: 1,507 lines
 - Domain 3: 2,201 lines
 - Domain 4: 1,362 lines
@@ -86,10 +86,9 @@ HIPAA-regulated Bedrock application (D5).
 
 **Diagrams:** All 23 flowchart-style diagrams across the guide are Mermaid flowchart
 diagrams, not ASCII art: Domain 1 has six (the 8-stage ML lifecycle loop,
-Section 2, the learning-type selection decision tree, Section 3, the
-use-case-to-AWS-service decision tree, Section 4, the purpose-built-service-
-vs-SageMaker decision tree, Section 5, the
-model-evaluation metric-selection decision tree, Section 6, and the
+Section 2; decision trees for learning-type selection (Section 3),
+use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
+(Section 5), and metric selection (Section 6); and the
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has seven (including the FM-customization

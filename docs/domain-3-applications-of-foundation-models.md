@@ -19,6 +19,7 @@
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+- [Worked example: estimating a context-window token budget](#worked-example-estimating-a-context-window-token-budget)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -129,7 +130,11 @@ against cost and latency instead of considered in isolation.
 > smaller or cheaper tiers. The
 > [multi-constraint worked example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
 > walks through applying context window alongside cost, latency, and
-> modality together.
+> modality together, and the
+> [token-budget worked example](#worked-example-estimating-a-context-window-token-budget)
+> later in this domain shows how to actually estimate whether a scenario's
+> requirements fit inside a candidate window before you compare cost and
+> latency at all.
 
 #### Mini-quiz: Test your understanding of FM application design considerations
 
@@ -1676,6 +1681,116 @@ most obvious one.
 > first), until only one candidate remains. A distractor answer choice in
 > this kind of question is almost always a model that satisfies most, but
 > not all, of the stated constraints.
+
+---
+
+## Worked example: estimating a context-window token budget
+
+[Section 1](#1-design-considerations-for-foundation-model-applications) lists
+context window as a selection criterion and shows that it doesn't move
+independently of cost and latency, and the worked example above treats it as
+one pass/fail constraint among several. Neither one shows *how* to arrive at
+the number that makes context window pass or fail in the first place. Exam
+scenarios that describe a document length, a conversation length, or a
+number of retrieved passages expect you to actually estimate a token count
+and compare it against a candidate model's window — not just reason
+qualitatively about "long" vs. "short."
+
+**Scenario:** A retailer is building a customer-service chatbot. Two
+requirements stack on the same request: the bot must carry on a **multi-turn
+conversation** with the customer, and it must answer policy questions by
+**retrieving passages (RAG) from a 100-page internal returns-and-warranty
+policy document** ([Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)).
+The team is deciding between an **8K-context model** and **Claude, with a
+200K-token context window** ([Section 1's context-window table](#context-window-vs-cost-and-latency-comparing-model-tiers)).
+
+**Step 1: Estimate tokens per page of the source document.**
+Using the common rule of thumb that a token is roughly ¾ of an English word
+(about 100 tokens per 75 words), a typical single-spaced policy-document
+page of ~500 words works out to **~650 tokens per page**. Applied to the
+full 100-page policy document, that's a ~65,000-token corpus — but that
+total is only relevant to how the document gets *chunked and embedded*
+([Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases),
+[Section 6](#6-vector-databases-and-embeddings-for-search-and-retrieval)).
+RAG never sends the whole document to the model; it sends only the chunks
+retrieved for a given question. With chunk size set to roughly one page
+equivalent (~650 tokens — large enough to avoid the mid-sentence splitting
+covered in the [RAG troubleshooting worked example's](#worked-example-troubleshooting-a-failing-rag-system)
+first failure mode), each retrieved chunk costs ~650 tokens against the
+request's context window.
+
+**Step 2: Break a single request into its token-budget components.**
+What actually counts against the context window is everything sent *in one
+request*: the system prompt, the conversation history so far, the retrieved
+chunks for the current question, the current question itself, and headroom
+reserved for the model's reply.
+
+| Request component | Typical turn (turn 8, 4 retrieved chunks) | Escalated turn (turn 20, 8 retrieved chunks) |
+|---|---|---|
+| System / instruction prompt | 300 | 300 |
+| Retrieved RAG context (chunks × ~650 tokens) | 4 × 650 = 2,600 | 8 × 650 = 5,200 |
+| Conversation history so far (turn pairs × ~160 tokens) | 8 × 160 = 1,280 | 20 × 160 = 3,200 |
+| Current user question | 40 | 40 |
+| Reserved output budget for the reply | 300 | 300 |
+| **Total tokens needed** | **4,520** | **9,040** |
+
+The "typical turn" models a customer roughly midway through a support
+conversation, asking a question answered by 4 retrieved chunks. The
+"escalated turn" models a longer conversation that has dragged on for 20
+turn pairs and a question broad enough that retrieval pulls in 8 chunks
+spanning multiple policy sections — the same kind of worst case a scenario
+question expects you to check, not just the easy first turn.
+
+**Step 3: Compare the estimated budget against each candidate model's
+context window.**
+
+| Model | Context window | Typical turn (4,520 tokens) | Escalated turn (9,040 tokens) |
+|---|---|---|---|
+| 8K-context model (e.g., the Llama 8B tier from [Section 1's table](#context-window-vs-cost-and-latency-comparing-model-tiers)) | 8,000 tokens | Fits — but only ~3,480 tokens (~43%) of headroom left | **Doesn't fit — 1,040 tokens over budget** |
+| Claude (200K context) | 200,000 tokens | Fits — ~2% of the window used | Fits — ~4.5% of the window used |
+
+The 8K model isn't just slower to grow into — it fails outright once the
+conversation escalates. A request that exceeds a model's context window
+doesn't get silently trimmed to fit; it's rejected as invalid input, so the
+application would need its own truncation or conversation-summarization
+logic (dropping older turns, or capping retrieved chunks below what best
+answers the question) purely to stay under 8K, well before the account ever
+sees a cost or latency difference between the two models.
+
+**Step 4: Weigh the resulting cost/capability trade-off.**
+Per [Section 1's context-window table](#context-window-vs-cost-and-latency-comparing-model-tiers),
+an 8K-context model costs less per token than Claude. But cheaper-per-token
+is only a real saving if the request fits in the first place. Here, the
+escalated-turn estimate (9,040 tokens) already exceeds the 8K window before
+factoring in any future growth — a second reference document, a higher
+retrieval `numberOfResults`, or longer support conversations would only
+widen the gap. Choosing the 8K model would mean either accepting degraded
+answers on escalated conversations (dropped history or under-retrieved
+context) or building and maintaining truncation/summarization logic to
+force every request under budget. Choosing Claude's 200K window costs more
+per token but comfortably absorbs both the typical and escalated cases with
+no truncation logic at all, which is why context window — not raw
+per-token cost — is the constraint that decides this scenario, the same
+conclusion the [multi-constraint worked example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+reaches when context window is a hard requirement rather than a nice-to-have.
+
+**AWS example:** The team estimates its request-level token budget (as
+above), confirms it can exceed 8,000 tokens once a conversation escalates,
+and selects **Claude on Amazon Bedrock** for the 200K context window. They
+still cap `numberOfResults` on the Knowledge Base **Retrieve** call at a
+sensible number (rather than retrieving unbounded chunks) so that even a
+200K window isn't approached carelessly — token budget estimation applies
+to every model, it just changes which side of the estimate the risk sits
+on.
+
+> **Exam tip:** When a scenario gives you enough detail to estimate a token
+> count — a document length, a number of conversation turns, a number of
+> retrieved chunks — the exam expects you to actually do the arithmetic
+> instead of reasoning qualitatively about "big" vs. "small" context. Always
+> check the **worst case a real conversation reaches**, not just its first
+> turn: a model that comfortably fits an opening question but overflows once
+> the conversation grows or retrieval widens is not "context-window
+> suitable" for that scenario, no matter how cheap or fast it is per token.
 
 ---
 

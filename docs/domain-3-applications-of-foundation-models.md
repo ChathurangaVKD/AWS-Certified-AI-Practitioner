@@ -2,7 +2,7 @@
 
 [← Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md) · **Domain 3 of 5** · [Domain 4: Guidelines for Responsible AI →](domain-4-guidelines-for-responsible-ai.md)
 
-**Last verified:** 2026-08-29
+**Last verified:** 2026-08-30
 
 ## Table of contents
 
@@ -16,6 +16,7 @@
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
+- [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
@@ -1336,6 +1337,133 @@ version.
 > for distractor scenarios that describe this exact setup but then ask
 > "how do you keep it current" with a fine-tuning-flavored answer choice —
 > re-syncing the S3 data source is always cheaper and faster.
+
+---
+
+## Worked example: troubleshooting a failing RAG system
+
+[Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
+and the worked example above both walk through RAG on the *happy path*,
+where retrieval quietly returns the right chunks. Real deployments —
+and scenario questions that describe a RAG system already in production —
+usually start from a system that answers badly, and expect you to reason
+about *which pipeline stage* is broken before picking a fix. This
+walkthrough follows one team through three separate RAG failures on the
+same system, diagnosing each before applying a targeted remediation.
+
+**Scenario:** The insurance company from the worked example above has
+shipped its HR policy-lookup assistant. Three months in, HR starts
+escalating complaints that the assistant gives wrong or unhelpful
+answers. The team pulls transcripts and finds three distinct failure
+patterns.
+
+### Failure mode 1: chunks too small to answer the query
+
+**Symptom:** An employee asks, "How many weeks of parental leave do I get
+and do I need to use vacation days first?" The assistant answers only the
+first half of the question ("12 weeks") and ignores the vacation-day
+interaction entirely, even though the handbook covers both in the same
+paragraph.
+
+**Diagnosis.** The team inspects which chunks were actually retrieved
+(the raw output of the `Retrieve` API, before generation) and finds the
+chunking strategy split the parental-leave paragraph mid-sentence: one
+150-token chunk ends right after "employees receive 12 weeks of paid
+parental leave," and the very next sentence — "vacation days accrued
+prior to leave must be exhausted first" — landed in a *different* chunk
+that wasn't among the top results returned for this query. The chunk size
+was tuned too small, so a single self-contained policy explanation got
+split across chunk boundaries and retrieval surfaced only one fragment.
+
+**Remediation.** The team increases the chunk size and adds chunk
+overlap so related sentences are less likely to be split across a
+boundary, and re-indexes the Knowledge Base. They also test whether
+retrieving a larger number of chunks (a higher `numberOfResults` on the
+`Retrieve` call) reduces the chance of losing the second half of an
+answer, since a bigger chunk window and slight overlap between
+consecutive chunks means a policy detail near a boundary still appears
+intact in at least one retrieved chunk.
+
+### Failure mode 2: an embedding model mismatched to the domain
+
+**Symptom:** Employees who ask questions using internal jargon — "Does
+PTO carry over across the FY boundary?" — get irrelevant chunks back
+entirely (the assistant retrieves passages about *performance reviews*,
+not paid time off), even though the handbook clearly answers the
+question in plain language a few sections away.
+
+**Diagnosis.** The team compares the embedding vectors for the query
+against the embedding vectors for the correct handbook chunk and finds
+they aren't close in vector space at all — this isn't a chunking problem,
+because the correct chunk exists and is well-formed; it's a retrieval
+problem. Digging further, the embeddings model in use is a general-purpose
+model that was never exposed to the company's internal abbreviations
+("PTO," "FY") during training, so it embeds those tokens close to
+unrelated general-English concepts instead of close to "vacation" or
+"time off." A **general-purpose embedding model applied to a
+jargon-heavy internal domain** is the root cause: retrieval can only be
+as good as the semantic space the embeddings model produces.
+
+**Remediation.** The team swaps to a different Bedrock embeddings model
+better suited to the domain and re-embeds the entire corpus (embeddings
+models aren't interchangeable after the fact — every chunk must be
+re-embedded and re-indexed with the new model, and queries must be
+embedded with that same model going forward). Where a wholesale model
+swap isn't practical, expanding internal abbreviations in the source
+documents before chunking (writing out "paid time off (PTO)" instead of
+just "PTO") is a lower-cost mitigation that helps a general-purpose
+embedding model land closer to the right chunks.
+
+### Failure mode 3: retrieval returning plausible but irrelevant results
+
+**Symptom:** An employee asks, "What's the process for expensing a
+conference registration fee?" and the assistant confidently answers using
+a chunk about *travel* expense reports — semantically related, but the
+wrong policy — instead of the chunk that specifically covers conference
+and training expenses.
+
+**Diagnosis.** Unlike failure mode 2, the embeddings here are reasonable:
+travel expenses and conference expenses genuinely are semantically close
+in vector space, which is exactly the problem. Pure vector similarity
+search returns the *closest* chunks, not necessarily the *correct* ones,
+and when several chunks discuss adjacent topics, similarity search alone
+can't distinguish "close enough to be retrieved" from "the one that
+actually answers this question."
+
+**Remediation.** The team adds two complementary fixes:
+
+- **Reranking** — instead of sending the top vector-search results
+  straight to the FM, a reranking step re-scores the retrieved candidates
+  against the original query using a model built for relevance ranking
+  (rather than pure vector similarity) and reorders them before
+  generation, pushing the conference-expense chunk above the travel
+  chunk.
+- **Hybrid search** — combining the semantic (vector) search with a
+  traditional keyword/lexical search (available through Amazon
+  OpenSearch) so an exact term match like "conference registration fee"
+  can pull in the right chunk even when its embedding sits close to a
+  different topic. Hybrid search catches the cases where the literal
+  words in the query matter as much as their meaning.
+
+### Summary: matching the symptom to the fix
+
+| Symptom | Root cause | Fix |
+|---|---|---|
+| Answer is correct but incomplete, cuts off mid-explanation | Chunks too small / split a self-contained answer across a boundary | Increase chunk size, add chunk overlap, retrieve more chunks |
+| Retrieved chunks are unrelated to the query's actual topic | Embedding model doesn't understand domain-specific vocabulary | Swap to a better-suited embeddings model and re-embed the corpus; expand jargon/abbreviations in source text |
+| Retrieved chunks are topically related but not the specific right answer | Vector similarity alone can't distinguish "close" from "correct" | Add reranking; add hybrid (keyword + vector) search |
+
+> **Exam tip:** When a scenario describes a RAG system that's already
+> live and *underperforming*, the question is testing whether you can map
+> a described symptom back to a specific pipeline stage — chunking,
+> embedding, or retrieval — rather than just reciting "use RAG." An
+> incomplete-but-correct answer points to **chunking**; retrieved content
+> that's off-topic entirely points to the **embedding model**; retrieved
+> content that's topically close but not quite right points to needing
+> **reranking or hybrid search** on top of plain vector similarity search.
+> Fine-tuning the FM itself does not fix any of these — all three failure
+> modes live in the retrieval half of the pipeline, before the FM ever
+> sees a prompt.
 
 ---
 

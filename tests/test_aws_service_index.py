@@ -95,6 +95,19 @@ REQUIRED_NOVA_VARIANTS = [
     "Amazon Nova Premier",
 ]
 
+# AWS services actively referenced in the domain guides that were missing
+# standalone service-index entries -- regression guard for that specific
+# documentation gap (see docs/aws-service-index.md 7-missing-services fix).
+REQUIRED_SEVEN_MISSING_SERVICES = [
+    "Amazon API Gateway",  # D5
+    "Amazon Bedrock Prompt Management",  # D3
+    "Amazon Bedrock Prompt Flows",  # D3
+    "Amazon MSK (Managed Streaming for Apache Kafka)",  # D1
+    "Amazon SageMaker Autopilot",  # D1
+    "Amazon SageMaker Model Monitor",  # D1, D4, D5
+    "Amazon SageMaker RL",  # D1
+]
+
 # - **Service** `[D1, D3]` — definition. [D1](link) · [D3](link)
 ENTRY_RE = re.compile(
     r"^- \*\*(?P<service>.+?)\*\* `\[(?P<tags>D\d(?:, D\d)*)\]` — (?P<rest>.+)$",
@@ -218,6 +231,25 @@ class TestAwsServiceIndexCoverage(unittest.TestCase):
                     services,
                     f"AWS service index missing Amazon Nova variant entry: {variant!r}",
                 )
+
+    def test_covers_seven_formerly_missing_services(self):
+        services = [service for service, _tags, _rest in self.entries]
+        for service in REQUIRED_SEVEN_MISSING_SERVICES:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    services,
+                    f"AWS service index missing service entry: {service!r}",
+                )
+
+    def test_sagemaker_model_monitor_tagged_for_all_three_domains(self):
+        by_service = {service: tags for service, tags, _rest in self.entries}
+        self.assertIn("Amazon SageMaker Model Monitor", by_service)
+        tag_nums = {
+            t.strip()
+            for t in by_service["Amazon SageMaker Model Monitor"].split(",")
+        }
+        self.assertEqual(tag_nums, {"D1", "D4", "D5"})
 
     def test_entries_are_sorted_alphabetically(self):
         sort_keys = [service.lower() for service, _tags, _rest in self.entries]

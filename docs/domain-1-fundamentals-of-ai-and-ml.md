@@ -552,6 +552,17 @@ support chatbot — three different problems solved by three different
 purpose-built services (Rekognition, Transcribe, and Lex) with no custom
 model training required for any of them.
 
+**Decision tree: purpose-built service or SageMaker?** the same "no ML
+expertise" exam pattern above, as a flowchart:
+
+```mermaid
+flowchart TD
+    START(["Which AWS AI/ML service\nfits this scenario?"])
+    START --> Q1{"Does a purpose-built managed AI\nservice already cover this exact\nuse case (vision, speech, text,\nforecasting, recommendations,\ndocuments, chat, translation)?"}
+    Q1 -->|"YES"| PB["Use the purpose-built service --\nRekognition, Transcribe, Comprehend,\nPolly, Translate, Lex, Personalize,\nForecast, or Textract\n(no ML expertise required)"]
+    Q1 -->|"NO"| SM["Amazon SageMaker --\nbuild, train, tune, deploy, and\nmonitor a CUSTOM model"]
+```
+
 #### Mini-quiz: Test your understanding of AWS managed AI/ML services
 
 1. A company has no in-house ML expertise and wants to add facial analysis

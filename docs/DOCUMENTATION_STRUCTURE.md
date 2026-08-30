@@ -84,9 +84,11 @@ support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing
 and documenting a responsible e-commerce recommendation engine (D4), and a
 HIPAA-regulated Bedrock application (D5).
 
-**Diagrams:** All 21 flowchart-style diagrams across the guide are Mermaid flowchart
-diagrams, not ASCII art: Domain 1 has four (the 8-stage ML lifecycle loop,
+**Diagrams:** All 23 flowchart-style diagrams across the guide are Mermaid flowchart
+diagrams, not ASCII art: Domain 1 has six (the 8-stage ML lifecycle loop,
 Section 2, the learning-type selection decision tree, Section 3, the
+use-case-to-AWS-service decision tree, Section 4, the purpose-built-service-
+vs-SageMaker decision tree, Section 5, the
 model-evaluation metric-selection decision tree, Section 6, and the
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention

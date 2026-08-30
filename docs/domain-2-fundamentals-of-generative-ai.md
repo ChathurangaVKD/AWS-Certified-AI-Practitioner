@@ -13,6 +13,7 @@
 - [5. AWS generative AI services and capabilities](#5-aws-generative-ai-services-and-capabilities)
 - [6. Prompt engineering fundamentals](#6-prompt-engineering-fundamentals)
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
+- [Worked example: estimating tokens for RAG retrieval and long-document summarization](#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization)
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
 - [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
@@ -947,6 +948,89 @@ explanation.
    model accepts as input and can produce as output (text, image,
    multimodal), and the model must support the modalities the use case
    needs.
+
+---
+
+## Worked example: estimating tokens for RAG retrieval and long-document summarization
+
+[Section 7](#7-foundation-model-selection-criteria) lists context window as
+a selection criterion, and its AWS example states that a team summarizing
+lengthy legal contracts needs "a large context window" — but neither says
+*how large is large enough*. Exam scenarios that describe a source
+document's length, a conversation history, or a number of retrieved
+passages expect you to translate that into an approximate token count and
+compare it against a candidate model's window, not just recognize the
+term. This walkthrough does that math for two of the most common scenario
+shapes: a **RAG pipeline** and a **long-document summarization** job.
+([Domain 3's context-window worked
+example](domain-3-applications-of-foundation-models.md#worked-example-estimating-a-context-window-token-budget)
+extends this into a full multi-model, multi-turn comparison.)
+
+**Rule of thumb:** as [Section 1](#1-generative-ai-core-concepts) notes,
+tokens ≠ words — a commonly used estimate is that **1 token ≈ ¾ of an
+English word**, or equivalently, **100 words ≈ ~133 tokens**. This is an
+approximation (actual tokenization varies by model and vocabulary), but
+it's precise enough to eliminate models that are obviously too small,
+which is what exam scenarios test.
+
+**Example 1: token budget for a RAG pipeline.** A support team builds a
+RAG pipeline on **Knowledge Bases for Amazon Bedrock**
+([Section 5](#5-aws-generative-ai-services-and-capabilities)) that
+retrieves passages from a product manual to answer a customer question.
+One request to the model has to fit all of the following in its context
+window at once:
+
+| Request component | Approx. length | Approx. tokens |
+|---|---|---|
+| System prompt / instructions | ~150 words | ~200 tokens |
+| Retrieved context (5 passages retrieved, ~120 words each) | ~600 words | ~800 tokens |
+| Conversation history so far | ~300 words | ~400 tokens |
+| User's current question | ~20 words | ~27 tokens |
+| Headroom reserved for the model's response | — | ~500 tokens |
+| **Total for this request** | | **~1,927 tokens** |
+
+A model with an 8K-token context window comfortably fits this request with
+plenty of headroom to grow. A model with only a 2K-token window would
+already be tight before the response headroom is even reserved, forcing
+the application to retrieve fewer passages, trim conversation history, or
+move to a larger-context model.
+
+**Example 2: token budget for long-document summarization.** A separate
+team needs to summarize a 40-page internal policy document in a single
+prompt, without splitting it into chunks:
+
+1. Estimate words in the source document: ~500 words per page × 40 pages =
+   **~20,000 words**.
+2. Convert to tokens using the rule of thumb above: 20,000 words ÷ 0.75 ≈
+   **~26,700 tokens** for the document alone.
+3. Add a short summarization instruction (~50 tokens) and headroom for the
+   summary output (~500 tokens): **~27,250 tokens** total.
+
+Against that budget, an 8K-token model cannot hold the document in a
+single prompt at all — it would need chunking despite the requirement not
+to chunk it. A 32K-token model fits with modest headroom. A 200K-token
+model (e.g., the Claude tier from [Domain 3, Section
+1](domain-3-applications-of-foundation-models.md#context-window-vs-cost-and-latency-comparing-model-tiers))
+fits comfortably, with room to spare for an even longer document or a
+back-and-forth revision conversation about the summary.
+
+> **Exam tip:** When a scenario gives you a page count, a word count, or a
+> number of retrieved chunks, do the same two-step conversion: (1) words →
+> tokens using the ~¾ rule of thumb, then (2) add prompt overhead and
+> response headroom before comparing the total against each candidate
+> model's stated context window. A request that exceeds the window isn't
+> silently trimmed — it's rejected as invalid input, so "close enough"
+> estimates that ignore overhead can lead you to the wrong model in a
+> scenario question.
+
+**AWS example:** The support team above estimates its per-request token
+budget as shown in Example 1, confirms it comfortably fits an 8K-token
+model, and keeps that smaller, cheaper, lower-latency model in **Amazon
+Bedrock** rather than over-provisioning a larger-context model it doesn't
+need. The policy team in Example 2 does the same math, finds their 40-page
+document requires a much larger window, and selects a **200K-context**
+model in Bedrock instead — the same estimation process leads two teams to
+two different, correctly-sized model choices.
 
 ---
 

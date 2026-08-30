@@ -23,6 +23,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_DIR = REPO_ROOT / "docs"
 STRUCTURE_DOC = DOCS_DIR / "DOCUMENTATION_STRUCTURE.md"
+README_PATH = REPO_ROOT / "README.md"
+SCENARIO_QUESTIONS_DOC = DOCS_DIR / "cross-domain-scenario-questions.md"
 
 DOMAIN_FILES = {
     1: DOCS_DIR / "domain-1-fundamentals-of-ai-and-ml.md",
@@ -536,6 +538,83 @@ class TestDocumentationStructureLastVerifiedAccuracy(unittest.TestCase):
         ):
             with self.subTest(phrase=phrase):
                 self.assertNotIn(phrase, lowered)
+
+
+class TestDocumentationStructureScenarioQuestionCountAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md states the cross-domain scenario question
+    count twice (once in the repo-layout tree, once in the cross-domain
+    support document list) and README.md states it a third time. A past
+    incident let README.md's count (12) drift out of sync with the actual,
+    larger question count (22) that DOCUMENTATION_STRUCTURE.md already
+    correctly reflected -- which could mislead a future contributor into
+    "fixing" DOCUMENTATION_STRUCTURE.md (or cross-domain-scenario-
+    questions.md) to match README.md's stale figure instead of the other
+    way around. These tests pin all three stated counts to the actual
+    number of practice questions in cross-domain-scenario-questions.md so
+    they can't silently drift apart again."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.readme_text = README_PATH.read_text(encoding="utf-8")
+        cls.scenario_questions_text = SCENARIO_QUESTIONS_DOC.read_text(
+            encoding="utf-8"
+        )
+
+    def _actual_question_count(self):
+        match = re.search(
+            r"\n## Practice questions(.*?)\n## Answer key",
+            self.scenario_questions_text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(
+            match,
+            "expected a '## Practice questions' ... '## Answer key' "
+            "section in cross-domain-scenario-questions.md",
+        )
+        return len(re.findall(r"(?m)^(\d+)\.\s", match.group(1)))
+
+    def test_stated_tree_count_matches_actual(self):
+        actual = self._actual_question_count()
+        self.assertIn(
+            f"cross-domain-scenario-questions.md      {actual} questions "
+            "spanning 2+ domains",
+            self.structure_text,
+            "DOCUMENTATION_STRUCTURE.md's repo-layout tree states a "
+            "cross-domain-scenario-questions.md question count that does "
+            f"not match the actual count ({actual})",
+        )
+
+    def test_stated_prose_count_matches_actual(self):
+        actual = self._actual_question_count()
+        idx = self.structure_text.find("`cross-domain-scenario-questions.md`")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 200]
+        self.assertIn(
+            f"{actual} scenario questions",
+            window,
+            "DOCUMENTATION_STRUCTURE.md's cross-domain support document "
+            "entry states a scenario question count that does not match "
+            f"the actual count ({actual})",
+        )
+
+    def test_readme_stated_count_matches_actual(self):
+        actual = self._actual_question_count()
+        count_match = re.search(
+            r"for (\d+) scenario questions", self.readme_text
+        )
+        self.assertIsNotNone(
+            count_match,
+            "README.md should state how many scenario questions "
+            "cross-domain-scenario-questions.md has",
+        )
+        self.assertEqual(
+            int(count_match.group(1)),
+            actual,
+            "README.md's stated scenario question count does not match "
+            f"the actual count ({actual}) in "
+            "cross-domain-scenario-questions.md",
+        )
 
 
 if __name__ == "__main__":

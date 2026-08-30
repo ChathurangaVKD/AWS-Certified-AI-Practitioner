@@ -46,9 +46,9 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,253–2,201 lines each:
+domain, currently 1,281–2,201 lines each:
 
-- Domain 1: 1,253 lines
+- Domain 1: 1,281 lines
 - Domain 2: 1,507 lines
 - Domain 3: 2,201 lines
 - Domain 4: 1,362 lines
@@ -84,9 +84,10 @@ support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing
 and documenting a responsible e-commerce recommendation engine (D4), and a
 HIPAA-regulated Bedrock application (D5).
 
-**Diagrams:** All 20 flowchart-style diagrams across the guide are Mermaid flowchart
-diagrams, not ASCII art: Domain 1 has three (the 8-stage ML lifecycle loop,
-Section 2, the learning-type selection decision tree, Section 3, and the
+**Diagrams:** All 21 flowchart-style diagrams across the guide are Mermaid flowchart
+diagrams, not ASCII art: Domain 1 has four (the 8-stage ML lifecycle loop,
+Section 2, the learning-type selection decision tree, Section 3, the
+model-evaluation metric-selection decision tree, Section 6, and the
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has seven (including the FM-customization
@@ -96,7 +97,7 @@ Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has three (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1).
 Two domains also carry separate plain-text ASCII notations for readers
-without Mermaid rendering, which are not among the 20 flowcharts: Domain
+without Mermaid rendering, which are not among the 21 flowcharts: Domain
 1's AI ⊃ ML ⊃ DL ⊃ GenAI nesting notation (Section 1) and Domain 5's
 shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section
 5).

@@ -20,6 +20,7 @@
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
 - [Worked example: estimating a context-window token budget](#worked-example-estimating-a-context-window-token-budget)
+- [Worked example: estimating tokens for long-document summarization](#worked-example-estimating-tokens-for-long-document-summarization)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -1791,6 +1792,80 @@ on.
 > turn: a model that comfortably fits an opening question but overflows once
 > the conversation grows or retrieval widens is not "context-window
 > suitable" for that scenario, no matter how cheap or fast it is per token.
+
+---
+
+## Worked example: estimating tokens for long-document summarization
+
+The worked example above sizes a context window for a RAG-plus-conversation
+request. A different common exam scenario skips retrieval entirely:
+summarizing one long document (a contract, a transcript, a report) in a
+single prompt. The token math is simpler, but the same "estimate first,
+then compare against the model" discipline decides whether the prompt fits
+or needs to be split.
+
+**Scenario:** A legal team wants Amazon Bedrock to summarize a single
+**90-page** merger agreement in one prompt, without splitting it into
+chunks, so the summary can reference relationships between clauses that
+live in different parts of the document.
+
+**Step 1: Estimate the source document in tokens.**
+Legal documents run denser than the ~500-word/page estimate used in [the
+RAG worked example above](#worked-example-estimating-a-context-window-token-budget)
+— call it ~600 words per page for dense contract text. Using the same
+¾-token-per-word rule of thumb ([Domain 2's version of this
+estimate](domain-2-fundamentals-of-generative-ai.md#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization)
+walks through the conversion in more detail):
+
+90 pages × 600 words/page = 54,000 words → 54,000 ÷ 0.75 ≈ **~72,000
+tokens** for the document text alone.
+
+**Step 2: Add prompt overhead and output headroom.**
+
+| Request component | Approx. tokens |
+|---|---|
+| Summarization instructions (desired format, length, focus areas) | ~150 |
+| Full document text | ~72,000 |
+| Reserved headroom for the summary itself | ~1,500 |
+| **Total tokens needed** | **~73,650** |
+
+**Step 3: Compare against candidate models.**
+
+| Model | Context window | Fits a 73,650-token request? |
+|---|---|---|
+| 8K-context model | 8,000 tokens | No — the document alone (~72,000 tokens) is already ~9x the entire window |
+| 32K-context model | 32,000 tokens | No — still roughly 2.3x over budget |
+| Claude, 200K context ([Section 1's table](#context-window-vs-cost-and-latency-comparing-model-tiers)) | 200,000 tokens | Yes — ~37% of the window used, with room for a longer agreement or a follow-up question about the summary |
+
+**Step 4: Decide between a bigger window and chunking.**
+If no candidate model's window comfortably covers the estimate, the
+scenario isn't really asking you to pick between models — it's asking
+whether to move to a larger-context model or fall back to a **map-reduce
+summarization** pattern (summarize each chunk separately, then summarize
+the summaries), which reintroduces the chunk-boundary trade-offs from
+[Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
+and the [RAG troubleshooting worked
+example](#worked-example-troubleshooting-a-failing-rag-system) even though
+this scenario has no retrieval step at all. Here, a single 200K-context
+model avoids that complexity entirely, which is why "must summarize a very
+long document in one pass, without chunking" is one of the clearest
+scenario signals that context window — not cost or latency — is the
+deciding selection criterion.
+
+**AWS example:** The legal team runs the estimate above, confirms the
+merger agreement needs roughly 73,650 tokens per request, and selects a
+200K-context model in **Amazon Bedrock** rather than building and
+maintaining a map-reduce summarization pipeline just to fit a
+smaller-context model.
+
+> **Exam tip:** "Summarize a single long document in one prompt, without
+> chunking" and "summarize retrieved passages across a long conversation"
+> (the worked example above) are both context-window sizing questions, but
+> they estimate different things: a summarization prompt's dominant cost is
+> the **whole source document**, while a RAG prompt's dominant cost is
+> **however many chunks retrieval returns for one question** — usually a
+> small fraction of the source corpus. Confusing the two leads to wildly
+> overestimating a RAG request or underestimating a summarization request.
 
 ---
 

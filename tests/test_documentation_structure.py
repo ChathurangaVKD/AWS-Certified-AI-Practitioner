@@ -486,6 +486,38 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertEqual(stated_letters, actual_letters)
         self.assertNotIn("only sections A, G, I, P", window)
 
+    def test_does_not_falsely_claim_services_are_missing_from_service_index(self):
+        """DOCUMENTATION_STRUCTURE.md must never claim that Amazon API
+        Gateway, Amazon Bedrock Prompt Management/Flows, Amazon MSK, or
+        Amazon SageMaker Autopilot/Model Monitor/RL lack standalone
+        aws-service-index.md entries -- they are all indexed (also guarded
+        by tests/test_aws_service_index.py's
+        REQUIRED_SEVEN_MISSING_SERVICES). This locks in that the doc
+        doesn't regress back to that false claim."""
+        seven_services = [
+            "Amazon API Gateway",
+            "Amazon Bedrock Prompt Management",
+            "Amazon Bedrock Prompt Flows",
+            "Amazon MSK",
+            "Amazon SageMaker Autopilot",
+            "Amazon SageMaker Model Monitor",
+            "Amazon SageMaker RL",
+        ]
+        service_index_path = DOCS_DIR / "aws-service-index.md"
+        service_index_text = service_index_path.read_text(encoding="utf-8")
+        for service in seven_services:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    service_index_text,
+                    f"{service!r} must have a standalone entry in "
+                    "aws-service-index.md",
+                )
+        self.assertNotIn("CRITICAL COMPLETENESS ISSUE", self.structure_text)
+        lowered = self.structure_text.lower()
+        self.assertNotIn("lack standalone entries", lowered)
+        self.assertNotIn("actively-referenced services", lowered)
+
 
 class TestDocumentationStructureLastVerifiedAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md's 'Content health' section must not claim

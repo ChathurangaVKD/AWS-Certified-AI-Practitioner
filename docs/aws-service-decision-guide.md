@@ -321,6 +321,112 @@ above, see [`aws-service-index.md`](aws-service-index.md).
 
 ---
 
+## 6. Decision guide: Amazon API Gateway in front of Bedrock/SageMaker endpoints
+
+Domain 5's threat-mitigation content lists **request throttling, Amazon
+API Gateway usage plans, and Service Quotas** together in the same
+sentence as the fix for a "model denial of service" attack — which reads
+like one control, but is actually three, each answering a different
+question. This is the same "similar-sounding controls, different
+questions" pattern as Section 2 above, just for request volume instead of
+compliance evidence.
+
+| Control | What it actually limits | Where it sits | When it's the exam answer |
+|---|---|---|---|
+| **Amazon API Gateway usage plans / API keys** | Per-client (per API key) request rate and burst limits, enforced at the API layer | In front of *your own* REST/HTTP API, which in turn calls Bedrock or a SageMaker endpoint | A scenario has multiple external callers (partners, tenants, free vs. paid tiers) hitting *your* API, and one misbehaving or overly aggressive caller shouldn't be able to degrade service for the others |
+| **AWS Service Quotas** | Account-wide default and adjustable ceilings on a specific AWS API operation (e.g., Bedrock `InvokeModel` transactions per second per account/model) | Set by AWS at the account level, not something you configure per caller | A scenario describes requests being throttled with an AWS-side error and needing a **quota increase**, or capacity planning around a hard account-wide ceiling |
+| **Bedrock Provisioned Throughput** | Reserved model capacity guaranteeing consistent throughput/latency | Dedicated capacity purchased for one model, for a 1- or 6-month commitment | Traffic is described as **steady, high-volume, and predictable**, and the requirement is guaranteed latency — not "too many/malicious requests" |
+| **Guardrails for Amazon Bedrock** | Content safety (denied topics, PII, filters) — *not* request volume | Applied to model inputs/outputs | A common distractor: if the scenario is about request *rate* or cost from excessive calls, Guardrails is the wrong layer entirely — it doesn't throttle anything |
+
+> **Exam tip:** Separate "who is calling too often" (**API Gateway usage
+> plans**, configured in front of your own API) from "what's the account's
+> total ceiling" (**Service Quotas**, an AWS-imposed limit you can request
+> to raise) from "guaranteed dedicated capacity" (**Provisioned
+> Throughput**, a capacity purchase, not a rate limit) from "is the
+> *content* safe" (**Guardrails**, unrelated to volume). All four can
+> appear in the same "model denial of service" scenario, but only one
+> answers the specific question asked.
+
+**Exam-style scenario:** A company exposes a customer-support chatbot
+backed by Amazon Bedrock through a public REST API, with several external
+partner integrations calling it. They want to make sure a single partner
+accidentally sending a burst of malformed retry requests can't degrade
+response times for every other partner. Which should they configure in
+front of the API to enforce a per-partner request rate limit?
+
+A. AWS Service Quotas
+B. Amazon API Gateway usage plans
+C. Amazon Bedrock Provisioned Throughput
+D. Guardrails for Amazon Bedrock
+
+**Answer: B** — the requirement is capping *individual callers*
+independently of one another at the API layer, which is exactly what
+API Gateway usage plans (and the API keys they're associated with) are
+for. Service Quotas (A) is an account-wide AWS-imposed ceiling, not a
+per-partner control; Provisioned Throughput (C) buys guaranteed capacity
+but doesn't stop one caller from starving others of it; Guardrails (D)
+filters content, not request volume.
+
+For the underlying threat this mitigates, see [Domain 5 — Common
+security threats to AI systems and how to mitigate them](domain-5-security-compliance-governance.md#common-security-threats-to-ai-systems-and-how-to-mitigate-them)
+(the "model denial of service" entry). For Provisioned Throughput's
+capacity-planning trade-offs, see [Domain 3 §5 — Amazon Bedrock
+features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features).
+
+---
+
+## 7. Decision guide: Bedrock Prompt Management vs. Prompt Flows vs. direct prompting
+
+Domain 3 covers prompt templates and prompt chaining as prompt-engineering
+*techniques*; this section is the "which AWS feature implements that
+technique" decision the exam pairs with it — three ways to get a prompt
+from an application to a model, in increasing order of structure.
+
+| Approach | What it is | Adds versioning/reuse? | Handles multi-step workflows? | When it's the exam answer |
+|---|---|---|---|---|
+| **Direct prompting** (prompt text built and sent by your own application code) | The application constructs and sends the prompt string itself, with no Bedrock-managed layer in between | No — reuse and versioning are whatever your own codebase does | No — orchestration across steps is entirely your own code | Simple, single-call use cases, or early prototyping, where the overhead of a managed prompt/flow resource isn't justified |
+| **Amazon Bedrock Prompt Management** | A managed resource for creating, versioning, and sharing reusable **prompt templates** (with placeholders) across an application or team | Yes — this is its core purpose: centrally versioned, reusable templates | No — it manages a single prompt's content and variants, not a sequence of steps | A scenario emphasizes a **consistent, tested, versioned prompt** reused across many calls or by multiple team members — the "prompt template" keyword |
+| **Amazon Bedrock Prompt Flows** | A visual builder for chaining multiple prompts and other steps (e.g., a Knowledge Base lookup) into a single orchestrated workflow, where one step's output feeds the next | Yes, at the flow level | Yes — this is its core purpose: multi-step **prompt chaining** with a visual builder | A scenario describes breaking a complex task into a **sequence of prompts/steps** where output feeds input, especially "visual builder" or "no-code chaining" |
+
+> **Exam tip:** The three sit on a spectrum of *how much Bedrock manages
+> for you*, not a quality ranking — picking Prompt Flows for a single
+> simple prompt is over-engineering, just as re-implementing multi-step
+> chaining by hand in application code when Prompt Flows already does it
+> is a classic distractor. Match the keyword: "reusable template,"
+> "versioned," "shared across the team" → **Prompt Management**;
+> "sequence of prompts," "output feeds the next step," "visual builder,"
+> "chaining" → **Prompt Flows**; no mention of reuse or multi-step
+> orchestration at all → plain **direct prompting** is sufficient and
+> adding either managed feature would be unnecessary complexity.
+
+**Exam-style scenario:** A team's generative AI application currently
+builds each prompt as a hardcoded string inside application code. As the
+team grows, different engineers keep making small, untracked edits to the
+same prompt, causing inconsistent output across environments, and there's
+no way to see what changed between versions. Which Bedrock capability
+most directly solves this?
+
+A. Amazon Bedrock Agents
+B. Amazon Bedrock Prompt Flows
+C. Amazon Bedrock Prompt Management
+D. Amazon Bedrock Guardrails
+
+**Answer: C** — the problem described is inconsistent, unversioned
+prompt text edited ad hoc by multiple people, which is exactly what
+Prompt Management's versioned, shared, reusable templates solve. Prompt
+Flows (B) is for orchestrating a *sequence* of prompts/steps, not for
+versioning a single prompt's text; Agents (A) executes multi-step tasks
+via tool calls; Guardrails (D) filters content, not prompt authoring.
+
+For the prompt-engineering techniques these features implement, see
+[Domain 3 §2 — Prompt engineering techniques](domain-3-applications-of-foundation-models.md#2-prompt-engineering-techniques)
+and its [comparison table](domain-3-applications-of-foundation-models.md#comparison-table-prompt-engineering-techniques-at-a-glance).
+For where Prompt Management and Prompt Flows fit among Bedrock's other
+managed features (Agents, Guardrails, Knowledge Bases), see [Domain 3
+§5 — Amazon Bedrock features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features).
+
+---
+
 ## How this guide relates to the domain guides
 
 This page is intentionally short: it is a **decision aid**, not a

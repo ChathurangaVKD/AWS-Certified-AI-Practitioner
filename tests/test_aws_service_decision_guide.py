@@ -320,6 +320,133 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
         )
 
 
+API_GATEWAY_SECTION_RE = re.compile(
+    r"^##\s+6\.\s+Decision guide: Amazon API Gateway.*?(?=^## |\Z)", re.M | re.S
+)
+
+PROMPT_MANAGEMENT_SECTION_RE = re.compile(
+    r"^##\s+7\.\s+Decision guide: Bedrock Prompt Management.*?(?=^## |\Z)",
+    re.M | re.S,
+)
+
+
+class TestAwsServiceDecisionGuideApiGatewaySection(unittest.TestCase):
+    """Section 6 -- API Gateway request throttling/Service Quotas in front
+    of Bedrock/SageMaker endpoints, referenced but previously unguided
+    (see Domain 5's 'model denial of service' mitigation content)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = API_GATEWAY_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 6"
+        cls.section_text = section_match.group(0)
+
+    def test_has_api_gateway_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(
+                r"^##\s+6\.\s+Decision guide: Amazon API Gateway", re.M
+            ),
+            "expected a numbered decision-guide section for Amazon API "
+            "Gateway in front of Bedrock/SageMaker endpoints",
+        )
+
+    def test_covers_related_controls(self):
+        for term in [
+            "Amazon API Gateway",
+            "Service Quotas",
+            "Provisioned Throughput",
+            "Guardrails",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.section_text)
+
+    def test_has_a_comparison_table(self):
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", self.section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            1,
+            "expected the API Gateway section to include a markdown "
+            "comparison table of decision criteria",
+        )
+
+    def test_has_exam_style_scenario_with_answer(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"exam-style scenario", re.IGNORECASE),
+            "expected an explicit exam-style scenario",
+        )
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Answer:\s*[A-D]\*\*"),
+            "expected the scenario to state its answer letter",
+        )
+
+    def test_links_back_to_domain_5_threat_section(self):
+        self.assertIn("domain-5-security-compliance-governance.md", self.section_text)
+
+
+class TestAwsServiceDecisionGuidePromptManagementSection(unittest.TestCase):
+    """Section 7 -- Bedrock Prompt Management vs. Prompt Flows vs. direct
+    prompting, referenced but previously unguided (see Domain 3's prompt
+    engineering content)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = PROMPT_MANAGEMENT_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 7"
+        cls.section_text = section_match.group(0)
+
+    def test_has_prompt_management_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(
+                r"^##\s+7\.\s+Decision guide: Bedrock Prompt Management",
+                re.M,
+            ),
+            "expected a numbered decision-guide section for Bedrock "
+            "Prompt Management vs. Prompt Flows vs. direct prompting",
+        )
+
+    def test_covers_all_three_approaches(self):
+        for term in [
+            "Direct prompting",
+            "Amazon Bedrock Prompt Management",
+            "Amazon Bedrock Prompt Flows",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.section_text)
+
+    def test_has_a_comparison_table(self):
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", self.section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            1,
+            "expected the Prompt Management section to include a "
+            "markdown comparison table of decision criteria",
+        )
+
+    def test_has_exam_style_scenario_with_answer(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"exam-style scenario", re.IGNORECASE),
+            "expected an explicit exam-style scenario",
+        )
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Answer:\s*[A-D]\*\*"),
+            "expected the scenario to state its answer letter",
+        )
+
+    def test_links_back_to_domain_3_prompt_engineering_section(self):
+        self.assertIn(
+            "domain-3-applications-of-foundation-models.md",
+            self.section_text,
+        )
+
+
 CONSOLIDATED_MATRIX_HEADING_RE = re.compile(
     r"^##\s+5\.\s+Consolidated service matrix.*?(?=^## |\Z)", re.M | re.S
 )

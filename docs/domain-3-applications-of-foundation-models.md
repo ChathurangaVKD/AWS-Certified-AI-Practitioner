@@ -19,6 +19,7 @@
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+- [Worked example: estimating a context-window token budget](#worked-example-estimating-a-context-window-token-budget)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -129,7 +130,11 @@ against cost and latency instead of considered in isolation.
 > smaller or cheaper tiers. The
 > [multi-constraint worked example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
 > walks through applying context window alongside cost, latency, and
-> modality together.
+> modality together, and the
+> [token-budget worked example](#worked-example-estimating-a-context-window-token-budget)
+> later in this domain shows how to actually estimate whether a scenario's
+> requirements fit inside a candidate window before you compare cost and
+> latency at all.
 
 #### Mini-quiz: Test your understanding of FM application design considerations
 

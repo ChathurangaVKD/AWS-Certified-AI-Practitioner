@@ -13,7 +13,7 @@ Domain 3 customization method *and* checking that it satisfies a Domain 5
 security requirement in the same breath, or picking a Domain 1 learning
 type while weighing a Domain 4 fairness concern.
 
-This document collects 18 scenario questions that each require knowledge
+This document collects 22 scenario questions that each require knowledge
 from **two or more domains** to answer correctly — you cannot eliminate
 every wrong option using only one domain's vocabulary. See the
 [cross-domain concept map](cross-domain-concept-map.md) for the underlying
@@ -232,6 +232,55 @@ the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
     C. Raise top-k, since a larger candidate pool always produces shorter responses
     D. Rely on Amazon SageMaker Model Cards to automatically shorten model responses
 
+19. **[Intermediate]** A classical SageMaker binary classifier flags loan
+    applicants as "high risk" or "low risk." A fairness audit finds the
+    model's false positive rate (wrongly flagging an applicant as high
+    risk) is significantly higher for one demographic group than others,
+    even though the model's overall accuracy looks acceptable. Which
+    evaluation approach surfaces a problem that overall accuracy hides,
+    and what is the most direct next step?
+    A. Trust the single aggregate accuracy score across the whole test set; accuracy alone is sufficient to catch subgroup disparities, so no further action is needed
+    B. Break the confusion matrix out per demographic subgroup to compare metrics like false positive rate and recall across groups, then use Amazon SageMaker Clarify's pre- and post-training bias metrics together with a human-led fairness review to decide on a mitigation such as reweighting the training data or adjusting the decision threshold per group
+    C. Raise the model's overall classification threshold uniformly; a stricter threshold applied the same way to every group guarantees fairness
+    D. Retrain the model with a larger learning rate, since faster convergence during training eliminates subgroup disparities in outcomes
+
+20. **[Intermediate]** A team trains a classical SageMaker image classifier
+    on images scraped almost entirely from users in one geographic region,
+    then randomly splits that same pool into training, validation, and
+    test sets. The model scores well on its held-out test set, but
+    performs far worse in production for users from underrepresented
+    regions. Why didn't the held-out test score catch this, and what
+    should the team check earlier next time?
+    A. The train/validation/test split ratio was wrong; switching to a 90/5/5 split would have surfaced the regional performance gap
+    B. The model needs more training epochs; the gap is purely a matter of insufficient convergence and has nothing to do with the data
+    C. The held-out test set was drawn from the same non-representative data-collection pool as the training data, so a strong test score couldn't reveal a representativeness gap; the team should audit whether the training data reflects the full population the model will actually serve — a fairness consideration, not just a lifecycle checkbox — before ever reaching the evaluation stage
+    D. Switching from a classical model to a foundation model with RAG would automatically resolve the regional performance gap
+
+21. **[Advanced]** A credit union's classical SageMaker model approves or
+    denies personal loan applications, and regulations require that every
+    denied applicant receive a specific, understandable reason for the
+    denial. The data science team must choose between a complex
+    gradient-boosted ensemble (highest raw accuracy) and a simpler
+    logistic regression model (slightly lower accuracy, but each feature's
+    contribution is directly readable from its coefficients). What
+    consideration is in tension here, and how should it be resolved?
+    A. Always pick the highest-accuracy model regardless of interpretability; the regulatory explanation requirement is a legal matter that shouldn't influence model selection
+    B. The interpretability-versus-accuracy tradeoff in classical model selection is directly in tension with the transparency and explainability responsible-AI requirement to give denied applicants an understandable reason; the more interpretable logistic regression (or the ensemble paired with a feature-attribution tool like SageMaker Clarify) better satisfies that legal explanation requirement, even at a small accuracy cost
+    C. Deploy the gradient-boosted ensemble and simply omit the denial reason, since balancing accuracy against explainability isn't a real requirement
+    D. Switch to unsupervised clustering instead, since clustering models never need to produce an explanation for any individual outcome
+
+22. **[Intermediate]** A hospital deploys a classical SageMaker model that
+    scores each patient's priority for nurse review. Leadership requires
+    that the model never make a final treatment decision autonomously, and
+    that any prediction below a set confidence threshold be routed to a
+    human for full manual review instead of being auto-actioned. Which
+    mechanism enables that confidence-based routing, and what principle
+    does the human-review requirement reflect?
+    A. The model's predicted-probability (confidence) output can be compared against a chosen threshold to route low-confidence cases to a human reviewer rather than auto-acting on them, directly implementing the human-in-the-loop oversight and controllability principle that keeps a person accountable for high-stakes decisions
+    B. Confidence thresholds are a governance-only concept; classical supervised learning models have no notion of prediction confidence to threshold on
+    C. Routing low-confidence cases to a human reviewer defeats the purpose of automation and should be avoided for the sake of consistency
+    D. Raising the model's temperature parameter allows it to signal low-confidence predictions for human review
+
 ---
 
 ## Answer key and explanations
@@ -254,6 +303,10 @@ the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
 16. **A — Tune max tokens/temperature for the desired output, and bound request volume with throttling/Service Quotas.** Max tokens and temperature (Domain 2) are the inference parameters that control response length and creativity, while request throttling, Service Quotas, and API Gateway usage plans (Domain 5) cap how many requests can be made, bounding worst-case inference cost regardless of per-call settings — the two concerns are independent and both need to be addressed. B sacrifices the stated creative-output requirement; C is incomplete, since IAM governs *who* can call the endpoint, not *how much* they can call it; D is false — Provisioned Throughput changes the pricing model but doesn't remove the value of tuning parameters or bounding abusive request volume. *(Domains 2, 5)*
 17. **A and B — Right-size max tokens, and bound request volume with Service Quotas/API Gateway usage plans.** Capping max tokens (Domain 2) to what the task actually needs avoids paying for unnecessary output tokens on every call, while Service Quotas and API Gateway usage plans (Domain 5) bound total request volume so a traffic spike can't translate into an unpredictable bill — together they bound both the per-call and aggregate cost. Maximizing temperature (C) targets creativity, not quality, and does nothing for cost; disabling logging (D) has no meaningful effect on per-token billing and would remove auditability; over-provisioning Provisioned Throughput for worst-case traffic (E) is itself an unpredictable, high fixed cost and ignores that parameter tuning still reduces per-call spend. *(Domains 2, 5)*
 18. **A — Lower max tokens, then confirm with Trusted Advisor.** Max tokens (Domain 2) is the inference parameter that directly caps how many tokens a response — and therefore its output-token cost — can contain; AWS Trusted Advisor (Domain 5) then gives the account-level cost-optimization view needed to confirm the change actually reduced spend. Temperature (B) controls randomness, not length; a larger top-k (C) widens the candidate pool but doesn't shorten responses; Model Cards (D) document a model, they don't alter its runtime behavior. *(Domains 2, 5)*
+19. **B — Break the confusion matrix out per subgroup, then use Clarify plus a human fairness review.** Per-subgroup confusion-matrix metrics such as false positive rate and recall (Domain 1 evaluation) can diverge sharply between groups even when the aggregate accuracy looks fine, since accuracy averages over the whole population; SageMaker Clarify's pre- and post-training bias metrics, combined with a human-led review to choose a mitigation like reweighting the data or a per-group threshold adjustment (Domain 4), is the direct next step once that gap is found. A wrongly trusts an aggregate metric that can hide subgroup disparity by construction; C is false — a uniformly higher threshold shifts the whole population's outcomes but doesn't equalize the *gap* between groups; D confuses a training hyperparameter with a fairness fix. *(Domains 1, 4)*
+20. **C — The test set shared the training data's non-representativeness; audit for representativeness earlier.** A held-out test split drawn from the same skewed collection pool (Domain 1's data collection/preparation stage of the ML lifecycle) will still look strong even when the underlying data underrepresents part of the real-world population, because the split doesn't fix a sampling bias baked in before the split ever happened; catching this requires auditing training data for representativeness across the population the model will actually serve, which is a fairness consideration (Domain 4), not something a stronger test score alone would reveal. A misdiagnoses this as a split-ratio problem; B ignores the data issue entirely; D assumes a different model family would fix a data-collection gap on its own, which it would not. *(Domains 1, 4)*
+21. **B — The interpretable model (or ensemble plus explainability tooling) better satisfies the legal requirement.** Classical model selection routinely trades interpretability for a small amount of raw accuracy (Domain 1), and that tradeoff is exactly what's in tension with the responsible-AI requirement for transparency and explainability (Domain 4) when denied applicants must receive an understandable reason; resolving it in favor of interpretability (directly, or via a feature-attribution tool like SageMaker Clarify on top of the ensemble) is what actually satisfies the regulation. A ignores a binding legal constraint; C simply doesn't meet the stated requirement; D swaps in a model family that doesn't even produce the classification decision needed, let alone an explanation for it. *(Domains 1, 4)*
+22. **A — Threshold the model's confidence output to route low-confidence cases to a human.** A classical supervised model's predicted-probability output (Domain 1) is a natural signal to threshold on, routing anything below the cutoff to a human reviewer instead of auto-actioning it — this is precisely how the human-in-the-loop oversight and controllability principle (Domain 4) is implemented for a high-stakes, no-autonomous-final-decision requirement. B is false — classical classifiers routinely expose a predicted probability that can serve as a confidence score; C rejects the explicit governance requirement in the scenario; D confuses temperature, a generative-model sampling parameter, with a classical model's confidence output. *(Domains 1, 4)*
 
 ---
 

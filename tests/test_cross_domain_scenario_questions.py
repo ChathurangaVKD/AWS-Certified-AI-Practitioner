@@ -30,7 +30,7 @@ DOC_PATH = DOCS_DIR / "cross-domain-scenario-questions.md"
 README_PATH = REPO_ROOT / "README.md"
 
 MIN_QUESTIONS = 10
-MAX_QUESTIONS = 18
+MAX_QUESTIONS = 22
 
 DIFFICULTY_RE = re.compile(r"\*\*\[(Beginner|Intermediate|Advanced)\]\*\*")
 DOMAIN_TAG_RE = re.compile(r"\*\(Domains?\s+([0-9,\s]+)\)\*")

@@ -41,6 +41,23 @@ class TestDomainLastVerifiedDate(unittest.TestCase):
                     "'**Last verified:** YYYY-MM-DD' line",
                 )
 
+    def test_last_verified_dates_agree_across_domains(self):
+        # A one-day drift between domain guides makes it look like a single
+        # domain was updated in isolation rather than as part of a
+        # coordinated review pass. All five should share one date.
+        dates = {}
+        for domain_number, text in self.texts.items():
+            match = LAST_VERIFIED_RE.search(text)
+            self.assertIsNotNone(match)
+            dates[domain_number] = match.group(0)
+
+        distinct_dates = set(dates.values())
+        self.assertEqual(
+            len(distinct_dates),
+            1,
+            f"domain guides disagree on their 'Last verified' date: {dates}",
+        )
+
     def test_last_verified_date_appears_near_the_top(self):
         # Freshness info is only useful if a reader sees it before the
         # table of contents / body, not buried deep in the document.

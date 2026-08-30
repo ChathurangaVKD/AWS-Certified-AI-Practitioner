@@ -92,6 +92,43 @@ weigh against each other, since improving one often costs you on another:
   Claude models on Bedrock support multimodal (text + image) input.
   Choosing a model that doesn't support your required modality is a
   common exam distractor.
+
+### Context window vs. cost and latency: comparing model tiers
+
+Model selection above lists context window as one criterion among several
+— but in practice it never moves independently of cost and latency.
+Within a single model family, the tier with the largest context window is
+also usually the most expensive per token and the slowest to respond, the
+same way [Section 6](#6-vector-databases-and-embeddings-for-search-and-retrieval)'s
+vector-store table and the [FM-capability table](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+later in this domain let you compare options on more than one axis at
+once. The table below makes that trade-off concrete across two model
+families available on **Amazon Bedrock** — Anthropic's Claude family and
+Meta's Llama family — so a context-window requirement can be weighed
+against cost and latency instead of considered in isolation.
+
+| Model tier | Context window | Relative cost per token | Relative inference latency | Recommended use case |
+|---|---|---|---|---|
+| **Claude Haiku** (Anthropic) | Large (~200K tokens) | Lowest | Lowest | High-volume, latency-sensitive tasks: chat, classification, simple extraction, real-time assistants |
+| **Claude Sonnet** (Anthropic) | Large (~200K tokens) | Moderate | Moderate | Balanced production workloads: RAG over medium-to-long documents, summarization, general-purpose agents |
+| **Claude Opus** (Anthropic) | Large (~200K tokens) | Highest | Highest | Complex, multi-step reasoning where accuracy matters more than speed or cost: deep analysis, agentic planning |
+| **Llama 8B** (Meta) | Small (~8K tokens) | Lowest | Lowest | Lightweight or self-hosted workloads that don't need long context: short-form generation, on-prem/edge inference, fine-tuning experiments |
+| **Llama 70B** (Meta) | Small (~8K tokens) | Moderate–high | Moderate–high | Higher-accuracy open-weight tasks where a long context window isn't required, but more reasoning capability than the 8B tier is |
+
+> **Exam tip:** Notice that context window doesn't automatically scale with
+> a model's "size" or capability. Inside the Claude family, all three
+> tiers share the same large context window, so choosing among them is
+> purely a cost/latency-vs.-reasoning-depth decision. Inside the Llama
+> family, moving from the 8B to the 70B tier buys more capability at
+> higher cost and latency, but **not** a larger context window. If a
+> scenario requires summarizing a very long document or a full
+> conversation history in a single prompt, context window — not raw
+> model size — is the constraint that eliminates otherwise-attractive
+> smaller or cheaper tiers. The
+> [multi-constraint worked example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+> walks through applying context window alongside cost, latency, and
+> modality together.
+
 #### Mini-quiz: Test your understanding of FM application design considerations
 
 Quick self-check before moving on — try to answer before reading the

@@ -122,8 +122,13 @@ of duplicating material inside them:
   referenced anywhere across the five guides, alphabetical, tagged by
   domain(s) `[D#, ...]` and linked to the discussing section. Currently
   spans letter sections A, C, G, I, M, P, and S (only the letters that
-  have at least one referenced service). Answers "where does this series
-  mention Amazon SageMaker?"
+  have at least one referenced service), and includes standalone entries
+  for every actively-referenced service, including Amazon API Gateway,
+  Amazon Bedrock Prompt Management, Amazon Bedrock Prompt Flows, Amazon
+  MSK, Amazon SageMaker Autopilot, Amazon SageMaker Model Monitor, and
+  Amazon SageMaker RL (`tests/test_aws_service_index.py` guards all seven
+  against regressing). Answers "where does this series mention Amazon
+  SageMaker?"
 - **`aws-service-decision-guide.md`** — a consolidated quick reference
   sitting on top of each domain's own comparison table: a decision flow
   for SageMaker vs. Bedrock vs. purpose-built AI services, plus

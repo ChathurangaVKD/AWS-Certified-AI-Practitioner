@@ -670,6 +670,24 @@ metrics in production over time to detect quality drift.
   typically increases the other; the goal is the sweet spot that
   minimizes total error on unseen data.
 
+The diagram below plots this trade-off with **model complexity on the
+x-axis** and **error on the y-axis**, spanning the underfitting → optimal →
+overfitting spectrum:
+
+```mermaid
+flowchart LR
+    subgraph SPECTRUM["Model complexity (x-axis) increasing -->"]
+        direction LR
+        A["Low complexity<br/>UNDERFITTING<br/>High bias, low variance<br/>High error on training AND validation data"]
+        B["Sweet spot<br/>OPTIMAL FIT<br/>Bias and variance balanced<br/>Lowest error on validation data"]
+        C["High complexity<br/>OVERFITTING<br/>Low bias, high variance<br/>Low training error, high validation error"]
+        A -- "add complexity:<br/>more features, deeper model,<br/>less regularization" --> B
+        B -- "add more complexity:<br/>overtrain, remove regularization" --> C
+    end
+    ERR["Total error (y-axis) = Bias&sup2; + Variance + irreducible error<br/>curve is U-shaped and bottoms out at the sweet spot"]
+    B -.-> ERR
+```
+
 **AWS example:** A team training an image classifier with SageMaker
 notices 99% training accuracy but only 65% validation accuracy — classic
 **overfitting**. They use **SageMaker automatic model tuning** to search

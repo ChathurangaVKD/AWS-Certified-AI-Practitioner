@@ -85,7 +85,7 @@ full answer key with explanations.
 Every domain guide's practice questions are scoped to that one domain, but
 the real exam often is not. See
 [`docs/cross-domain-scenario-questions.md`](docs/cross-domain-scenario-questions.md)
-for 12 scenario questions that each require knowledge from two or more
+for 22 scenario questions that each require knowledge from two or more
 domains — for example, choosing a Domain 3 customization method that also
 satisfies a Domain 5 security requirement — tagged by difficulty
 (beginner/intermediate/advanced) like the domain guides' own questions.

@@ -74,6 +74,29 @@ class TestCrossDomainScenarioQuestionsExist(unittest.TestCase):
             "so learners can discover them",
         )
 
+    def test_readme_question_count_matches_actual_count(self):
+        readme_text = _read(README_PATH)
+        count_match = re.search(r"for (\d+) scenario questions", readme_text)
+        self.assertIsNotNone(
+            count_match,
+            "README.md should state how many scenario questions the doc "
+            "has, e.g. 'for 22 scenario questions'",
+        )
+
+        doc_text = _read(DOC_PATH)
+        questions_section = _section(
+            doc_text, r"\n## Practice questions", r"\n## Answer key"
+        )
+        actual_count = len(_numbered_items(questions_section))
+
+        self.assertEqual(
+            int(count_match.group(1)),
+            actual_count,
+            "README.md's claimed scenario question count must match the "
+            "actual number of questions in "
+            "docs/cross-domain-scenario-questions.md",
+        )
+
 
 class TestCrossDomainScenarioQuestionsOverview(unittest.TestCase):
     @classmethod

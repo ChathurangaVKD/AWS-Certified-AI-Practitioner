@@ -13,7 +13,7 @@ Domain 3 customization method *and* checking that it satisfies a Domain 5
 security requirement in the same breath, or picking a Domain 1 learning
 type while weighing a Domain 4 fairness concern.
 
-This document collects 12 scenario questions that each require knowledge
+This document collects 18 scenario questions that each require knowledge
 from **two or more domains** to answer correctly — you cannot eliminate
 every wrong option using only one domain's vocabulary. See the
 [cross-domain concept map](cross-domain-concept-map.md) for the underlying
@@ -160,6 +160,78 @@ the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
     C. Neither matters as long as the resulting model achieves high accuracy
     D. Sustainability and residency describe the same requirement and can never conflict
 
+13. **[Intermediate]** A bank is deciding whether to fine-tune a foundation
+    model on its historical loan-approval decisions to automate approvals,
+    or instead use RAG so the model applies the bank's current, written
+    underwriting policy at query time. The historical decisions are known
+    to reflect past discriminatory lending practices. Which approach best
+    avoids perpetuating that historical bias, and why?
+    A. Fine-tune on the historical approval decisions, because fine-tuning always produces a more accurate model regardless of data quality
+    B. Use RAG to ground responses in the current, vetted underwriting policy document rather than fine-tuning on the historical decisions, since fine-tuning would bake the historical bias directly into the model's weights, whereas RAG only retrieves the current policy text at query time; also run SageMaker Clarify pre-training bias metrics (e.g., difference in proportions of labels) on the historical dataset before deciding whether it's usable at all
+    C. Increase the model's temperature so its decisions vary more from case to case, reducing the appearance of bias
+    D. Use continued pre-training on the historical decisions instead, since it changes fewer weights than fine-tuning and therefore introduces less bias
+
+14. **[Advanced]** (Select TWO.) A company fine-tunes a foundation model on
+    internal résumé data to automate candidate shortlisting. Before
+    production rollout, its responsible-AI review board requires (1)
+    quantitative evidence that the fine-tuned model's shortlisting rate
+    doesn't differ significantly by gender, and (2) a governance document
+    capturing the model's intended use, training data source, and known
+    limitations for sign-off. Which two actions satisfy these two
+    requirements, respectively?
+    A. Run Amazon SageMaker Clarify post-training bias metrics (e.g., disparate impact) on the fine-tuned model's shortlisting predictions
+    B. Publish an Amazon SageMaker Model Card documenting the model's intended use, fine-tuning data source, and known limitations
+    C. Raise the temperature parameter to produce more varied shortlisting decisions
+    D. Switch from fine-tuning to Provisioned Throughput, which removes the need for a bias review
+    E. Rely on Amazon Comprehend to translate résumés into additional languages
+
+15. **[Beginner]** A content team steers a foundation model's
+    customer-service tone with few-shot prompting — providing example Q&A
+    pairs directly in the prompt — without any fine-tuning. During review,
+    they notice every example pair happens to feature only one gender in
+    leadership-role scenarios, nudging the model toward gender-skewed
+    language in its outputs. What is the most direct fix, and what
+    responsible-AI concept does it address?
+    A. Rebalance/diversify the few-shot examples so they no longer skew toward one gender in leadership roles, directly addressing a fairness bias introduced through the prompt's example selection rather than through training data
+    B. Fine-tune the model on a larger dataset instead, since prompt-level bias cannot be fixed without retraining
+    C. Lower the temperature parameter, since less randomness always means less bias
+    D. Switch to Retrieval Augmented Generation, since RAG automatically removes any bias present in a prompt's examples
+
+16. **[Intermediate]** A company's customer-facing Amazon Bedrock assistant
+    uses on-demand pricing. Product wants long, creative answers (a high
+    max-tokens setting and a moderately high temperature), while Finance is
+    worried that a bug or a flood of malicious requests could drive up
+    per-token inference cost unpredictably. Which combination of actions
+    addresses both the creative-output goal and the cost-governance
+    concern?
+    A. Tune max tokens and temperature to the desired creative output, and configure request throttling / Service Quotas (and Amazon API Gateway usage plans if the endpoint sits behind API Gateway) to cap request volume, bounding the worst-case inference cost from a traffic spike or malicious client
+    B. Set max tokens to the lowest possible value at all times, eliminating cost risk but also eliminating the creative-answer requirement
+    C. Rely solely on IAM policies to prevent cost overruns, since IAM controls who can call the endpoint but not how much they can call it
+    D. Switch to Provisioned Throughput only; committing to reserved capacity removes any need to tune inference parameters or bound request volume
+
+17. **[Advanced]** (Select TWO.) A regulated firm wants a Bedrock-based
+    support chatbot to give detailed, quality answers while keeping its
+    monthly bill predictable, since Bedrock on-demand pricing is billed per
+    input/output token. An internal web app calls the endpoint through
+    Amazon API Gateway. Which two actions best balance those two goals?
+    A. Set max tokens (maximum length) no higher than what the use case actually needs, so responses aren't padded with unnecessary tokens the customer is billed for beyond what's useful
+    B. Configure Service Quotas and Amazon API Gateway usage plans on the endpoint to bound total request volume, so a traffic spike can't translate into an unpredictable cost spike
+    C. Set temperature to its maximum value, since more randomness always produces the most detailed and highest-quality answers
+    D. Disable all request logging to reduce operational overhead and therefore reduce billed inference cost
+    E. Purchase Provisioned Throughput sized for worst-case traffic, since only reserved capacity — never inference-parameter tuning — can bound cost
+
+18. **[Beginner]** A startup's Bedrock-based FAQ bot sometimes returns
+    extremely long, rambling answers, and Finance flags that per-request
+    cost — billed per output token — is higher than expected. Which single
+    inference parameter should the team adjust first to directly bound
+    response length and cost, and which AWS tool gives an account-level
+    view of cost-optimization opportunities to confirm the change's
+    impact?
+    A. Lower max tokens (maximum length) to cap how many tokens a response can contain, directly bounding per-call output-token cost; then use AWS Trusted Advisor's cost-optimization checks to review the resulting cost trend across the account
+    B. Lower the temperature parameter, since temperature controls response length rather than randomness
+    C. Raise top-k, since a larger candidate pool always produces shorter responses
+    D. Rely on Amazon SageMaker Model Cards to automatically shorten model responses
+
 ---
 
 ## Answer key and explanations
@@ -176,6 +248,12 @@ the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
 10. **A — Amazon OpenSearch Serverless with a customer-managed KMS key, accessed through an interface VPC endpoint.** OpenSearch Serverless as a vector store (Domain 3) supports customer-managed KMS encryption and PrivateLink-based interface VPC endpoints (Domain 5), satisfying both the encryption and network-isolation requirements simultaneously. Kendra with default encryption over the public internet (B) fails the network-isolation requirement; disabling encryption (C) and using an unencrypted public bucket (D) both directly violate the encryption requirement for PII. *(Domains 3, 5)*
 11. **A — Classical supervised learning for the fixed-category task, few-shot prompting for the open-ended task.** With 200 labeled examples mapping to fixed categories, a classical supervised learning classifier (Domain 1) is the well-matched, data-appropriate choice; for the open-ended drafting task with no labeled "ideal reply" examples, few-shot prompting a foundation model (Domain 2) supplies guidance without needing a labeled dataset. B, C, and D each mismatch the technique to the data shape or task type described. *(Domains 1, 2)*
 12. **B — The data-residency legal requirement takes precedence.** Environmental sustainability is one of the responsible-AI considerations (Domain 4), but data-residency and sovereignty obligations (Domain 5) are hard legal constraints that any sustainability-driven Region choice must still satisfy — you cannot route training to a "greener" Region if doing so violates a residency requirement. A inverts that priority; C ignores a legal obligation entirely; D falsely claims the two considerations never conflict, when this scenario is exactly a case where they do. *(Domains 4, 5)*
+13. **B — Use RAG grounded in the current policy, and check the historical dataset with Clarify before ever fine-tuning on it.** Fine-tuning (Domain 3) directly encodes whatever patterns exist in its training data into the model's weights, so training on decisions that reflect historical bias (Domain 4) would perpetuate that inequity; RAG instead retrieves the current, vetted policy text at query time without altering the model's weights at all. A ignores data quality entirely; raising temperature (C) only adds randomness and does nothing to correct a systematic skew; continued pre-training (D) still trains on the biased data and would bake in the same historical bias as fine-tuning. *(Domains 3, 4)*
+14. **A and B — SageMaker Clarify post-training bias metrics, and a SageMaker Model Card.** Clarify's post-training metrics such as disparate impact (Domain 4) give the quantitative evidence of whether the fine-tuned model's outcomes differ by gender, while a Model Card (Domain 4) documents the fine-tuning data source, intended use, and known limitations that governance sign-off requires — both applied to the fine-tuned model produced by the Domain 3 customization decision. Raising temperature (C) doesn't affect fairness; switching to Provisioned Throughput (D) is a pricing/capacity choice, not a bias review; Comprehend (E) translates text and doesn't assess fairness. *(Domains 3, 4)*
+15. **A — Rebalance the few-shot examples.** Few-shot prompting (Domain 3) steers the model using the examples placed directly in the prompt, so a skew in *which* examples are chosen introduces the same kind of fairness bias (Domain 4) that skewed training data would — the fix is diversifying those examples, not retraining. B misdiagnoses this as a training-data problem when no fine-tuning occurred; C confuses bias with randomness; D is false — RAG grounds responses in retrieved documents and has no mechanism that would automatically correct a biased set of prompt examples. *(Domains 3, 4)*
+16. **A — Tune max tokens/temperature for the desired output, and bound request volume with throttling/Service Quotas.** Max tokens and temperature (Domain 2) are the inference parameters that control response length and creativity, while request throttling, Service Quotas, and API Gateway usage plans (Domain 5) cap how many requests can be made, bounding worst-case inference cost regardless of per-call settings — the two concerns are independent and both need to be addressed. B sacrifices the stated creative-output requirement; C is incomplete, since IAM governs *who* can call the endpoint, not *how much* they can call it; D is false — Provisioned Throughput changes the pricing model but doesn't remove the value of tuning parameters or bounding abusive request volume. *(Domains 2, 5)*
+17. **A and B — Right-size max tokens, and bound request volume with Service Quotas/API Gateway usage plans.** Capping max tokens (Domain 2) to what the task actually needs avoids paying for unnecessary output tokens on every call, while Service Quotas and API Gateway usage plans (Domain 5) bound total request volume so a traffic spike can't translate into an unpredictable bill — together they bound both the per-call and aggregate cost. Maximizing temperature (C) targets creativity, not quality, and does nothing for cost; disabling logging (D) has no meaningful effect on per-token billing and would remove auditability; over-provisioning Provisioned Throughput for worst-case traffic (E) is itself an unpredictable, high fixed cost and ignores that parameter tuning still reduces per-call spend. *(Domains 2, 5)*
+18. **A — Lower max tokens, then confirm with Trusted Advisor.** Max tokens (Domain 2) is the inference parameter that directly caps how many tokens a response — and therefore its output-token cost — can contain; AWS Trusted Advisor (Domain 5) then gives the account-level cost-optimization view needed to confirm the change actually reduced spend. Temperature (B) controls randomness, not length; a larger top-k (C) widens the candidate pool but doesn't shorten responses; Model Cards (D) document a model, they don't alter its runtime behavior. *(Domains 2, 5)*
 
 ---
 

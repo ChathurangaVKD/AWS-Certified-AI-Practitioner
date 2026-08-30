@@ -26,7 +26,7 @@ AWS-Certified-AI-Practitioner/
 │   ├── aws-service-index.md                    every AWS service, indexed across all 5 guides
 │   ├── aws-service-decision-guide.md           "which service is the exam answer here?"
 │   ├── cross-domain-concept-map.md             how D1 concepts flow into D3/D4/D5
-│   ├── cross-domain-scenario-questions.md      12 questions spanning 2+ domains
+│   ├── cross-domain-scenario-questions.md      18 questions spanning 2+ domains
 │   ├── case-study-ai-system-lifecycle.md       one company, one system, all 5 domains
 │   ├── exam-preparation-strategy.md            reading order, schedules, mock-exam plan
 │   ├── full-length-mock-exam.md                65-question, 90-minute mock exam
@@ -130,7 +130,7 @@ of duplicating material inside them:
   (e.g., model evaluation, the ML lifecycle, bias–variance) flow into
   Domain 3 foundation-model applications, Domain 4 responsible-AI
   concerns, and Domain 5 security/governance requirements.
-- **`cross-domain-scenario-questions.md`** — 12 scenario questions that
+- **`cross-domain-scenario-questions.md`** — 18 scenario questions that
   each require knowledge from two or more domains to answer (e.g., a
   Domain 3 customization method that also has to satisfy a Domain 5
   security requirement), tagged Beginner/Intermediate/Advanced like the

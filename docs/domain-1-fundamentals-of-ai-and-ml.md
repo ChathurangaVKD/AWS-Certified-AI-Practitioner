@@ -441,6 +441,33 @@ different managed services for four different problem categories.
 > Comprehend — Textract handles the *layout/extraction*, Comprehend
 > analyzes *plain text meaning*).
 
+**Decision tree:** work an exam scenario by matching the verb in the
+question to the branch below, top to bottom — stop at the first branch
+that fits:
+
+```mermaid
+flowchart TD
+    START(["What does the scenario\nask you to do?"])
+    START --> Q1{"Flag transactions, accounts,\nor claims as fraudulent?"}
+    Q1 -->|"YES"| FD["Amazon Fraud Detector\n(or custom SageMaker model\nfor bespoke fraud logic)"]
+    Q1 -->|"NO"| Q2{"Predict what a user wants\nnext (products, content)?"}
+    Q2 -->|"YES"| PER["Amazon Personalize"]
+    Q2 -->|"NO"| Q3{"Predict future values of a\ntime series (demand,\ninventory, staffing)?"}
+    Q3 -->|"YES"| FC["Amazon Forecast"]
+    Q3 -->|"NO"| Q4{"Extract information from\nimages or video?"}
+    Q4 -->|"YES"| REK["Amazon Rekognition"]
+    Q4 -->|"NO"| Q5{"Understand or extract\nmeaning from plain text\n(sentiment, entities, PII)?"}
+    Q5 -->|"YES"| COMP["Amazon Comprehend"]
+    Q5 -->|"NO"| Q6{"Convert speech to text,\nor text to speech?"}
+    Q6 -->|"Speech to text"| TRANS["Amazon Transcribe"]
+    Q6 -->|"Text to speech"| POLLY["Amazon Polly"]
+    Q6 -->|"NO"| Q7{"Pull text, forms, or tables\nout of scanned documents?"}
+    Q7 -->|"YES"| TEXT["Amazon Textract"]
+    Q7 -->|"NO"| Q8{"Build a voice or text\nchatbot?"}
+    Q8 -->|"YES"| LEX["Amazon Lex"]
+    Q8 -->|"NO"| TRANSL["Translate between\nlanguages: Amazon Translate"]
+```
+
 #### Mini-quiz: Test your understanding of common AI/ML use cases
 
 1. Which AWS service best fits "extract structured data such as tables and
@@ -524,6 +551,17 @@ images, (2) transcribe uploaded video for closed captions, and (3) build a
 support chatbot — three different problems solved by three different
 purpose-built services (Rekognition, Transcribe, and Lex) with no custom
 model training required for any of them.
+
+**Decision tree: purpose-built service or SageMaker?** the same "no ML
+expertise" exam pattern above, as a flowchart:
+
+```mermaid
+flowchart TD
+    START(["Which AWS AI/ML service\nfits this scenario?"])
+    START --> Q1{"Does a purpose-built managed AI\nservice already cover this exact\nuse case (vision, speech, text,\nforecasting, recommendations,\ndocuments, chat, translation)?"}
+    Q1 -->|"YES"| PB["Use the purpose-built service --\nRekognition, Transcribe, Comprehend,\nPolly, Translate, Lex, Personalize,\nForecast, or Textract\n(no ML expertise required)"]
+    Q1 -->|"NO"| SM["Amazon SageMaker --\nbuild, train, tune, deploy, and\nmonitor a CUSTOM model"]
+```
 
 #### Mini-quiz: Test your understanding of AWS managed AI/ML services
 

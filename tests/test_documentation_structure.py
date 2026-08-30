@@ -25,6 +25,7 @@ DOCS_DIR = REPO_ROOT / "docs"
 STRUCTURE_DOC = DOCS_DIR / "DOCUMENTATION_STRUCTURE.md"
 README_PATH = REPO_ROOT / "README.md"
 SCENARIO_QUESTIONS_DOC = DOCS_DIR / "cross-domain-scenario-questions.md"
+MOCK_EXAM_DOC = DOCS_DIR / "full-length-mock-exam.md"
 
 DOMAIN_FILES = {
     1: DOCS_DIR / "domain-1-fundamentals-of-ai-and-ml.md",
@@ -647,6 +648,130 @@ class TestDocumentationStructureScenarioQuestionCountAccuracy(unittest.TestCase)
             f"the actual count ({actual}) in "
             "cross-domain-scenario-questions.md",
         )
+
+
+class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously stated 101 total domain
+    practice questions and 188 total questions overall (101 domain + 65
+    mock + 22 scenario). The five domain guides actually carry 106 practice
+    questions in total (20 each for Domains 1-4, 26 for Domain 5), which
+    combined with the 65-question mock exam and the 22 cross-domain
+    scenario questions comes to 193 total questions. These tests derive the
+    true figures directly from the source files and assert
+    DOCUMENTATION_STRUCTURE.md matches them, guarding against the doc
+    drifting stale again."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    @staticmethod
+    def _count_numbered_questions(text, start_heading, end_heading):
+        match = re.search(
+            rf"\n{re.escape(start_heading)}(.*?)\n{re.escape(end_heading)}",
+            text,
+            re.DOTALL,
+        )
+        assert match is not None, (
+            f"expected a {start_heading!r} ... {end_heading!r} section"
+        )
+        return len(re.findall(r"(?m)^(\d+)\.\s", match.group(1)))
+
+    def _actual_domain_question_total(self):
+        total = 0
+        for path in DOMAIN_FILES.values():
+            text = path.read_text(encoding="utf-8")
+            total += self._count_numbered_questions(
+                text, "## Practice questions", "## Answer key"
+            )
+        return total
+
+    def _actual_mock_exam_question_total(self):
+        text = MOCK_EXAM_DOC.read_text(encoding="utf-8")
+        return self._count_numbered_questions(
+            text,
+            "## Mock exam questions (1–65)",
+            "## 3. Scoring your mock exam",
+        )
+
+    def _actual_scenario_question_total(self):
+        text = SCENARIO_QUESTIONS_DOC.read_text(encoding="utf-8")
+        return self._count_numbered_questions(
+            text, "## Practice questions", "## Answer key"
+        )
+
+    def test_actual_domain_question_total_is_106(self):
+        self.assertEqual(
+            self._actual_domain_question_total(),
+            106,
+            "sanity check: expected 106 practice questions across the "
+            "five domain guides (20 each for Domains 1-4, 26 for Domain 5)",
+        )
+
+    def test_actual_grand_total_is_193(self):
+        grand_total = (
+            self._actual_domain_question_total()
+            + self._actual_mock_exam_question_total()
+            + self._actual_scenario_question_total()
+        )
+        self.assertEqual(
+            grand_total,
+            193,
+            "sanity check: expected 106 domain + 65 mock-exam + 22 "
+            "scenario questions to sum to 193",
+        )
+
+    def test_structure_doc_states_106_domain_practice_questions(self):
+        actual = self._actual_domain_question_total()
+        idx = self.structure_text.find("15–20 per domain")
+        self.assertNotEqual(
+            idx,
+            -1,
+            "expected DOCUMENTATION_STRUCTURE.md to describe the "
+            "per-domain practice question norm",
+        )
+        window = self.structure_text[idx : idx + 300]
+        self.assertIn(
+            f"{actual} domain practice questions in total",
+            window,
+            "DOCUMENTATION_STRUCTURE.md's domain-guide description does "
+            f"not state the actual domain practice question total ({actual})",
+        )
+
+    def test_structure_doc_test_coverage_paragraph_states_106_total(self):
+        actual = self._actual_domain_question_total()
+        idx = self.structure_text.find("**Test coverage:**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        self.assertIn(
+            f"**{actual} total**",
+            window,
+            "DOCUMENTATION_STRUCTURE.md's 'Test coverage' paragraph does "
+            f"not state the actual domain practice question total ({actual})",
+        )
+
+    def test_structure_doc_states_total_assessment_line(self):
+        domain_total = self._actual_domain_question_total()
+        mock_total = self._actual_mock_exam_question_total()
+        scenario_total = self._actual_scenario_question_total()
+        grand_total = domain_total + mock_total + scenario_total
+        idx = self.structure_text.find("**Total assessment:**")
+        self.assertNotEqual(
+            idx,
+            -1,
+            "expected a '**Total assessment:**' line in "
+            "DOCUMENTATION_STRUCTURE.md",
+        )
+        window = self.structure_text[idx : idx + 300]
+        self.assertIn(f"{domain_total} domain practice questions", window)
+        self.assertIn(f"{mock_total} mock-exam questions", window)
+        self.assertIn(f"{scenario_total} scenario questions", window)
+        self.assertIn(f"{grand_total}", window)
+
+    def test_structure_doc_does_not_state_stale_101_or_188_counts(self):
+        self.assertNotIn("101 domain practice questions", self.structure_text)
+        self.assertNotIn("188 questions", self.structure_text)
+        self.assertNotIn("188 total questions", self.structure_text)
 
 
 if __name__ == "__main__":

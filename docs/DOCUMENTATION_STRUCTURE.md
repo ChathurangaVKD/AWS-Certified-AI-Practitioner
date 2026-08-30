@@ -74,8 +74,10 @@ All five follow the same template:
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **26 for Domain 5**,
-  including exactly 2 multiple-response ["select TWO"] questions) and a
-  full `## Answer key` with justifications ruling out each wrong answer.
+  including exactly 2 multiple-response ["select TWO"] questions, for
+  **106 domain practice questions in total** across the five domain
+  guides) and a full `## Answer key` with justifications ruling out each
+  wrong answer.
 
 **Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated
 "## Worked example" section stitching the domain's concepts into one
@@ -106,8 +108,8 @@ shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,
 evaluation term coverage (D1), glossary size (≥15 entries), practice
-question count (15–20 per domain, **26 for Domain 5**), answer
-explanations (≥120 chars each, bolded answer letter), and sequential
+question count (15–20 per domain, **26 for Domain 5**, **106 total**),
+answer explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
 sheet, its subsection mini quizzes (32 in total: 7 each for Domains 1 and
 2, 8 for Domain 3, and 5 each for Domains 4 and 5), and its footer
@@ -163,6 +165,10 @@ of duplicating material inside them:
   domain tags per term, `GLOSSARY.md` as full backlinked prose entries.
   Both answer "where is 'prompt injection' explained?" without knowing
   which domain defines it.
+
+**Total assessment:** 106 domain practice questions (across the five
+domain guides) + 65 mock-exam questions + 22 scenario questions = 193
+questions across the repository.
 
 ## Navigation
 

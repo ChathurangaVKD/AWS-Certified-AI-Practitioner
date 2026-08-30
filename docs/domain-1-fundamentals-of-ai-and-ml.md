@@ -333,6 +333,33 @@ reward signal for success, is **reinforcement learning**.
 > reward*, not simply "learning without labels" — don't confuse it with
 > unsupervised learning.
 
+**Decision tree:** work an exam scenario by following the branch that
+matches what the question tells you about the data and the feedback
+signal:
+
+```mermaid
+flowchart TD
+    START(["Which learning type fits\nthis scenario?"])
+    START --> Q1{"Do you have LABELED data --\ninputs paired with known\ncorrect outputs?"}
+    Q1 -->|"NO"| Q2{"Is feedback immediate and\nreward-based -- does an agent\ntake actions in an environment\nand receive a reward signal?"}
+    Q2 -->|"YES"| RL["REINFORCEMENT LEARNING\n(agent maximizes cumulative\nreward through trial and error)"]
+    Q2 -->|"NO"| Q3{"Are you discovering patterns\nor structure WITHOUT labels\n(clustering, dimensionality\nreduction)?"}
+    Q3 -->|"YES"| UNS["UNSUPERVISED LEARNING\n(clustering or dimensionality\nreduction on unlabeled data)"]
+    Q1 -->|"YES"| Q4{"Is it mostly UNLABELED data\nwith only a small amount of\nlabeled data mixed in?"}
+    Q4 -->|"YES"| SEMI["SEMI-SUPERVISED LEARNING\n(small labeled set + large\nunlabeled set)"]
+    Q4 -->|"NO"| SUP["SUPERVISED LEARNING\n(classification or regression\nfrom labeled examples)"]
+```
+
+**Quick reference (if–then):** the same branches as one-line lookups:
+
+- No labels, and the goal is trial-and-error actions that earn a reward
+  from an environment → **reinforcement learning**
+- No labels, and the goal is finding structure/groupings on your own →
+  **unsupervised learning**
+- Labeled data, but only a small amount alongside a much larger unlabeled
+  pool → **semi-supervised learning**
+- Labeled data covering the whole training set → **supervised learning**
+
 #### Mini-quiz: Test your understanding of types of learning
 
 1. A retailer has purchase histories with no predefined customer

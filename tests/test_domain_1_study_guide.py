@@ -323,6 +323,54 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
             with self.subTest(outcome=outcome):
                 self.assertIn(outcome, diagram)
 
+    def test_model_evaluation_section_has_a_metric_selection_flowchart(self):
+        # Section 6 listed accuracy/precision/recall/F1/AUC-ROC/MAE in
+        # prose but gave no visual guidance on which metric to pick for a
+        # given scenario. This asserts a real Mermaid decision tree exists
+        # and actually branches on problem type (regression vs.
+        # classification) and class imbalance, the two questions called
+        # out in the task, and that every metric is a reachable outcome.
+        section = _section(self.text, r"\n## 6\. Model evaluation basics")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "model evaluation section should include a ```mermaid "
+            "fenced flowchart for choosing an evaluation metric",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        self.assertRegex(diagram, r"flowchart\s+(TD|TB|LR|RL|BT)")
+        self.assertRegex(diagram, r"-->")
+
+        # The two questions called out in the task must appear as decision
+        # nodes (Mermaid diamond syntax): imbalance, and regression vs.
+        # classification.
+        decision_questions = re.findall(r'\w+\{"([^"]+)"\}', diagram)
+        self.assertTrue(
+            decision_questions,
+            "diagram should include Mermaid decision nodes (diamond "
+            'shape, e.g. NAME{"..."})',
+        )
+        combined_questions = "\n".join(decision_questions)
+        for cue in [
+            r"(?i)regression or classification",
+            r"(?i)imbalanced",
+        ]:
+            with self.subTest(cue=cue):
+                self.assertRegex(combined_questions, cue)
+
+        # All the metric outcomes from the prose must be reachable nodes.
+        for outcome in [
+            "MAE",
+            "RMSE",
+            "F1 score or AUC-ROC",
+            "Precision",
+            "Recall",
+            "Accuracy",
+        ]:
+            with self.subTest(outcome=outcome):
+                self.assertIn(outcome, diagram)
+
     def test_bias_variance_section_has_a_trade_off_mermaid_diagram(self):
         # Section 7 explained the bias-variance trade-off in prose only,
         # with no visual anchor for the underfitting/optimal/overfitting

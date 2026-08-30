@@ -616,6 +616,34 @@ metrics in production over time to detect quality drift.
 > the classification threshold typically **increases precision and
 > decreases recall**, and vice versa.
 
+**Decision tree: which metric should I use?** Work an exam scenario by
+following the branch that matches what the question tells you about the
+problem type and the class balance:
+
+```mermaid
+flowchart TD
+    START(["Which evaluation metric\nfits this scenario?"])
+    START --> Q1{"Regression or classification --\nis the target a continuous\nnumber or a category?"}
+    Q1 -->|"Regression"| REG["MAE / RMSE\n(lower is better;\nregression analogue of\nprecision/recall)"]
+    Q1 -->|"Classification"| Q2{"Is the dataset imbalanced\n(e.g. rare fraud/disease\npositive class)?"}
+    Q2 -->|"YES: imbalanced"| Q3{"Do false positives and false\nnegatives have different,\nspecific costs?"}
+    Q3 -->|"YES"| PR["Precision (costly false\npositives) or Recall (costly\nfalse negatives)"]
+    Q3 -->|"NO: need one balanced\nranking metric"| F1["F1 score or AUC-ROC\n(not plain accuracy)"]
+    Q2 -->|"NO: roughly balanced\nclasses"| ACC["Accuracy is safe to use"]
+```
+
+**Quick reference (if–then):** the same branches as one-line lookups:
+
+- Target is a continuous number, not a category → **MAE / RMSE**
+  (regression)
+- Classification on an **imbalanced** dataset, no single asymmetric cost →
+  **F1 score or AUC-ROC**, not accuracy
+- Classification where false positives and false negatives have different
+  costs → **Precision** (false positives costly) or **Recall** (false
+  negatives costly)
+- Classification on a **roughly balanced** dataset → **Accuracy** is a
+  reasonable summary metric
+
 #### Mini-quiz: Test your understanding of model evaluation
 
 1. On a dataset that is 98% negative and 2% positive, a model that always

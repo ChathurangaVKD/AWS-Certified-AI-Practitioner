@@ -277,6 +277,52 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
             "case (leading back to retraining)",
         )
 
+    def test_types_of_learning_section_has_a_selection_flowchart(self):
+        # The learning-type section defines supervised, unsupervised,
+        # semi-supervised, and reinforcement learning in prose but used to
+        # provide no visual framework for choosing between them (unlike
+        # Domain 3's FM-customization and vector-store decision trees).
+        # This asserts a real Mermaid flowchart exists and actually
+        # branches on the three questions that distinguish the four types.
+        section = _section(self.text, r"\n## 3\. Types of learning")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "types of learning section should include a ```mermaid "
+            "fenced flowchart for choosing between learning types",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        self.assertRegex(diagram, r"flowchart\s+(TD|TB|LR|RL|BT)")
+        self.assertRegex(diagram, r"-->")
+
+        # The three questions called out in the task must appear as
+        # decision nodes (Mermaid diamond syntax).
+        decision_questions = re.findall(r'\w+\{"([^"]+)"\}', diagram)
+        self.assertTrue(
+            decision_questions,
+            "diagram should include Mermaid decision nodes (diamond "
+            'shape, e.g. NAME{"..."})',
+        )
+        combined_questions = "\n".join(decision_questions)
+        for cue in [
+            r"(?i)labele?d data",
+            r"(?i)reward",
+            r"(?i)pattern",
+        ]:
+            with self.subTest(cue=cue):
+                self.assertRegex(combined_questions, cue)
+
+        # All four learning types from the prose must be reachable outcomes.
+        for outcome in [
+            "SUPERVISED LEARNING",
+            "UNSUPERVISED LEARNING",
+            "REINFORCEMENT LEARNING",
+            "SEMI-SUPERVISED LEARNING",
+        ]:
+            with self.subTest(outcome=outcome):
+                self.assertIn(outcome, diagram)
+
     def test_has_key_terms_glossary_with_substantial_coverage(self):
         glossary = _section(self.text, r"\n## Key terms glossary")
         entries = re.findall(r"^- \*\*.+?\*\*", glossary, re.M)

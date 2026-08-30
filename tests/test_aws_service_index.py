@@ -108,6 +108,11 @@ REQUIRED_SEVEN_MISSING_SERVICES = [
     "Amazon SageMaker RL",  # D1
 ]
 
+# AWS DeepRacer is referenced in D1 Section 3 (Types of Learning) and its
+# reinforcement-learning comparison table but was missing its own
+# service-index entry -- regression guard for that specific gap.
+REQUIRED_AWS_DEEPRACER_SERVICE = "AWS DeepRacer"
+
 # - **Service** `[D1, D3]` — definition. [D1](link) · [D3](link)
 ENTRY_RE = re.compile(
     r"^- \*\*(?P<service>.+?)\*\* `\[(?P<tags>D\d(?:, D\d)*)\]` — (?P<rest>.+)$",
@@ -241,6 +246,28 @@ class TestAwsServiceIndexCoverage(unittest.TestCase):
                     services,
                     f"AWS service index missing service entry: {service!r}",
                 )
+
+    def test_covers_aws_deepracer(self):
+        services = [service for service, _tags, _rest in self.entries]
+        self.assertIn(
+            REQUIRED_AWS_DEEPRACER_SERVICE,
+            services,
+            "AWS service index missing service entry: 'AWS DeepRacer' "
+            "(referenced in D1 Section 3 Types of Learning and its RL "
+            "comparison table)",
+        )
+
+    def test_aws_deepracer_tagged_d1_and_links_to_types_of_learning(self):
+        by_service_rest = {
+            service: (tags, rest) for service, tags, rest in self.entries
+        }
+        self.assertIn(REQUIRED_AWS_DEEPRACER_SERVICE, by_service_rest)
+        tags, rest = by_service_rest[REQUIRED_AWS_DEEPRACER_SERVICE]
+        self.assertEqual(tags.strip(), "D1")
+        self.assertIn(
+            "domain-1-fundamentals-of-ai-and-ml.md#3-types-of-learning",
+            rest,
+        )
 
     def test_sagemaker_model_monitor_tagged_for_all_three_domains(self):
         by_service = {service: tags for service, tags, _rest in self.entries}

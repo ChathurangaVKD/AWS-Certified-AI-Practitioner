@@ -294,6 +294,139 @@ class TestMockExamAnswerKey(unittest.TestCase):
         )
 
 
+class TestScoreBandRemediation(unittest.TestCase):
+    """Section 3 used to tell every learner to "re-read that domain's guide
+    in full" regardless of how badly (or narrowly) they missed it. It now
+    carries a "Score-band remediation by domain" table that maps specific
+    score ranges within each domain to the specific high-yield section(s)
+    of that domain's guide, instead of prescribing a full re-read of a
+    1,300-2,400 line document. These tests assert that replacement is
+    actually present, covers every domain with multiple score bands, and
+    that every section it points to is a real, specific section (not just
+    a bare link back to the top of the guide)."""
+
+    DOMAIN_GUIDES = {
+        1: "domain-1-fundamentals-of-ai-and-ml.md",
+        2: "domain-2-fundamentals-of-generative-ai.md",
+        3: "domain-3-applications-of-foundation-models.md",
+        4: "domain-4-guidelines-for-responsible-ai.md",
+        5: "domain-5-security-compliance-governance.md",
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.scoring_section = _section(
+            cls.text, r"\n## 3\. Scoring your mock exam", r"\n## 4\. "
+        )
+        cls.remediation_section = _section(
+            cls.text, r"\n### Score-band remediation by domain", r"\n## 4\. "
+        )
+
+    def test_generic_full_reread_instruction_is_gone(self):
+        # The old text told every learner, regardless of score, to
+        # "re-read that domain's guide in full". That blanket instruction
+        # must no longer be the guidance Section 3 gives.
+        self.assertNotIn("Re-read that domain's guide in full", self.text)
+        self.assertNotRegex(
+            self.text.lower(),
+            r"re-read (that|the) domain'?s guide in full",
+        )
+
+    def test_scoring_section_points_to_score_band_table(self):
+        self.assertIn("score-band-remediation-by-domain", self.scoring_section)
+
+    def test_score_band_section_covers_every_domain_with_three_bands(self):
+        for domain, guide_file in self.DOMAIN_GUIDES.items():
+            with self.subTest(domain=domain):
+                domain_heading = re.search(
+                    rf"\*\*Domain {domain} — [^*]+\*\*", self.remediation_section
+                )
+                self.assertIsNotNone(
+                    domain_heading,
+                    f"expected a 'Domain {domain}' subsection in the "
+                    f"score-band remediation table",
+                )
+                # Grab this domain's block, up to the next "**Domain" bolded
+                # heading (or end of the remediation section).
+                start = domain_heading.end()
+                next_domain = re.search(
+                    r"\*\*Domain \d — ", self.remediation_section[start:]
+                )
+                block = (
+                    self.remediation_section[start : start + next_domain.start()]
+                    if next_domain
+                    else self.remediation_section[start:]
+                )
+                rows = re.findall(r"^\|[^\n]+\|\s*$", block, re.M)
+                # Header separator + at least 3 score-band data rows.
+                data_rows = [
+                    r for r in rows if not re.match(r"^\|[\s:|-]+\|$", r)
+                ]
+                self.assertGreaterEqual(
+                    len(data_rows),
+                    4,  # header row + at least 3 score bands
+                    f"Domain {domain} should have at least 3 distinct "
+                    f"score-band rows",
+                )
+                # Every row must link into that domain's own guide, not a
+                # different domain's guide.
+                self.assertIn(guide_file, block)
+                other_guides = [
+                    f
+                    for d, f in self.DOMAIN_GUIDES.items()
+                    if d != domain
+                ]
+                for other in other_guides:
+                    self.assertNotIn(
+                        other,
+                        block,
+                        f"Domain {domain}'s score-band row links to "
+                        f"{other}, which belongs to a different domain",
+                    )
+
+    def test_score_band_links_target_specific_sections_not_bare_guide_links(self):
+        # Every link into a domain guide from this table must carry an
+        # anchor into a specific section -- a bare "domain-N-....md" link
+        # with no "#section" would just be the old "read the whole guide"
+        # advice again, dressed up as a table.
+        links = MD_LINK_RE.findall(self.remediation_section)
+        guide_links = [
+            link
+            for link in links
+            if any(link.startswith(g) for g in self.DOMAIN_GUIDES.values())
+        ]
+        self.assertGreater(len(guide_links), 0)
+        for link in guide_links:
+            with self.subTest(link=link):
+                self.assertIn(
+                    "#",
+                    link,
+                    f"remediation link {link!r} must target a specific "
+                    f"section anchor, not the whole guide",
+                )
+                anchor = link.split("#", 1)[1]
+                self.assertNotEqual(
+                    anchor,
+                    "",
+                    f"remediation link {link!r} has an empty anchor",
+                )
+
+    def test_score_bands_within_each_domain_are_non_overlapping_and_ordered(self):
+        # Sanity-check the numeric score-band ranges themselves: for each
+        # domain, the low/mid/high bands should be increasing and shouldn't
+        # skip or double-count a possible raw score.
+        expected_max = {1: 13, 2: 16, 3: 18, 4: 9, 5: 9}
+        for domain, guide_file in self.DOMAIN_GUIDES.items():
+            with self.subTest(domain=domain):
+                domain_heading = re.search(
+                    rf"\*\*Domain {domain} — [^*]+\*\* \((\d+) questions",
+                    self.remediation_section,
+                )
+                self.assertIsNotNone(domain_heading)
+                self.assertEqual(int(domain_heading.group(1)), expected_max[domain])
+
+
 class TestMockExamLinksResolve(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

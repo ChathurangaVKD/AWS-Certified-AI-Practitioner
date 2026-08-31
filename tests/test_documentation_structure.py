@@ -35,6 +35,9 @@ DOMAIN_FILES = {
     5: DOCS_DIR / "domain-5-security-compliance-governance.md",
 }
 
+MASTER_GLOSSARY_DOC = DOCS_DIR / "master-glossary.md"
+GLOSSARY_DOC = DOCS_DIR / "GLOSSARY.md"
+
 CROSS_DOMAIN_SUPPORT_FILES = [
     "cross-domain-scenario-questions.md",
     "cross-domain-concept-map.md",
@@ -376,6 +379,56 @@ class TestDocumentationStructureCrossDomainMaterialsAccuracy(unittest.TestCase):
                     f"domain {domain_number} guide ({path.name}) is missing "
                     "its breadcrumb navigation line",
                 )
+
+
+class TestDocumentationStructureGlossaryEntryCountAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's cross-domain support document entry for
+    master-glossary.md and GLOSSARY.md states an exact entry count for the
+    shared, merged term set. Both files must actually carry that many
+    top-level `- **Term**` entries, so the stated figure can't silently
+    drift stale as terms are added or removed."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.master_glossary_text = MASTER_GLOSSARY_DOC.read_text(encoding="utf-8")
+        cls.glossary_text = GLOSSARY_DOC.read_text(encoding="utf-8")
+
+    @staticmethod
+    def _entry_count(text):
+        return len(re.findall(r"(?m)^- \*\*", text))
+
+    def test_master_glossary_and_glossary_have_the_same_entry_count(self):
+        # Sanity check: both files are meant to be two views of the same
+        # merged term set, so they should carry the same number of entries.
+        self.assertEqual(
+            self._entry_count(self.master_glossary_text),
+            self._entry_count(self.glossary_text),
+            "master-glossary.md and GLOSSARY.md are expected to carry the "
+            "same number of entries (two views of the same merged term set)",
+        )
+
+    def test_stated_glossary_entry_count_matches_actual(self):
+        actual = self._entry_count(self.master_glossary_text)
+        idx = self.structure_text.find("**`master-glossary.md`**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        self.assertIn(
+            f"**{actual} entries**",
+            window,
+            "DOCUMENTATION_STRUCTURE.md's master-glossary.md/GLOSSARY.md "
+            f"entry does not state the actual glossary entry count ({actual})",
+        )
+
+    def test_no_stale_glossary_entry_count(self):
+        idx = self.structure_text.find("**`master-glossary.md`**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        stale_counts = re.findall(r"\*\*(\d+) entries\*\*", window)
+        actual = self._entry_count(self.master_glossary_text)
+        for stale_count in stale_counts:
+            with self.subTest(stated=stale_count):
+                self.assertEqual(int(stale_count), actual)
 
 
 class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.TestCase):

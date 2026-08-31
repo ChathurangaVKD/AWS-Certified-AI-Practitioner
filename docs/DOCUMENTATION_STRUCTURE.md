@@ -161,10 +161,10 @@ of duplicating material inside them:
   domains.
 - **`master-glossary.md`** and **`GLOSSARY.md`** — two views of the same
   merged, alphabetical term set spanning all five domains' "Key terms"
-  sections: `master-glossary.md` as a compact index with `[D#, ...]`
-  domain tags per term, `GLOSSARY.md` as full backlinked prose entries.
-  Both answer "where is 'prompt injection' explained?" without knowing
-  which domain defines it.
+  sections, **155 entries** each: `master-glossary.md` as a compact index
+  with `[D#, ...]` domain tags per term, `GLOSSARY.md` as full backlinked
+  prose entries. Both answer "where is 'prompt injection' explained?"
+  without knowing which domain defines it.
 
 **Total assessment:** 106 domain practice questions (across the five
 domain guides) + 65 mock-exam questions + 22 scenario questions = 193

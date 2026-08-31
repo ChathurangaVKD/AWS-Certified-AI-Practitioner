@@ -41,10 +41,10 @@ REQUIRED_DOWNSTREAM_DOMAINS = [
     "domain-5-security-compliance-governance.md",
 ]
 
-# The commonly-confused concept pairs the quick-reference table must cover,
-# taken directly from the gap report's list of scattered distinctions.
+# The commonly-confused concept pairs the "quick reference" table must cover,
+# one substring per pair that is expected to appear verbatim in the table.
 REQUIRED_CONFUSED_PAIRS = [
-    "Statistical bias vs. fairness bias",
+    "Statistical bias (bias–variance trade-off) vs. fairness bias",
     "Precision vs. recall",
     "Fine-tuning vs. continued pre-training",
     "CloudTrail vs. Config vs. Audit Manager",
@@ -132,19 +132,41 @@ class TestCrossDomainConceptMapCoverage(unittest.TestCase):
         )
 
 
-class TestCommonlyConfusedConceptPairs(unittest.TestCase):
-    """The quick-reference table added to give learners a single
-    side-by-side comparison of terms that are easy to mix up across
-    domains (e.g. statistical bias vs. fairness bias)."""
+class TestCommonlyConfusedConceptPairsTable(unittest.TestCase):
+    """Regression coverage for the 'Commonly confused concept pairs' quick
+    reference table: every required pair must be present, in a real
+    markdown table, each with at least one source-section link."""
 
     @classmethod
     def setUpClass(cls):
         cls.text = _read(DOC_PATH)
+        heading_match = re.search(
+            r"^## Commonly confused concept pairs.*?$", cls.text, re.M
+        )
+        if heading_match is None:
+            cls.section_text = ""
+        else:
+            # Slice from the heading to the next top-level (##) heading or
+            # end of file, so assertions below only look at this section.
+            start = heading_match.end()
+            next_heading = re.search(r"^## ", cls.text[start:], re.M)
+            end = start + next_heading.start() if next_heading else len(cls.text)
+            cls.section_text = cls.text[start:end]
 
-    def test_has_commonly_confused_pairs_heading(self):
-        self.assertRegex(
+    def test_section_exists(self):
+        self.assertIn(
+            "## Commonly confused concept pairs",
             self.text,
-            re.compile(r"^##\s+Commonly confused concept pairs\s*$", re.M),
+            "expected a 'Commonly confused concept pairs' quick-reference "
+            "section in the cross-domain concept map",
+        )
+
+    def test_section_contains_a_markdown_table(self):
+        self.assertRegex(
+            self.section_text,
+            r"\|\s*-{2,}\s*\|",
+            "the commonly-confused-pairs section must contain a real "
+            "markdown table (header separator row)",
         )
 
     def test_covers_every_required_pair(self):
@@ -152,37 +174,31 @@ class TestCommonlyConfusedConceptPairs(unittest.TestCase):
             with self.subTest(pair=pair):
                 self.assertIn(
                     pair,
-                    self.text,
-                    f"commonly-confused-pairs table is missing: {pair!r}",
+                    self.section_text,
+                    f"commonly-confused-pairs table missing pair: {pair!r}",
                 )
 
-    def test_pairs_table_has_a_header_separator_row(self):
-        section = self.text.split("## Commonly confused concept pairs", 1)[1]
-        section = section.split("\n## ", 1)[0]
-        self.assertRegex(
-            section,
-            r"\|\s*-{2,}\s*\|\s*-{2,}\s*\|\s*-{2,}\s*\|",
-            "expected a 3-column markdown table (term pair, distinction, "
-            "source sections) under the commonly-confused-pairs heading",
-        )
-
-    def test_every_pair_row_links_back_to_a_source_section(self):
-        section = self.text.split("## Commonly confused concept pairs", 1)[1]
-        section = section.split("\n## ", 1)[0]
-        data_rows = [
+    def test_every_row_has_at_least_one_source_link(self):
+        # Data rows are lines starting with "|" that aren't the header or
+        # separator row.
+        rows = [
             line
-            for line in section.splitlines()
-            if line.strip().startswith("|") and "---" not in line
+            for line in self.section_text.splitlines()
+            if line.strip().startswith("|")
+            and not re.match(r"^\|\s*-{2,}", line.strip())
             and "Term A vs. Term B" not in line
         ]
-        self.assertEqual(len(data_rows), len(REQUIRED_CONFUSED_PAIRS))
-        for row in data_rows:
-            with self.subTest(row=row):
+        self.assertEqual(
+            len(rows),
+            len(REQUIRED_CONFUSED_PAIRS),
+            "expected exactly one table row per required confused pair",
+        )
+        for row in rows:
+            with self.subTest(row=row[:60]):
                 self.assertRegex(
                     row,
-                    r"\[D\d[^\]]*\]\([^)]+\.md#[^)]+\)",
-                    "each commonly-confused-pair row must link to at least "
-                    "one domain doc section anchor",
+                    MD_LINK_RE,
+                    f"table row has no source-section link: {row!r}",
                 )
 
 

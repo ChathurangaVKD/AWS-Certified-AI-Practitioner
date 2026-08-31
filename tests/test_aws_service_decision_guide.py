@@ -543,6 +543,70 @@ class TestAwsServiceDecisionGuideConsolidatedMatrix(unittest.TestCase):
         self.assertIn("aws-service-index.md", self.section_text)
 
 
+DOMAIN_LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*(?P<date>\d{4}-\d{2}-\d{2})")
+BEDROCK_LAST_VERIFIED_RE = re.compile(
+    r"last verified\W{0,6}(?P<date>\d{4}-\d{2}-\d{2})", re.IGNORECASE
+)
+
+DOMAIN_GUIDE_FILENAMES = [
+    "domain-1-fundamentals-of-ai-and-ml.md",
+    "domain-2-fundamentals-of-generative-ai.md",
+    "domain-3-applications-of-foundation-models.md",
+    "domain-4-guidelines-for-responsible-ai.md",
+    "domain-5-security-compliance-governance.md",
+]
+
+
+class TestAwsServiceDecisionGuideLastVerifiedDateAgreesWithDomains(unittest.TestCase):
+    """The decision guide's Bedrock model reference carries its own
+    'Last verified' checkpoint (section 4), separate from the five domain
+    guides' shared checkpoint. A prior review synced all five domain guides
+    to the same date but left this doc a day behind, which made the
+    series' freshness metadata look inconsistent even though nothing was
+    actually stale. Guard against that drifting again."""
+
+    def test_decision_guide_date_matches_domain_guides(self):
+        domain_dates = set()
+        for filename in DOMAIN_GUIDE_FILENAMES:
+            text = _read(DOCS_DIR / filename)
+            match = DOMAIN_LAST_VERIFIED_RE.search(text)
+            self.assertIsNotNone(
+                match, f"{filename} is missing a 'Last verified' date"
+            )
+            domain_dates.add(match.group("date"))
+
+        self.assertEqual(
+            len(domain_dates),
+            1,
+            f"domain guides disagree on their 'Last verified' date: {domain_dates}",
+        )
+        domain_date = next(iter(domain_dates))
+
+        decision_guide_text = _read(DOC_PATH)
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            decision_guide_text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(
+            section_match, "could not locate the Bedrock model reference section"
+        )
+        bedrock_match = BEDROCK_LAST_VERIFIED_RE.search(section_match.group(0))
+        self.assertIsNotNone(
+            bedrock_match,
+            "Bedrock model reference section is missing a 'Last verified' date",
+        )
+
+        self.assertEqual(
+            bedrock_match.group("date"),
+            domain_date,
+            "aws-service-decision-guide.md's 'Last verified' date "
+            f"({bedrock_match.group('date')}) has drifted from the domain "
+            f"guides' shared date ({domain_date}); the whole series should "
+            "stay in sync",
+        )
+
+
 class TestAwsServiceDecisionGuideLinksResolve(unittest.TestCase):
     """The whole point of this doc is pointing back at the domain guides
     it consolidates. Verify every relative markdown link (optionally with

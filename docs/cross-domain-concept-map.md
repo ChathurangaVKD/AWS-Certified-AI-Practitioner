@@ -71,6 +71,27 @@ studied in Domain 1 pay off three domains later.
 
 ---
 
+## Commonly confused concept pairs
+
+The concepts above don't just flow from one domain into the next — several
+of them share a name, or a close cousin of one, with an unrelated concept
+in another domain. The exam tests these distinctions directly, so this
+table puts the most commonly confused pairs side by side for a last-minute
+review, with links back to the section in each domain guide where the full
+explanation lives.
+
+| Term A vs. Term B | One-line distinction | Source sections |
+|---|---|---|
+| Statistical bias vs. fairness bias | Statistical bias (high-bias/underfitting, a property of a model's fit) is not the same concept as fairness bias (a systematic, unfair skew toward or against a demographic group) — same word, two unrelated exam concepts. | [D1 §7](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off) · [D4 §2](domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) |
+| Precision vs. recall | Precision = of everything flagged positive, what fraction was actually positive (few false alarms); recall = of everything actually positive, what fraction was caught (few missed cases) — raising the classification threshold typically increases one and decreases the other. | [D1 §6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) |
+| Fine-tuning vs. continued pre-training | Fine-tuning adapts a foundation model to a specific task using labeled prompt/response pairs (supervised learning); continued pre-training keeps training on large volumes of unlabeled domain-specific text to shift the model's general knowledge, before any task-specific tuning happens. | [D1 §2](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle) · [D3 §4](domain-3-applications-of-foundation-models.md#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) |
+| CloudTrail vs. Config vs. Audit Manager | CloudTrail logs *who did what* (API activity); AWS Config tracks *whether a resource's configuration stayed compliant* over time; Audit Manager assembles both (plus other evidence) into audit-ready reports mapped to a compliance framework. | [D5 §3](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) |
+| Model Cards vs. AI Service Cards | A SageMaker Model Card is self-authored documentation for a model *your organization built*; an AI Service Card is AWS-published documentation for an AWS-managed AI service *you consume* (e.g., Rekognition, Transcribe). | [D4 §3](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) |
+| On-demand vs. provisioned throughput | On-demand is pay-per-token Bedrock pricing with no capacity commitment, suited to variable/unpredictable traffic; provisioned throughput reserves dedicated model capacity for steady, high-volume traffic or when serving a custom (fine-tuned) model. | [D2 §5](domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) · [D3 §5](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) |
+| Real-time vs. batch vs. serverless inference | Real-time inference serves synchronous, low-latency requests off a persistent endpoint; batch inference scores a large volume offline with nobody waiting on an individual response; serverless inference auto-scales (including to zero) for intermittent, unpredictable traffic. | [D1 §1](domain-1-fundamentals-of-ai-and-ml.md#1-basic-aimldl-terminology-and-concepts) · [D3 §8](domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads) |
+
+---
+
 ## Why this matters for the exam
 
 AIF-C01 scenario questions frequently combine concepts across domains in a

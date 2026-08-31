@@ -41,6 +41,18 @@ REQUIRED_DOWNSTREAM_DOMAINS = [
     "domain-5-security-compliance-governance.md",
 ]
 
+# The commonly-confused concept pairs the quick-reference table must cover,
+# taken directly from the gap report's list of scattered distinctions.
+REQUIRED_CONFUSED_PAIRS = [
+    "Statistical bias vs. fairness bias",
+    "Precision vs. recall",
+    "Fine-tuning vs. continued pre-training",
+    "CloudTrail vs. Config vs. Audit Manager",
+    "Model Cards vs. AI Service Cards",
+    "On-demand vs. provisioned throughput",
+    "Real-time vs. batch vs. serverless inference",
+]
+
 MD_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)\s]+)\)")
 
 
@@ -118,6 +130,60 @@ class TestCrossDomainConceptMapCoverage(unittest.TestCase):
             len(REQUIRED_DOWNSTREAM_DOMAINS),
             "expected at least one concept-map table per downstream domain",
         )
+
+
+class TestCommonlyConfusedConceptPairs(unittest.TestCase):
+    """The quick-reference table added to give learners a single
+    side-by-side comparison of terms that are easy to mix up across
+    domains (e.g. statistical bias vs. fairness bias)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+
+    def test_has_commonly_confused_pairs_heading(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^##\s+Commonly confused concept pairs\s*$", re.M),
+        )
+
+    def test_covers_every_required_pair(self):
+        for pair in REQUIRED_CONFUSED_PAIRS:
+            with self.subTest(pair=pair):
+                self.assertIn(
+                    pair,
+                    self.text,
+                    f"commonly-confused-pairs table is missing: {pair!r}",
+                )
+
+    def test_pairs_table_has_a_header_separator_row(self):
+        section = self.text.split("## Commonly confused concept pairs", 1)[1]
+        section = section.split("\n## ", 1)[0]
+        self.assertRegex(
+            section,
+            r"\|\s*-{2,}\s*\|\s*-{2,}\s*\|\s*-{2,}\s*\|",
+            "expected a 3-column markdown table (term pair, distinction, "
+            "source sections) under the commonly-confused-pairs heading",
+        )
+
+    def test_every_pair_row_links_back_to_a_source_section(self):
+        section = self.text.split("## Commonly confused concept pairs", 1)[1]
+        section = section.split("\n## ", 1)[0]
+        data_rows = [
+            line
+            for line in section.splitlines()
+            if line.strip().startswith("|") and "---" not in line
+            and "Term A vs. Term B" not in line
+        ]
+        self.assertEqual(len(data_rows), len(REQUIRED_CONFUSED_PAIRS))
+        for row in data_rows:
+            with self.subTest(row=row):
+                self.assertRegex(
+                    row,
+                    r"\[D\d[^\]]*\]\([^)]+\.md#[^)]+\)",
+                    "each commonly-confused-pair row must link to at least "
+                    "one domain doc section anchor",
+                )
 
 
 class TestCrossDomainConceptMapLinksResolve(unittest.TestCase):

@@ -687,8 +687,12 @@ not attempt to simulate.
 
 3. Identify your one or two weakest domains by percentage (not raw count —
    a domain with fewer questions can still be your weakest by percentage).
-   Re-read that domain's guide in full, then redo that domain's
-   domain-specific practice questions untimed, reviewing every explanation.
+   Instead of re-reading that domain's entire guide (each runs
+   1,300–2,400 lines), use the [score-band remediation
+   table](#score-band-remediation-by-domain) below to jump straight to the
+   specific section(s) most likely to close the gap, then redo that
+   domain's domain-specific practice questions untimed, reviewing every
+   explanation.
 4. Cross-reference every question you missed against the [consolidated
    exam traps](exam-preparation-strategy.md#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts)
    in the exam prep guide — most missed questions map directly onto one of
@@ -697,6 +701,55 @@ not attempt to simulate.
 5. If you have time before the real exam, retake this mock exam once more
    a few days later. A rising score with a shrinking gap in your weakest
    domain is the best available signal that you're ready.
+
+### Score-band remediation by domain
+
+Find your weakest domain's score band below and go straight to the linked
+section(s) — this is deliberately narrower than "re-read the whole guide,"
+targeting the specific content most likely to be behind a score in that
+band. If you're in the lowest band for a domain, its guide's remaining
+sections are still worth a full pass eventually, but the linked sections
+are the highest-leverage place to start.
+
+**Domain 1 — Fundamentals of AI and ML** (13 questions)
+
+| Your score | What it signals | Go straight to |
+|---|---|---|
+| 0–7 (≤53%) | Gaps in core fundamentals, not one narrow topic | [§2 The ML development lifecycle](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle) and [§7 Overfitting, underfitting, and the bias–variance trade-off](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off) — these anchor most of the domain's other questions |
+| 8–10 (54–76%) | Fundamentals hold up; applied metrics and service selection don't | [§6 Model evaluation basics](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) (precision/recall/RMSE/accuracy pitfalls) and [§4 Common use cases for AI/ML](domain-1-fundamentals-of-ai-and-ml.md#4-common-use-cases-for-aiml) (which AWS service fits which use case) |
+| 11–13 (77–100%) | Only isolated gaps | [Quick-reference cheat sheet](domain-1-fundamentals-of-ai-and-ml.md#quick-reference-cheat-sheet) and [Key terms glossary](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary) — scan for the specific terms you missed |
+
+**Domain 2 — Fundamentals of Generative AI** (16 questions)
+
+| Your score | What it signals | Go straight to |
+|---|---|---|
+| 0–9 (≤56%) | Gaps in core generative AI concepts and prompting | [§1 Generative AI core concepts](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) and [§6 Prompt engineering fundamentals](domain-2-fundamentals-of-generative-ai.md#6-prompt-engineering-fundamentals) |
+| 10–12 (57–75%) | Concepts hold up; AWS service mapping and model selection don't | [§5 AWS generative AI services and capabilities](domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) and [§7 Foundation model selection criteria](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria) |
+| 13–16 (76–100%) | Only isolated gaps | [Quick-reference cheat sheet](domain-2-fundamentals-of-generative-ai.md#quick-reference-cheat-sheet) and [Key terms glossary](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary) |
+
+**Domain 3 — Applications of Foundation Models** (18 questions, the largest domain)
+
+| Your score | What it signals | Go straight to |
+|---|---|---|
+| 0–10 (≤55%) | Gaps across RAG and Bedrock's core feature set | [§3 Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) and [§5 Amazon Bedrock features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) |
+| 11–14 (56–78%) | RAG and Bedrock features hold up; customization choice and infrastructure don't | [§4 Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](domain-3-applications-of-foundation-models.md#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) and [§8 AWS infrastructure for generative AI workloads](domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads) |
+| 15–18 (79–100%) | Only isolated gaps | [Quick-reference cheat sheet](domain-3-applications-of-foundation-models.md#quick-reference-cheat-sheet) and [Comparison table: customization approaches for foundation model applications](domain-3-applications-of-foundation-models.md#comparison-table-customization-approaches-for-foundation-model-applications) |
+
+**Domain 4 — Guidelines for Responsible AI** (9 questions)
+
+| Your score | What it signals | Go straight to |
+|---|---|---|
+| 0–5 (≤55%) | Gaps in the core responsible-AI vocabulary and bias concepts | [§1 Core dimensions of responsible AI](domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai) and [§2 Identifying bias and fairness issues in training data and model outputs](domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) |
+| 6–7 (56–78%) | Concepts hold up; which AWS tool to reach for doesn't | [§3 AWS tools for responsible AI](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) (Model Cards, Guardrails, Amazon A2I) |
+| 8–9 (79–100%) | Only isolated gaps | [§4 Legal and ethical considerations](domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations), [§5 Balancing model performance and interpretability](domain-4-guidelines-for-responsible-ai.md#5-balancing-model-performance-and-interpretability), and the [Quick-reference cheat sheet](domain-4-guidelines-for-responsible-ai.md#quick-reference-cheat-sheet) |
+
+**Domain 5 — Security, Compliance, and Governance** (9 questions)
+
+| Your score | What it signals | Go straight to |
+|---|---|---|
+| 0–5 (≤55%) | Gaps in core AI security controls | [§1 Securing AI systems](domain-5-security-compliance-governance.md#1-securing-ai-systems) — especially the [IAM roles and policies](domain-5-security-compliance-governance.md#iam-roles-and-policies-for-ai-services) and [AWS PrivateLink and VPC endpoints](domain-5-security-compliance-governance.md#aws-privatelink-and-vpc-endpoints-for-ai-services) subsections |
+| 6–7 (56–78%) | Security controls hold up; governance/monitoring tooling and compliance regimes don't | [§3 AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) and the [HIPAA subsection of §2](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act-conceptual-level) |
+| 8–9 (79–100%) | Only isolated gaps | [§5 AWS shared responsibility model applied to AI/ML services](domain-5-security-compliance-governance.md#5-aws-shared-responsibility-model-applied-to-aiml-services) and the [Quick-reference cheat sheet](domain-5-security-compliance-governance.md#quick-reference-cheat-sheet) |
 
 ---
 

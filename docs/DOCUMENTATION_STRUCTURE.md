@@ -86,6 +86,20 @@ support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing
 and documenting a responsible e-commerce recommendation engine (D4), and a
 HIPAA-regulated Bedrock application (D5).
 
+Domain 3 carries more worked examples than any other domain, so its count
+needs its own methodology note: it has seven standalone "## Worked
+example" sections in total (implementing RAG for a policy-lookup
+assistant — the closing example referenced above — troubleshooting a
+failing RAG system, selecting a foundation model under multiple competing
+constraints, estimating a context-window token budget, estimating tokens
+for long-document summarization, comparing monthly inference costs across
+model tiers, and comparing fine-tuning against prompt engineering), plus
+one additional worked example that is a subsection nested inside Section 7
+rather than a standalone section ("### Worked example: is a 2-point
+BLEU/ROUGE improvement statistically significant?"). Counting standalone
+sections only, Domain 3 has seven worked examples; counting the nested
+Section-7 subsection too, it has eight.
+
 **Diagrams:** All 24 flowchart-style diagrams across the guide are Mermaid flowchart
 diagrams, not ASCII art: Domain 1 has six (the 8-stage ML lifecycle loop,
 Section 2; decision trees for learning-type selection (Section 3),

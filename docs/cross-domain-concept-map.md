@@ -30,7 +30,7 @@ itself creates new considerations that Domains 4 and 5 pick up.
 ## At a glance
 
 - Model evaluation metrics (D1) → FM performance evaluation (D3)
-- ML lifecycle: training/fine-tuning step (D1) → fine-tuning vs. RAG vs. prompt engineering (D3)
+- ML development lifecycle: training/fine-tuning step (D1) → fine-tuning vs. RAG vs. prompt engineering (D3)
 - Types of learning: supervised learning (D1) → fine-tuning as supervised adaptation (D3)
 - AWS managed AI/ML services: Amazon SageMaker (D1) → Bedrock vs. SageMaker infrastructure choices (D3)
 - Inference types: real-time/batch/serverless (D1) → on-demand vs. provisioned throughput (D3)
@@ -42,6 +42,16 @@ itself creates new considerations that Domains 4 and 5 pick up.
 - ML lifecycle: data collection/preparation (D1) → data lineage, encryption, and residency (D5)
 - AWS managed AI/ML services: Amazon SageMaker (D1) → shared responsibility model (D5)
 - Model monitoring for drift (D1) → data governance and monitoring strategies (D5)
+- Foundation model selection criteria (D2) → FM application design considerations (D3)
+- Prompt engineering fundamentals (D2) → prompt engineering techniques (D3)
+- Generative AI core concepts: architecture/training data choice (D2) → core dimensions of responsible AI (D4)
+- Advantages and disadvantages of generative AI: hallucination (D2) → bias and fairness issues in model outputs (D4)
+- AWS generative AI services and capabilities (D2) → shared responsibility model (D5)
+- Prompt engineering fundamentals: prompt injection risk (D2) → security threats and mitigations (D5)
+- RAG and Amazon Bedrock Knowledge Bases (D3) → bias and fairness issues in model outputs (D4)
+- Evaluating foundation model performance (D3) → balancing performance and interpretability (D4)
+- RAG and Amazon Bedrock Knowledge Bases: source citation (D3) → data lineage and governance (D5)
+- AWS infrastructure for generative AI workloads (D3) → shared responsibility model (D5)
 
 ---
 
@@ -50,6 +60,75 @@ itself creates new considerations that Domains 4 and 5 pick up.
 | Domain 1 fundamental | Flows into (Domain 3) | Why the connection matters |
 |---|---|---|
 | [Model evaluation basics](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) — accuracy, precision, recall, F1, AUC-ROC | [Evaluating foundation model performance](domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) | FM evaluation doesn't replace classical model evaluation, it builds on it: **benchmark datasets** score an FM with the same objective, automatable mindset as D1's classification metrics, before layering on human evaluation and business metrics that D1 doesn't need for a simple classifier. |
+
+---
+
+## Domain 2 → Domain 3: Applications of Foundation Models
+
+Domain 2 teaches generative AI concepts at the level of "what is this and
+why does it exist"; Domain 3 is where the same concepts become concrete
+application-design decisions with cost, latency, and architecture trade-offs
+attached.
+
+| Domain 2 fundamental | Flows into (Domain 3) | Why the connection matters |
+|---|---|---|
+| [Foundation model selection criteria](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria) — modality, context window, cost, latency | [Design considerations for foundation model applications](domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications) | D2 introduces the selection criteria in the abstract, one model against another; D3 §1 applies the exact same criteria set inside a real application design, adding the context-window-vs-cost-vs-latency comparison across model tiers that a bare selection checklist doesn't cover. |
+| [Prompt engineering fundamentals](domain-2-fundamentals-of-generative-ai.md#6-prompt-engineering-fundamentals) — zero-shot, few-shot, chain-of-thought | [Prompt engineering techniques](domain-3-applications-of-foundation-models.md#2-prompt-engineering-techniques) | D2 defines the vocabulary for each technique; D3 §2 runs the *same task* through all of them side by side in worked examples, so the exam-relevant skill (pick the right technique for a scenario) only shows up once you've made the D2→D3 jump. |
+| [LLM lifecycle basics](domain-2-fundamentals-of-generative-ai.md#2-llm-lifecycle-basics) — pretraining, fine-tuning, RAG, prompt engineering as customization levers | [Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](domain-3-applications-of-foundation-models.md#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) | D2 names the four customization levers as lifecycle stages; D3 §4 turns them into a decision framework for picking *one* under real cost, data-availability, and latency constraints — the same levers, now competing against each other for a single scenario. |
+| [AWS generative AI services and capabilities](domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) — Amazon Bedrock introduced as the managed FM service | [Amazon Bedrock features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) | D2 introduces Bedrock at a glance; D3 §5 is the deep dive into the specific Bedrock capabilities (Knowledge Bases, Guardrails, Agents, model evaluation) that later D3 sections — and the D2/D3 rows above — keep assuming you already know. |
+| [Generative AI core concepts](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) — tokens and embeddings | [Vector databases and embeddings for search and retrieval](domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) | D2 defines what a token and an embedding *are*; D3 §6 makes that definition operational — choosing an embedding model and a vector store so those embeddings can actually power retrieval in a RAG pipeline. |
+
+---
+
+## Domain 2 → Domain 4: Guidelines for Responsible AI
+
+A generative AI architecture or model choice made in Domain 2 is not
+responsible-AI-neutral — it directly determines which fairness,
+interpretability, and legal risks Domain 4 tells you to look for.
+
+| Domain 2 fundamental | Flows into (Domain 4) | Why the connection matters |
+|---|---|---|
+| [Generative AI core concepts](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) — foundation model architecture and training data source | [Core dimensions of responsible AI](domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai) | The architecture and training corpus you pick in D2 (a licensed dataset vs. broad web-scraped data, for example) directly sets which responsible-AI risks — toxicity, IP exposure, hallucination — D4 §1 requires you to evaluate for that specific model. |
+| [Advantages and disadvantages of generative AI](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) — hallucination as a generic limitation | [Identifying bias and fairness issues in training data and model outputs](domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) | D2 teaches hallucination as "the model makes things up"; D4 §2 is where you learn to tell a hallucination apart from a fairness-driven output skew toward a demographic group — the exam tests exactly that distinction. |
+| [Foundation model selection criteria](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria) — cost/latency/context-window trade-offs | [Balancing model performance and interpretability](domain-4-guidelines-for-responsible-ai.md#5-balancing-model-performance-and-interpretability) | The trade-off mindset D2 uses to pick a model on cost, latency, and context window reappears in D4 §5 with a new axis — performance vs. interpretability — and the model you already picked in D2 constrains how explainable its outputs can be. |
+
+---
+
+## Domain 2 → Domain 5: Security, Compliance, and Governance
+
+| Domain 2 fundamental | Flows into (Domain 5) | Why the connection matters |
+|---|---|---|
+| [AWS generative AI services and capabilities](domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) — choosing between Bedrock, SageMaker JumpStart, and purpose-built AI services | [AWS shared responsibility model applied to AI/ML services](domain-5-security-compliance-governance.md#5-aws-shared-responsibility-model-applied-to-aiml-services) | Which managed service you pick in D2 changes exactly where the AWS-managed/customer-managed line falls; D5 §5 spells out that boundary for the same set of services, so the D2 choice determines the D5 obligations. |
+| [Prompt engineering fundamentals](domain-2-fundamentals-of-generative-ai.md#6-prompt-engineering-fundamentals) — constructing a prompt from instructions, context, and input | [Common security threats to AI systems and how to mitigate them](domain-5-security-compliance-governance.md#common-security-threats-to-ai-systems-and-how-to-mitigate-them) | D2 teaches how to *build* a prompt; D5's security section covers how an attacker manipulates that same construction (prompt injection) to hijack the model — the two sections describe one surface from opposite sides. |
+| [LLM lifecycle basics](domain-2-fundamentals-of-generative-ai.md#2-llm-lifecycle-basics) — where pretraining and fine-tuning data comes from | [Data governance strategies](domain-5-security-compliance-governance.md#4-data-governance-strategies) | The sourcing of the data behind the foundation model you chose in D2 is exactly what D5 §4 requires you to track for data lineage, residency, and monitoring compliance. |
+
+---
+
+## Domain 3 → Domain 4: Guidelines for Responsible AI
+
+Domain 3 walks through building a foundation model *application*; every
+architectural choice made there — what goes in a RAG knowledge base, which
+customization approach is used, how the model is evaluated — reopens a
+responsible-AI question that Domain 4 answers.
+
+| Domain 3 fundamental | Flows into (Domain 4) | Why the connection matters |
+|---|---|---|
+| [Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) — assembling a retrieval corpus | [Identifying bias and fairness issues in training data and model outputs](domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) | The documents you put in a RAG knowledge base in D3 become a *second* source of bias on top of the base model's training data — D4 §2's bias-in-training-data lens has to be reapplied to whatever the retrieval step surfaces, not just to the original model. |
+| [Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](domain-3-applications-of-foundation-models.md#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) — picking a customization approach | [Legal and ethical considerations](domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) | Whichever approach D3 §4 has you pick changes who owns, and is liable for, the resulting outputs — fine-tuning on customer data raises different IP and consent questions than prompt engineering alone — and D4 §4 is where those consequences are spelled out. |
+| [Evaluating foundation model performance](domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) — benchmarks, human evaluation, business metrics | [Balancing model performance and interpretability](domain-4-guidelines-for-responsible-ai.md#5-balancing-model-performance-and-interpretability) | D3 §7's framework for scoring how *good* an FM is measures the same performance axis that D4 §5 asks you to weigh against interpretability — you can't balance performance against interpretability until you can actually measure the performance side. |
+
+---
+
+## Domain 3 → Domain 5: Security, Compliance, and Governance
+
+| Domain 3 fundamental | Flows into (Domain 5) | Why the connection matters |
+|---|---|---|
+| [Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) — retrieving and citing source documents | [Source citation and data lineage](domain-5-security-compliance-governance.md#source-citation-and-data-lineage) | D3 teaches source citation as a way to make RAG answers trustworthy and traceable; D5 reframes the same citation trail as a data-lineage and governance requirement, not just a UX nicety for the end user. |
+| [Amazon Bedrock features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) — Guardrails for content filtering | [Common security threats to AI systems and how to mitigate them](domain-5-security-compliance-governance.md#common-security-threats-to-ai-systems-and-how-to-mitigate-them) | The Guardrails feature D3 §5 introduces as a Bedrock capability is the concrete AWS-native mitigation for the prompt-injection and sensitive-content threats that D5's security section catalogs — the same control, described once as a feature and once as a defense. |
+| [AWS infrastructure for generative AI workloads](domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads) — self-managed EC2/SageMaker vs. fully managed Bedrock | [AWS shared responsibility model applied to AI/ML services](domain-5-security-compliance-governance.md#5-aws-shared-responsibility-model-applied-to-aiml-services) | The infrastructure choice D3 §8 walks through is exactly the axis D5 §5 uses to determine how much of the security stack AWS manages for you versus how much you own — more self-managed infrastructure in D3 means more shared-responsibility obligations in D5. |
+
+---
+
 ## Commonly confused concept pairs (quick reference)
 
 The concepts above don't just *relate* across domains — a handful of them

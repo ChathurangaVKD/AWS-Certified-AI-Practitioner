@@ -92,8 +92,8 @@ class TestDomain3FineTuningVsPromptEngineeringWorkedExample(unittest.TestCase):
 
     def test_scenario_describes_both_approaches_on_the_same_task(self):
         self.assertIn("**Scenario:**", self.section)
-        self.assertRegex(self.section, r"(?i)1,000,000 tickets/month")
-        self.assertRegex(self.section, r"(?i)4,000.*labeled example tickets")
+        self.assertRegex(self.section, r"(?i)1,000,000\s+tickets/month")
+        self.assertRegex(self.section, r"(?i)4,000\s+labeled example tickets")
         self.assertIn("**Prompt engineering:**", self.section)
         self.assertIn("**Fine-tuning:**", self.section)
 
@@ -126,7 +126,7 @@ class TestDomain3FineTuningVsPromptEngineeringWorkedExample(unittest.TestCase):
         self.assertRegex(self.section, r"(?i)~90ms")
 
     def test_compares_accuracy_with_concrete_numbers(self):
-        self.assertRegex(self.section, r"(?i)82% exact-format compliance")
+        self.assertRegex(self.section, r"(?i)82%\s+exact-format compliance")
         self.assertRegex(self.section, r"(?i)97%")
 
     def test_has_an_aws_example_referencing_bedrock(self):

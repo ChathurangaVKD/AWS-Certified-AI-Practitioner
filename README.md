@@ -70,8 +70,11 @@ The domain guides above are written to stand alone, but the exam and
 real-world practice both draw on them together. See
 [`docs/cross-domain-concept-map.md`](docs/cross-domain-concept-map.md) for
 a map of how Domain 1 fundamentals (model evaluation, the ML lifecycle,
-bias–variance) flow into Domain 3 foundation-model applications, Domain 4
-responsible-AI concerns, and Domain 5 security/governance requirements.
+bias–variance) and Domain 2 fundamentals (model selection, prompt
+engineering) flow into Domain 3 foundation-model applications, Domain 4
+responsible-AI concerns, and Domain 5 security/governance requirements —
+plus how Domain 3 application choices flow into Domain 4 and Domain 5 in
+turn.
 
 Ready to rehearse actual exam conditions? See
 [`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) for a

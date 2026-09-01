@@ -493,8 +493,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"```mermaid", text))
         self.assertEqual(
             actual_total,
-            23,
-            "sanity check: expected 23 total Mermaid diagrams across the "
+            24,
+            "sanity check: expected 24 total Mermaid diagrams across the "
             "five domain guides",
         )
         diagrams_idx = self.structure_text.find("**Diagrams:**")
@@ -515,14 +515,14 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):
-        expected_words = {1: "six", 2: "four", 3: "seven", 4: "three", 5: "three"}
+        expected_words = {1: "six", 2: "four", 3: "eight", 4: "three", 5: "three"}
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         for domain_number, path in DOMAIN_FILES.items():
             text = path.read_text(encoding="utf-8")
             actual_count = len(re.findall(r"```mermaid", text))
             expected_word = expected_words[domain_number]
-            word_to_count = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7}
+            word_to_count = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
             with self.subTest(domain=domain_number):
                 self.assertEqual(
                     actual_count,

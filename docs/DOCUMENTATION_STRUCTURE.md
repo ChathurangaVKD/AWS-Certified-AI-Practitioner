@@ -46,11 +46,11 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,319–2,692 lines each:
+domain, currently 1,319–2,728 lines each:
 
 - Domain 1: 1,319 lines
 - Domain 2: 1,701 lines
-- Domain 3: 2,692 lines
+- Domain 3: 2,728 lines
 - Domain 4: 1,362 lines
 - Domain 5: 1,418 lines
 
@@ -110,8 +110,7 @@ Domain 2 has four (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has nine (including the FM-customization
 decision tree, Section 4, the vector store decision tree, Section 3, the
 D1-to-D3 inference-type decision tree, Section 8, and the RAG
-retrieval-failure decision tree in the "troubleshooting a failing RAG
-system" worked example);
+retrieval-failure decision tree);
 Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has three (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1).

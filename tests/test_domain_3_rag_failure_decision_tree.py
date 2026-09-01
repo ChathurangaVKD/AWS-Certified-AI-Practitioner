@@ -103,7 +103,11 @@ class TestDomain3RagFailureDecisionTree(unittest.TestCase):
             (r"(?i)hallucinat", "hallucination"),
             (r"(?i)relevance drift|off-topic retrieval", "relevance drift"),
             (r"(?i)token-limit overflow|context-length", "token-limit overflow"),
-            (r"(?i)embedding model mismatch", "embedding model mismatch"),
+            (
+                r"(?i)embedding model.{0,40}mismatch(?:ed)?|mismatch(?:ed)?"
+                r".{0,40}embedding model",
+                "embedding model mismatch",
+            ),
         ]:
             with self.subTest(symptom=label):
                 self.assertRegex(

@@ -590,6 +590,27 @@ REQUIRED_MATRIX_SAMPLE_SERVICES = [
     "AWS Inferentia",
 ]
 
+# A completeness audit cross-checking every service in this matrix against
+# aws-service-index.md found: (a) three services discussed in a domain
+# guide that had an index entry but no matrix row (Amazon Nova Sonic,
+# Amazon Titan Text Embeddings, AWS Service Quotas), and (b) eight services
+# that had an index entry (from an earlier completeness pass) but were
+# never added as matrix rows, silently breaking the matrix/index parity
+# this section claims. Regression guard for both halves of that fix.
+REQUIRED_MATRIX_AUDIT_SERVICES = [
+    "Amazon Nova Sonic",
+    "Amazon Titan Text Embeddings",
+    "AWS Service Quotas",
+    "Amazon API Gateway",
+    "Amazon Bedrock Prompt Flows",
+    "Amazon Bedrock Prompt Management",
+    "Amazon MSK (Managed Streaming for Apache Kafka)",
+    "Amazon SageMaker Autopilot",
+    "Amazon SageMaker Model Monitor",
+    "Amazon SageMaker RL",
+    "AWS DeepRacer",
+]
+
 
 class TestAwsServiceDecisionGuideConsolidatedMatrix(unittest.TestCase):
     """Section 5 -- the consolidated matrix spanning all 45+ services
@@ -638,6 +659,16 @@ class TestAwsServiceDecisionGuideConsolidatedMatrix(unittest.TestCase):
     def test_matrix_covers_required_sample_services(self):
         rows = MATRIX_ROW_RE.findall(self.section_text)
         for service in REQUIRED_MATRIX_SAMPLE_SERVICES:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    rows,
+                    f"consolidated matrix missing service row: {service!r}",
+                )
+
+    def test_matrix_covers_audit_added_services(self):
+        rows = MATRIX_ROW_RE.findall(self.section_text)
+        for service in REQUIRED_MATRIX_AUDIT_SERVICES:
             with self.subTest(service=service):
                 self.assertIn(
                     service,

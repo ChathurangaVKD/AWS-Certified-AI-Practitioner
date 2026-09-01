@@ -383,11 +383,14 @@ class TestAwsServiceDecisionGuideLayeringBranchExpansions(unittest.TestCase):
         )
 
     def test_layering_branches_include_exam_tips(self):
+        # The pre-existing main-flow exam tip uses a longer heading
+        # ("Exam tip — the rule behind the flow:"); each new branch
+        # expansion below it should carry its own plain "Exam tip:"
+        # callout, consistent with the guide's reasoning-pattern format
+        # used elsewhere (sections 2, 3, 5, 6, 7).
         exam_tip_count = len(
-            re.findall(r"\*\*Exam tip:\*\*", self.section_text)
+            re.findall(r"\*\*Exam tip\b", self.section_text)
         )
-        # One exam tip already existed for the main flow; expect at least
-        # two more, one per new branch expansion.
         self.assertGreaterEqual(
             exam_tip_count,
             3,

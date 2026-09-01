@@ -319,6 +319,46 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
             "currently available AI21 family name",
         )
 
+    def test_bedrock_model_reference_documents_reverification_process(self):
+        # A "Last verified: <date>" checkpoint alone tells a future
+        # maintainer *that* the table was checked once, but not *when* to
+        # check it again or *how* -- someone could otherwise just bump the
+        # date without actually re-checking anything. This asserts the
+        # section spells out a concrete re-verification cadence (tied to
+        # how often the real Bedrock catalog changes) and points back at
+        # the same catalog source used for the original verification.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+
+        self.assertRegex(
+            section_text,
+            re.compile(r"verification (cadence|process)", re.IGNORECASE),
+            "expected an explicit maintainer-facing verification "
+            "cadence/process note in the Bedrock model reference section",
+        )
+        self.assertRegex(
+            section_text,
+            re.compile(r"\d+\s*days? old", re.IGNORECASE),
+            "expected the verification process note to give a concrete "
+            "re-verification trigger (e.g. 'more than N days old')",
+        )
+        # The re-verification note must reference the same catalog source
+        # the original "Last verified" pass used, so a future contributor
+        # knows exactly where to look.
+        catalog_url = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md"
+        self.assertGreaterEqual(
+            section_text.count(catalog_url),
+            2,
+            "expected the Bedrock model catalog URL to be referenced by "
+            "both the staleness warning and the re-verification process "
+            "note",
+        )
+
 
 DECISION_FLOW_SECTION_RE = re.compile(
     r"^##\s+1\.\s+Decision flow.*?(?=^## |\Z)", re.M | re.S

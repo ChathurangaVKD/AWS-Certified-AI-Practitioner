@@ -94,8 +94,7 @@ use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has eight (including the FM-customization
-decision tree, Section 4, the vector store decision tree, Section 3, the
-evaluation-approach (metric-selection) decision tree, Section 7, and
+decision tree, Section 4, the vector store decision tree, Section 3, and
 the D1-to-D3 inference-type decision tree, Section 8);
 Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has three (covering the

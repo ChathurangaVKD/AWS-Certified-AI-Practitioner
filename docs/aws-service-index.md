@@ -16,6 +16,26 @@ The domain tags are:
 
 A service tagged `[D1, D3]` is discussed in both Domain 1 and Domain 3 — follow either link to reach that domain's coverage. A service with only one tag is still included: even single-domain coverage is worth a direct jump-link rather than a full re-read of the guide.
 
+> **Completeness note (last audited 2026-09-01):** this index is scoped to
+> services **discussed in the five domain guides** (per its definition
+> above), not to every model name that appears in the [AWS Service
+> Decision Guide](aws-service-decision-guide.md)'s Bedrock model-catalog
+> reference table (its §4). That table intentionally also lists
+> current-generation Bedrock models that the domain guides mention only
+> in passing or not at all, for staleness-tracking purposes against the
+> live Bedrock catalog. A pass cross-checking every service/model named in
+> the decision guide against this index added the three services below
+> that *are* discussed in a domain guide but were missing here (**Amazon
+> Nova Sonic**, **Amazon Titan Text Embeddings**, **AWS Service Quotas**)
+> and confirmed the following decision-guide-§4-only model names are
+> correctly excluded, since no domain guide discusses them by name: AI21
+> Labs Jamba, Cohere Command R / Command R+ / Embed / Rerank, Mistral
+> Pixtral / Voxtral, Amazon Titan Multimodal Embeddings, Amazon Titan
+> Image Generator G1 v2, and Stability AI's Stable Image line (all covered
+> here only under their generic provider entries — **Cohere**, **Mistral
+> AI**, **Amazon Titan**, **Stability AI** — since that's the level of
+> detail the domain guides themselves discuss).
+
 ## Jump to a letter
 
 [A](#a) · [C](#c) · [G](#g) · [I](#i) · [M](#m) · [P](#p) · [S](#s)

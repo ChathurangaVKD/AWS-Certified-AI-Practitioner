@@ -22,6 +22,7 @@
 - [Worked example: estimating a context-window token budget](#worked-example-estimating-a-context-window-token-budget)
 - [Worked example: estimating tokens for long-document summarization](#worked-example-estimating-tokens-for-long-document-summarization)
 - [Worked example: estimating and comparing monthly inference costs across three model tiers](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+- [Worked example: comparing fine-tuning and prompt engineering on the same task](#worked-example-comparing-fine-tuning-and-prompt-engineering-on-the-same-task)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -763,6 +764,13 @@ the fastest possible exam-time recall:
 These are not mutually exclusive — a production application commonly
 combines several, e.g., prompt engineering **and** RAG together, or a
 fine-tuned model accessed **through** a RAG pipeline.
+
+This section's guidance is qualitative — "fine-tuning costs more but is
+more accurate for a specific task" — until you actually price both
+approaches out. The [fine-tuning vs. prompt engineering worked
+example](#worked-example-comparing-fine-tuning-and-prompt-engineering-on-the-same-task)
+later in this domain runs the same task through both approaches and
+compares token cost, latency, and accuracy with concrete numbers.
 
 **AWS example:** A legal-tech company builds a contract-analysis
 assistant. They start with **prompt engineering** (fastest to prototype).
@@ -2016,6 +2024,149 @@ Haiku's answers prove insufficient in production.
 > token than input tokens at every tier, and a request pattern with a high
 > output-to-input ratio (e.g., long-form generation) shifts the total cost
 > comparison more than the same token count split the other way.
+
+---
+
+## Worked example: comparing fine-tuning and prompt engineering on the same task
+
+[Section 4's decision guide](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
+says fine-tuning fits a narrow task with labeled examples and an exact
+required format, while prompt engineering fits a quick behavior adjustment
+with no training data — but that framing stays qualitative until the two
+approaches are actually priced out on the same task. This walkthrough runs
+one concrete scenario through both approaches and compares token cost,
+latency, and accuracy side by side, the same "estimate first, then
+compare" discipline the [monthly cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+applies to model tiers.
+
+**Scenario:** A software company's support team wants every inbound
+ticket automatically classified into one of 12 internal categories and
+returned as strict JSON (`{"category": ..., "priority": ..., "summary":
+...}`) in the company's exact internal format. They forecast **1,000,000
+tickets/month** and already have **4,000 labeled example tickets** (ticket
+text plus the correct JSON output) from a year of manual triage. Two
+approaches are on the table:
+
+- **Prompt engineering:** keep the base model as-is and steer it with a
+  **few-shot prompt** — fixed instructions plus 10 worked examples pulled
+  from the labeled set — sent in full on **every single request**.
+- **Fine-tuning:** use the same 4,000 labeled examples to fine-tune a
+  custom Bedrock model once, then call it with only a short system
+  instruction and the ticket text. No worked examples are needed at
+  inference time, because the desired behavior is baked into the model's
+  weights instead of re-explained on every call.
+
+**Step 1: Size the input tokens per request for each approach.**
+
+| Component | Prompt engineering | Fine-tuning |
+|---|---|---|
+| Fixed instructions | ~300 tokens | ~100 tokens |
+| Few-shot examples (10 × ~150 tokens) | ~1,500 tokens | 0 (not needed) |
+| Ticket text | ~200 tokens | ~200 tokens |
+| **Total input tokens/request** | **~2,000 tokens** | **~300 tokens** |
+
+The few-shot examples are what make prompt engineering's per-request input
+**more than 6x larger** than fine-tuning's — all 10 worked examples travel
+over the wire and get processed by the model on **every** call, while
+fine-tuning paid that "teaching cost" once, during training, instead of on
+every request.
+
+**Step 2: Convert to monthly token totals and price them.** Output size is
+the same for both approaches (~100 tokens of JSON), so only input tokens
+change the comparison. Using the same illustrative on-demand rates as the
+[monthly cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+($0.00025 per 1,000 input tokens, $0.00125 per 1,000 output tokens):
+
+| Approach | Monthly input tokens | Monthly output tokens | Input cost | Output cost | **Total monthly inference cost** |
+|---|---|---|---|---|---|
+| **Prompt engineering** | 1,000,000 × 2,000 = 2,000,000,000 | 1,000,000 × 100 = 100,000,000 | 2,000,000 × $0.00025 = $500 | 100,000 × $0.00125 = $125 | **$625** |
+| **Fine-tuning** | 1,000,000 × 300 = 300,000,000 | 1,000,000 × 100 = 100,000,000 | 300,000 × $0.00025 = $75 | 100,000 × $0.00125 = $125 | **$200** |
+
+On raw per-token inference cost alone, fine-tuning looks cheaper —
+**$200/month vs. $625/month**, a savings of $425/month (about 68%) purely
+from not re-sending 10 few-shot examples on every call.
+
+**Step 3: Add the cost prompt engineering doesn't have — fine-tuning's
+fixed costs.** That $200 vs. $625 comparison is incomplete, and this is
+the step exam scenarios expect you to catch. Two costs apply to
+fine-tuning that prompt engineering never incurs:
+
+- A **one-time training cost** to run the fine-tuning job on the 4,000
+  labeled examples.
+- **Provisioned throughput**, which [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
+  notes Bedrock custom models typically require instead of on-demand
+  billing — a **flat monthly commitment**, illustratively **~$4,000/month**
+  for the smallest model-unit commitment that covers this volume,
+  regardless of whether all 1,000,000 requests actually arrive that month.
+
+Once that fixed cost is added, fine-tuning's *effective* monthly total is
+roughly **$4,200** (~$200 inference + ~$4,000 provisioned throughput)
+versus prompt engineering's **$625** — prompt engineering is actually
+**cheaper overall at this volume**, even though it's more expensive per
+token. Fine-tuning's per-token advantage only overcomes its large fixed
+cost at much higher request volume, or when several fine-tuned use cases
+share the same provisioned throughput commitment.
+
+**Step 4: Compare latency.** Prompt-processing time scales with input
+tokens, not just output length, because a request must process every
+input token before it can start generating a response. At roughly 2,000
+input tokens, prompt engineering's few-shot block adds a measurable fixed
+processing delay to **every** request before the model even reaches the
+actual ticket text; at ~300 input tokens, fine-tuning's much shorter
+prompt reaches the ticket almost immediately. Illustratively, that's the
+difference between **~450ms** of prompt-processing time (prompt
+engineering) and **~90ms** (fine-tuning) ahead of generation — a gap that
+compounds across 1,000,000 requests/month and matters most for a
+latency-sensitive, real-time triage queue.
+
+**Step 5: Compare accuracy on the actual task.** Token cost and latency
+each favor a different approach depending on volume, but accuracy on this
+specific task — strict JSON in an exact internal format — tends to favor
+fine-tuning, because [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
+is right that fine-tuning updates the model's weights toward one exact
+behavior instead of relying on the model to *infer* the pattern from 10
+examples on every call. Evaluated against the same 200-ticket held-out
+labeled set ([Section 7's evaluation approach](#7-evaluating-foundation-model-performance)),
+illustratively: the few-shot prompt-engineered approach hits **82%
+exact-format compliance** (some responses drift from the required JSON
+schema or misclassify edge-case categories the 10 examples didn't cover),
+while the fine-tuned model hits **97%** (the 4,000-example training set
+covers far more of the 12 categories' edge cases than 10 few-shot examples
+ever could).
+
+**Weighing it together:** no single approach wins on all three dimensions
+here. Prompt engineering is cheaper in total dollars at this request
+volume and needs no training pipeline, but it's slower per request and
+less accurate on the exact-format task. Fine-tuning is faster per request
+and meaningfully more accurate, but only pays for itself in dollar terms
+once provisioned throughput's flat cost is spread across enough requests
+(or enough other fine-tuned workloads) to beat prompt engineering's
+per-token total. Which one is "correct" depends on which constraint a
+scenario emphasizes: a cost-capped pilot points to prompt engineering; a
+latency- or accuracy-critical production rollout at higher sustained
+volume points to fine-tuning.
+
+**AWS example:** The team pilots prompt engineering first — cheapest to
+ship, no training pipeline required — and monitors accuracy in production
+using [Bedrock's evaluation tooling](#7-evaluating-foundation-model-performance).
+Once ticket volume grows past the point where provisioned throughput's
+flat cost is justified by the accuracy and latency gap, and the labeled
+dataset has grown past 4,000 examples, they fine-tune a Bedrock custom
+model and migrate the triage workload onto it, keeping the original
+few-shot prompt as a fallback for categories the fine-tuned model hasn't
+seen enough labeled examples of yet.
+
+> **Exam tip:** A scenario that only emphasizes accuracy or exact-format
+> compliance points you toward fine-tuning, per [Section 4](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)'s
+> decision guide. But a scenario that gives you **both a request volume
+> and a fine-tuning fixed cost** (training or provisioned throughput)
+> expects you to compare **total** monthly cost, not just per-token or
+> per-request cost. Fine-tuning's shorter prompts routinely make its
+> *per-token* cost cheaper, while its *total* monthly cost can still be
+> higher than prompt engineering's at low-to-moderate volume, because
+> provisioned throughput is billed as a flat commitment, not per token.
 
 ---
 

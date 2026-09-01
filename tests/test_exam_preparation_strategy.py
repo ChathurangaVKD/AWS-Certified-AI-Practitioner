@@ -180,6 +180,74 @@ class TestExamPreparationStrategyCoverage(unittest.TestCase):
                     f"exam prep guide does not link into {domain_file}",
                 )
 
+    def test_has_pacing_model_by_question_type_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^### Pacing model by question type", re.M),
+            "expected a 'Pacing model by question type' subsection under "
+            "Section 1 (exam format and time management)",
+        )
+
+    def test_pacing_section_is_nested_under_time_management(self):
+        # The pacing subsection must live inside Section 1, not as a
+        # standalone top-level section, since it elaborates on that
+        # section's time-management guidance.
+        section_1_start = self.text.index("## 1. Exam format and time management")
+        section_2_start = self.text.index(
+            "## 2. Domain weights and high-yield focus areas"
+        )
+        pacing_start = self.text.index("### Pacing model by question type")
+        self.assertTrue(
+            section_1_start < pacing_start < section_2_start,
+            "the pacing subsection should appear between Section 1's start "
+            "and Section 2's start",
+        )
+
+    def test_pacing_section_covers_all_three_question_types_with_times(self):
+        pacing_start = self.text.index("### Pacing model by question type")
+        section_2_start = self.text.index(
+            "## 2. Domain weights and high-yield focus areas"
+        )
+        pacing_text = self.text[pacing_start:section_2_start]
+
+        for fragment in [
+            "Definitional",
+            "30–45 seconds",
+            "Single-scenario",
+            "1–2 minutes",
+            "multi-domain scenario",
+            "2–3 minutes",
+        ]:
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, pacing_text)
+
+    def test_pacing_section_covers_flag_and_move_on_guidance(self):
+        pacing_start = self.text.index("### Pacing model by question type")
+        section_2_start = self.text.index(
+            "## 2. Domain weights and high-yield focus areas"
+        )
+        pacing_text = self.text[pacing_start:section_2_start]
+
+        self.assertRegex(
+            pacing_text,
+            re.compile(r"flag.{0,20}move on", re.IGNORECASE | re.DOTALL),
+            "expected explicit flag-and-move-on guidance in the pacing "
+            "subsection",
+        )
+        self.assertIn(
+            "work through",
+            pacing_text.lower(),
+            "expected explicit 'work through it now' guidance contrasting "
+            "with flag-and-move-on",
+        )
+        self.assertIn(
+            "no penalty",
+            pacing_text.lower(),
+            "expected the pacing guidance to reiterate the no-penalty-for-"
+            "guessing rule from Section 1 when advising against leaving "
+            "flagged questions unanswered",
+        )
+
 
 class TestExamPreparationStrategyLinksResolve(unittest.TestCase):
     """This page's value comes from linking back into the domain guides it

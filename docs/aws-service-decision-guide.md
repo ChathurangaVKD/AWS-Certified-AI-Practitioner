@@ -76,6 +76,96 @@ START: What are you trying to build?
 > covers the ask. Building a custom model or FM integration for a task a
 > purpose-built service already handles is a classic exam distractor.
 
+The flow above resolves the top-level "which service family?" question,
+but two service-*layering* combinations keep tripping up cross-domain
+scenarios once you're already inside the Bedrock branch: whether to put
+**Amazon Kendra in front of (or underneath) Bedrock Knowledge Bases** for
+retrieval, and whether **Amazon Q Business replaces or sits on top of** a
+Bedrock deployment you already built. Both are expansions of the same
+"YES → ready-made application" and "RAG" branches above, not separate
+decisions.
+
+### Branch expansion: Amazon Kendra + Bedrock vs. Bedrock Knowledge Bases alone
+
+This expands the "layer on Knowledge Bases (RAG)" branch above for the
+specific case where **Amazon Kendra** is also in play — either because a
+Kendra deployment already exists, or because the scenario asks for
+enterprise search as its own deliverable, not just FM grounding:
+
+```
+BRANCH: Grounding a Bedrock FM in your own data — is Amazon Kendra
+also part of the picture?
+│
+├─ Does a Kendra index (or Kendra GenAI Index) already exist, or does
+│  the scenario call for connector-based enterprise search (SharePoint,
+│  S3, Salesforce, etc.) as its own deliverable, independent of any FM?
+│  │
+│  ├─ YES → Is a generative, FM-produced answer also required (not just
+│  │        ranked search results)?
+│  │        │
+│  │        ├─ YES → Point Bedrock Knowledge Bases at the existing
+│  │        │        Amazon Kendra GenAI Index as its retriever — reuse
+│  │        │        Kendra's connector-managed index as the retrieval
+│  │        │        layer instead of standing up a second vector store.
+│  │        │
+│  │        └─ NO  → Amazon Kendra alone — no Bedrock, no Knowledge
+│  │                 Base; Kendra's own managed relevance ranking is the
+│  │                 whole answer.
+│  │
+│  └─ NO  → Bedrock Knowledge Bases alone, backed by a vector store
+│           (Amazon OpenSearch Service/Serverless or Aurora + pgvector)
+│           that Knowledge Bases manages for you — the default RAG path
+│           when nothing about the scenario forces Kendra in.
+```
+
+> **Exam tip:** If a scenario mentions an *existing* Kendra deployment (or
+> a **Kendra GenAI Index**) alongside a request for FM-grounded chat, the
+> exam answer is "point Knowledge Bases at the Kendra index," not
+> "provision a separate OpenSearch/Aurora vector store" — that would be
+> duplicating a retrieval layer that already exists. Conversely, if the
+> scenario never mentions needing a *generative* answer — just
+> "natural-language search across our documents" — adding Bedrock at all
+> is the distractor; **Kendra alone** already answers it.
+
+### Branch expansion: layering Amazon Q Business on an existing Bedrock deployment
+
+This expands the "YES → ready-made application" branch above for the case
+where a team has *already* built something on Bedrock and the new
+requirement sounds like it wants Amazon Q Business instead:
+
+```
+BRANCH: A Bedrock application already exists — does Amazon Q Business
+replace it, or sit alongside it?
+│
+├─ Does the new requirement need an out-of-the-box, low-setup assistant
+│  grounded in enterprise data sources (SharePoint, S3, Salesforce, etc.)
+│  with built-in, data-source-aware access controls — and not custom
+│  application logic the existing Bedrock integration already provides?
+│  │
+│  ├─ YES → Deploy Amazon Q Business as a separate, ready-made
+│  │        application layer for that use case. It does not replace or
+│  │        require modifying the existing Bedrock deployment — the two
+│  │        commonly coexist (e.g., Q Business for internal knowledge
+│  │        workers, the existing Bedrock API/Knowledge Base for a
+│  │        custom customer-facing product built on the same company
+│  │        data).
+│  │
+│  └─ NO  → Keep extending the existing Bedrock deployment (Knowledge
+│           Bases, Agents, Guardrails, Prompt Flows) directly — Q
+│           Business is the answer only when the requirement is
+│           specifically "pre-built assistant, minimal setup," not a
+│           reason to re-platform working custom application logic.
+```
+
+> **Exam tip:** "We already have a Bedrock-based application — do we
+> switch to Amazon Q Business?" is a distractor pattern. Q Business is a
+> separate, pre-built **application** that itself runs on foundation
+> models; it is not a replacement for a custom Bedrock integration, and
+> adopting it doesn't require decommissioning the existing deployment.
+> The exam-tested signal for reaching for Q Business is the *requirement*
+> ("ready-made enterprise assistant, minimal setup"), not the presence of
+> an existing Bedrock deployment by itself.
+
 For the full service-by-service detail behind this flow, see:
 - [Domain 1 §5 — AWS managed AI/ML services (conceptual overview)](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview)
   and its [comparison table](domain-1-fundamentals-of-ai-and-ml.md#comparison-table-aws-managed-aiml-services-at-a-glance)

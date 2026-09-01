@@ -254,6 +254,19 @@ exam-testable.
 > task-specific **Stable Image** line rather than general Stable
 > Diffusion checkpoints. The next reviewer should update this date and
 > summary after re-checking against the catalog link above.
+>
+> **Verification process (for maintainers):** the Bedrock catalog is
+> observed to change roughly monthly, so treat this table as due for
+> re-verification once the **Last verified** date above is more than
+> ~60 days old — don't assume a table with no open issues is still
+> accurate. To re-verify: open the
+> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
+> linked in the staleness warning above, diff its current model list
+> against the rows below, update any changed/added/removed rows, and
+> then update both the **Last verified** date and the "changes found
+> and applied" summary to reflect that pass — a re-verification that
+> only bumps the date without recording what was checked defeats the
+> purpose of this note.
 
 | Model family | Provider | Modalities | Context window (relative) | Best-fit use case | Exam-style cue |
 |---|---|---|---|---|---|

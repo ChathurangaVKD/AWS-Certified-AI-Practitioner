@@ -12,6 +12,8 @@
 - [4. Legal and ethical considerations](#4-legal-and-ethical-considerations)
 - [5. Balancing model performance and interpretability](#5-balancing-model-performance-and-interpretability)
 - [Worked example: auditing and documenting a responsible e-commerce recommendation engine](#worked-example-auditing-and-documenting-a-responsible-e-commerce-recommendation-engine)
+- [Worked example: auditing a classical ML small-business loan-approval classifier for bias](#worked-example-auditing-a-classical-ml-small-business-loan-approval-classifier-for-bias)
+- [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant)
 - [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -838,6 +840,166 @@ customers see.
 > ongoing review cadence *referencing* a model's documented bias metrics
 > and limitations, that's **governance built on top of transparency** —
 > not a new, separate tool.
+
+---
+
+## Worked example: auditing a classical ML small-business loan-approval classifier for bias
+
+This second worked example applies the same [bias detection and
+mitigation workflow](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+to a **classical ML** model — a gradient-boosted tree, not a deep
+learning model — and surfaces a bias pattern the recommendation-engine
+example above doesn't: **bias introduced by a proxy variable**, plus a
+case where the performance/interpretability tradeoff comes out the
+*opposite* way.
+
+**Scenario:** Meridian Community Bank trains a gradient-boosted tree
+classifier on five years of small-business loan applications (revenue,
+credit history, years in operation, requested amount, and ZIP code) to
+speed up its approval decisions. Because credit decisions are a
+regulated, high-stakes use case, the compliance team requires a full
+bias and fair-lending review before the model can influence any
+decision.
+
+1. **Audit the training data before training.** The team runs
+   **Amazon SageMaker Clarify** pre-training metrics and finds a large
+   **difference in proportions of labels (DPL)**: applicants from
+   certain ZIP codes are approved at a much lower rate historically.
+   Clarify's feature correlation analysis shows ZIP code is highly
+   correlated with race and income — a classic **measurement bias**: a
+   facially neutral feature (ZIP code) acts as a proxy for a protected
+   characteristic.
+2. **Mitigate the proxy variable.** Rather than rebalancing classes
+   (there is no shortage of data, just an unfair signal in it), the team
+   applies a **pre-processing** fix: they drop ZIP code from the feature
+   set and replace it with less-correlated, more directly relevant
+   features (verified time-in-business, cash-flow trend) that predict
+   repayment without smuggling in the protected characteristic.
+3. **Recheck after training.** SageMaker Clarify's post-training metrics
+   confirm **disparate impact** between groups has dropped to an
+   acceptable range without a material drop in overall accuracy.
+4. **Choose the opposite point on the performance/interpretability
+   tradeoff.** Unlike the low-stakes recommendation ranking in the first
+   worked example, a denied loan is high-stakes and legally
+   consequential. Per [Section
+   5](#5-balancing-model-performance-and-interpretability), the team
+   accepts a small accuracy cost and keeps a simpler, natively
+   interpretable gradient-boosted tree (limited depth) rather than a
+   black-box model that would need SHAP bolted on after the fact — the
+   explanation has to be defensible in a regulatory dispute, not just
+   informative.
+5. **Add explainability and document it.** They still enable
+   **SageMaker Clarify** SHAP feature attribution so a loan officer can see which
+   factors (cash-flow trend, credit history) drove a specific denial,
+   and they complete a **SageMaker Model Card** recording the training
+   data, the removed ZIP-code proxy feature, the pre/post-training bias
+   metrics, and the model's intended use (decision support, not an
+   automatic denial).
+6. **Close the legal gap.** Per [Section
+   4](#4-legal-and-ethical-considerations), the team confirms every
+   denial is accompanied by an adverse-action notice citing the specific
+   factors from the SHAP explanation, satisfying fair-lending disclosure
+   requirements, and every automated denial routes through
+   **Amazon A2I** for a human loan officer's sign-off before the
+   applicant is notified.
+7. **Govern on an ongoing basis.** **SageMaker Model Monitor** watches
+   for bias drift as the applicant population shifts, and the compliance
+   board re-reviews the Model Card each quarter against fresh Clarify
+   metrics — the same governance loop as the first worked example, just
+   applied to a regulated lending decision instead of a product ranking.
+
+> **Exam tip:** When a scenario names specific tabular features (ZIP
+> code, marital status, a "membership number" that correlates with age)
+> rather than describing pre-existing demographic labels, that's usually
+> testing whether you recognize a **proxy variable** and **measurement
+> bias** — the fix is removing or transforming the feature, not just
+> rebalancing classes. Also notice the tradeoff decision reverses here
+> versus the recommendation-engine example: **high-stakes, regulated
+> decisions favor a simpler, natively interpretable model; low-stakes
+> decisions can favor a complex model with post-hoc explanations.** The
+> exam expects you to pick the right side of that tradeoff based on the
+> stakes described in the scenario, not to default to "always choose the
+> most accurate model."
+
+---
+
+## Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant
+
+The first two worked examples audited models trained on structured,
+labeled data. **Foundation model** applications built with **Retrieval
+Augmented Generation (RAG)** (see [Domain 3, Section
+3](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases))
+introduce a different bias pattern: there is no labeled training set to
+run **SageMaker Clarify** against, so unfairness instead comes from an
+unrepresentative **retrieval corpus** and from the FM **hallucinating**
+an answer when retrieval doesn't return good context.
+
+**Scenario:** NorthStar Corp builds an internal HR assistant on **Amazon
+Bedrock**, using a **Knowledge Base** built from ten years of internal
+promotion-committee notes and career-ladder documentation, so employees
+can ask questions like "what does it take to be promoted to senior
+engineer?" Employee complaints surface that the assistant gives
+confident, detailed promotion guidance for some career paths and vague
+or fabricated guidance for others.
+
+1. **Diagnose the pattern.** Because this isn't a labeled training set,
+   the team can't run Clarify's DPL or disparate-impact metrics.
+   Instead they audit the Knowledge Base's document metadata directly
+   and find a **sampling-bias analog in the retrieval corpus**: 90% of
+   the indexed promotion notes come from one large engineering division,
+   so queries about that division's career path retrieve rich, specific
+   source chunks, while queries about smaller divisions or
+   non-traditional paths (e.g., transitioning from a part-time role)
+   retrieve thin or no relevant chunks.
+2. **Identify the second failure mode: hallucination filling the gap.**
+   When retrieval returns weak matches, the FM doesn't say "I don't have
+   enough information" — it generates a fluent, generic-sounding answer
+   anyway, presented with the same confidence as a well-grounded one.
+   Because this happens disproportionately for underrepresented career
+   paths, the **hallucination itself becomes a fairness issue**, not
+   just an accuracy issue.
+3. **Mitigate the corpus imbalance.** The team curates and augments the
+   Knowledge Base so every division and career path has comparable
+   document coverage — the RAG equivalent of the pre-processing
+   rebalancing used in the first two worked examples, applied to
+   unstructured source documents instead of labeled training rows.
+4. **Reduce hallucination with runtime controls.** They enable
+   **Guardrails for Amazon Bedrock contextual grounding checks**, which
+   compare a generated response against the retrieved source chunks and
+   suppress or flag responses that aren't actually grounded in them,
+   instead of letting a low-confidence retrieval silently become a
+   confident-sounding fabrication.
+5. **Add transparency the RAG-specific way.** Since there's no trained
+   model for **SageMaker Clarify** to explain, the assistant is changed
+   to cite its retrieved source documents inline with every answer, so
+   an employee can see (and a reviewer can check) exactly which policy
+   document a piece of guidance came from — RAG's version of
+   explainability.
+6. **Route low-confidence answers to a human.** Queries where retrieval
+   similarity scores fall below a threshold are routed through
+   **Amazon A2I** to an HR generalist for a human-authored answer,
+   rather than letting the assistant guess.
+7. **Document and govern.** The team completes a **SageMaker Model
+   Card** for the overall system describing the Knowledge Base
+   composition, the known coverage gaps, and the grounding/routing
+   controls in place, and schedules a recurring corpus-representativeness
+   review — since automated guidance that shapes employees' promotion
+   decisions falls under the same [legal and
+   ethical](#4-legal-and-ethical-considerations) scrutiny as other
+   employment-related automated decisions.
+
+> **Exam tip:** If a scenario describes a **RAG or foundation-model
+> application** giving unfair or inconsistent answers across groups,
+> don't reach for **SageMaker Clarify** — Clarify measures bias in
+> *labeled training data and trained model predictions*, and there
+> usually isn't one here. Instead, look for **retrieval corpus
+> curation** (fixing what's indexed), **Guardrails for Amazon Bedrock
+> contextual grounding checks** (catching hallucinated, ungrounded
+> output), and **citing sources** (RAG-native transparency). A
+> confident-sounding but fabricated answer that happens to skew
+> unfavorably for one group is a **hallucination-driven fairness
+> issue**, distinct from — but just as testable as — the dataset-driven
+> bias types in Section 2.
 
 ---
 

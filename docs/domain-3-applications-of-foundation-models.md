@@ -1123,6 +1123,26 @@ successful, regardless of how well the model scored on benchmarks.
 > human evaluation; a question about "did this actually help the
 > business" points to a business metric.
 
+**Common named benchmark datasets:** The exam won't ask you to compute a
+benchmark score, but it may describe a scenario or name a benchmark and
+expect you to recognize what kind of capability it measures. A handful of
+well-known benchmarks recur across FM leaderboards and documentation:
+
+| Benchmark | Task type it measures | What it looks like |
+| --- | --- | --- |
+| **MMLU** (Massive Multitask Language Understanding) | General knowledge and reasoning across 57 subjects (history, law, medicine, math, etc.) | Multiple-choice exam questions spanning academic and professional subjects |
+| **ARC** (AI2 Reasoning Challenge) | Science reasoning | Grade-school-level science questions that require reasoning, not just recall |
+| **HumanEval** | Code generation | Programming problems with a docstring/prompt; the model's generated function is checked by running unit tests against it |
+| **GSM8K** (Grade School Math 8K) | Math word problems | Multi-step arithmetic word problems requiring chained reasoning to reach a numeric answer |
+
+> **Exam tip:** If a scenario mentions evaluating a model's ability to
+> *answer general knowledge or professional-subject questions*, that's
+> pointing at **MMLU**; *science reasoning* points at **ARC**; *generating
+> or completing code that must pass tests* points at **HumanEval**; and
+> *multi-step math word problems* points at **GSM8K**. You don't need to
+> memorize benchmark internals — just match the described task type to the
+> benchmark name so you can recognize what a question is implying.
+
 #### Mini-quiz: Test your understanding of evaluating foundation model performance
 
 Quick self-check before moving on — try to answer before reading the

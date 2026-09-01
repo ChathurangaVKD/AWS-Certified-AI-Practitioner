@@ -123,9 +123,9 @@ of duplicating material inside them:
 - **`aws-service-index.md`** — a service-centric index: every AWS service
   referenced anywhere across the five guides, alphabetical, tagged by
   domain(s) `[D#, ...]` and linked to the discussing section. Currently
-  spans letter sections A, C, G, I, M, P, and S (only the letters that
-  have at least one referenced service), and includes standalone entries
-  for every actively-referenced service, including Amazon API Gateway,
+  indexes **79 services**, spanning letter sections A, C, G, I, M, P, and S
+  (only the letters that have at least one referenced service), and
+  includes standalone entries for every actively-referenced service, including Amazon API Gateway,
   Amazon Bedrock Prompt Management, Amazon Bedrock Prompt Flows, Amazon
   MSK, Amazon SageMaker Autopilot, Amazon SageMaker Model Monitor, and
   Amazon SageMaker RL (`tests/test_aws_service_index.py` guards all seven

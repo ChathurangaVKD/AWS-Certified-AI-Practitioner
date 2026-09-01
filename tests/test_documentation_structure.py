@@ -37,6 +37,7 @@ DOMAIN_FILES = {
 
 MASTER_GLOSSARY_DOC = DOCS_DIR / "master-glossary.md"
 GLOSSARY_DOC = DOCS_DIR / "GLOSSARY.md"
+SERVICE_INDEX_DOC = DOCS_DIR / "aws-service-index.md"
 
 CROSS_DOMAIN_SUPPORT_FILES = [
     "cross-domain-scenario-questions.md",
@@ -426,6 +427,45 @@ class TestDocumentationStructureGlossaryEntryCountAccuracy(unittest.TestCase):
         window = self.structure_text[idx : idx + 400]
         stale_counts = re.findall(r"\*\*(\d+) entries\*\*", window)
         actual = self._entry_count(self.master_glossary_text)
+        for stale_count in stale_counts:
+            with self.subTest(stated=stale_count):
+                self.assertEqual(int(stale_count), actual)
+
+
+class TestDocumentationStructureServiceIndexCountAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's cross-domain support document entry for
+    aws-service-index.md states an exact count of indexed AWS services.
+    docs/aws-service-index.md must actually carry that many top-level
+    `- **Service**` entries, so the stated figure can't silently drift
+    stale as services are added or removed."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.service_index_text = SERVICE_INDEX_DOC.read_text(encoding="utf-8")
+
+    @staticmethod
+    def _entry_count(text):
+        return len(re.findall(r"(?m)^- \*\*", text))
+
+    def test_stated_service_count_matches_actual(self):
+        actual = self._entry_count(self.service_index_text)
+        idx = self.structure_text.find("**`aws-service-index.md`**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        self.assertIn(
+            f"**{actual} services**",
+            window,
+            "DOCUMENTATION_STRUCTURE.md's aws-service-index.md entry does "
+            f"not state the actual service count ({actual})",
+        )
+
+    def test_no_stale_service_count(self):
+        idx = self.structure_text.find("**`aws-service-index.md`**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        stale_counts = re.findall(r"\*\*(\d+) services\*\*", window)
+        actual = self._entry_count(self.service_index_text)
         for stale_count in stale_counts:
             with self.subTest(stated=stale_count):
                 self.assertEqual(int(stale_count), actual)

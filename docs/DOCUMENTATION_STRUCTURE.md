@@ -137,13 +137,19 @@ of duplicating material inside them:
 - **`aws-service-index.md`** — a service-centric index: every AWS service
   referenced anywhere across the five guides, alphabetical, tagged by
   domain(s) `[D#, ...]` and linked to the discussing section. Currently
-  indexes **79 services**, spanning letter sections A, C, G, I, M, P, and S
+  indexes **82 services**, spanning letter sections A, C, G, I, M, P, and S
   (only the letters that have at least one referenced service), and
   includes standalone entries for every actively-referenced service, including Amazon API Gateway,
   Amazon Bedrock Prompt Management, Amazon Bedrock Prompt Flows, Amazon
   MSK, Amazon SageMaker Autopilot, Amazon SageMaker Model Monitor, and
   Amazon SageMaker RL (`tests/test_aws_service_index.py` guards all seven
-  against regressing). Answers "where does this series mention Amazon
+  against regressing). A completeness audit against the [AWS Service
+  Decision Guide](aws-service-decision-guide.md)'s consolidated service
+  matrix and Bedrock model reference table added three more previously
+  missing entries (Amazon Nova Sonic, Amazon Titan Text Embeddings, AWS
+  Service Quotas) and documented, in the index's own completeness note,
+  why several decision-guide-only Bedrock catalog model names are
+  intentionally excluded. Answers "where does this series mention Amazon
   SageMaker?"
 - **`aws-service-decision-guide.md`** — a consolidated quick reference
   sitting on top of each domain's own comparison table: a decision flow

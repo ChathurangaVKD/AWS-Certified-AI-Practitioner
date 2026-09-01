@@ -113,6 +113,17 @@ REQUIRED_SEVEN_MISSING_SERVICES = [
 # service-index entry -- regression guard for that specific gap.
 REQUIRED_AWS_DEEPRACER_SERVICE = "AWS DeepRacer"
 
+# Services named in the AWS Service Decision Guide's consolidated service
+# matrix (section 5) and Bedrock model reference table (section 4) that
+# are also discussed in a domain guide, but were missing their own
+# service-index entry -- regression guard for that specific completeness
+# audit (see docs/aws-service-index.md's "Completeness note").
+REQUIRED_DECISION_GUIDE_AUDIT_SERVICES = {
+    "Amazon Nova Sonic": "D2",
+    "Amazon Titan Text Embeddings": "D3",
+    "AWS Service Quotas": "D5",
+}
+
 # - **Service** `[D1, D3]` — definition. [D1](link) · [D3](link)
 ENTRY_RE = re.compile(
     r"^- \*\*(?P<service>.+?)\*\* `\[(?P<tags>D\d(?:, D\d)*)\]` — (?P<rest>.+)$",
@@ -268,6 +279,25 @@ class TestAwsServiceIndexCoverage(unittest.TestCase):
             "domain-1-fundamentals-of-ai-and-ml.md#3-types-of-learning",
             rest,
         )
+
+    def test_covers_decision_guide_audit_services(self):
+        by_service = {service: tags for service, tags, _rest in self.entries}
+        for service, expected_tag in REQUIRED_DECISION_GUIDE_AUDIT_SERVICES.items():
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    by_service,
+                    f"AWS service index missing service entry: {service!r} "
+                    "(named in the decision guide's consolidated matrix / "
+                    "Bedrock model reference and discussed in a domain "
+                    "guide, but absent from the index)",
+                )
+                tag_nums = {t.strip() for t in by_service[service].split(",")}
+                self.assertIn(
+                    expected_tag,
+                    tag_nums,
+                    f"expected {service!r} to carry domain tag {expected_tag!r}",
+                )
 
     def test_sagemaker_model_monitor_tagged_for_all_three_domains(self):
         by_service = {service: tags for service, tags, _rest in self.entries}

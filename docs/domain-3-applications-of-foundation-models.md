@@ -1143,6 +1143,37 @@ well-known benchmarks recur across FM leaderboards and documentation:
 > memorize benchmark internals — just match the described task type to the
 > benchmark name so you can recognize what a question is implying.
 
+**Decision tree: which evaluation approach should I use?** Work an exam
+scenario by following the branch that matches what the question tells you
+about the goal and the constraints (cost, latency, interpretability) in
+play:
+
+```mermaid
+flowchart TD
+    START(["Which evaluation approach\nfits this scenario?"])
+    START --> Q1{"Is the question about\nreal-world outcome impact\nafter launch (CSAT, task\ncompletion, cost per interaction)?"}
+    Q1 -->|"YES"| BIZ["Business metrics\n(CSAT, task completion rate,\ncost per interaction, escalation rate)"]
+    Q1 -->|"NO: evaluating\nmodel output quality"| Q2{"Does the criterion need\nsubjective human judgment\n(tone, creativity, nuance,\ncultural appropriateness)?"}
+    Q2 -->|"YES"| Q3{"Do cost and latency matter\nmore than depth right now\n(many candidates to screen)?"}
+    Q3 -->|"YES: cheap/fast\nscreening first"| HYBRID["Automatic benchmark to\nshortlist candidates, then\nhuman evaluation on the\nfinalists"]
+    Q3 -->|"NO: quality bar is\nthe priority"| HUMAN["Human evaluation\n(Bedrock human evaluation job\nor SME reviewers) -- slower,\ncostlier, but interpretable\non subjective criteria"]
+    Q2 -->|"NO: objective,\nformula-computable"| AUTO["Automatic benchmark evaluation\n(accuracy, F1, BLEU/ROUGE --\nfast, cheap, reproducible at\nscale, but low interpretability\nfor subjective quality)"]
+```
+
+**Quick reference (if–then):** the same branches as one-line lookups:
+
+- Question is about whether the app **moved a real business result** after
+  launch → **business metrics** (CSAT, task completion rate, cost per
+  interaction, escalation rate)
+- Judging **subjective quality** (tone, creativity, nuance) with **many
+  candidates** and cost/latency matter → **automatic benchmark to
+  shortlist, then human evaluation** on the finalists
+- Judging **subjective quality** with a **small candidate set** where the
+  quality bar is the priority → **human evaluation** alone
+- Judging **objective, formula-computable** quality (accuracy, F1,
+  BLEU/ROUGE) fast and cheaply at scale → **automatic benchmark
+  evaluation**, accepting lower interpretability for subjective criteria
+
 #### Mini-quiz: Test your understanding of evaluating foundation model performance
 
 Quick self-check before moving on — try to answer before reading the

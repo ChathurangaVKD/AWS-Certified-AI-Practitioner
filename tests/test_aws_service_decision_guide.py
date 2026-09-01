@@ -320,6 +320,86 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
         )
 
 
+DECISION_FLOW_SECTION_RE = re.compile(
+    r"^##\s+1\.\s+Decision flow.*?(?=^## |\Z)", re.M | re.S
+)
+
+
+class TestAwsServiceDecisionGuideLayeringBranchExpansions(unittest.TestCase):
+    """Section 1 expansion -- edge-case service-layering combinations that
+    build on the main SageMaker/Bedrock/purpose-built flow rather than
+    introducing new top-level sections: Amazon Kendra + Bedrock Knowledge
+    Bases for retrieval, and layering Amazon Q Business on an existing
+    Bedrock deployment."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = DECISION_FLOW_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 1"
+        cls.section_text = section_match.group(0)
+
+    def test_does_not_introduce_new_top_level_sections(self):
+        # The task explicitly calls for expanded decision-tree *branches*
+        # within the existing flow, not new top-level (##) sections, so
+        # the numbered section sequence must stay exactly as it was.
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_has_kendra_bedrock_layering_branch(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"Amazon Kendra.{0,80}Bedrock Knowledge Bases|"
+                r"Bedrock Knowledge Bases.{0,80}Amazon Kendra",
+                re.S,
+            ),
+            "expected a branch expansion covering Amazon Kendra + Bedrock "
+            "vs. Bedrock Knowledge Bases alone inside the decision flow "
+            "section",
+        )
+        self.assertIn("Kendra GenAI Index", self.section_text)
+
+    def test_has_q_business_over_bedrock_layering_branch(self):
+        self.assertIn("Amazon Q Business", self.section_text)
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"existing Bedrock deployment|"
+                r"Bedrock application already exists",
+                re.IGNORECASE,
+            ),
+            "expected a branch expansion covering layering Amazon Q "
+            "Business on top of an existing Bedrock deployment",
+        )
+
+    def test_layering_branches_use_sub_headings_not_new_top_level_sections(self):
+        sub_headings = re.findall(r"^###\s+Branch expansion:.*$", self.section_text, re.M)
+        self.assertGreaterEqual(
+            len(sub_headings),
+            2,
+            "expected the two layering combinations to be introduced as "
+            "### sub-headings within section 1, not new ## sections",
+        )
+
+    def test_layering_branches_include_exam_tips(self):
+        # The pre-existing main-flow exam tip uses a longer heading
+        # ("Exam tip — the rule behind the flow:"); each new branch
+        # expansion below it should carry its own plain "Exam tip:"
+        # callout, consistent with the guide's reasoning-pattern format
+        # used elsewhere (sections 2, 3, 5, 6, 7).
+        exam_tip_count = len(
+            re.findall(r"\*\*Exam tip\b", self.section_text)
+        )
+        self.assertGreaterEqual(
+            exam_tip_count,
+            3,
+            "expected each new branch expansion to carry its own exam "
+            "tip, consistent with the guide's existing reasoning-pattern "
+            "format",
+        )
+
+
 API_GATEWAY_SECTION_RE = re.compile(
     r"^##\s+6\.\s+Decision guide: Amazon API Gateway.*?(?=^## |\Z)", re.M | re.S
 )

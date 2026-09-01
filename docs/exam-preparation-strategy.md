@@ -69,6 +69,38 @@ The AWS Certified AI Practitioner (AIF-C01) exam:
   time limit — not untimed — is what builds the pacing habit the real exam
   requires.
 
+### Pacing model by question type
+
+The 1.4-minutes-per-question average above is a *budget*, not a *target* —
+no individual question should actually take 1.4 minutes. Instead, classify
+each question by complexity as soon as you've read it, and pace against the
+target for that type, not the overall average:
+
+| Question type | Target time | What it looks like |
+|---|---|---|
+| **Definitional** | **~30–45 seconds** | A one- or two-sentence question asking you to name or recognize a term, service, or concept directly (e.g., "Which AWS service provides X?", "What does RAG stand for?"). If you know the answer, select it immediately — dwelling longer doesn't improve accuracy on a recall question. |
+| **Single-scenario** | **~1–2 minutes** | A short paragraph describing one business situation with one decision point (e.g., choosing RAG vs. fine-tuning for a single stated goal, or matching one Bedrock feature to one keyword). Read it once, identify the one deciding constraint or keyword, and choose. |
+| **Complex / multi-paragraph / multi-domain scenario** | **~2–3 minutes** | Multiple paragraphs, several stated constraints that must be weighed together, or a scenario that requires combining knowledge from two domains at once (see the [cross-domain scenario questions](cross-domain-scenario-questions.md) for practice with this format). These questions deserve the time saved from the two faster categories above — that's what makes the 1.4-minute average work out even though no single question takes 1.4 minutes. |
+
+**Flag-and-move-on vs. work-through-it:**
+
+- **Work through it now** if you can identify the deciding keyword or
+  constraint within that question type's target time and you're making
+  progress, not re-reading the same sentence. Most single-scenario questions,
+  and many complex ones, resolve as soon as you spot the one detail the
+  question is actually testing.
+- **Flag and move on** if you've spent roughly *double* the target time for
+  that question type (e.g., ~1.5 minutes on a definitional question, ~4–5
+  minutes on a complex multi-domain scenario) and still can't narrow it to
+  two options. Flagging preserves time for later questions you'd answer
+  confidently and correctly — a question you're stuck on is not worth
+  losing two easy questions' worth of time to.
+- **Never leave a flagged question unanswered.** Since there is no penalty
+  for a wrong answer (Section 1 above), lock in your best guess on every
+  flagged question *before* time is at risk of running out, then use any
+  remaining time to revisit flagged questions in order and reconsider them
+  with fresh eyes.
+
 ---
 
 ## 2. Domain weights and high-yield focus areas

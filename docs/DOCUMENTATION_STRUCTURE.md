@@ -50,8 +50,8 @@ domain, currently 1,319–2,728 lines each:
 
 - Domain 1: 1,319 lines
 - Domain 2: 1,701 lines
-- Domain 3: 2,728 lines
-- Domain 4: 1,362 lines
+- Domain 3: 2,692 lines
+- Domain 4: 1,524 lines
 - Domain 5: 1,418 lines
 
 All five follow the same template:
@@ -100,7 +100,16 @@ BLEU/ROUGE improvement statistically significant?"). Counting standalone
 sections only, Domain 3 has seven worked examples; counting the nested
 Section-7 subsection too, it has eight.
 
-**Diagrams:** All 25 flowchart-style diagrams across the guide are Mermaid flowchart
+Domain 4 similarly grew beyond a single worked example: alongside the
+closing e-commerce recommendation-engine audit, it now has a second
+standalone "## Worked example" section auditing a classical ML
+small-business loan-approval classifier for proxy-variable bias, and a
+third diagnosing retrieval-induced bias and hallucination in a RAG-based
+HR assistant — three standalone "## Worked example" sections in total for
+Domain 4, covering bias-detection patterns across a deep learning ranking
+model, a classical ML classifier, and a foundation-model/RAG application.
+
+**Diagrams:** All 24 flowchart-style diagrams across the guide are Mermaid flowchart
 diagrams, not ASCII art: Domain 1 has six (the 8-stage ML lifecycle loop,
 Section 2; decision trees for learning-type selection (Section 3),
 use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker

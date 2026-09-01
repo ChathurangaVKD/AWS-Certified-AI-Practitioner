@@ -861,8 +861,8 @@ regulated, high-stakes use case, the compliance team requires a full
 bias and fair-lending review before the model can influence any
 decision.
 
-1. **Audit the training data before training.** The team runs **Amazon
-   SageMaker Clarify** pre-training metrics and finds a large
+1. **Audit the training data before training.** The team runs
+   **Amazon SageMaker Clarify** pre-training metrics and finds a large
    **difference in proportions of labels (DPL)**: applicants from
    certain ZIP codes are approved at a much lower rate historically.
    Clarify's feature correlation analysis shows ZIP code is highly
@@ -888,8 +888,8 @@ decision.
    black-box model that would need SHAP bolted on after the fact — the
    explanation has to be defensible in a regulatory dispute, not just
    informative.
-5. **Add explainability and document it.** They still enable **SageMaker
-   Clarify** SHAP feature attribution so a loan officer can see which
+5. **Add explainability and document it.** They still enable
+   **SageMaker Clarify** SHAP feature attribution so a loan officer can see which
    factors (cash-flow trend, credit history) drove a specific denial,
    and they complete a **SageMaker Model Card** recording the training
    data, the removed ZIP-code proxy feature, the pre/post-training bias
@@ -899,9 +899,9 @@ decision.
    4](#4-legal-and-ethical-considerations), the team confirms every
    denial is accompanied by an adverse-action notice citing the specific
    factors from the SHAP explanation, satisfying fair-lending disclosure
-   requirements, and every automated denial routes through **Amazon
-   A2I** for a human loan officer's sign-off before the applicant is
-   notified.
+   requirements, and every automated denial routes through
+   **Amazon A2I** for a human loan officer's sign-off before the
+   applicant is notified.
 7. **Govern on an ongoing basis.** **SageMaker Model Monitor** watches
    for bias drift as the applicant population shifts, and the compliance
    board re-reviews the Model Card each quarter against fresh Clarify
@@ -976,9 +976,9 @@ or fabricated guidance for others.
    document a piece of guidance came from — RAG's version of
    explainability.
 6. **Route low-confidence answers to a human.** Queries where retrieval
-   similarity scores fall below a threshold are routed through **Amazon
-   A2I** to an HR generalist for a human-authored answer, rather than
-   letting the assistant guess.
+   similarity scores fall below a threshold are routed through
+   **Amazon A2I** to an HR generalist for a human-authored answer,
+   rather than letting the assistant guess.
 7. **Document and govern.** The team completes a **SageMaker Model
    Card** for the overall system describing the Knowledge Base
    composition, the known coverage gaps, and the grounding/routing

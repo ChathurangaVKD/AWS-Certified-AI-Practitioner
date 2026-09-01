@@ -762,6 +762,43 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                     f"evaluation section missing approach: {approach!r}",
                 )
 
+    def test_evaluation_section_names_common_benchmark_datasets(self):
+        # Regression guard: Section 7 previously described "benchmark
+        # datasets" only generically (standardized, publicly available
+        # datasets paired with automatic metrics) without naming any real
+        # benchmark or which task type each one is used for, leaving
+        # learners unable to recognize a named benchmark in an exam
+        # scenario.
+        section = _section(
+            self.text, r"\n## 7\. Evaluating foundation model performance"
+        )
+        tables = re.findall(r"^\|.+\|$\n(?:^\|.+\|$\n?)+", section, re.M)
+        benchmark_tables = [t for t in tables if "MMLU" in t]
+        self.assertTrue(
+            benchmark_tables,
+            "evaluation section should include a reference table of named "
+            "benchmark datasets",
+        )
+        table = benchmark_tables[0]
+        # Named benchmarks the task explicitly requires, each mapped to the
+        # task type it evaluates.
+        for benchmark, task_type in [
+            ("MMLU", "reasoning"),
+            ("ARC", "[Ss]cience"),
+            ("HumanEval", "[Cc]ode"),
+            ("GSM8K", "[Mm]ath"),
+        ]:
+            with self.subTest(benchmark=benchmark):
+                self.assertIn(benchmark, table)
+                row = next(
+                    line for line in table.splitlines() if benchmark in line
+                )
+                self.assertRegex(
+                    row,
+                    task_type,
+                    f"{benchmark} row should describe its task type",
+                )
+
     def test_infrastructure_section_covers_required_services(self):
         section = _section(
             self.text,

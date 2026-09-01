@@ -21,6 +21,7 @@
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
 - [Worked example: estimating a context-window token budget](#worked-example-estimating-a-context-window-token-budget)
 - [Worked example: estimating tokens for long-document summarization](#worked-example-estimating-tokens-for-long-document-summarization)
+- [Worked example: estimating and comparing monthly inference costs across three model tiers](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -135,7 +136,11 @@ against cost and latency instead of considered in isolation.
 > [token-budget worked example](#worked-example-estimating-a-context-window-token-budget)
 > later in this domain shows how to actually estimate whether a scenario's
 > requirements fit inside a candidate window before you compare cost and
-> latency at all.
+> latency at all. The
+> [monthly cost worked example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+> goes the other direction — from this table's relative "Lowest/Moderate/
+> Highest" cost ranking to an actual monthly dollar comparison across the
+> three Claude tiers.
 
 #### Mini-quiz: Test your understanding of FM application design considerations
 
@@ -1866,6 +1871,100 @@ smaller-context model.
 > **however many chunks retrieval returns for one question** — usually a
 > small fraction of the source corpus. Confusing the two leads to wildly
 > overestimating a RAG request or underestimating a summarization request.
+
+---
+
+## Worked example: estimating and comparing monthly inference costs across three model tiers
+
+[Section 1's model-tier table](#context-window-vs-cost-and-latency-comparing-model-tiers)
+ranks Claude Haiku, Sonnet, and Opus as **Lowest**, **Moderate**, and
+**Highest** relative cost per token, and lists cost as a model-selection
+criterion alongside context window and latency. That table is deliberately
+qualitative — it tells you the *order* of the three tiers, not what any of
+them actually costs a real application in a month. Exam scenarios that give
+you a request volume and a token size per request expect you to turn that
+qualitative ranking into an actual monthly figure before recommending a
+tier, the same "estimate first, then compare" discipline the [token-budget
+worked example](#worked-example-estimating-a-context-window-token-budget)
+uses for context window instead of cost.
+
+**Scenario:** The same retailer's customer-support chat assistant from the
+[token-budget worked example](#worked-example-estimating-a-context-window-token-budget)
+is going into production on **Amazon Bedrock**. The team forecasts
+**500,000 requests per month**, and estimates (the same way as that earlier
+example: system prompt + retrieved RAG context + conversation history) that
+each request averages **800 input tokens** and **200 output tokens**. They
+need to compare projected monthly cost across the three Claude tiers from
+Section 1's table — Haiku, Sonnet, and Opus — before picking one.
+
+**Step 1: Convert monthly request volume into total monthly input and
+output tokens.**
+
+- Input tokens/month: 500,000 requests × 800 input tokens = **400,000,000
+  input tokens**
+- Output tokens/month: 500,000 requests × 200 output tokens = **100,000,000
+  output tokens**
+
+Input and output must be tracked separately — Bedrock (like most FM
+providers) bills them at **different per-token rates**, and output tokens
+are consistently priced higher than input tokens across every tier.
+
+**Step 2: Apply each tier's on-demand rate to the monthly token totals.**
+The table below uses **illustrative on-demand rates** (round numbers picked
+for this exercise, not a live quote) to show the arithmetic — always check
+the current Bedrock pricing page for actual rates, since per-token pricing
+changes over time and by region.
+
+| Model tier | Input rate (per 1,000 tokens) | Output rate (per 1,000 tokens) | Monthly input cost (400M tokens) | Monthly output cost (100M tokens) | **Total monthly cost** |
+|---|---|---|---|---|---|
+| **Claude Haiku** (Lowest) | $0.00025 | $0.00125 | 400,000 × $0.00025 = $100 | 100,000 × $0.00125 = $125 | **$225** |
+| **Claude Sonnet** (Moderate) | $0.003 | $0.015 | 400,000 × $0.003 = $1,200 | 100,000 × $0.015 = $1,500 | **$2,700** |
+| **Claude Opus** (Highest) | $0.015 | $0.075 | 400,000 × $0.015 = $6,000 | 100,000 × $0.075 = $7,500 | **$13,500** |
+
+**Step 3: Compare the tiers in absolute dollars, not just relative rank.**
+Section 1's table only says Sonnet costs "Moderate" and Opus costs
+"Highest" relative to Haiku — it doesn't say by how much. Worked in full:
+Sonnet costs **12x** Haiku's monthly total ($2,700 vs. $225), and Opus costs
+**60x** Haiku's ($13,500 vs. $225) and **5x** Sonnet's. At this request
+volume, the gap between tiers isn't a rounding error — moving the whole
+workload from Haiku to Opus adds roughly **$13,275 per month**, money that
+has to be justified by an actual accuracy or reasoning-quality requirement,
+not assumed away because "Opus is the best model."
+
+**Step 4: Weigh the cost delta against what each tier is actually for.**
+Per [Section 1's table](#context-window-vs-cost-and-latency-comparing-model-tiers),
+Haiku is recommended for "high-volume, latency-sensitive tasks" — which is
+exactly this scenario's profile (500,000 requests/month, a chat assistant).
+If Haiku's accuracy on the support-chat task is good enough, the $225/month
+estimate is the number that matters and the other two tiers are needlessly
+expensive. If evaluation ([Section 7](#7-evaluating-foundation-model-performance))
+shows Haiku's answers are unreliable on complex policy questions, the
+scenario is really asking whether the accuracy gain from Sonnet (or Opus)
+is worth its monthly delta — not whether a cheaper model exists in the
+abstract. And if this 500,000-request/month volume turns out to be high and
+steady rather than spiky, [Section 5's provisioned throughput](#5-amazon-bedrock-features)
+is worth pricing separately, since a flat monthly commitment can undercut
+on-demand per-token billing at sustained volume even though it doesn't
+change which tier fits the task.
+
+**AWS example:** The team runs the estimate above for all three tiers,
+evaluates Haiku's accuracy on a sample of real support conversations
+([Section 5's automatic and human evaluation](#5-amazon-bedrock-features)),
+finds it acceptable for routine questions, and launches on **Claude Haiku
+via Amazon Bedrock** at a projected **~$225/month** on-demand — well under
+Sonnet's ~$2,700/month — while keeping the evaluation results on hand to
+justify escalating a subset of harder conversations to Sonnet later if
+Haiku's answers prove insufficient in production.
+
+> **Exam tip:** When a scenario gives you a request volume and an
+> average input/output token size per request, the exam expects you to
+> multiply out a **monthly total** (requests × tokens/request × rate) for
+> each candidate tier before answering "which model is most cost-effective"
+> — not just pick the tier labeled cheapest in isolation. Always price
+> **input and output tokens separately**, since output tokens cost more per
+> token than input tokens at every tier, and a request pattern with a high
+> output-to-input ratio (e.g., long-form generation) shifts the total cost
+> comparison more than the same token count split the other way.
 
 ---
 

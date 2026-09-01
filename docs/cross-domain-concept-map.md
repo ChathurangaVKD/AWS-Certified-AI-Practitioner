@@ -1,4 +1,4 @@
-# Cross-Domain Concept Map: From Domain 1 Fundamentals to Domains 3–5
+# Cross-Domain Concept Map: How Concepts Flow From Domain 1 and 2 Fundamentals to Domains 3–5
 
 The five domain guides in this series are written to stand alone — each one
 covers its own exam task statements in full. But the AIF-C01 exam does not
@@ -6,15 +6,19 @@ test domains in isolation, and neither does real-world practice: the
 vocabulary and mental models built in
 [**Domain 1: Fundamentals of AI and ML**](domain-1-fundamentals-of-ai-and-ml.md)
 (how a model is trained, how you measure whether it's any good, why it
-fails) are the exact same concepts that reappear — renamed, specialized, or
-extended — once you get to foundation models, responsible AI, and
-governance.
+fails) and
+[**Domain 2: Fundamentals of Generative AI**](domain-2-fundamentals-of-generative-ai.md)
+(how a foundation model is built, selected, and prompted) are the exact
+same concepts that reappear — renamed, specialized, or extended — once you
+get to foundation model applications, responsible AI, and governance.
 
 This page is a map, not a new topic: every row links back to material that
 is already covered in depth in its home domain document. Use it when a
-Domain 3–5 guide says "recall from Domain 1..." and you want the direct
-link, or when you want to see at a glance how the fundamentals you just
-studied in Domain 1 pay off three domains later.
+Domain 3–5 guide says "recall from Domain 1..." or "recall from Domain
+2...", and you want the direct link, or when you want to see at a glance
+how the fundamentals you just studied in Domain 1 and Domain 2 pay off
+later — including how a Domain 3 foundation-model application decision
+itself creates new considerations that Domains 4 and 5 pick up.
 
 > **How to read this map:** each entry names a Domain 1 concept, the
 > downstream concept it flows into, and *why* the connection exists — not

@@ -1632,6 +1632,42 @@ actually answers this question."
 > modes live in the retrieval half of the pipeline, before the FM ever
 > sees a prompt.
 
+### Decision tree: diagnosing RAG retrieval failures
+
+The three failure modes above are worked end-to-end for one system, but an
+exam scenario (or a real on-call page) usually hands you just the
+*symptom* — hallucinated facts, off-topic chunks, a truncated response, an
+answer that's close-but-not-quite — and expects you to work backward to the
+broken pipeline stage. The flowchart below adds two symptoms not covered by
+the worked example (hallucination and token-limit overflow) alongside the
+three above, so it can be used as a single lookup table for "the RAG system
+is misbehaving — where do I look first?":
+
+```mermaid
+flowchart TD
+    START(["RAG answer is wrong, incomplete,\nor the request fails —\nwhat's the symptom?"])
+    START --> Q1{"Does the assistant state facts that\naren't present in any retrieved chunk?"}
+    Q1 -->|"YES - hallucination"| H["ROOT CAUSE: retrieval returned no\nrelevant chunk (or too few), so the\nFM fills the gap from its own\nparametric knowledge instead of\nthe retrieved context\n\nFIX: verify a chunk covering this\ntopic actually exists in the index;\nraise numberOfResults; add an\n'answer only from the provided\ncontext' instruction; require\ncited sources so ungrounded\nclaims become visible"]
+    Q1 -->|"NO"| Q2{"Does the request fail or get cut off\nwith a context-length / token-limit\nerror?"}
+    Q2 -->|"YES - token-limit overflow"| T["ROOT CAUSE: system prompt +\nretrieved chunks + conversation\nhistory together exceed the\nmodel's context window\n\nFIX: retrieve fewer or smaller\nchunks, lower numberOfResults,\ntrim conversation history, or\nmove to a larger-context-window\nmodel"]
+    Q2 -->|"NO"| Q3{"Are retrieved chunks unrelated to\nthe query's topic entirely, even\nthough a correct chunk exists\nelsewhere in the corpus?"}
+    Q3 -->|"YES - relevance drift /\noff-topic retrieval"| E["ROOT CAUSE: embedding model\nmismatched to the domain - it\nwas never exposed to this\ndomain's jargon/abbreviations,\nso it embeds them near unrelated\ngeneral-English concepts\n\nFIX: swap to a better-suited\nembeddings model and re-embed\nthe entire corpus; expand\njargon/abbreviations in the\nsource text as a lower-cost\nmitigation"]
+    Q3 -->|"NO"| Q4{"Are retrieved chunks topically\nrelated but not the specific right\nanswer (plausible but wrong)?"}
+    Q4 -->|"YES"| R["ROOT CAUSE: pure vector\nsimilarity returns the closest\nchunks, not necessarily the\ncorrect ones\n\nFIX: add reranking to re-score\ncandidates for relevance; add\nhybrid (keyword + vector) search\nso exact-term matches surface\nthe right chunk"]
+    Q4 -->|"NO"| C["Answer is correct but incomplete /\ncuts off mid-explanation\n\nROOT CAUSE: chunks too small,\nsplitting a self-contained answer\nacross a chunk boundary\n\nFIX: increase chunk size, add\nchunk overlap, retrieve more\nchunks"]
+```
+
+> **Exam tip:** Hallucination and token-limit overflow are two more RAG
+> symptoms worth recognizing on sight, alongside the three chunking /
+> embedding / retrieval failure modes walked through above.
+> **Hallucination** in an otherwise-working RAG system almost always means
+> retrieval came back empty or thin for that query — the fix lives in
+> retrieval coverage and prompt instructions, not in fine-tuning the model
+> to "hallucinate less." **Token-limit / context-length errors** are a
+> budgeting problem — see the [context-window token-budget worked
+> example](#worked-example-estimating-a-context-window-token-budget) — and
+> are fixed by retrieving less, not by retrieving differently.
+
 ---
 
 ## Worked example: selecting a foundation model under multiple competing constraints

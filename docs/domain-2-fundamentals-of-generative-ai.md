@@ -15,6 +15,7 @@
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
 - [Worked example: estimating tokens for RAG retrieval and long-document summarization](#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization)
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
+- [Worked example: selecting and comparing models for a real-time voice assistant use case](#worked-example-selecting-and-comparing-models-for-a-real-time-voice-assistant-use-case)
 - [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -592,10 +593,14 @@ explanation.
   - **Amazon Titan** — Amazon's own family of foundation models available
     in Bedrock (text and embeddings models).
   - **Amazon Nova** — Amazon's newer generation of foundation models on
-    Bedrock, spanning text, image (**Amazon Nova Canvas**), and video
-    (**Amazon Nova Reel**) generation; Nova Canvas is now Amazon's
-    first-party image-generation model on Bedrock, superseding the
-    original Titan Image Generator.
+    Bedrock, spanning text, image (**Amazon Nova Canvas**), video
+    (**Amazon Nova Reel**), and real-time speech-to-speech (**Amazon Nova
+    Sonic**) generation; Nova Canvas is now Amazon's first-party
+    image-generation model on Bedrock, superseding the original Titan
+    Image Generator. Nova Sonic is Amazon's answer to the **audio/speech
+    modality** — see the [voice-assistant worked
+    example](#worked-example-selecting-and-comparing-models-for-a-real-time-voice-assistant-use-case)
+    for how it compares against a text-model-plus-transcription pipeline.
   - **Provisioned Throughput** — reserved model capacity for consistent,
     predictable performance at higher, steady traffic (versus flexible,
     consumption-based **on-demand** pricing).
@@ -1101,6 +1106,111 @@ employee accidentally pastes into a prompt.
 > safeguard (**Guardrails**, **Model Evaluation**) rather than to write
 > custom code to solve the same problem, since "least implementation
 > effort using a managed AWS service" is the exam's default preference.
+
+---
+
+## Worked example: selecting and comparing models for a real-time voice assistant use case
+
+[Section 5](#5-aws-generative-ai-services-and-capabilities) lists **Amazon
+Nova Sonic** as Amazon's real-time speech-to-speech model, and [Section
+7](#7-foundation-model-selection-criteria) names **modality** as a
+selection criterion — but every worked example above this one has been
+text-in/text-out. Audio/speech applications (voice assistants,
+speech-to-speech customer service, hands-free devices) show up on the exam
+too, and they force a different kind of modality trade-off than "does the
+model accept an image": whether to use one model that handles speech
+directly, or stitch a text model together with separate
+transcription/synthesis services.
+
+**Scenario:** A smart-home device maker wants to add a **real-time,
+hands-free voice assistant**. A customer speaks a request out loud (e.g.,
+"dim the living room lights and tell me tomorrow's weather"), and the
+device must understand it, take action, and speak a natural-sounding
+response back — with the whole round trip feeling like a live
+conversation (well under a second of perceived delay) and supporting the
+customer **interrupting** the assistant mid-response, the way a person
+would.
+
+**Options considered:**
+
+1. **Amazon Nova Sonic — a real-time speech-to-speech model.** Nova Sonic
+   ingests the customer's spoken audio and generates spoken audio output
+   directly, in a single unified model call, without ever converting the
+   conversation to intermediate text. It natively supports conversational
+   turn-taking, including the customer barging in mid-reply. *Trade-off:*
+   because everything happens inside one audio-native model, the team
+   gives up some of the fine-grained, text-based prompt-engineering control
+   ([Section 6](#6-prompt-engineering-fundamentals)) they'd have with a
+   general-purpose text model, and it's a narrower, newer model family than
+   the account's mature text FMs.
+2. **A text-only foundation model paired with separate transcription and
+   speech synthesis.** The pipeline chains three services: the customer's
+   audio goes to **Amazon Transcribe** (speech-to-text), the transcript is
+   sent as a prompt to a text FM in **Amazon Bedrock** for reasoning and
+   response drafting, and the reply text goes to **Amazon Polly**
+   (text-to-speech) to be spoken back. *Trade-off:* this reuses the team's
+   existing text-model prompt-engineering investment and lets each stage be
+   swapped or tuned independently, but it's three network hops instead of
+   one — each adding latency — and a transcription error in stage one
+   silently corrupts what the text model reasons over in stage two, with no
+   way for stage two to hear the original audio and recover.
+3. **A multimodal text+audio model (e.g., Mistral Voxtral) that accepts
+   audio input directly but still produces text output.** This removes the
+   separate transcription step — the model reasons over the audio itself,
+   catching tone and phrasing a transcript alone might lose — but it still
+   needs a downstream text-to-speech stage (e.g., Amazon Polly) before the
+   customer hears a reply, so it only removes one of the two extra hops in
+   Option 2, not both.
+
+**Recommendation:** **Amazon Nova Sonic** (Option 1).
+
+**Rationale:** Applying the [Section
+7](#7-foundation-model-selection-criteria) selection criteria the way
+[Domain 3's multi-constraint worked
+example](domain-3-applications-of-foundation-models.md#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+recommends — hardest constraint first — **latency** decides this scenario:
+the requirement is a sub-second, natural, interruptible spoken
+conversation, and every extra network hop between "customer speaks" and
+"assistant speaks back" works against that. Option 2's three-hop pipeline
+(Transcribe → text FM → Polly) accumulates the most latency and also risks
+compounding transcription errors into the FM's reasoning step. Option 3
+removes one hop (audio input is understood directly) but still pays for a
+separate text-to-speech hop on the way out. Only Option 1 handles the full
+round trip — spoken input to spoken output — inside a single real-time
+model call with native support for the customer interrupting mid-reply,
+which is exactly what the **modality** criterion is testing here: the use
+case needs true **audio-in/audio-out**, not text with audio bolted onto
+either end.
+
+This doesn't mean Option 1 always wins once audio is involved. If the same
+company instead needed to **transcribe and summarize customer support
+calls overnight** (asynchronous, not real-time, and a text transcript is
+the actual deliverable), latency stops being a hard constraint, and Option
+2's mature, independently-tunable Transcribe-plus-text-FM pipeline — or
+Option 3's audio-native model if avoiding transcription errors in the
+summary matters more than pipeline simplicity — would be the better,
+cheaper fit. As in every selection-criteria worked example in this domain,
+the "best" model is the one that fits the *stated* constraints, not the
+one that sounds most advanced.
+
+**AWS example:** The smart-home team selects **Amazon Nova Sonic** on
+**Amazon Bedrock** for the live voice assistant, confirms sub-second
+round-trip latency and mid-reply interruption handling in testing, and
+keeps a separate **Amazon Transcribe**-plus-text-FM pipeline on the
+roadmap only for a *different*, non-real-time feature (searchable
+transcripts of past voice requests) — the same modality requirement
+(speech) leads to two different architectures because the latency
+requirement differs.
+
+> **Exam tip:** When a scenario mentions **voice, speech, or an audio
+> input/output requirement**, don't default to "add a
+> transcription/text-to-speech step to my usual text model" — check
+> whether the scenario also demands **real-time, low-latency, natural
+> conversation** (a strong signal for a dedicated speech-to-speech model
+> like **Amazon Nova Sonic**) versus an **asynchronous or
+> one-directional** audio task like transcribing recordings for later
+> search or summarization, where a text FM plus separate
+> transcription/synthesis services is simpler and cheaper.
 
 ---
 

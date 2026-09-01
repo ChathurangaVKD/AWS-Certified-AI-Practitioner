@@ -793,6 +793,14 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
             text, "## Practice questions", "## Answer key"
         )
 
+    @staticmethod
+    def _actual_mini_quiz_total():
+        total = 0
+        for path in DOMAIN_FILES.values():
+            text = path.read_text(encoding="utf-8")
+            total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
+        return total
+
     def test_actual_domain_question_total_is_106(self):
         self.assertEqual(
             self._actual_domain_question_total(),
@@ -847,7 +855,8 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         domain_total = self._actual_domain_question_total()
         mock_total = self._actual_mock_exam_question_total()
         scenario_total = self._actual_scenario_question_total()
-        grand_total = domain_total + mock_total + scenario_total
+        mini_quiz_total = self._actual_mini_quiz_total()
+        grand_total = domain_total + mock_total + scenario_total + mini_quiz_total
         idx = self.structure_text.find("**Total assessment:**")
         self.assertNotEqual(
             idx,
@@ -859,7 +868,9 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         self.assertIn(f"{domain_total} domain practice questions", window)
         self.assertIn(f"{mock_total} mock-exam questions", window)
         self.assertIn(f"{scenario_total} scenario questions", window)
+        self.assertIn(f"{mini_quiz_total} embedded mini-quiz questions", window)
         self.assertIn(f"{grand_total}", window)
+        self.assertIn("total practice items", window)
 
     def test_structure_doc_does_not_state_stale_101_or_188_counts(self):
         self.assertNotIn("101 domain practice questions", self.structure_text)

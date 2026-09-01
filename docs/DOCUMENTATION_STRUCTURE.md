@@ -170,8 +170,9 @@ of duplicating material inside them:
   without knowing which domain defines it.
 
 **Total assessment:** 106 domain practice questions (across the five
-domain guides) + 65 mock-exam questions + 22 scenario questions = 193
-questions across the repository.
+domain guides) + 65 mock-exam questions + 22 scenario questions + 32
+embedded mini-quiz questions (across the five domain guides' subsections)
+= 225 total practice items across the repository.
 
 ## Navigation
 

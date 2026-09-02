@@ -4,7 +4,7 @@
 
 [← Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md) · **Domain 5 of 5** · [README →](../README.md)
 
-**Last verified:** 2026-11-01
+**Last verified:** 2026-09-02
 
 ## Table of contents
 

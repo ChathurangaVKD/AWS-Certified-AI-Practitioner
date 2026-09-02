@@ -2,7 +2,7 @@
 
 [← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)
 
-**Last verified:** 2026-11-01
+**Last verified:** 2026-09-02
 
 ## Table of contents
 

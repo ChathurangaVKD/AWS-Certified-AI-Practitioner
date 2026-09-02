@@ -1642,6 +1642,49 @@ aid once you already have.
     C. Hallucination
     D. Underfitting
 
+21. **[Beginner]** A marketing team wants to generate custom product images from short
+    text descriptions for a new ad campaign, and needs to explicitly
+    exclude watermarks and logos from the results. Which business use
+    case and AWS capability best fit this need?
+    A. Search — Amazon OpenSearch Service
+    B. Content creation — Amazon Nova Canvas with negative prompting
+    C. Summarization — Amazon Comprehend
+    D. Code generation — Amazon Q Developer
+
+22. **[Advanced]** An enterprise has two separate requirements: (1) an assistant that
+    answers employee questions using data already in SharePoint and
+    Salesforce, live within days and with minimal engineering effort, and
+    (2) a highly specialized customer-facing bot with a proprietary,
+    multi-step negotiation flow that no pre-built product offers. Which
+    option correctly pairs each requirement with the right business
+    use-case implementation?
+    A. (1) A custom Amazon Bedrock application; (2) Amazon Q Business
+    B. Both requirements should be built with Amazon Q Developer
+    C. (1) Amazon Q Business; (2) a custom Amazon Bedrock application
+    D. Both requirements require full pretraining of a new foundation model
+
+23. **[Intermediate]** A law firm wants a tool that lets paralegals (a) find prior case files
+    by describing the facts in their own words instead of typing exact
+    filenames or keywords, and then (b) condenses each retrieved case
+    file into a short two-paragraph brief. Which two business use cases
+    are being requested, in order?
+    A. Content creation, then chatbot
+    B. Search (semantic search), then summarization
+    C. Code generation, then search
+    D. Summarization, then content creation
+
+24. **[Advanced]** A company lists four initiatives: (1) drafting new product
+    descriptions from a few bullet points, (2) condensing quarterly
+    earnings-call transcripts into a one-page brief for executives, (3)
+    letting employees ask "what is our current PTO policy?" in plain
+    language and get an answer sourced from HR documents, and (4)
+    suggesting inline code fixes for developers as they type. Which
+    option correctly matches each initiative to its business use case?
+    A. (1) Content creation, (2) Summarization, (3) Chatbot, (4) Code generation
+    B. (1) Search, (2) Content creation, (3) Code generation, (4) Chatbot
+    C. (1) Summarization, (2) Content creation, (3) Chatbot, (4) Search
+    D. (1) Content creation, (2) Search, (3) Summarization, (4) Chatbot
+
 ---
 
 ## Answer key and explanations
@@ -1788,6 +1831,44 @@ aid once you already have.
     runs, not fabricated content itself; overfitting (B) and underfitting
     (D) are traditional ML training diagnoses that don't describe a
     deployed generative model fabricating facts at inference time.
+
+21. **B — Content creation — Amazon Nova Canvas with negative prompting.**
+    Generating new marketing images from a text description is the
+    content-creation use case, Amazon Nova Canvas is the AWS image
+    foundation model built for it, and negative prompting is the
+    technique for excluding unwanted elements like watermarks or logos.
+    Search (A) and code generation (D) describe unrelated use cases;
+    Comprehend (C) performs text analytics such as entity and sentiment
+    extraction, not summarization or image generation.
+
+22. **C — (1) Amazon Q Business; (2) a custom Amazon Bedrock application.**
+    A ready-made assistant grounded in existing enterprise systems like
+    SharePoint and Salesforce, deployable quickly with minimal setup, is
+    exactly what Amazon Q Business is purpose-built for; a bot needing a
+    proprietary flow unavailable in any pre-built product needs the
+    deeper customization only a custom Amazon Bedrock build provides.
+    Option A reverses the two fits; Q Developer (B) is a coding
+    assistant, not a general-purpose or customer-facing chatbot platform;
+    full pretraining (D) is unnecessary and far costlier than either
+    correct approach.
+
+23. **B — Search (semantic search), then summarization.** Finding case
+    files by describing facts in natural language rather than exact
+    keywords is the definition of semantic search, powered by embeddings
+    and vector similarity; condensing each retrieved file into a short
+    brief afterward is the summarization use case. Content creation (A)
+    and code generation (C) describe generating new material or code, not
+    retrieval or condensation; reversing the order (D) doesn't match the
+    stated sequence of finding files first and then condensing them.
+
+24. **A — (1) Content creation, (2) Summarization, (3) Chatbot, (4) Code
+    generation.** Drafting new product descriptions from bullet points is
+    content creation; condensing long transcripts into a brief is
+    summarization; answering natural-language questions grounded in
+    company HR documents is the chatbot/conversational-assistant use
+    case; and suggesting inline code fixes is code generation. Options B,
+    C, and D each mismatch at least one initiative with the wrong
+    use-case category.
 
 ---
 

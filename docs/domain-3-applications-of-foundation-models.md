@@ -12,6 +12,7 @@
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
 - [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
+  - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
@@ -995,6 +996,59 @@ throughput** instead of paying on-demand rates.
 > throughput for a custom/fine-tuned model at high, steady volume" →
 > **provisioned throughput**; "unpredictable/low/spiky volume, pay only
 > for what's used" → **on-demand**.
+
+### Cost governance: bounding per-request cost with max tokens and provisioned throughput
+Cost *estimation* (the [monthly-cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+later in this domain) tells you what a workload is expected to cost. Cost
+*governance* is the separate, operational discipline of actively bounding
+what it actually costs at runtime, independent of any single estimate:
+- **Max tokens (response-length bounding)** — because Bedrock on-demand
+  pricing bills output tokens per response, the **max tokens** inference
+  parameter (introduced in the [Domain 2 study
+  guide](domain-2-fundamentals-of-generative-ai.md#6-prompt-engineering-fundamentals))
+  is the most direct per-call cost control: setting it no higher than the
+  task genuinely needs caps the worst-case output-token cost of every
+  single request, regardless of prompt content or model behavior. A
+  chatbot that "sometimes returns extremely long, rambling answers" is a
+  cost problem to fix by lowering max tokens first, before reaching for
+  anything else.
+- **Provisioned throughput ROI** — as covered above, **provisioned
+  throughput** trades a fixed, committed cost (1-month or 6-month capacity
+  purchase) for guaranteed throughput. It only pays off operationally for
+  **high, steady, predictable** request volume, where the committed cost
+  is reliably lower than the on-demand alternative would have been; for
+  variable, spiky, or low volume, on-demand pricing remains cheaper and
+  safer — sizing provisioned throughput for a worst-case traffic spike is
+  itself an unpredictable, high fixed cost paid whether or not that spike
+  ever materializes.
+
+Bounding *individual* request cost (max tokens, provisioned-throughput
+sizing) is necessarily incomplete on its own: neither stops a traffic
+spike or a flood of malicious requests from multiplying that per-request
+cost across an unbounded number of calls. Capping *aggregate* spend that
+way is a Domain 5 concern — see [Cost governance: bounding total spend
+with Service Quotas and API Gateway usage
+plans](domain-5-security-compliance-governance.md#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans)
+— and the exam expects both halves together, not either alone.
+
+**AWS example:** A support-chatbot team lowers `max_tokens` from 2,048 to
+400 after Finance flags an unexpectedly high per-request bill, cutting
+worst-case output-token cost by over 80% without touching the model or
+prompt. Separately, once that team's traffic becomes high and steady
+enough that on-demand cost consistently exceeds a committed rate, they
+purchase provisioned throughput for the sustained baseline load and keep
+on-demand capacity only for occasional overflow.
+
+> **Exam tip:** If the question's cost concern is *how big is each
+> individual response*, the answer is max tokens. If it's *is committed
+> capacity worth it for this traffic pattern*, the answer is provisioned
+> throughput (yes for high/steady/predictable volume, no for
+> spiky/unpredictable/low volume — sizing provisioned throughput for a
+> worst-case spike is a distractor, not a genuine cost control). If the
+> concern is *how many requests total can hit the endpoint*, that's a
+> Domain 5 Service Quotas / API Gateway usage-plan question, not a Domain
+> 3 inference-parameter one.
 
 #### Mini-quiz: Test your understanding of Amazon Bedrock features
 

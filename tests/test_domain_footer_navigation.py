@@ -124,6 +124,69 @@ class TestDomainFooterNavigation(unittest.TestCase):
                     _expected_forward_target(domain_number),
                 )
 
+    def test_no_domain_guide_has_an_exam_weight_subtitle_line(self):
+        # Domain 5 previously carried an extra "*AWS Certified AI
+        # Practitioner (AIF-C01) -- ~14% of exam*" subtitle line right below
+        # its H1 title that Domains 1-4 never had, making its header shape
+        # inconsistent with the rest of the guides. Guard against that line
+        # (or an equivalent exam-weight subtitle) reappearing in any guide.
+        subtitle_re = re.compile(
+            r"^\*AWS Certified AI Practitioner.*exam\*\s*$", re.MULTILINE
+        )
+        for domain_number, text in self.texts.items():
+            with self.subTest(domain=domain_number):
+                self.assertIsNone(
+                    subtitle_re.search(text),
+                    f"domain {domain_number} guide has an exam-weight "
+                    "subtitle line in its header; Domains 1-4's compact "
+                    "header format does not include one, so no domain "
+                    "guide should either",
+                )
+
+    def test_every_domain_header_has_the_same_five_line_shape(self):
+        # The compact header shape shared by Domains 1-4 is exactly:
+        #   1. "# Domain N: <title>"
+        #   2. "" (blank)
+        #   3. breadcrumb nav line
+        #   4. "" (blank)
+        #   5. "**Last verified:** <date>"
+        # Assert Domain 5 (and every other domain) matches this shape so a
+        # future edit can't silently reintroduce an extra header line.
+        for domain_number, text in self.texts.items():
+            with self.subTest(domain=domain_number):
+                header = text.splitlines()[:5]
+                self.assertEqual(
+                    len(header), 5,
+                    f"domain {domain_number} guide has fewer than 5 header "
+                    "lines",
+                )
+                self.assertTrue(
+                    header[0].startswith(f"# Domain {domain_number}:"),
+                    f"domain {domain_number} guide's first line should be "
+                    f"its 'Domain {domain_number}' H1 title, got "
+                    f"{header[0]!r}",
+                )
+                self.assertEqual(
+                    header[1], "",
+                    f"domain {domain_number} guide's second line should be "
+                    f"blank, got {header[1]!r}",
+                )
+                self.assertIsNotNone(
+                    NAV_LINE_RE.search(header[2]),
+                    f"domain {domain_number} guide's third line should be "
+                    f"the breadcrumb navigation line, got {header[2]!r}",
+                )
+                self.assertEqual(
+                    header[3], "",
+                    f"domain {domain_number} guide's fourth line should be "
+                    f"blank, got {header[3]!r}",
+                )
+                self.assertTrue(
+                    header[4].startswith("**Last verified:**"),
+                    f"domain {domain_number} guide's fifth line should be "
+                    f"the 'Last verified' line, got {header[4]!r}",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

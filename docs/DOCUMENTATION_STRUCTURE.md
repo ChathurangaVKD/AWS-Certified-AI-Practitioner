@@ -46,12 +46,12 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,524–2,870 lines each:
+domain, currently 1,568–2,870 lines each:
 
 - Domain 1: 1,568 lines
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
-- Domain 4: 1,524 lines
+- Domain 4: 1,611 lines
 - Domain 5: 1,759 lines
 
 All five follow the same template:
@@ -103,11 +103,16 @@ Section-7 subsection too, it has eight.
 Domain 4 similarly grew beyond a single worked example: alongside the
 closing e-commerce recommendation-engine audit, it now has a second
 standalone "## Worked example" section auditing a classical ML
-small-business loan-approval classifier for proxy-variable bias, and a
-third diagnosing retrieval-induced bias and hallucination in a RAG-based
-HR assistant — three standalone "## Worked example" sections in total for
+small-business loan-approval classifier for proxy-variable bias, a third
+diagnosing retrieval-induced bias and hallucination in a RAG-based HR
+assistant, and a fourth isolating the Section 5 performance/
+interpretability tradeoff itself — a health-insurance prior-authorization
+scenario where a regulatory explainability requirement forces the team off
+a post-hoc-SHAP-on-a-black-box approach and onto a natively interpretable
+model — four standalone "## Worked example" sections in total for
 Domain 4, covering bias-detection patterns across a deep learning ranking
-model, a classical ML classifier, and a foundation-model/RAG application.
+model, a classical ML classifier, and a foundation-model/RAG application,
+plus a dedicated performance-versus-interpretability tradeoff walkthrough.
 
 Domain 2 also grew beyond a single worked example: alongside the
 generative AI support assistant walkthrough referenced above, it now has
@@ -128,7 +133,7 @@ Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 5's cost-capping
-subsection), the five domain guides mark **18+ worked-example sections in
+subsection), the five domain guides mark **19+ worked-example sections in
 total**, plus further example content nested at the sub-bullet level
 within some of those sections.
 

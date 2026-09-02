@@ -14,6 +14,7 @@
 - [Worked example: auditing and documenting a responsible e-commerce recommendation engine](#worked-example-auditing-and-documenting-a-responsible-e-commerce-recommendation-engine)
 - [Worked example: auditing a classical ML small-business loan-approval classifier for bias](#worked-example-auditing-a-classical-ml-small-business-loan-approval-classifier-for-bias)
 - [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant)
+- [Worked example: deciding whether to trade accuracy for interpretability to meet a regulatory explainability requirement](#worked-example-deciding-whether-to-trade-accuracy-for-interpretability-to-meet-a-regulatory-explainability-requirement)
 - [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -1000,6 +1001,92 @@ or fabricated guidance for others.
 > unfavorably for one group is a **hallucination-driven fairness
 > issue**, distinct from — but just as testable as — the dataset-driven
 > bias types in Section 2.
+
+---
+
+## Worked example: deciding whether to trade accuracy for interpretability to meet a regulatory explainability requirement
+
+The three worked examples above each folded a performance/interpretability
+call into a broader bias-audit walkthrough. This example isolates
+[Section 5](#5-balancing-model-performance-and-interpretability)'s
+tradeoff as the central decision, walking through the concrete metrics and
+AWS tooling a team uses to make — and defend — the call once a regulation
+forces the question.
+
+**Scenario:** Meridian Health Plan builds a prior-authorization triage
+model that flags which claims need closer nurse review before initial
+approval. Mid-pilot, a new state insurance regulation takes effect
+requiring that any AI-assisted claim denial come with a specific,
+individualized explanation of the factors that drove it, on request from
+the member or their provider — not just a generic notice that a model was
+involved.
+
+1. **Baseline both candidate models with concrete metrics.** The data
+   science team trains two versions: a gradient-boosted ensemble (deep,
+   unconstrained trees) that reaches **0.93 AUC-ROC and 88% recall** on
+   held-out claims, and a depth-limited, monotonically-constrained
+   decision tree that reaches **0.89 AUC-ROC and 82% recall** — a
+   **4-point AUC / 6-point recall gap** the team must justify closing or
+   accepting.
+2. **Try the cheaper fix first: post-hoc explanations on the accurate
+   model.** Per [Section
+   5](#5-balancing-model-performance-and-interpretability), the team's
+   first instinct is to keep the higher-accuracy ensemble and recover
+   explainability with **Amazon SageMaker Clarify** SHAP attributions,
+   rather than give up the 4-point AUC advantage.
+3. **Legal review rejects the post-hoc approach.** Compliance flags that
+   the new regulation requires the explanation to reflect the *actual*
+   decision logic, and SHAP values are an **additive approximation** of a
+   black-box model's behavior around one prediction, not an exact trace of
+   the path the model took — a distinction the ensemble can't satisfy no
+   matter how good the SHAP attribution looks.
+4. **Re-run the tradeoff with the regulatory constraint made explicit.**
+   Because this is now a high-stakes, individually-explainable, regulated
+   decision, [Section 5](#5-balancing-model-performance-and-interpretability)
+   points the team toward the **natively interpretable** model instead:
+   they adopt the depth-limited, monotonically-constrained tree, accepting
+   the 4-point AUC / 6-point recall cost, because each denial can be
+   traced to an exact, reproducible split path rather than an
+   approximation.
+5. **Quantify what the accuracy cost means operationally.** Before
+   finalizing, the team translates the metric gap into business terms: at
+   current claim volume, the drop from 88% to 82% recall means roughly 6
+   more percentage points of claims that should have been flagged for
+   review are missed. They weigh that against the size of the regulatory
+   and litigation exposure from an indefensible denial explanation, and
+   the review board accepts the tradeoff.
+6. **Layer SHAP back on top for member-facing plain language.** With the
+   interpretable model now the model of record, the team still enables
+   **SageMaker Clarify** SHAP on it — not to substitute for the model's
+   own logic, but to translate the tree's exact split path into a
+   plain-language explanation letter a member without a data science
+   background can read, satisfying both the "actual decision logic" and
+   "understandable to the affected person" halves of the regulation.
+7. **Document and set a re-review trigger.** The decision, the 4-point /
+   6-point metric gap, and the legal rationale for rejecting the post-hoc
+   route are recorded in a **SageMaker Model Card**, and the team sets an
+   explicit re-review trigger: if a future model refresh could close the
+   accuracy gap to within 1 point, the board will re-open the
+   interpretability-versus-performance decision rather than assuming the
+   original call holds forever.
+8. **Monitor going forward.** **SageMaker Model Monitor** watches the
+   deployed model for both performance drift and any widening of the
+   accuracy gap versus the ensemble baseline the team keeps offline as a
+   benchmark, so the tradeoff decision stays visible and auditable instead
+   of becoming a one-time, unrevisited choice.
+
+> **Exam tip:** When a scenario says an explanation must reflect the
+> model's **actual decision logic** rather than just a plausible-sounding
+> approximation, that's the exam signaling that **post-hoc SHAP on a
+> black-box model isn't enough** — you need a **natively interpretable
+> model**, even at an accuracy cost. Contrast that with a scenario that
+> only requires showing *which factors mattered* for a prediction, without
+> demanding exact traceability: that weaker requirement **can** be
+> satisfied by SHAP/Clarify on a complex model, as in the
+> recommendation-engine example earlier in this domain. The exam is
+> testing whether you can tell those two flavors of "explainability
+> requirement" apart, not just whether you remember that Clarify computes
+> SHAP values.
 
 ---
 

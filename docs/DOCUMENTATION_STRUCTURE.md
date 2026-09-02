@@ -281,7 +281,7 @@ cross-references) actually resolves to a real file and heading anchor.
 (Bedrock Knowledge Bases, Guardrails, Model Evaluation, Provisioned
 Throughput), and terminology evolve, and is checked against public AWS
 documentation. All five domain guides carry a `**Last verified:**
-2026-08-30` line near the top, kept in sync across the series;
+2026-09-02` line near the top, kept in sync across the series;
 `tests/test_domain_last_verified_date.py` guards that every domain guide
 keeps one and that the dates agree.
 

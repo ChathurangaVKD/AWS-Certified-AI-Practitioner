@@ -1832,6 +1832,44 @@ aid once you already have.
     (D) are traditional ML training diagnoses that don't describe a
     deployed generative model fabricating facts at inference time.
 
+21. **B — Content creation — Amazon Nova Canvas with negative prompting.**
+    Generating new marketing images from a text description is the
+    content-creation use case, Amazon Nova Canvas is the AWS image
+    foundation model built for it, and negative prompting is the
+    technique for excluding unwanted elements like watermarks or logos.
+    Search (A) and code generation (D) describe unrelated use cases;
+    Comprehend (C) performs text analytics such as entity and sentiment
+    extraction, not summarization or image generation.
+
+22. **C — (1) Amazon Q Business; (2) a custom Amazon Bedrock application.**
+    A ready-made assistant grounded in existing enterprise systems like
+    SharePoint and Salesforce, deployable quickly with minimal setup, is
+    exactly what Amazon Q Business is purpose-built for; a bot needing a
+    proprietary flow unavailable in any pre-built product needs the
+    deeper customization only a custom Amazon Bedrock build provides.
+    Option A reverses the two fits; Q Developer (B) is a coding
+    assistant, not a general-purpose or customer-facing chatbot platform;
+    full pretraining (D) is unnecessary and far costlier than either
+    correct approach.
+
+23. **B — Search (semantic search), then summarization.** Finding case
+    files by describing facts in natural language rather than exact
+    keywords is the definition of semantic search, powered by embeddings
+    and vector similarity; condensing each retrieved file into a short
+    brief afterward is the summarization use case. Content creation (A)
+    and code generation (C) describe generating new material or code, not
+    retrieval or condensation; reversing the order (D) doesn't match the
+    stated sequence of finding files first and then condensing them.
+
+24. **A — (1) Content creation, (2) Summarization, (3) Chatbot, (4) Code
+    generation.** Drafting new product descriptions from bullet points is
+    content creation; condensing long transcripts into a brief is
+    summarization; answering natural-language questions grounded in
+    company HR documents is the chatbot/conversational-assistant use
+    case; and suggesting inline code fixes is code generation. Options B,
+    C, and D each mismatch at least one initiative with the wrong
+    use-case category.
+
 ---
 
 [← Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md) · **Domain 2 of 5** · [Domain 3: Applications of Foundation Models →](domain-3-applications-of-foundation-models.md)

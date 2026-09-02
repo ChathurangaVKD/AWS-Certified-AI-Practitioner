@@ -603,27 +603,25 @@ describes.
    reviewers may see.
 5. **Close the loop before any action is taken.** A human loop only
    completes, and only then does the case re-enter the nurse queue, once
-   a credentialed reviewer submits their own priority assessment through
-   A2I — the low-confidence prediction itself never reaches a clinician's
-   queue unreviewed, satisfying the governance board's "no autonomous
-   action" rule for the exact cases the model is least sure about.
+   a credentialed reviewer submits a priority assessment through A2I —
+   the low-confidence prediction never reaches a clinician's queue
+   unreviewed, satisfying the "no autonomous action" rule for the exact
+   cases the model is least sure about.
 6. **Document and monitor.** The team records the threshold, the
-   precision/recall tradeoff analysis behind it, and the A2I workflow
-   configuration in a **SageMaker Model Card**, and attaches **SageMaker
-   Model Monitor** to watch the *share* of predictions falling below 0.35
-   over time — a rising share can indicate the incoming patient
-   population is drifting away from what the model was trained on, which
-   is itself a signal to revisit the threshold rather than assume it
-   still holds.
+   precision/recall tradeoff behind it, and the A2I configuration in a
+   **SageMaker Model Card**, and attaches **SageMaker Model Monitor** to
+   watch the *share* of predictions falling below 0.35 over time — a
+   rising share can signal the patient population is drifting away from
+   what the model was trained on, prompting a threshold review.
 
 > **Exam tip:** A scenario that says predictions "below a confidence
 > threshold" must go to a human, with no autonomous final action, is
 > describing **Amazon A2I** built on top of a **classification
-> threshold** — the same threshold concept from [Domain 1, Section
+> threshold** — the same concept from [Domain 1, Section
 > 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics),
-> just applied to *routing* instead of to a pass/fail decision. Watch for
-> two common wrong answers: confusing this with **temperature**, which is
-> a generative-model sampling parameter with no meaning for a classical
+> applied to *routing* instead of a pass/fail decision. Watch for two
+> common wrong answers: confusing this with **temperature**, a
+> generative-model sampling parameter with no meaning for a classical
 > classifier's predicted probability, and assuming "route to a human"
 > means the model has no notion of confidence at all — every classical
 > probabilistic classifier already outputs a predicted probability that's

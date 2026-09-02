@@ -52,7 +52,7 @@ domain, currently 1,568–2,870 lines each:
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
 - Domain 4: 1,611 lines
-- Domain 5: 1,968 lines
+- Domain 5: 2,064 lines
 
 All five follow the same template:
 
@@ -141,13 +141,25 @@ example" sections (the closing HIPAA walkthrough and this new
 multi-framework example) plus the one nested cost-capping subsection
 described above.
 
+Domain 5 also has a second nested "####"-level worked-example subsection,
+alongside the cost-capping one: "#### Worked example: shared
+responsibility for a SageMaker-to-Bedrock fine-tuning pipeline," nested
+inside Section 5 right after its exam tip and before that section's
+mini-quiz. It walks Ferrous Analytics, a fintech company, through a
+three-stage pipeline — SageMaker Processing for data prep, a Bedrock
+fine-tuning job, and Bedrock Provisioned Throughput serving — assigning
+customer-vs-AWS responsibility per stage, then contrasts a data-leak
+incident traced back to the customer-owned anonymization code in stage 1
+against AWS's own infrastructure responsibilities.
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
-four-techniques-on-one-task walkthrough; Domain 5's cost-capping
-subsection), the five domain guides mark **20+ worked-example sections in
-total**, plus further example content nested at the sub-bullet level
-within some of those sections.
+four-techniques-on-one-task walkthrough; Domain 5's cost-capping and
+SageMaker-to-Bedrock shared-responsibility subsections), the five domain
+guides mark **20+ worked-example sections in total**, plus further
+example content nested at the sub-bullet level within some of those
+sections.
 
 **Diagrams:** The five domain guides contain 27 Mermaid flowchart diagrams
 in total: Domain 1 has six (the 8-stage ML lifecycle loop,

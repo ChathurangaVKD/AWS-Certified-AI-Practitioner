@@ -217,7 +217,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("25", diagrams_section)
+        self.assertIn("26", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -564,8 +564,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"```mermaid", text))
         self.assertEqual(
             actual_total,
-            25,
-            "sanity check: expected 25 total Mermaid diagrams across the "
+            26,
+            "sanity check: expected 26 total Mermaid diagrams across the "
             "five domain guides",
         )
         diagrams_idx = self.structure_text.find("**Diagrams:**")
@@ -592,12 +592,12 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         )
 
     def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
-        # The domain guides' 25 Mermaid diagrams are not the whole picture:
+        # The domain guides' 26 Mermaid diagrams are not the whole picture:
         # cross-domain-concept-map.md's "Visual overview" section has one
-        # more Mermaid diagram (26 Mermaid diagrams total), and two of the
+        # more Mermaid diagram (27 Mermaid diagrams total), and two of the
         # domain guides also carry a plain-text ASCII rendering of a
         # diagram that already exists as Mermaid (Domain 1's ML lifecycle
-        # and Domain 5's shared-responsibility model), for 28 diagrams
+        # and Domain 5's shared-responsibility model), for 29 diagrams
         # overall. DOCUMENTATION_STRUCTURE.md previously undercounted this
         # (stating "All 24 flowchart-style diagrams") and omitted the
         # cross-domain diagram and the ASCII diagrams entirely.
@@ -616,10 +616,10 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "cross-domain-concept-map.md's Visual overview section",
         )
         grand_mermaid_total = domain_mermaid_total + concept_map_mermaid_total
-        self.assertEqual(grand_mermaid_total, 26)
+        self.assertEqual(grand_mermaid_total, 27)
         ascii_diagram_count = 2
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 28)
+        self.assertEqual(grand_total, 29)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
@@ -633,7 +633,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 26-diagram "
+            "DOCUMENTATION_STRUCTURE.md does not state the 27-diagram "
             "Mermaid total once cross-domain-concept-map.md is included",
         )
         self.assertIn(
@@ -646,12 +646,12 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 28-diagram "
-            "grand total (26 Mermaid + 2 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 29-diagram "
+            "grand total (27 Mermaid + 2 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):
-        expected_words = {1: "six", 2: "four", 3: "nine", 4: "three", 5: "three"}
+        expected_words = {1: "six", 2: "four", 3: "nine", 4: "three", 5: "four"}
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         for domain_number, path in DOMAIN_FILES.items():

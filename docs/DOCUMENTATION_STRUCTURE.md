@@ -160,7 +160,8 @@ diagrams + 2 ASCII diagrams = **29 total diagrams**.
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,
 evaluation term coverage (D1), glossary size (≥15 entries), practice
-question count (15–20 per domain, **26 for Domain 5**, **106 total**),
+question count (15–20 per domain, **24 for Domain 1**, **26 for Domain 5**,
+**110 total**),
 answer explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
 sheet, its subsection mini quizzes (35 in total: 7 each for Domains 1 and
@@ -231,10 +232,10 @@ of duplicating material inside them:
   prose entries. Both answer "where is 'prompt injection' explained?"
   without knowing which domain defines it.
 
-**Total assessment:** 106 domain practice questions (across the five
+**Total assessment:** 110 domain practice questions (across the five
 domain guides) + 65 mock-exam questions + 22 scenario questions +
 35 embedded mini-quiz questions (across the five domain guides'
-subsections) = 228 total practice items across the repository.
+subsections) = 232 total practice items across the repository.
 
 ## Navigation
 

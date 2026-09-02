@@ -1376,7 +1376,105 @@ customer's responsibility.
 service (Bedrock > SageMaker JumpStart > SageMaker custom training), the
 less infrastructure security the customer must handle — but the customer
 is **always** responsible for their data and access configuration,
-regardless of how managed the service is.
+regardless of how managed the service is. See the [worked example
+below](#worked-example-shared-responsibility-for-a-sagemaker-to-bedrock-fine-tuning-pipeline)
+for how this split plays out across a real SageMaker-to-Bedrock pipeline.
+
+#### Worked example: shared responsibility for a SageMaker-to-Bedrock fine-tuning pipeline
+
+The diagram above shows the Bedrock/SageMaker split in the abstract. The
+walkthrough below applies it stage by stage to a single pipeline that
+uses **both** services together — exactly the kind of architecture the
+exam likes to test, because a question can plant one misconfigured
+control in any stage and ask whose responsibility it was.
+
+**Scenario:** Ferrous Analytics, a fintech company, fine-tunes a
+foundation model on anonymized transaction-support transcripts and
+serves it to internal analysts. The pipeline has three stages: (1) Amazon
+SageMaker Processing cleans and anonymizes the raw transcripts, (2) the
+prepared dataset is handed to an Amazon Bedrock model-customization
+(fine-tuning) job, and (3) the resulting custom model is served through
+Bedrock Provisioned Throughput.
+
+1. **Stage 1 — data preparation on Amazon SageMaker Processing.**
+   - *Customer responsibility:* the SageMaker Processing container image
+     and the anonymization/cleaning code that runs inside it; the IAM
+     execution role scoped to only the specific input/output S3
+     prefixes the job needs; the VPC subnet and security group the
+     processing job runs in; and enabling **AWS KMS** encryption on the
+     S3 buckets holding the raw and anonymized transcripts.
+   - *AWS responsibility:* the physical infrastructure and host
+     operating system the Processing job's compute instances run on, and
+     patching the underlying SageMaker platform itself.
+   - *Why the split lands here:* SageMaker Processing is a build-your-own
+     workload — Ferrous Analytics supplies the container and code, so
+     Ferrous Analytics also owns securing what that container and code
+     do with the data, exactly like the "customer takes on more" slice
+     in the SageMaker column above.
+
+2. **Stage 2 — fine-tuning on Amazon Bedrock.** The anonymized dataset is
+   uploaded to S3 and referenced by a Bedrock model-customization job.
+   - *Customer responsibility:* the IAM policy that scopes the
+     fine-tuning job's role to `bedrock:CreateModelCustomizationJob` on
+     only the intended base model, not `bedrock:*`; which S3 prefix is
+     supplied as training data (i.e., confirming it is the anonymized
+     output of stage 1, not the raw transcripts); and choosing whether
+     the job runs through an **AWS PrivateLink** VPC endpoint so training
+     data never traverses the public internet.
+   - *AWS responsibility:* provisioning and patching the training
+     infrastructure that runs the fine-tuning job, and securing the
+     underlying foundation model weights Ferrous Analytics is
+     customizing.
+   - *Why the split lands here:* Bedrock is fully managed, so AWS owns
+     the compute that performs the fine-tuning; Ferrous Analytics still
+     owns every decision about what data is fed in and who is allowed to
+     start the job, because "security in the cloud" never transfers to
+     AWS regardless of abstraction level.
+
+3. **Stage 3 — serving the custom model on Bedrock Provisioned
+   Throughput.**
+   - *Customer responsibility:* configuring **Guardrails for Amazon
+     Bedrock** on the custom model's endpoint (denied topics, PII
+     filters) before analysts can query it; the IAM policy restricting
+     `bedrock:InvokeModel` on the custom model ARN to only the analyst
+     team's role; and enabling **AWS CloudTrail** logging so every
+     invocation is auditable for the internal compliance review.
+   - *AWS responsibility:* the physical infrastructure, host OS, and
+     patching of the Provisioned Throughput serving layer, and ensuring
+     the isolation between Ferrous Analytics's custom model and every
+     other customer's models on the same underlying service.
+   - *Why the split lands here:* once again the model-serving
+     infrastructure is Bedrock's fully-managed slice, but who can call
+     the model and what it's allowed to say back is Ferrous Analytics's
+     access-configuration and content-control responsibility.
+
+**Contrasting incident:** Midway through rollout, an analyst notices the
+custom model occasionally echoes account numbers from the fine-tuning
+data back in its responses. This is **not** an AWS infrastructure failure
+— AWS correctly served the model Ferrous Analytics trained it to serve.
+It traces back to stage 1: the SageMaker Processing anonymization code
+missed a transaction-ID format variant, so unredacted account numbers
+made it into the training set. Because stage 1's cleaning code is the
+customer's "in the cloud" responsibility, the fix (patching the
+anonymization logic and re-running the pipeline) is entirely Ferrous
+Analytics's to make — the same lesson as the IAM misconfiguration example
+above, just surfaced two stages later in a chained pipeline.
+
+**Summary table:**
+
+| Stage | Customer responsibility | AWS responsibility |
+|---|---|---|
+| 1. SageMaker Processing (data prep) | Container image/code, IAM role scope, VPC config, enabling KMS encryption | Physical infrastructure, host OS, patching the SageMaker platform |
+| 2. Bedrock fine-tuning | IAM policy scope, choice of training data, PrivateLink usage | Training compute infrastructure, foundation model weights |
+| 3. Bedrock Provisioned Throughput (serving) | Guardrails configuration, invoke-access IAM policy, CloudTrail logging | Serving infrastructure, host OS, multi-tenant isolation |
+
+**Exam tip:** When a question chains SageMaker into Bedrock (or vice
+versa), don't apply the shared-responsibility split once for the whole
+pipeline — apply it **per stage**. Each stage keeps the same rule (AWS
+owns the infrastructure/platform "of" that stage; the customer owns the
+data, code, and access configuration "in" that stage), but which stage a
+described failure occurred in determines whose responsibility the exam
+is actually asking about.
 
 #### Mini-quiz: Test your understanding of the AWS shared responsibility model
 

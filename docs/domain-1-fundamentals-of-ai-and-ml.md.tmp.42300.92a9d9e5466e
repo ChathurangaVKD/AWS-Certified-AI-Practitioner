@@ -257,6 +257,92 @@ when accuracy degrades.
 > specifically to prevent *training/serving skew* (features computed
 > differently at training time vs. inference time).
 
+### Production deployment strategies and model versioning
+
+Step 7 above ("Deployment") describes *how* to expose a trained model for
+inference, but production systems also need a controlled way to **roll
+out a new model version** without risking a bad release, and a reliable
+way to **track which version is running**. Cross-domain scenario
+questions about production rollouts and model governance draw on four
+staged-rollout patterns, plus the AWS service used to track and promote
+model versions.
+
+**Staged rollout patterns** — these trade off risk, cost, and how quickly
+you learn about a new model version's real-world quality:
+
+- **Canary deployment** — route a small percentage of live traffic (e.g.,
+  5%) to the new model version while the majority of traffic stays on the
+  current version, then gradually increase the new version's share as
+  confidence grows, monitoring for errors or quality regressions at each
+  step. SageMaker endpoints support this via traffic-shifting deployment
+  configurations.
+- **Blue/green deployment** — run the new model version ("green") on a
+  fully separate fleet alongside the current version ("blue"), then cut
+  traffic over all at once once confidence is high, with an instant
+  rollback by shifting traffic back to blue if problems appear. SageMaker
+  supports blue/green deployment guardrails for endpoints, with linear or
+  canary traffic-shifting strategies during the cutover.
+- **A/B testing** — deliberately split live traffic between two (or more)
+  model versions to statistically compare business or model-quality
+  metrics (e.g., conversion rate, click-through rate) side by side, not
+  just to safely roll one version out. Both versions keep running and
+  receiving real traffic for as long as needed to reach a statistically
+  meaningful result. SageMaker endpoints can host multiple **production
+  variants** with configurable weighted traffic splits for exactly this.
+- **Shadow deployment (shadow testing)** — send a copy of live production
+  traffic to the new model version in parallel, without its predictions
+  ever being returned to users or affecting any real decision, then
+  compare the shadow version's predictions against the live version's
+  offline. This validates that a new version behaves acceptably on real
+  traffic with zero user-facing risk, at the cost of running duplicate
+  inference capacity. SageMaker inference supports shadow variants for
+  this pattern.
+
+The shared theme: every pattern except an all-at-once cutover keeps the
+previous version live and serving traffic, so a bad new version can be
+rolled back or throttled instead of taking production down.
+
+**Model versioning and promotion: SageMaker Model Registry.** Choosing a
+rollout pattern only helps if you can reliably identify *which trained
+model artifact* a given version actually is. **Amazon SageMaker Model
+Registry** is the AWS service for this: it catalogs trained model
+versions grouped into **model package groups**, stores each version's
+metadata (evaluation metrics, lineage, approval status), and lets a
+reviewer **approve or reject** a version before it can be deployed. A
+typical flow: a training job registers a new candidate version as
+"Pending manual approval" → a reviewer inspects its evaluation metrics
+(and, per [Section 6](#6-model-evaluation-basics), any SageMaker Clarify
+bias metrics) → the reviewer sets the version's status to "Approved" → a
+deployment pipeline (e.g., built with SageMaker Pipelines) picks up the
+approved version and rolls it out using one of the staged-rollout
+patterns above. This gives governance reviewers (see
+[Domain 5](domain-5-security-compliance-governance.md#1-securing-ai-systems))
+an auditable record of exactly which approved version is serving
+production traffic, and a clear path to roll back to a previous approved
+version if the new one underperforms.
+
+**AWS example:** A ride-sharing company retrains its fare-estimation
+model weekly. Each new training run registers a candidate version in
+**SageMaker Model Registry**. A data scientist reviews the candidate's
+evaluation metrics against the currently deployed version and, if they
+clear the bar, approves it. The deployment pipeline then rolls the
+approved version out as a **canary**: 5% of estimation requests for one
+hour, then 25%, then 100%, automatically rolling back to the previously
+approved version if error rates spike at any stage.
+
+> **Exam tip:** Distinguish the four patterns by *intent*, not just
+> mechanics: canary and blue/green are both about **safely rolling out**
+> one new version (gradual traffic shift vs. instant cutover with
+> fallback); A/B testing is about **deliberately comparing two versions'**
+> real-world performance, with both kept running on purpose; shadow
+> deployment is about **validating a new version with zero user-facing
+> risk**, since its predictions never reach users. If a question asks
+> which service tracks model versions and lets a reviewer approve one
+> before deployment, the answer is **SageMaker Model Registry** — not
+> Model Monitor (which watches an already-deployed model for drift) and
+> not Model Cards (which document a model's intended use and limitations,
+> not its deployment version).
+
 #### Mini-quiz: Test your understanding of the ML lifecycle
 
 1. Which step comes immediately before model training in the standard ML

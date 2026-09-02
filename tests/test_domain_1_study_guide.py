@@ -277,6 +277,69 @@ class TestDomain1StudyGuideStructure(unittest.TestCase):
             "case (leading back to retraining)",
         )
 
+    def test_terminology_section_has_a_nesting_hierarchy_mermaid_diagram(self):
+        # Section 1 explicitly warns (via its Exam tip) that the exam tests
+        # the AI ⊃ ML ⊃ DL ⊃ Generative AI nesting relationship and that
+        # distractors reverse it. Before this test the section only had
+        # prose and a plain-text "AI > ML > DL > Generative AI" ASCII line,
+        # with no Mermaid diagram (unlike Domain 3's customization-approach
+        # diagrams). This asserts a real Mermaid diagram exists and encodes
+        # containment as literal nesting (subgraph-within-subgraph), not
+        # just a left-to-right sequence that could be misread as a pipeline.
+        section = _section(
+            self.text, r"\n## 1\. Basic AI/ML/DL terminology and concepts"
+        )
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "AI/ML/DL terminology section should include a ```mermaid "
+            "fenced diagram of the nesting hierarchy",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        self.assertRegex(diagram, r"flowchart\s+(TD|TB|LR|RL|BT)")
+
+        # Each field must be its own subgraph so the diagram renders as
+        # literal nested boxes (containment), not a left-to-right sequence.
+        subgraph_ids = re.findall(r"subgraph\s+(\w+)\[", diagram)
+        self.assertGreaterEqual(
+            len(subgraph_ids),
+            3,
+            "diagram should use at least 3 subgraphs (AI, ML, DL) to "
+            "render the fields as nested boxes",
+        )
+
+        for field in ["Artificial Intelligence", "Machine Learning", "Deep Learning"]:
+            with self.subTest(field=field):
+                self.assertIn(field, diagram)
+        self.assertRegex(
+            diagram,
+            r"(?i)generative ai",
+            "diagram should include Generative AI as the innermost node",
+        )
+
+        # Verify the nesting order textually: each subgraph's opening
+        # keyword must appear before the next narrower one, and the
+        # innermost node (Generative AI) must appear after all of them,
+        # confirming AI ⊃ ML ⊃ DL ⊃ Generative AI rather than a flat list.
+        ai_pos = diagram.find("Artificial Intelligence")
+        ml_pos = diagram.find("Machine Learning")
+        dl_pos = diagram.find("Deep Learning")
+        genai_pos = re.search(r"(?i)generative ai", diagram).start()
+        self.assertTrue(
+            ai_pos < ml_pos < dl_pos < genai_pos,
+            "diagram should nest AI, then ML, then DL, then Generative AI "
+            "in that broadest-to-narrowest order",
+        )
+
+        # Every subgraph opened in the diagram must also be closed, or the
+        # nesting wouldn't render correctly in Mermaid.
+        self.assertEqual(
+            len(re.findall(r"\bsubgraph\b", diagram)),
+            len(re.findall(r"\bend\b", diagram)),
+            "every 'subgraph' block must have a matching 'end'",
+        )
+
     def test_types_of_learning_section_has_a_selection_flowchart(self):
         # The learning-type section defines supervised, unsupervised,
         # semi-supervised, and reinforcement learning in prose but used to

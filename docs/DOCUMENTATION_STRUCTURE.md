@@ -52,7 +52,7 @@ domain, currently 1,568–2,870 lines each:
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
 - Domain 4: 1,611 lines
-- Domain 5: 1,759 lines
+- Domain 5: 1,853 lines
 
 All five follow the same template:
 

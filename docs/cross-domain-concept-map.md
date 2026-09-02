@@ -55,6 +55,90 @@ itself creates new considerations that Domains 4 and 5 pick up.
 
 ---
 
+## Visual overview
+
+The tables below are the source of truth — each row links to the exact
+section and explains *why* the connection exists. This diagram is the same
+information redrawn as a flowchart, for anyone who wants to see the
+prerequisite shape at a glance before diving into the row-by-row detail:
+Domain 1 and Domain 2 fundamentals feed Domain 3 application decisions, and
+both the D1/D2 fundamentals *and* the D3 decisions they produce feed
+Domain 4's responsible-AI questions and Domain 5's governance questions.
+
+```mermaid
+flowchart LR
+    subgraph D1["Domain 1: Fundamentals of AI and ML"]
+        D1_EVAL["Model evaluation metrics"]
+        D1_LIFECYCLE["ML development lifecycle\n(data, training, tuning, deployment)"]
+        D1_LEARN["Types of learning\n(supervised learning)"]
+        D1_BV["Bias-variance trade-off"]
+        D1_AWS["Core AWS AI/ML services\n(SageMaker, inference types)"]
+    end
+
+    subgraph D2["Domain 2: Fundamentals of Generative AI"]
+        D2_SELECT["FM selection criteria"]
+        D2_PROMPT["Prompt engineering fundamentals"]
+        D2_LIFECYCLE["LLM lifecycle basics\n(pretraining, fine-tuning, RAG)"]
+        D2_CORE["Generative AI core concepts\n(architecture, tokens, embeddings)"]
+        D2_ADV["Advantages/disadvantages\n(hallucination)"]
+        D2_AWS["AWS generative AI services\n(Bedrock, JumpStart)"]
+    end
+
+    subgraph D3["Domain 3: Applications of Foundation Models"]
+        D3_DESIGN["FM application design\nconsiderations"]
+        D3_CUSTOM["Fine-tuning vs. RAG vs.\nprompt engineering"]
+        D3_RAG["RAG and Bedrock\nKnowledge Bases"]
+        D3_EVAL["Evaluating FM performance"]
+        D3_INFRA["AWS infrastructure for\ngenerative AI workloads"]
+    end
+
+    subgraph D4["Domain 4: Guidelines for Responsible AI"]
+        D4_BIAS["Bias and fairness issues"]
+        D4_INTERP["Performance vs.\ninterpretability"]
+        D4_DIMS["Core dimensions of\nresponsible AI"]
+        D4_LEGAL["Legal and ethical\nconsiderations"]
+    end
+
+    subgraph D5["Domain 5: Security, Compliance, Governance"]
+        D5_GOV["Data governance\n(lineage, encryption, residency)"]
+        D5_SHARED["Shared responsibility model"]
+        D5_SEC["Security threats\nand mitigations"]
+    end
+
+    D1_EVAL --> D3_EVAL
+    D1_LIFECYCLE --> D3_CUSTOM
+    D1_LEARN --> D3_CUSTOM
+    D1_AWS --> D3_DESIGN
+    D1_AWS --> D3_INFRA
+
+    D1_BV --> D4_BIAS
+    D1_EVAL --> D4_INTERP
+    D1_LIFECYCLE --> D4_BIAS
+    D1_LIFECYCLE --> D5_GOV
+    D1_AWS --> D5_SHARED
+    D1_LIFECYCLE --> D5_GOV
+
+    D2_SELECT --> D3_DESIGN
+    D2_SELECT --> D4_INTERP
+    D2_PROMPT --> D3_DESIGN
+    D2_LIFECYCLE --> D3_CUSTOM
+    D2_CORE --> D3_RAG
+    D2_AWS --> D3_INFRA
+
+    D2_CORE --> D4_DIMS
+    D2_ADV --> D4_BIAS
+    D2_AWS --> D5_SHARED
+    D2_PROMPT --> D5_SEC
+
+    D3_RAG --> D4_BIAS
+    D3_CUSTOM --> D4_LEGAL
+    D3_EVAL --> D4_INTERP
+    D3_RAG --> D5_GOV
+    D3_INFRA --> D5_SHARED
+```
+
+---
+
 ## Domain 1 → Domain 3: Applications of Foundation Models
 
 | Domain 1 fundamental | Flows into (Domain 3) | Why the connection matters |

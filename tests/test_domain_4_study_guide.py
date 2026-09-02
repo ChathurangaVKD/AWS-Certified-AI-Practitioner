@@ -371,6 +371,82 @@ class TestDomain4StudyGuideStructure(unittest.TestCase):
                     f"bias workflow diagram missing mitigation tool: {tool!r}",
                 )
 
+    def test_bias_section_has_pre_vs_post_training_decision_tree_diagram(self):
+        # Regression test: Section 2 must include a second, standalone
+        # Mermaid diagram dedicated to the pre-training vs. post-training
+        # bias detection decision ("do you have a trained model yet?"),
+        # distinct from the broader six-bias-type detection-and-mitigation
+        # workflow diagram tested above. This distinction is exercised by
+        # cross-domain scenario questions 2, 13, and 19.
+        bias_section = _section(
+            self.text,
+            r"\n## 2\. Identifying bias and fairness issues in training "
+            r"data and model outputs",
+        )
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", bias_section, re.S)
+        self.assertGreaterEqual(
+            len(mermaid_blocks),
+            2,
+            "bias section should contain both the six-bias-type workflow "
+            "diagram and a dedicated pre-training vs. post-training "
+            "decision-tree diagram",
+        )
+        decision_tree_candidates = [
+            block
+            for block in mermaid_blocks
+            if re.search(r"trained model yet", block, re.IGNORECASE)
+        ]
+        self.assertEqual(
+            len(decision_tree_candidates),
+            1,
+            "expected exactly one Mermaid diagram asking whether a "
+            "trained model exists yet",
+        )
+        decision_tree = decision_tree_candidates[0]
+        self.assertRegex(
+            decision_tree,
+            re.compile(r"pre-training metrics", re.IGNORECASE),
+            "decision tree missing the pre-training metrics branch",
+        )
+        self.assertRegex(
+            decision_tree,
+            re.compile(r"post-training metrics", re.IGNORECASE),
+            "decision tree missing the post-training metrics branch",
+        )
+        self.assertIn(
+            "DPL",
+            decision_tree,
+            "decision tree missing the DPL pre-training metric",
+        )
+        self.assertRegex(
+            decision_tree,
+            re.compile(r"class imbalance", re.IGNORECASE),
+            "decision tree missing the class imbalance pre-training metric",
+        )
+        self.assertRegex(
+            decision_tree,
+            re.compile(r"disparate impact", re.IGNORECASE),
+            "decision tree missing the disparate impact post-training metric",
+        )
+        self.assertRegex(
+            decision_tree,
+            re.compile(r"accuracy/recall difference", re.IGNORECASE),
+            "decision tree missing the accuracy/recall difference "
+            "post-training metric",
+        )
+        # The prose immediately around the diagram should tie it back to
+        # the practice questions that test this exact branch.
+        diagram_start = bias_section.index(decision_tree)
+        surrounding = bias_section[
+            max(0, diagram_start - 800) : diagram_start + len(decision_tree) + 800
+        ]
+        self.assertRegex(
+            surrounding,
+            re.compile(r"cross-domain-scenario-questions\.md"),
+            "pre- vs. post-training decision tree should cross-reference "
+            "cross-domain-scenario-questions.md",
+        )
+
     def test_aws_tools_section_covers_required_tools(self):
         tools_section = _section(
             self.text, r"\n## 3\. AWS tools for responsible AI"

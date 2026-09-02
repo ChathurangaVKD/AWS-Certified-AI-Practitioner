@@ -378,6 +378,29 @@ monitoring bias drift over time with **Amazon SageMaker Model Monitor**.
 > before a model is even built is still a Clarify pre-training bias
 > metric, not a post-training one.
 
+**Visual summary — pre-training vs. post-training bias detection:** the
+diagram above folds this choice into a larger workflow; isolated on its
+own, the entire decision turns on a single question — **do you have a
+trained model yet?**
+
+```mermaid
+flowchart TD
+    A["Need to detect bias\n(dataset or model)"] --> B{"Do you have a\ntrained model yet?"}
+    B -->|"No"| C["Apply pre-training metrics\nto the dataset:\nclass imbalance,\ndifference in proportions\nof labels (DPL)"]
+    B -->|"Yes"| D["Apply post-training metrics\nto the predictions:\ndisparate impact,\naccuracy/recall difference\nper group"]
+    C --> E["SageMaker Clarify\n(dataset job)"]
+    D --> F["SageMaker Clarify\n(model/endpoint job)"]
+```
+
+This is the exact branch [cross-domain scenario questions 2, 13, and
+19](cross-domain-scenario-questions.md#practice-questions) test: if the
+scenario describes checking a *dataset* before training, the answer is a
+pre-training metric (class imbalance or DPL) even if the question never
+says the word "pre-training"; if it describes checking *predictions* from
+an already-trained model or deployed endpoint, the answer is a
+post-training metric (disparate impact or accuracy/recall difference),
+even if the question never says "post-training" either.
+
 ### Worked example: representativeness vs. demographic fairness bias
 
 Everything above in this section — disparate impact, DPL, class

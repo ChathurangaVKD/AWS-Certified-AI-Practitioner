@@ -46,11 +46,11 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,319–2,728 lines each:
+domain, currently 1,319–2,816 lines each:
 
 - Domain 1: 1,319 lines
 - Domain 2: 1,701 lines
-- Domain 3: 2,692 lines
+- Domain 3: 2,816 lines
 - Domain 4: 1,524 lines
 - Domain 5: 1,418 lines
 
@@ -108,6 +108,19 @@ third diagnosing retrieval-induced bias and hallucination in a RAG-based
 HR assistant — three standalone "## Worked example" sections in total for
 Domain 4, covering bias-detection patterns across a deep learning ranking
 model, a classical ML classifier, and a foundation-model/RAG application.
+
+Domain 2 also grew beyond a single worked example: alongside the
+generative AI support assistant walkthrough referenced above, it now has
+a second "## Worked example" section estimating tokens for RAG retrieval
+and long-document summarization, and a third (closing) section selecting
+and comparing models for a real-time voice assistant use case — three
+standalone "## Worked example" sections in total for Domain 2 as well.
+Counting every "## Worked example" heading plus the nested "###"/"####"
+worked-example subsections called out above (Domain 3's
+BLEU/ROUGE-significance and model-pair-comparison subsections, and its
+four-techniques-on-one-task walkthrough), the five domain guides mark
+**17+ worked-example sections in total**, plus further example content
+nested at the sub-bullet level within some of those sections.
 
 **Diagrams:** All 24 flowchart-style diagrams across the guide are Mermaid flowchart
 diagrams, not ASCII art: Domain 1 has six (the 8-stage ML lifecycle loop,
@@ -173,7 +186,9 @@ of duplicating material inside them:
   into Domain 3 foundation-model applications, Domain 4 responsible-AI
   concerns, and Domain 5 security/governance requirements — plus how
   Domain 3 application decisions (RAG, customization approach, Bedrock
-  features) in turn flow into Domain 4 and Domain 5.
+  features) in turn flow into Domain 4 and Domain 5. Its `## Visual
+  overview` section redraws that same prerequisite/dependency
+  information as a Mermaid flowchart, so it is not text-and-tables-only.
 - **`cross-domain-scenario-questions.md`** — 22 scenario questions that
   each require knowledge from two or more domains to answer (e.g., a
   Domain 3 customization method that also has to satisfy a Domain 5

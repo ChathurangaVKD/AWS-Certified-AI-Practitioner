@@ -622,7 +622,13 @@ class TestDomain5WorkedExample(unittest.TestCase):
         section_5_idx = self.text.index(
             "## 5. AWS shared responsibility model applied to AI/ML services"
         )
-        worked_example_idx = self.text.index("## Worked example: ")
+        # Anchored on line start (unlike a plain substring search) so this
+        # doesn't accidentally match a nested "#### Worked example: ..."
+        # subsection elsewhere in the document -- any "#### " heading
+        # contains "## " as a literal substring.
+        worked_example_match = re.search(r"\n## Worked example: ", self.text)
+        assert worked_example_match, "no top-level '## Worked example: ' heading found"
+        worked_example_idx = worked_example_match.start()
         comparison_idx = self.text.index(
             "## Comparison table: governance and monitoring services"
         )

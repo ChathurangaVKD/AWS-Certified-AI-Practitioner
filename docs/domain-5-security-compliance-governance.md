@@ -593,7 +593,94 @@ scenario with both a creative-output goal *and* an unpredictable-cost
 concern needs both answers together — tuning max tokens/temperature for
 the desired output, *and* throttling/Service Quotas/usage plans to cap
 request volume — not one in place of the other, and not IAM alone (IAM
-governs *who* can call the endpoint, not *how much* they can call it).
+governs *who* can call the endpoint, not *how much* they can call it). The [worked example below](#worked-example-capping-cost-under-three-different-threat-models) applies these two controls to three different threat models: malicious abuse, an accidental spike, and a fixed budget ceiling.
+
+#### Worked example: capping cost under three different threat models
+
+The subsection above establishes that Service Quotas and API Gateway
+usage plans bound **aggregate** spend — but the exam expects you to
+configure them differently depending on *why* the bill is at risk, not
+just enable them and stop there. The three short examples below apply
+the same two controls — Service Quotas, and an API Gateway usage plan's
+throttle and quota — against three distinct threat models: malicious
+abuse, an accidental spike, and a fixed monthly budget ceiling.
+
+**Threat model 1: malicious abuse (credential-stuffing-driven API
+calls).**
+
+*Scenario:* A public-facing Bedrock-backed endpoint sits behind API
+Gateway. An attacker runs a credential-stuffing campaign, cycling
+through many stolen or guessed credentials issued as distinct API keys,
+deliberately keeping each individual key's request volume modest so no
+single key looks abnormal — the combined volume across every compromised
+key is what drives the bill up.
+
+*Configuration:* set a tight **steady-state throttle rate and a small
+burst limit on every API key's usage plan**, sized to what one
+legitimate client actually needs rather than the endpoint's theoretical
+maximum, plus a **low per-key daily quota** — so a single compromised
+credential can only generate a small, bounded amount of spend no matter
+how long the campaign runs — and set the account-level **Service Quota**
+as a hard backstop on total request volume across every key combined, so
+the attacker can't route around the per-key limits by simply using more
+stolen keys.
+
+*Why this control:* malicious abuse is defined by many distinct
+identities each individually staying under the radar, so the fix has to
+cap **every key** tightly, not just the account in aggregate.
+
+**Threat model 2: an accidental spike (a runaway retry loop).**
+
+*Scenario:* An internal service integration has a bug — its retry logic
+doesn't back off on failure — so a single, already-trusted API key fires
+requests in a tight loop for a few minutes before an on-call engineer
+notices and rolls back the deploy.
+
+*Configuration:* the key's steady-state throttle rate can stay generous,
+since this is legitimate traffic under normal conditions; the control
+that actually caps the damage is the usage plan's **burst limit**, the
+short-window ceiling API Gateway enforces on top of the steady-state
+rate, which rejects the flood of near-simultaneous retries once it's hit
+instead of letting every one of them through to incur inference cost.
+
+*Why this control:* an accidental spike is one trusted identity briefly
+misbehaving, not a request-volume problem sustained over a day — the
+daily quota reacts too slowly to catch a spike measured in minutes, and
+tightening the steady-state rate would throttle the client's normal,
+legitimate traffic along with the bug.
+
+**Threat model 3: a fixed monthly budget ceiling.**
+
+*Scenario:* Finance sets a hard ceiling: this endpoint must never cost
+more than **$500/month**, regardless of how much legitimate demand shows
+up. The team's worst-case per-request cost, from Domain 3's per-request
+sizing, is **$0.01**.
+
+*Configuration:* work backward from the ceiling to a request cap — $500
+÷ $0.01 per request = **50,000 requests** is the most the account can
+afford in a month at worst-case per-call cost. Set the API Gateway usage
+plan's **monthly quota below that ceiling** (for example, 45,000
+requests, leaving headroom against the worst case) so the endpoint
+hard-stops before Finance's number is at risk, and mirror that same
+request volume as the account's **Service Quota** so the cap holds even
+if legitimate traffic arrives through more than one API key.
+
+*Why this control:* a budget ceiling doesn't care who's calling or why —
+it's a fixed number regardless of cause — so the **quota** (a hard count
+per period) is the primary lever, not the throttle, which shapes *rate*,
+not *total volume over a month*.
+
+**Exam tip:** All three scenarios reuse the same two controls — Service
+Quotas and an API Gateway usage plan's throttle/quota — so the exam
+expects you to pick the right *knob* for the *stated cause*: many
+distinct identities each individually staying under the radar points to
+a tight **per-key rate and quota**; one trusted identity spiking briefly
+points to the **burst limit**; a fixed dollar ceiling regardless of
+cause points to sizing the **quota** from the ceiling and the worst-case
+per-request cost. None of the three is solved by tuning max tokens or
+buying Provisioned Throughput (Domain 3) — those bound *per-request*
+cost, not the *number* of requests, which is exactly what all three
+threat models attack.
 
 ### Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications
 Two industry frameworks help teams reason about AI-specific threats

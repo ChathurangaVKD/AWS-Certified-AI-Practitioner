@@ -184,6 +184,36 @@ class TestDomain5GovernanceDecisionTree(unittest.TestCase):
                 self.assertIn(term, diagram)
 
 
+class TestDomain5DataGovernanceLifecycleDiagram(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read_doc()
+
+    def test_data_governance_section_has_a_lifecycle_diagram(self):
+        section = _section(
+            self.text,
+            r"\n## 4\. Data governance strategies",
+        )
+        fences = re.findall(r"```mermaid(.*?)```", section, re.S)
+        self.assertTrue(
+            fences,
+            "data governance section should include a lifecycle diagram",
+        )
+        diagram = "\n".join(fences)
+        for term in [
+            "Amazon Macie",
+            "S3 Lifecycle",
+            "Fine-tuning data",
+            "RAG source documents",
+            "SageMaker ML Lineage Tracking",
+            "Model Card",
+            "Source citation",
+            "CloudTrail",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+
+
 class TestDomain5EncryptionArchitectureDiagrams(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

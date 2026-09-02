@@ -143,6 +143,94 @@ against cost and latency instead of considered in isolation.
 > Highest" cost ranking to an actual monthly dollar comparison across the
 > three Claude tiers.
 
+#### Worked example: two concrete model-pair comparisons
+
+The table above ranks whole model families against each other in relative
+terms. Exam scenarios often narrow the decision down to exactly two named
+models and expect you to reason through *why* one wins — not just recite
+"cost vs. latency" as an abstract trade-off. The two short examples below
+each pick a specific pair and walk through the decision the same way:
+scenario, decision factors, resolution.
+
+**Example 1: Claude Sonnet vs. Amazon Nova Premier — cost vs. capability**
+
+*Scenario:* A legal-tech startup is building a contract-review assistant
+that reads an entire 40-page vendor contract in one pass and flags clauses
+that deviate from the company's standard terms. The team has narrowed its
+Bedrock shortlist to two models: **Claude Sonnet** and **Amazon Nova
+Premier**.
+
+*Decision factors:*
+
+- **Capability:** Nova Premier is the largest, most capable tier in
+  Amazon's Nova family, built for complex, multi-step multimodal reasoning;
+  Claude Sonnet is Anthropic's balanced, moderate-cost mid-tier model (per
+  the table above). Cross-referencing dozens of clauses against a
+  standard-terms checklist in one pass is a moderately complex
+  document-analysis task — well within Claude Sonnet's range — not the
+  kind of multi-step, multi-data-type reasoning Nova Premier is reserved
+  for.
+- **Cost:** Nova Premier sits at the top of the Nova line's per-token
+  pricing, the same position Claude Opus occupies in the Claude family;
+  Claude Sonnet, by contrast, is priced as a moderate mid-tier model, not
+  the account's most expensive option.
+- **Context window:** both candidates comfortably fit a 40-page contract —
+  roughly 26,000 tokens using the [token-budget worked example's](#worked-example-estimating-a-context-window-token-budget)
+  ~650-tokens-per-page estimate, well under either model's window — so
+  context window doesn't separate the two here.
+
+*Resolution:* Because the task doesn't demand Nova Premier's top-of-line
+multimodal reasoning — it's a text-only, single-document review, not an
+agentic workflow spanning several data types — **Claude Sonnet** wins on
+moderate cost without giving up the accuracy the task actually needs. Nova
+Premier would only become the right answer if the scenario added a
+requirement Sonnet couldn't meet, such as reasoning jointly over the
+contract text and scanned exhibit images. This is the same "confirm every
+constraint before paying for the top tier" discipline the
+[multi-constraint worked example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+uses.
+
+**Example 2: Claude Haiku vs. Claude Opus — latency across tiers for the
+same product**
+
+*Scenario:* A retailer wants foundation models to power two different
+features: a **live chat widget** that answers simple order-status
+questions, and an **overnight batch job** that reads each day's chat
+transcripts and writes a detailed root-cause summary for support-quality
+review.
+
+*Decision factors:*
+
+- **Live chat widget:** per the table above, Claude Haiku has the lowest
+  relative latency in the Claude family — illustratively, a short
+  order-status prompt returns in roughly a second or two, fast enough to
+  feel conversational. Claude Opus, tuned for reasoning depth over speed,
+  would add a noticeably longer pause before the first token of that same
+  short prompt — latency the live widget's UX can't absorb.
+- **Overnight batch summary:** the root-cause summary runs with no user
+  watching a spinner, so the extra seconds Opus's deeper reasoning takes
+  per transcript cost nothing in perceived responsiveness — and
+  synthesizing a root cause from a messy transcript is closer to the
+  "complex, multi-step reasoning" profile Opus is recommended for.
+
+*Resolution:* The same two Claude tiers split cleanly by which axis each
+feature is actually sensitive to: **Haiku for the latency-sensitive chat
+widget**, **Opus for the latency-insensitive batch job** — even though both
+features belong to the same product. Picking one tier for both would either
+make the chat widget feel sluggish (Opus) or under-power the root-cause
+analysis (Haiku); the
+[multi-constraint worked example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
+applies the same principle across a wider set of constraints, but the
+takeaway is identical — decide model tier per task, not per product.
+
+> **Exam tip:** When a scenario names two specific models rather than two
+> tiers in the abstract, map each one to the single design consideration
+> ([Section 1](#1-design-considerations-for-foundation-model-applications))
+> it's *strongest* on before comparing cost. The higher-priced model is the
+> right answer whenever the scenario states a capability or latency
+> requirement only that model meets, and the wrong answer whenever it
+> doesn't.
+
 #### Mini-quiz: Test your understanding of FM application design considerations
 
 Quick self-check before moving on — try to answer before reading the

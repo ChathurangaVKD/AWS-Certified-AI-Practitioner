@@ -1,7 +1,5 @@
 # Domain 5: Security, Compliance, and Governance for AI Solutions
 
-*AWS Certified AI Practitioner (AIF-C01) — ~14% of exam*
-
 [← Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md) · **Domain 5 of 5** · [README →](../README.md)
 
 **Last verified:** 2026-09-02

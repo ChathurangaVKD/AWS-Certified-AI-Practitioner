@@ -206,7 +206,9 @@ of duplicating material inside them:
   weighted across all five domains in the real exam's proportions
   (~20%/24%/28%/14%/14%), mixed in exam-like order rather than grouped by
   domain, with a full answer key and a scoring guide for spotting weak
-  domains.
+  domains. Five of the 65 questions (~8%) are multiple-response ("select
+  TWO") items, matching the real exam's ~7-8% mix of multiple-response
+  questions.
 - **`master-glossary.md`** and **`GLOSSARY.md`** — two views of the same
   merged, alphabetical term set spanning all five domains' "Key terms"
   sections, **155 entries** each: `master-glossary.md` as a compact index

@@ -440,6 +440,107 @@ class TestAwsServiceDecisionGuideLayeringBranchExpansions(unittest.TestCase):
         )
 
 
+GOVERNANCE_SECTION_RE = re.compile(
+    r"^##\s+2\.\s+Comparison table: security, compliance, and governance"
+    r" services.*?(?=^## |\Z)",
+    re.M | re.S,
+)
+
+
+class TestAwsServiceDecisionGuideModelMonitorVsModelEvaluation(unittest.TestCase):
+    """Section 2 -- SageMaker Model Monitor (post-deployment monitoring for
+    classical ML models) vs. Bedrock Model Evaluation (pre-selection quality
+    assessment for foundation models) get mentioned throughout the series
+    but were never contrasted directly, which risked readers confusing when
+    each applies. Guards the comparison table added to close that gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = GOVERNANCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 2"
+        cls.section_text = section_match.group(0)
+
+    def test_has_model_monitor_vs_model_evaluation_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"^###\s+Comparison table: SageMaker Model Monitor vs\."
+                r" Bedrock Model Evaluation",
+                re.M,
+            ),
+            "expected a 'SageMaker Model Monitor vs. Bedrock Model "
+            "Evaluation' sub-heading inside section 2",
+        )
+
+    def test_subsection_has_a_comparison_table(self):
+        # Section 2 already has its own top-level governance table, so the
+        # new subsection must add at least one more.
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", self.section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            2,
+            "expected section 2 to contain both its original governance "
+            "table and the new Model Monitor vs. Model Evaluation table",
+        )
+
+    def test_table_has_both_tool_columns(self):
+        header_line = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| Dimension")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            header_line,
+            "expected a 'Dimension' header row for the Model Monitor vs. "
+            "Model Evaluation table",
+        )
+        self.assertIn("Amazon SageMaker Model Monitor", header_line)
+        self.assertIn("Amazon Bedrock Model Evaluation", header_line)
+
+    def test_table_covers_required_dimensions(self):
+        subsection_match = re.search(
+            r"^###\s+Comparison table: SageMaker Model Monitor vs\."
+            r" Bedrock Model Evaluation.*?(?=^### |^## |\Z)",
+            self.section_text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(subsection_match)
+        subsection_text = subsection_match.group(0)
+        for dimension in [
+            "Use case",
+            "Input/output",
+            "Model types supported",
+            "Typical workflow",
+        ]:
+            with self.subTest(dimension=dimension):
+                self.assertIn(dimension, subsection_text)
+
+    def test_distinguishes_model_types_supported(self):
+        # The whole point of the row is that these tools apply to
+        # different model populations -- traditional ML vs. foundation
+        # models -- so assert that distinction is actually spelled out,
+        # not just that the row exists.
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"[Tt]raditional.{0,40}ML", re.S),
+        )
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"[Ff]oundation model", re.S),
+        )
+
+    def test_has_exam_tip(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Exam tip:\*\*.{0,400}Model Monitor", re.S),
+            "expected an exam tip distinguishing when each service applies",
+        )
+
+
 API_GATEWAY_SECTION_RE = re.compile(
     r"^##\s+6\.\s+Decision guide: Amazon API Gateway.*?(?=^## |\Z)", re.M | re.S
 )

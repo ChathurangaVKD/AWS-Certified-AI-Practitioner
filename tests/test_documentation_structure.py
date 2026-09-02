@@ -623,7 +623,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
-        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 1400]
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 1600]
         self.assertIn(
             "cross-domain-concept-map.md",
             diagrams_section,

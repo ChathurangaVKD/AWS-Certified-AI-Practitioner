@@ -681,8 +681,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
         self.assertEqual(
             actual_total,
-            32,
-            "sanity check: expected 32 total subsection mini-quizzes "
+            35,
+            "sanity check: expected 35 total subsection mini-quizzes "
             "across the five domain guides",
         )
         self.assertIn(
@@ -692,6 +692,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "subsection mini-quiz count",
         )
         self.assertNotIn("31 in total", self.structure_text)
+        self.assertNotIn("32 in total", self.structure_text)
 
     def test_stated_service_index_letter_sections_match_actual(self):
         service_index_path = DOCS_DIR / "aws-service-index.md"

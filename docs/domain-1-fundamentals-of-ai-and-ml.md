@@ -9,6 +9,7 @@
 - [1. Basic AI/ML/DL terminology and concepts](#1-basic-aimldl-terminology-and-concepts)
 - [2. The ML development lifecycle](#2-the-ml-development-lifecycle)
   - [Production deployment strategies and model versioning](#production-deployment-strategies-and-model-versioning)
+    - [Worked example: promoting a new model version with canary deployment via SageMaker Model Registry](#worked-example-promoting-a-new-model-version-with-canary-deployment-via-sagemaker-model-registry)
 - [3. Types of learning](#3-types-of-learning)
 - [4. Common use cases for AI/ML](#4-common-use-cases-for-aiml)
 - [5. AWS managed AI/ML services (conceptual overview)](#5-aws-managed-aiml-services-conceptual-overview)
@@ -342,6 +343,70 @@ approved version if error rates spike at any stage.
 > Model Monitor (which watches an already-deployed model for drift) and
 > not Model Cards (which document a model's intended use and limitations,
 > not its deployment version).
+
+#### Worked example: promoting a new model version with canary deployment via SageMaker Model Registry
+
+The callouts above describe the rollout patterns and SageMaker Model
+Registry in isolation. This walkthrough stitches both together into one
+concrete sequence, since cross-domain scenario questions describe exactly
+this end-to-end flow (register → approve → stage traffic → monitor →
+promote or roll back) rather than testing either half alone.
+
+**Scenario:** An online retailer's product-recommendation model is
+retrained every week on the latest purchase data. The MLOps team needs a
+repeatable way to promote each new version into production that (1)
+records exactly which approved artifact is serving live traffic, and (2)
+limits the blast radius of a bad version instead of cutting every shopper
+over to it at once.
+
+1. **Register the candidate version.** The weekly training job's output
+   model artifact is registered as a new version inside an existing
+   **SageMaker Model Registry** model package group (e.g.
+   `product-recommender`), with status **"Pending manual approval"** and
+   its evaluation metrics (offline precision@k against a held-out
+   validation set) attached as metadata.
+2. **Review and approve.** A data scientist compares the candidate's
+   metrics against the currently deployed version's. The candidate clears
+   the bar, so the reviewer flips its Model Registry status to
+   **"Approved"** — the single auditable action that says "this specific
+   artifact is cleared for production," satisfying the governance record
+   [Domain 5](domain-5-security-compliance-governance.md#1-securing-ai-systems)
+   expects.
+3. **Stage the canary rollout.** A SageMaker Pipelines deployment job
+   picks up the newly Approved version and shifts **10%** of live
+   recommendation traffic to it behind the same endpoint, leaving the
+   remaining 90% on the prior Approved version.
+4. **Monitor at each stage.** A CloudWatch alarm watches the canary
+   slice's error rate and latency for a fixed soak period (e.g. 30
+   minutes). If the alarm stays green, the pipeline widens the shift to
+   **50%**, then **100%** of traffic, soaking at each step before
+   advancing further.
+5. **Roll back automatically on regression.** If the CloudWatch alarm
+   trips at *any* stage — say, the canary slice's error rate spikes well
+   above the baseline version's — the pipeline shifts traffic straight
+   back to the prior Approved version instead of continuing the rollout,
+   with no manual intervention needed to stop the bleeding.
+6. **Record the outcome.** Whichever version ends up serving 100% of
+   traffic, its Model Registry entry remains the auditable record of what
+   is live; a rolled-back candidate's status can be set to **"Rejected"**
+   so the next deployment attempt doesn't accidentally pick it up again.
+
+A **blue/green** rollout of the same Approved version looks almost
+identical through step 2, then diverges at step 3: instead of a gradual
+traffic shift, the new version ("green") is stood up on a fully separate
+fleet, validated against a small smoke-test slice, and then cut over all
+at once — with the old fleet ("blue") kept warm so a regression triggers
+an instant full cutback rather than a staged retreat.
+
+> **Exam tip:** A scenario that says a company must know *which exact
+> model artifact* is serving production and needs a **reviewer approval
+> step** before anything deploys is describing **SageMaker Model
+> Registry**, regardless of which rollout pattern it pairs with. A
+> scenario that emphasizes *gradually increasing traffic while watching
+> for errors, with automatic rollback* is describing **canary**; one that
+> emphasizes *an instant, all-at-once cutover with an instant fallback* is
+> describing **blue/green** — the registry-and-approval step is the same
+> either way, only the traffic-shifting mechanics differ.
 
 #### Mini-quiz: Test your understanding of the ML lifecycle
 

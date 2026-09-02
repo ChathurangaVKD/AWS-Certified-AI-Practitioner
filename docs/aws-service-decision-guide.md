@@ -198,6 +198,34 @@ See the fuller version of this table (which also covers Amazon Macie and
 Amazon GuardDuty) at
 [Domain 5 — comparison table: governance and monitoring services](domain-5-security-compliance-governance.md#comparison-table-governance-and-monitoring-services).
 
+### Comparison table: SageMaker Model Monitor vs. Bedrock Model Evaluation
+
+Two other services get confused for a related but different reason: both
+**Amazon SageMaker Model Monitor** and **Amazon Bedrock Model Evaluation**
+involve "checking a model's quality," but they answer that question at
+opposite ends of a model's lifecycle — one watches a *traditional ML model
+that's already deployed and serving traffic*, the other compares
+*candidate foundation models before you commit to one*.
+
+| Dimension | Amazon SageMaker Model Monitor | Amazon Bedrock Model Evaluation |
+|---|---|---|
+| Use case | Continuously track a **deployed** model's live prediction quality, input data drift, and concept/bias drift in production, feeding a retraining loop when quality degrades | Compare **candidate foundation models** (or prompt/configuration variants) for quality and task fit **before** committing to one for a Bedrock application |
+| Input/output | Input: live inference requests/responses captured from a SageMaker endpoint, plus a baseline statistics profile from training data. Output: drift/violation reports and CloudWatch metrics and alarms | Input: an evaluation prompt dataset plus one or more candidate FMs (and, for human evaluation, a reviewer work team). Output: automatic metric scores and/or human-evaluator ratings comparing model responses |
+| Model types supported | Traditional/classical ML models deployed to a SageMaker real-time (or batch) endpoint — classification, regression, etc. | Foundation models available through Amazon Bedrock — text generation, and increasingly multimodal generation/embedding models |
+| Typical workflow | Deploy model → capture a baseline → schedule Model Monitor on the endpoint → review drift/violation reports → retrain and redeploy when quality degrades | Define an evaluation prompt dataset and metrics → run automatic and/or human evaluation across candidate FMs → compare results → select a model and build/deploy with it |
+
+> **Exam tip:** The trigger is *timing*, not just "which service." A
+> scenario about detecting that a **model already in production** is
+> drifting or degrading is **SageMaker Model Monitor** — it doesn't apply
+> to Bedrock FMs consumed through the managed API. A scenario about
+> **deciding which foundation model to use** before building on it is
+> **Bedrock Model Evaluation** — it doesn't apply to a classical model
+> you've already trained and deployed to a SageMaker endpoint. Seeing
+> both together in a scenario usually means a pipeline that fine-tunes or
+> selects an FM (Model Evaluation) and then monitors a separately
+> deployed classical model elsewhere in the same system (Model Monitor),
+> not a single service doing both jobs.
+
 ---
 
 ## 3. Comparison table: encryption and privacy options

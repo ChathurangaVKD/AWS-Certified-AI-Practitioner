@@ -57,7 +57,14 @@ class TestDomain4ConfidenceThresholdA2IWorkedExample(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.text = _read_doc()
-        cls.section = _section(cls.text, WORKED_EXAMPLE_HEADING)
+        # Bounded by the mini-quiz heading that follows it, not just the
+        # next "## " top-level heading -- the worked example sits *before*
+        # Section 3's mini-quiz, so without this explicit bound the
+        # section would swallow the mini-quiz too (a "#### " heading isn't
+        # matched by the default "\n## " boundary).
+        cls.section = _section(
+            cls.text, WORKED_EXAMPLE_HEADING, re.escape("\n" + MINI_QUIZ_HEADING)
+        )
         # Markdown line-wraps mid-phrase (e.g. "worker task\ntemplate"), so
         # phrase-level assertions match against whitespace-normalized text
         # rather than the raw, line-wrapped section.
@@ -70,14 +77,14 @@ class TestDomain4ConfidenceThresholdA2IWorkedExample(unittest.TestCase):
         self.assertTrue(WORKED_EXAMPLE_HEADING.startswith("### "))
         self.assertNotIn("#" + WORKED_EXAMPLE_HEADING, self.text)
 
-    def test_appears_inside_section_3_after_the_mini_quiz(self):
+    def test_appears_inside_section_3_before_the_mini_quiz(self):
         section3_idx = self.text.index(SECTION_3_HEADING)
-        mini_quiz_idx = self.text.index(MINI_QUIZ_HEADING)
         worked_idx = self.text.index(WORKED_EXAMPLE_HEADING)
+        mini_quiz_idx = self.text.index(MINI_QUIZ_HEADING)
         section4_idx = self.text.index(SECTION_4_HEADING)
-        self.assertLess(section3_idx, mini_quiz_idx)
-        self.assertLess(mini_quiz_idx, worked_idx)
-        self.assertLess(worked_idx, section4_idx)
+        self.assertLess(section3_idx, worked_idx)
+        self.assertLess(worked_idx, mini_quiz_idx)
+        self.assertLess(mini_quiz_idx, section4_idx)
 
     def test_not_listed_as_a_standalone_toc_entry(self):
         # Nested "###" worked examples aren't given their own top-level

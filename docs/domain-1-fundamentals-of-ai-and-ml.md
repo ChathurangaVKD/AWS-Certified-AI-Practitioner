@@ -1345,6 +1345,60 @@ Does a purpose-built managed AI service match the described input/task?
     C. Amazon Rekognition
     D. Amazon Forecast
 
+21. **[Intermediate]** A company receives scanned customer feedback forms that contain
+    both structured fields (name, order number) and a handwritten
+    open-ended comments section. It wants to (1) extract the structured
+    field values, preserving the form's layout, and (2) determine whether
+    the sentiment of the open-ended comments is positive or negative.
+    Walking the Section 4 decision tree for each sub-task in turn, which
+    two AWS services should it use, in order?
+    A. Amazon Comprehend, then Amazon Textract
+    B. Amazon Textract, then Amazon Comprehend
+    C. Amazon Rekognition, then Amazon Translate
+    D. Amazon Textract, then Amazon Rekognition
+    E. Amazon Comprehend, then Amazon Lex
+
+22. **[Advanced]** A subscription-box company wants a single program covering two
+    needs this quarter: (1) automatically decline orders that look like
+    stolen-card fraud in real time, and (2) recommend which add-on
+    products a loyal subscriber is likely to want next. A colleague
+    proposes using Amazon Personalize for both, arguing that fraud
+    flagging and recommending are both just "predicting user behavior."
+    Which option correctly applies the Section 4 decision tree?
+    A. Amazon Personalize is correct for both, since both tasks predict
+       behavior from data
+    B. Use Amazon Fraud Detector for the fraud check (the tree's
+       fraud-flagging branch) and Amazon Personalize for the
+       recommendation (a separate, later branch) — the two tasks map to
+       different branches even though both involve predicting behavior
+    C. Use Amazon Forecast for the fraud check and Amazon Comprehend for
+       the recommendation
+    D. Use Amazon SageMaker for both, since a purpose-built service can
+       never cover two related tasks in the same product
+
+23. **[Advanced]** An HR software vendor wants to add two features this quarter: (1)
+    let users dictate meeting notes that get converted into text
+    automatically, and (2) have the app read a written summary aloud to
+    users with visual impairments. Applying the decision tree's speech
+    branch, which two AWS services fit these needs, respectively?
+    A. Amazon Translate and Amazon Lex
+    B. Amazon Transcribe and Amazon Polly
+    C. Amazon Polly and Amazon Transcribe
+    D. Amazon Comprehend and Amazon Translate
+    E. Amazon Lex and Amazon Comprehend
+
+24. **[Intermediate]** A travel-booking startup wants a single assistant that (1) holds
+    a multi-turn typed conversation with users to book a flight, and (2)
+    translates the assistant's final confirmation message into the
+    user's preferred language for non-English-speaking users. Walking
+    the decision tree from the top for each requirement, which two
+    services are the correct fits, respectively?
+    A. Amazon Comprehend and Amazon Polly
+    B. Amazon Lex and Amazon Translate
+    C. Amazon Translate and Amazon Lex
+    D. Amazon Rekognition and Amazon Textract
+    E. Amazon Forecast and Amazon Personalize
+
 ---
 
 ## Answer key and explanations
@@ -1465,6 +1519,49 @@ Does a purpose-built managed AI service match the described input/task?
     development. SageMaker (A) would require building and training a
     custom model; Rekognition (C) analyzes images/video, not transaction
     data; Forecast (D) predicts time-series values, not fraud risk.
+
+21. **B — Amazon Textract, then Amazon Comprehend.** The decision tree's
+    document-processing branch fires first for extracting structured
+    field values from a scanned form's layout (Textract), and its
+    NLP branch fires separately for judging the sentiment of the
+    freeform comments text (Comprehend). Option A reverses the order and
+    therefore the roles; Rekognition (C) analyzes image content, not
+    document layout, and Comprehend does sentiment, not Translate;
+    Rekognition (D) doesn't extract form structure; Lex (E) builds
+    chatbots, not sentiment analysis.
+
+22. **B — Use Amazon Fraud Detector for the fraud check and Amazon
+    Personalize for the recommendation.** The Section 4 decision tree
+    evaluates each requirement independently against its own branch:
+    "flag as fraudulent" stops at the Fraud Detector branch regardless of
+    how the task is framed, and "predict what a user wants next" stops at
+    the Personalize branch. Option A collapses two distinct branches into
+    one service just because both involve prediction, which is exactly
+    the reasoning error the tree is designed to prevent; C swaps in
+    Forecast (time-series prediction) and Comprehend (text meaning),
+    neither of which matches either branch; D ignores that purpose-built
+    services are routinely combined side by side for different sub-tasks
+    within one product.
+
+23. **B — Amazon Transcribe and Amazon Polly.** The decision tree's
+    speech branch splits on direction: "speech to text" (dictating notes
+    into text) routes to Transcribe, and "text to speech" (reading a
+    summary aloud) routes to Polly. Option C reverses the two services
+    against their sub-tasks; A and D substitute Translate/Comprehend,
+    which handle language translation and text meaning, not audio
+    conversion; E substitutes Lex/Comprehend, which build chatbots and
+    analyze text, neither of which converts between speech and text.
+
+24. **B — Amazon Lex and Amazon Translate.** Holding a multi-turn typed
+    conversation to complete a booking matches the tree's chatbot branch
+    (Lex) before falling through to any other branch; translating the
+    final message into another language then matches the tree's
+    catch-all translation branch (Translate). Option C reverses the two
+    services against their requirements; A substitutes Comprehend (text
+    analytics) and Polly (text-to-speech), neither of which builds a
+    conversational flow or translates languages; D and E substitute
+    document/image and forecasting/recommendation services that fit
+    neither requirement in this scenario.
 
 ---
 

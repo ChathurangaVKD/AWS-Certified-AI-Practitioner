@@ -46,9 +46,9 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,471–2,870 lines each:
+domain, currently 1,524–2,870 lines each:
 
-- Domain 1: 1,471 lines
+- Domain 1: 1,568 lines
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
 - Domain 4: 1,524 lines
@@ -73,11 +73,11 @@ All five follow the same template:
 - a `## Key terms glossary` (15–50 entries; Domain 5's heading matches the
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
-- `## Practice questions` (15–20 per domain, except **26 for Domain 5**,
-  including exactly 2 multiple-response ["select TWO"] questions, for
-  **106 domain practice questions in total** across the five domain
-  guides) and a full `## Answer key` with justifications ruling out each
-  wrong answer.
+- `## Practice questions` (15–20 per domain, except **24 for Domain 1**
+  and **26 for Domain 5**, including exactly 2 multiple-response ["select
+  TWO"] questions, for **110 domain practice questions in total** across
+  the five domain guides) and a full `## Answer key` with justifications
+  ruling out each wrong answer.
 
 **Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated
 "## Worked example" section stitching the domain's concepts into one
@@ -160,7 +160,8 @@ diagrams + 2 ASCII diagrams = **29 total diagrams**.
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,
 evaluation term coverage (D1), glossary size (≥15 entries), practice
-question count (15–20 per domain, **26 for Domain 5**, **106 total**),
+question count (15–20 per domain, **24 for Domain 1**, **26 for Domain 5**,
+**110 total**),
 answer explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
 sheet, its subsection mini quizzes (35 in total: 7 each for Domains 1 and
@@ -231,10 +232,10 @@ of duplicating material inside them:
   prose entries. Both answer "where is 'prompt injection' explained?"
   without knowing which domain defines it.
 
-**Total assessment:** 106 domain practice questions (across the five
+**Total assessment:** 110 domain practice questions (across the five
 domain guides) + 65 mock-exam questions + 22 scenario questions +
 35 embedded mini-quiz questions (across the five domain guides'
-subsections) = 228 total practice items across the repository.
+subsections) = 232 total practice items across the repository.
 
 ## Navigation
 

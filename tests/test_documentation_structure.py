@@ -883,13 +883,13 @@ class TestDocumentationStructureScenarioQuestionCountAccuracy(unittest.TestCase)
 class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously stated 101 total domain
     practice questions and 188 total questions overall (101 domain + 65
-    mock + 22 scenario). The five domain guides actually carry 106 practice
-    questions in total (20 each for Domains 1-4, 26 for Domain 5), which
-    combined with the 65-question mock exam and the 22 cross-domain
-    scenario questions comes to 193 total questions. These tests derive the
-    true figures directly from the source files and assert
-    DOCUMENTATION_STRUCTURE.md matches them, guarding against the doc
-    drifting stale again."""
+    mock + 22 scenario). The five domain guides actually carry 110 practice
+    questions in total (24 for Domain 1, 20 each for Domains 2-4, 26 for
+    Domain 5), which combined with the 65-question mock exam and the 22
+    cross-domain scenario questions comes to 197 total questions. These
+    tests derive the true figures directly from the source files and
+    assert DOCUMENTATION_STRUCTURE.md matches them, guarding against the
+    doc drifting stale again."""
 
     @classmethod
     def setUpClass(cls):
@@ -938,15 +938,16 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
             total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
         return total
 
-    def test_actual_domain_question_total_is_106(self):
+    def test_actual_domain_question_total_is_110(self):
         self.assertEqual(
             self._actual_domain_question_total(),
-            106,
-            "sanity check: expected 106 practice questions across the "
-            "five domain guides (20 each for Domains 1-4, 26 for Domain 5)",
+            110,
+            "sanity check: expected 110 practice questions across the "
+            "five domain guides (24 for Domain 1, 20 each for Domains "
+            "2-4, 26 for Domain 5)",
         )
 
-    def test_actual_grand_total_is_193(self):
+    def test_actual_grand_total_is_197(self):
         grand_total = (
             self._actual_domain_question_total()
             + self._actual_mock_exam_question_total()
@@ -954,9 +955,9 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         )
         self.assertEqual(
             grand_total,
-            193,
-            "sanity check: expected 106 domain + 65 mock-exam + 22 "
-            "scenario questions to sum to 193",
+            197,
+            "sanity check: expected 110 domain + 65 mock-exam + 22 "
+            "scenario questions to sum to 197",
         )
 
     def test_structure_doc_states_106_domain_practice_questions(self):

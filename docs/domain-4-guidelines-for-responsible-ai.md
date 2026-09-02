@@ -537,6 +537,98 @@ its documented limitations before deciding.
    controls rather than documentation; D is false since they serve
    distinct, non-interchangeable purposes.
 
+### Worked example: routing low-confidence predictions to human review with Amazon A2I
+
+The bullet list above introduces **Amazon A2I** in one sentence — "route
+low-confidence or high-stakes predictions to a human reviewer." This
+worked example makes that concrete end to end: selecting a confidence
+threshold using the [Domain 1, Section 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics)
+evaluation metrics, wiring routing logic around that threshold, and
+configuring an A2I human review workflow so a person, not the model,
+makes the final call on anything the model isn't confident about.
+
+**Scenario:** Meridian Regional Hospital deploys a classical SageMaker
+gradient-boosted classifier that scores each newly admitted patient's
+predicted probability of needing urgent escalation, so nurses can
+triage the queue faster. The hospital's clinical governance board sets a
+hard rule before allowing the model anywhere near production: the model
+must never trigger a clinical action autonomously, and **any prediction
+below a set confidence threshold must be routed to a human clinician for
+full manual review** rather than being auto-flagged — precisely the
+requirement this domain's [controllability dimension](#1-core-dimensions-of-responsible-ai)
+describes.
+
+1. **Train and evaluate the model.** The team trains the classifier on
+   structured admission data (vitals, labs, prior history) and evaluates
+   it with the [Domain 1, Section 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics)
+   metrics before ever picking a threshold: **AUC-ROC of 0.91** confirms
+   the model ranks genuinely urgent patients above non-urgent ones well
+   across *all* possible thresholds, and a recall-heavy read of the
+   confusion matrix matters most here because a missed urgent case is far
+   costlier than an unnecessary review.
+2. **Select a confidence threshold with explicit reasoning, not the
+   default 0.5.** The team sweeps candidate thresholds on held-out data:
+   at 0.50, the model reaches 91% recall / 62% precision; at 0.70, recall
+   drops to 78% (too many genuinely urgent patients would fall below the
+   cutoff and get treated as routine); at 0.35, recall rises to 97% but
+   precision falls to 44% (too many low-value cases would flood the
+   automated path). Because a false negative here can mean a delayed
+   escalation, the board accepts the lower precision and sets the
+   **confidence threshold at 0.35** — any prediction with a predicted
+   probability **at or above 0.35** is confident enough to auto-populate
+   the nurse's priority queue as a flagged case; anything **below 0.35**
+   isn't confident enough to flag automatically at all, and must go to a
+   human instead of being silently treated as "not urgent."
+3. **Implement the prediction-routing logic.** At inference time, the
+   application layer in front of the SageMaker endpoint compares each
+   prediction's confidence score against the 0.35 threshold: scores
+   **≥ 0.35** write a flagged, prioritized entry to the nurse queue (still
+   reviewed by a nurse before any care decision, per the "never
+   autonomous" rule); scores **< 0.35** skip the automated queue entirely
+   and instead invoke Amazon A2I's `StartHumanLoop` API, since the model
+   itself has signaled it doesn't have enough confidence to even suggest
+   a priority level.
+4. **Configure the Amazon A2I human review workflow.** The team builds
+   the human-in-the-loop pipeline in three pieces: a **worker task
+   template** (the reviewer-facing UI showing the patient's vitals, labs,
+   and the model's low-confidence probability, with fields for the
+   clinician's own priority assessment); a **human review workflow (flow
+   definition)** that ties that template to an activation condition — any
+   prediction confidence below the same **0.35 threshold** from step 2 —
+   so the routing threshold and the A2I trigger stay in lockstep instead
+   of drifting apart as two separately maintained numbers; and a
+   **private workforce** of credentialed clinicians (managed through
+   Amazon Cognito), not the public Mechanical Turk workforce, because the
+   task exposes protected health information (PHI) that only authorized
+   reviewers may see.
+5. **Close the loop before any action is taken.** A human loop only
+   completes, and only then does the case re-enter the nurse queue, once
+   a credentialed reviewer submits their own priority assessment through
+   A2I — the low-confidence prediction itself never reaches a clinician's
+   queue unreviewed, satisfying the governance board's "no autonomous
+   action" rule for the exact cases the model is least sure about.
+6. **Document and monitor.** The team records the threshold, the
+   precision/recall tradeoff analysis behind it, and the A2I workflow
+   configuration in a **SageMaker Model Card**, and attaches **SageMaker
+   Model Monitor** to watch the *share* of predictions falling below 0.35
+   over time — a rising share can indicate the incoming patient
+   population is drifting away from what the model was trained on, which
+   is itself a signal to revisit the threshold rather than assume it
+   still holds.
+
+> **Exam tip:** A scenario that says predictions "below a confidence
+> threshold" must go to a human, with no autonomous final action, is
+> describing **Amazon A2I** built on top of a **classification
+> threshold** — the same threshold concept from [Domain 1, Section
+> 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics),
+> just applied to *routing* instead of to a pass/fail decision. Watch for
+> two common wrong answers: confusing this with **temperature**, which is
+> a generative-model sampling parameter with no meaning for a classical
+> classifier's predicted probability, and assuming "route to a human"
+> means the model has no notion of confidence at all — every classical
+> probabilistic classifier already outputs a predicted probability that's
+> a natural, ready-made signal to threshold on.
+
 ---
 
 ## 4. Legal and ethical considerations

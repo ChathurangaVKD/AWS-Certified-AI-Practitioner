@@ -144,9 +144,7 @@ retrieval-failure decision tree);
 Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has four (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1, and
-a compliance-framework decision matrix mapping scenarios to GDPR, HIPAA,
-the EU AI Act, the NIST AI RMF, ISO/IEC 42001, and the Algorithmic
-Accountability Act, Section 2).
+a compliance-framework decision matrix, Section 2).
 `cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
 overview" section, bringing the total to **27 Mermaid diagrams**. On top of
 those, 2 ASCII diagrams are provided in plain text for readers without

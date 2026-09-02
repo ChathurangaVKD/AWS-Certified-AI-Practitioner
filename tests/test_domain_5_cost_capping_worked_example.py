@@ -98,9 +98,12 @@ class TestDomain5CostCappingWorkedExample(unittest.TestCase):
         # "## Worked example" section and not a new "### Worked example"
         # subsection, so it must not perturb the counts asserted in
         # tests/test_domain_5_study_guide.py or
-        # tests/test_documentation_structure.py.
+        # tests/test_documentation_structure.py. There are now two
+        # standalone "## Worked example" sections in Domain 5 (the
+        # closing HIPAA walkthrough and the multi-region/multi-compliance
+        # example), independent of this nested cost-capping subsection.
         standalone = re.findall(r"^## Worked example:", self.text, re.M)
-        self.assertEqual(len(standalone), 1)
+        self.assertEqual(len(standalone), 2)
         nested_level_3 = re.findall(r"^### Worked example:", self.text, re.M)
         self.assertEqual(len(nested_level_3), 0)
 

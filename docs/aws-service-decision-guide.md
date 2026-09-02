@@ -226,6 +226,42 @@ that's already deployed and serving traffic*, the other compares
 > deployed classical model elsewhere in the same system (Model Monitor),
 > not a single service doing both jobs.
 
+### Comparison table: model-evaluation and monitoring tools compared
+
+The two-service contrast above resolves the most common mix-up, but a
+third tool gets pulled into the same "checking a model" conversation for
+a different reason: **Amazon SageMaker Clarify** measures *bias and
+explainability*, and it's the one tool of the three that spans **both**
+classical ML models and foundation models, rather than sitting
+exclusively on one side of the classical-ML/foundation-model line the way
+Model Monitor and Model Evaluation do. Learners moving between classical-
+ML and generative-AI contexts need a single table that places all three
+side by side:
+
+| Tool | Purpose | Applicable model type | Key metrics/outputs | When to use it |
+|---|---|---|---|---|
+| **Amazon SageMaker Model Monitor** | Continuously track a **deployed** model's live prediction quality and drift in production | Classical/traditional ML models on a SageMaker real-time (or batch) endpoint | Data-quality drift, model-quality drift, bias drift, and feature-attribution drift reports; CloudWatch metrics and alarms | A classical model is already serving live traffic and you need to detect that its inputs or predictions have drifted from a training baseline |
+| **Amazon Bedrock Model Evaluation** | Compare **candidate foundation models** (or prompt/configuration variants) for quality and task fit before committing to one | Foundation models available through Amazon Bedrock | Automatic metric scores (e.g., accuracy, robustness, toxicity) and/or human-evaluator ratings comparing model responses | You're choosing which FM (or prompt variant) to build an application on, before anything is in production |
+| **Amazon SageMaker Clarify** | Detect bias in datasets/models and generate explainability reports for individual predictions | Both classical ML models **and** foundation models — pre-training data bias checks, post-training/post-deployment bias metrics, and SHAP-based explainability | Pre-training bias metrics (e.g., class imbalance, difference in proportions of labels), post-training bias metrics (e.g., disparate impact), and SHAP-based feature-attribution explanations | A scenario asks about fairness/bias across protected groups, or "why did the model predict this," for either a classical model or a foundation model |
+
+> **Exam tip:** Sort by *what question is being asked*, not just "which
+> service checks a model." **Is a model already deployed and drifting?**
+> → SageMaker Model Monitor. **Am I choosing between candidate foundation
+> models before building on one?** → Bedrock Model Evaluation. **Is the
+> question about bias across groups of people, or explaining a specific
+> prediction?** → SageMaker Clarify — regardless of whether the model in
+> question is a classical SageMaker model or a Bedrock foundation model.
+> Clarify is the one tool of the three that doesn't sit exclusively on one
+> side of the classical-ML/foundation-model divide, which is exactly why
+> it keeps showing up alongside both of the others.
+
+For the full walkthrough of SageMaker Clarify's pre-training and
+post-training bias metrics and SHAP-based explanations, see [Domain 4 §2
+— Identifying bias and fairness issues in training data and model
+outputs](domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+and its [comparison table of AWS responsible AI
+tools](domain-4-guidelines-for-responsible-ai.md#comparison-table-aws-responsible-ai-tools-at-a-glance).
+
 ---
 
 ## 3. Comparison table: encryption and privacy options

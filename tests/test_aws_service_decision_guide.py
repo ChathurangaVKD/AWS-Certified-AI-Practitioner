@@ -541,6 +541,108 @@ class TestAwsServiceDecisionGuideModelMonitorVsModelEvaluation(unittest.TestCase
         )
 
 
+class TestAwsServiceDecisionGuideModelEvalToolsThreeWay(unittest.TestCase):
+    """Section 2 -- SageMaker Model Monitor, Bedrock Model Evaluation, and
+    SageMaker Clarify all get invoked as "checking a model" tools but apply
+    to different lifecycle stages and model populations. The two-tool
+    subsection above already contrasts Model Monitor vs. Model Evaluation;
+    this guards the follow-up three-way table that adds SageMaker Clarify
+    so learners moving between classical-ML and foundation-model contexts
+    have one consolidated side-by-side comparison."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = GOVERNANCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 2"
+        cls.section_text = section_match.group(0)
+        subsection_match = re.search(
+            r"^###\s+Comparison table: model-evaluation and monitoring"
+            r" tools compared.*?(?=^### |^## |\Z)",
+            cls.section_text,
+            re.M | re.S,
+        )
+        assert subsection_match is not None, (
+            "could not locate the model-evaluation tools comparison "
+            "subsection"
+        )
+        cls.subsection_text = subsection_match.group(0)
+
+    def test_has_three_way_comparison_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"^###\s+Comparison table: model-evaluation and monitoring"
+                r" tools compared",
+                re.M,
+            ),
+            "expected a three-way model-evaluation/monitoring tools "
+            "comparison sub-heading inside section 2",
+        )
+
+    def test_table_has_all_three_tool_rows(self):
+        for tool in [
+            "Amazon SageMaker Model Monitor",
+            "Amazon Bedrock Model Evaluation",
+            "Amazon SageMaker Clarify",
+        ]:
+            with self.subTest(tool=tool):
+                self.assertIn(tool, self.subsection_text)
+
+    def test_table_has_required_columns(self):
+        header_line = next(
+            (
+                line
+                for line in self.subsection_text.splitlines()
+                if line.strip().startswith("| Tool")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            header_line,
+            "expected a 'Tool' header row for the three-way comparison "
+            "table",
+        )
+        for column in [
+            "Purpose",
+            "Applicable model type",
+            "Key metrics/outputs",
+            "When to use it",
+        ]:
+            with self.subTest(column=column):
+                self.assertIn(column, header_line)
+
+    def test_clarify_spans_both_classical_and_foundation_models(self):
+        # The whole point of adding Clarify to this table is that -- unlike
+        # the other two, which each apply to only one side of the
+        # classical-ML/foundation-model line -- Clarify applies to both.
+        clarify_row = next(
+            (
+                line
+                for line in self.subsection_text.splitlines()
+                if line.strip().startswith("| **Amazon SageMaker Clarify**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(clarify_row, "expected a SageMaker Clarify row")
+        self.assertRegex(clarify_row, re.compile(r"[Cc]lassical", re.S))
+        self.assertRegex(clarify_row, re.compile(r"[Ff]oundation model", re.S))
+
+    def test_has_exam_tip(self):
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"\*\*Exam tip:\*\*.{0,600}Clarify", re.S),
+            "expected an exam tip covering how to route between all three "
+            "tools",
+        )
+
+    def test_links_back_to_domain_4(self):
+        self.assertIn(
+            "domain-4-guidelines-for-responsible-ai.md",
+            self.subsection_text,
+        )
+
+
 API_GATEWAY_SECTION_RE = re.compile(
     r"^##\s+6\.\s+Decision guide: Amazon API Gateway.*?(?=^## |\Z)", re.M | re.S
 )

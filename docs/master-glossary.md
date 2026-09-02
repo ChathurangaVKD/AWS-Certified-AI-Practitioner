@@ -194,6 +194,7 @@ A term tagged `[D2, D3]` is defined or used in both Domain 2 and Domain 3 -- fol
 - **Regression** `[D1]` — predicting a continuous numeric value. [D1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary)
 - **Regularization** `[D1]` — techniques (L1/L2, dropout) that discourage overly complex models to reduce overfitting. [D1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary)
 - **Reinforcement learning** `[D1]` — an agent learns via trial-and-error actions in an environment to maximize cumulative reward. [D1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary)
+- **Representativeness bias** `[D4]` — a whole segment of the deployment population (e.g., a geographic region or market) is thin or absent from the training data, causing poor performance for that segment; distinct from demographic fairness bias because there's no group present in the data to compute a disparity metric against. [D4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary)
 - **Responsible AI** `[D4]` — the practice of designing, building, and operating AI systems that are fair, explainable, private and secure, transparent, veracious and robust, well-governed, safe, and controllable. [D4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary)
 - **Retrieval Augmented Generation (RAG)** `[D2, D3]` — grounding an FM's answers in retrieved external data at inference time, without retraining the model. [D2](domain-2-fundamentals-of-generative-ai.md#key-terms-glossary) · [D3](domain-3-applications-of-foundation-models.md#key-terms-glossary)
 

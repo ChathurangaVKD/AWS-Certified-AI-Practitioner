@@ -528,7 +528,14 @@ class TestDomain4WorkedExample(unittest.TestCase):
         section_5_idx = self.text.index(
             "## 5. Balancing model performance and interpretability"
         )
-        worked_example_idx = self.text.index("## Worked example: ")
+        # Anchor to "\n## " (not a plain substring search) so this
+        # doesn't accidentally match a nested "### Worked example: ..."
+        # subsection (e.g. the confidence-threshold/Amazon A2I example
+        # nested inside Section 3) instead of the top-level, closing
+        # "## Worked example: " section.
+        worked_example_match = re.search(r"\n## Worked example: ", self.text)
+        assert worked_example_match, "no top-level '## Worked example: ' heading found"
+        worked_example_idx = worked_example_match.start()
         comparison_idx = self.text.index(
             "## Comparison table: AWS responsible AI tools at a glance"
         )

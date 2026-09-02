@@ -51,7 +51,7 @@ domain, currently 1,568–2,870 lines each:
 - Domain 1: 1,568 lines
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
-- Domain 4: 1,611 lines
+- Domain 4: 1,701 lines
 - Domain 5: 2,062 lines
 
 All five follow the same template:
@@ -114,6 +114,17 @@ Domain 4, covering bias-detection patterns across a deep learning ranking
 model, a classical ML classifier, and a foundation-model/RAG application,
 plus a dedicated performance-versus-interpretability tradeoff walkthrough.
 
+Domain 4 also has one nested "###"-level worked-example subsection: "###
+Worked example: routing low-confidence predictions to human review with
+Amazon A2I," nested inside Section 3 ("AWS tools for responsible AI")
+right after its exam tip and before that section's mini-quiz. It walks a
+hospital's patient-triage classifier through selecting a confidence
+threshold with the Domain 1, Section 6 evaluation metrics (AUC-ROC,
+precision/recall tradeoff), routing predictions below that threshold to
+an Amazon A2I human review workflow, and configuring the A2I flow
+definition, worker task template, and private workforce needed to keep
+PHI-handling clinical review human-in-the-loop end to end.
+
 Domain 2 also grew beyond a single worked example: alongside the
 generative AI support assistant walkthrough referenced above, it now has
 a second "## Worked example" section estimating tokens for RAG retrieval
@@ -155,11 +166,11 @@ against AWS's own infrastructure responsibilities.
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
-four-techniques-on-one-task walkthrough; Domain 5's cost-capping and
-SageMaker-to-Bedrock shared-responsibility subsections), the five domain
-guides mark **20+ worked-example sections in total**, plus further
-example content nested at the sub-bullet level within some of those
-sections.
+four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
+Amazon A2I subsection; Domain 5's cost-capping and SageMaker-to-Bedrock
+shared-responsibility subsections), the five domain guides mark **20+
+worked-example sections in total**, plus further example content nested
+at the sub-bullet level within some of those sections.
 
 **Diagrams:** The five domain guides contain 27 Mermaid flowchart diagrams
 in total: Domain 1 has six (the 8-stage ML lifecycle loop,

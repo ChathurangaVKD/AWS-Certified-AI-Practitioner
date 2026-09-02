@@ -2,7 +2,7 @@
 
 [← README](../README.md) · **Domain 1 of 5** · [Domain 2: Fundamentals of Generative AI →](domain-2-fundamentals-of-generative-ai.md)
 
-**Last verified:** 2026-08-30
+**Last verified:** 2026-09-02
 
 ## Table of contents
 

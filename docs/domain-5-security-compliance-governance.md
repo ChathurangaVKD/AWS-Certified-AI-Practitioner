@@ -14,6 +14,7 @@
   - [AWS PrivateLink and VPC endpoints for AI services](#aws-privatelink-and-vpc-endpoints-for-ai-services)
   - [Source citation and data lineage](#source-citation-and-data-lineage)
   - [Common security threats to AI systems and how to mitigate them](#common-security-threats-to-ai-systems-and-how-to-mitigate-them)
+  - [Cost governance: bounding total spend with Service Quotas and API Gateway usage plans](#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans)
   - [Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications](#security-frameworks-for-ai-systems-mitre-atlas-and-owasp-top-10-for-llm-applications)
 - [2. AWS compliance standards relevant to AI workloads](#2-aws-compliance-standards-relevant-to-ai-workloads)
   - [AWS Artifact](#aws-artifact)
@@ -543,6 +544,56 @@ explanation.
    failure, which is why the mitigation combines a security control
    (Guardrails filtering) with a responsible-AI practice (treating
    retrieved content as untrusted input).
+
+### Cost governance: bounding total spend with Service Quotas and API Gateway usage plans
+Cost governance in this domain is about bounding an AI workload's
+**aggregate**, worst-case spend — a distinct, complementary concern from
+the per-request token/throughput controls covered in [Domain
+3](domain-3-applications-of-foundation-models.md#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput).
+Even a tightly bounded per-call cost (a low max tokens setting) can still
+produce an unpredictable bill if nothing limits *how many* calls can be
+made — which is exactly the **model denial of service** threat described
+above.
+- **AWS Service Quotas** — the account- and Region-level limits AWS
+  enforces on a service's usage (e.g., requests per minute against a
+  Bedrock model). Setting or monitoring a lower, workload-appropriate
+  quota bounds the worst-case request volume — and therefore the
+  worst-case inference bill — a single account can generate, independent
+  of how any individual request is configured.
+- **Amazon API Gateway usage plans** — when a client application calls an
+  inference endpoint through API Gateway rather than directly, a **usage
+  plan** attaches throttling (steady-state and burst request-rate limits)
+  and a quota (a request count per day/week/month) to an API key, capping
+  how much a given caller or client can invoke the endpoint in a given
+  period.
+
+Together, Service Quotas and API Gateway usage plans answer *"how many
+requests can hit this endpoint"* — independent of, and just as necessary
+as, *"how much does each individual request cost"* (Domain 3's max tokens
+and provisioned-throughput sizing). A firm that only right-sizes max
+tokens is still exposed to an unpredictable bill from a traffic spike or a
+flood of malicious requests; a firm that only sets Service Quotas / usage
+plans but leaves max tokens unbounded is still overpaying per call. The
+exam tests both halves together, not as substitutes for one another.
+
+**Example:** A startup's Bedrock-based FAQ bot sometimes returns
+extremely long, rambling answers, and Finance flags that per-request cost
+is higher than expected. The team first lowers max tokens (Domain 3) to
+directly cap per-call cost, then configures Service Quotas and an API
+Gateway usage plan on the public-facing endpoint so a future traffic spike
+can't multiply that per-call cost into an unbounded bill — and uses AWS
+Trusted Advisor's cost-optimization checks afterward to confirm the
+account-level cost trend actually improved.
+
+**Exam tip:** If a scenario's fix is "bound how big/expensive one
+response can be," it's a Domain 3 inference-parameter or
+provisioned-throughput answer. If the fix is "bound how many requests can
+be made in total," it's Service Quotas / API Gateway usage plans. A
+scenario with both a creative-output goal *and* an unpredictable-cost
+concern needs both answers together — tuning max tokens/temperature for
+the desired output, *and* throttling/Service Quotas/usage plans to cap
+request volume — not one in place of the other, and not IAM alone (IAM
+governs *who* can call the endpoint, not *how much* they can call it).
 
 ### Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications
 Two industry frameworks help teams reason about AI-specific threats

@@ -16,6 +16,7 @@
 - [Worked example: estimating tokens for RAG retrieval and long-document summarization](#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization)
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
 - [Worked example: selecting and comparing models for a real-time voice assistant use case](#worked-example-selecting-and-comparing-models-for-a-real-time-voice-assistant-use-case)
+- [Worked example: end-to-end LLM lifecycle for an insurance claims-triage assistant](#worked-example-end-to-end-llm-lifecycle-for-an-insurance-claims-triage-assistant)
 - [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -1211,6 +1212,98 @@ requirement differs.
 > one-directional** audio task like transcribing recordings for later
 > search or summarization, where a text FM plus separate
 > transcription/synthesis services is simpler and cheaper.
+
+---
+
+## Worked example: end-to-end LLM lifecycle for an insurance claims-triage assistant
+
+Every worked example above this one zooms in on a single technique or
+decision (token budgeting, one build, one modality trade-off). This
+walkthrough instead strings all **six stages of the [Section 2](#2-llm-lifecycle-basics)
+LLM lifecycle** together into one continuous scenario, the same way
+[Domain 1's end-to-end loan-default worked
+example](domain-1-fundamentals-of-ai-and-ml.md#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
+strings together all eight stages of the classical ML lifecycle — so you
+can see how a decision at one stage constrains the next, which is exactly
+how AIF-C01 scenario questions are written.
+
+**Scenario:** InsureCo, a mid-size property insurance company, wants an
+assistant that drafts an initial claims-triage summary for a human
+adjuster whenever a new claim is filed — including a coverage-relevant
+citation to the specific policy clause it's drawing on — without ever
+issuing a final approve/deny decision on its own.
+
+1. **Scope the use case.** Before selecting anything, the team sets a
+   measurable success bar: cut average adjuster triage time from ~25
+   minutes to ~10 minutes, require every coverage statement in the draft
+   to cite a real clause from the policyholder's own document, and require
+   a human adjuster to sign off on every final decision. Framing the goal
+   this way — a fluent, well-cited *narrative* draft, not a numeric
+   score — is what marks this as a **generative AI** fit rather than a
+   traditional ML classification problem; a separate fraud-risk *score*
+   for the same claim would instead belong to the classical ML lifecycle in
+   [Domain 1, Section
+   2](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle).
+2. **Select a foundation model.** Applying the [Section
+   7](#7-foundation-model-selection-criteria) criteria: claims arrive in a
+   background queue, not a live chat, so **latency** is not the binding
+   constraint. **Context window** matters, since a single request must
+   hold the full policy document plus claim notes, and **cost** matters
+   because the company processes thousands of claims a day. The team
+   browses candidate FMs in **Amazon Bedrock** and picks a mid-tier text
+   model with a large-enough context window at a fraction of the flagship
+   model's per-token price, rather than defaulting to the biggest,
+   priciest model available.
+3. **Adapt and customize the model**, lightest touch first. The team
+   starts with **prompt engineering** ([Section
+   6](#6-prompt-engineering-fundamentals)): a fixed output template plus
+   a couple of few-shot example summaries. Testing turns up a serious
+   problem — the model sometimes states a coverage detail that isn't
+   actually in the policyholder's document. The team adds **Retrieval
+   Augmented Generation** via **Knowledge Bases for Amazon Bedrock**,
+   indexing each policyholder's actual policy document and claim history,
+   so every generated statement is grounded in retrieved text instead of
+   the model's own guess. RAG fixes the fabrication problem, but drafts
+   still don't match InsureCo's specific terminology and section
+   formatting closely enough for adjusters to skim quickly, so the team
+   **fine-tunes** on a set of the company's own historical, approved
+   adjuster summaries — a specific, labeled formatting/style task, not the
+   large-scale unlabeled vocabulary adaptation that **continued
+   pre-training** exists for, so pretraining is correctly ruled out here.
+4. **Evaluate the model.** The team runs **Amazon Bedrock Model
+   Evaluation** against a held-out set of real historical claims, using
+   both automatic metrics and human review by senior adjusters. Because a
+   confidently-worded but ungrounded citation is the specific failure mode
+   this use case can't tolerate (see the hallucination trade-off in
+   [Section 3](#3-advantages-and-disadvantages-of-generative-ai)), the
+   evaluation specifically checks whether each cited policy clause number
+   actually supports the coverage statement it's attached to, not just
+   whether the summary reads well.
+5. **Deploy and integrate.** The assistant is wired into the claims
+   management system through the **Amazon Bedrock** API, generating a
+   draft as soon as a claim is filed. **Guardrails for Amazon Bedrock**
+   blocks the model from ever phrasing its output as a final
+   "approved"/"denied" verdict — every draft is routed to a human adjuster
+   for sign-off, keeping the human decision-maker the team scoped for in
+   step 1.
+6. **Monitor.** **Amazon CloudWatch** tracks invocation volume, latency,
+   and errors, while the team separately tracks the adjuster *override
+   rate* — how often an adjuster disagrees with the draft's cited clause —
+   as a proxy for quality drift. A spike in overrides after a state
+   changes its insurance regulations sends the team back to step 3 to
+   refresh the RAG index and re-evaluate, exactly the iterate-on-adaptation
+   loop shown in the [Section 2 lifecycle diagram](#2-llm-lifecycle-basics),
+   not a one-off manual prompt patch.
+
+> **Exam tip:** When a scenario reports that a lighter-touch customization
+> (prompt engineering alone) is *insufficient* and describes the specific
+> way it's insufficient, match the failure to the next-heaviest option
+> rather than jumping straight to full pretraining: **missing or
+> fabricated facts** point to **RAG**; **wrong tone, format, or a
+> specific labeled task** points to **fine-tuning**; only a large-scale,
+> **unlabeled**, domain-vocabulary problem points to **continued
+> pre-training**. Full pretraining of a brand-new foundation model is
+> almost never the right exam answer for an adaptation problem.
 
 ---
 

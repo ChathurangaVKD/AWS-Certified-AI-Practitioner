@@ -49,7 +49,7 @@ AWS-Certified-AI-Practitioner/
 domain, currently 1,471–2,870 lines each:
 
 - Domain 1: 1,471 lines
-- Domain 2: 1,701 lines
+- Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
 - Domain 4: 1,524 lines
 - Domain 5: 1,759 lines
@@ -112,9 +112,11 @@ model, a classical ML classifier, and a foundation-model/RAG application.
 Domain 2 also grew beyond a single worked example: alongside the
 generative AI support assistant walkthrough referenced above, it now has
 a second "## Worked example" section estimating tokens for RAG retrieval
-and long-document summarization, and a third (closing) section selecting
-and comparing models for a real-time voice assistant use case — three
-standalone "## Worked example" sections in total for Domain 2 as well.
+and long-document summarization, a third section selecting and comparing
+models for a real-time voice assistant use case, and a fourth (closing)
+section tracing all six Section 2 LLM lifecycle stages end-to-end for an
+insurance claims-triage assistant — four standalone "## Worked example"
+sections in total for Domain 2 as well.
 Domain 5 also now has one nested worked-example subsection alongside its
 closing HIPAA walkthrough: a "#### Worked example: capping cost under
 three different threat models" subsection inside Section 1's cost-

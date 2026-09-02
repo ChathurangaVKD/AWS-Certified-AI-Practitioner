@@ -305,8 +305,8 @@ exam-testable.
 > [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
 > before relying on this table outside exam prep.
 >
-> **Last verified:** 2026-11-01, against the official Bedrock model
-> catalog above. Changes found and applied in that pass: **DeepSeek** is
+> **Last verified:** 2026-09-02, against the official Bedrock model
+> catalog above. Changes found and applied in this pass: **DeepSeek** is
 > now available as a new third-party provider in the catalog, with
 > **DeepSeek-R1** — an open-weight, chain-of-thought reasoning model
 > distinct from both Meta Llama's open-weight text line and OpenAI's
@@ -314,15 +314,13 @@ exam-testable.
 > added **computer use** (controlling a desktop via screenshots and
 > coordinate-based mouse/keyboard actions) as a supported agentic
 > capability, so the row below now reflects that alongside its existing
-> reasoning/tool-use strengths; the rest of the catalog (Nova family,
-> Titan, AI21 Jamba 2.0, Cohere, Mistral AI, Stability AI, OpenAI gpt-oss)
-> was re-checked against the catalog and found unchanged since the prior
-> pass. The previous pass (2026-09-02) had already updated AI21's **Jamba**
-> line to **Jamba 2.0**, added **virtual try-on** to **Amazon Nova
-> Canvas**, and added **OpenAI's gpt-oss** line as a new third-party
-> provider; none of that required further changes in this pass. The next
-> reviewer should update this date and summary after re-checking against
-> the catalog link above.
+> reasoning/tool-use strengths; AI21's **Jamba** line was updated to
+> **Jamba 2.0**; **virtual try-on** was added to **Amazon Nova Canvas**;
+> and **OpenAI's gpt-oss** line was added as a new third-party provider.
+> The rest of the catalog (Nova family text/embedding tiers, Titan,
+> Cohere, Mistral AI, Stability AI) was re-checked against the catalog
+> and found unchanged. The next reviewer should update this date and
+> summary after re-checking against the catalog link above.
 >
 > **Verification process (for maintainers):** the Bedrock catalog is
 > observed to change roughly monthly, so treat this table as due for

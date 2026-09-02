@@ -142,6 +142,10 @@ class TestDomain2LlmLifecycleWorkedExample(unittest.TestCase):
         self.assertLess(finetune_pos, pretrain_pos)
 
     def test_mentions_relevant_aws_services(self):
+        # Markdown source wraps long lines, so a multi-word service name can
+        # legitimately have a line break inside it (e.g. "Amazon Bedrock
+        # Model\n   Evaluation"); collapse whitespace before comparing.
+        normalized = re.sub(r"\s+", " ", self.section)
         for service in [
             "Amazon Bedrock",
             "Knowledge Bases for Amazon Bedrock",
@@ -150,7 +154,7 @@ class TestDomain2LlmLifecycleWorkedExample(unittest.TestCase):
             "Amazon CloudWatch",
         ]:
             with self.subTest(service=service):
-                self.assertIn(service, self.section)
+                self.assertIn(service, normalized)
 
     def test_cross_links_to_domain_1_lifecycle_example(self):
         self.assertIn(

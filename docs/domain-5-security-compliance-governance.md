@@ -1143,6 +1143,100 @@ explanation.
 
 ## 4. Data governance strategies
 
+Data governance is not a single control applied once — it is a set of
+checkpoints that must be enforced as data flows through the entire
+ML/AI pipeline, from raw ingestion through classification and retention,
+into training, fine-tuning, and RAG retrieval, and finally out through
+inference. The diagram below extends the lineage and citation concepts
+introduced in [Section 1](#source-citation-and-data-lineage) into a
+full pipeline view, showing which governance control applies at each
+stage of that journey.
+
+```mermaid
+flowchart TD
+    A["Raw Data Ingestion<br/>S3 raw data lake"] --> B{"Amazon Macie<br/>scan for PII/PHI?"}
+    B -- "Sensitive data found" --> C["Redact / Exclude<br/>sensitive records"]
+    B -- "Cleared" --> D["S3 Lifecycle<br/>retention tagging & classification"]
+    C --> D
+    D --> E["Pre-training data"]
+    D --> F["Fine-tuning data"]
+    D --> G["RAG source documents<br/>Bedrock Knowledge Bases ingestion"]
+    E --> H["SageMaker Training Job<br/>training + fine-tuning"]
+    F --> H
+    G --> I["Vector Store / Embeddings"]
+    H --> J["Trained Model Artifact"]
+    I --> L["RAG Retrieval"]
+    J --> K["Inference<br/>SageMaker Endpoint / Bedrock InvokeModel"]
+    L --> K
+    K --> M["RAG Response with Source citation"]
+    D -. "governance checkpoint" .-> N["SageMaker ML Lineage Tracking"]
+    H -. "governance checkpoint" .-> N
+    J -. "governance checkpoint" .-> O["Model Card documentation"]
+    K -. "governance checkpoint" .-> P["CloudTrail / CloudWatch / GuardDuty monitoring"]
+```
+
+The same flow, shown as plain-text ASCII for readers without Mermaid
+rendering:
+
+```
+Raw Data Ingestion (S3 raw data lake)
+        ↓
+Amazon Macie scan (PII/PHI found?)
+   ┌──── Sensitive? ─────┐
+  YES                    NO
+   ↓                      │
+Redact / Exclude          │
+   └──────────┬───────────┘
+              ↓
+S3 Lifecycle retention tagging & classification
+              ↓
+   ┌──────────┼───────────────────────────┐
+   ↓          ↓                           ↓
+Pre-training  Fine-tuning         RAG source documents
+   data         data              (Bedrock Knowledge Bases)
+   │            │                          ↓
+   └─────┬──────┘                 Vector Store / Embeddings
+         ↓                                 │
+  SageMaker Training Job                   │
+  (training + fine-tuning)                 │
+         ↓                                 ↓
+  Trained Model Artifact           RAG Retrieval
+         ↓                                 │
+  Inference (SageMaker Endpoint / Bedrock InvokeModel) ◀───┘
+         ↓
+  RAG Response with Source citation
+
+Governance checkpoints (dotted lines in the diagram above):
+  - SageMaker ML Lineage Tracking — tied to the retention-tagged data
+    and the training/fine-tuning job, so every artifact can be traced
+    back to its source data.
+  - Model Card documentation — attached to the trained model artifact,
+    recording intended use, training data, and evaluation results.
+  - CloudTrail / CloudWatch / GuardDuty monitoring — watch inference-time
+    activity for unauthorized access or anomalous behavior.
+```
+
+**Example:** Before fine-tuning a foundation model, a company runs
+Amazon Macie against its internal document store and redacts any
+documents flagged with PII. The cleared documents are tagged with S3
+Lifecycle policies for retention, then split into fine-tuning data (used
+to further train the model) and RAG source documents (ingested into a
+Bedrock Knowledge Base). SageMaker ML Lineage Tracking records which
+datasets fed the training job, and a Model Card documents the resulting
+model's intended use and data provenance. When a user later asks the
+RAG-based application a question, the response is returned with a
+source citation pointing back to the original governed document —
+closing the loop from raw data to a traceable, governed answer.
+
+> **Exam tip:** Exam questions often name a governance control (Macie,
+> S3 Lifecycle, ML Lineage Tracking, Model Cards, CloudTrail) in
+> isolation and ask which pipeline stage it belongs to. Anchor each
+> control to *where* it sits in the flow — classification/redaction
+> happens before data is finalized for use, lineage tracking spans the
+> training/fine-tuning step, Model Cards attach to the trained artifact,
+> and CloudTrail/CloudWatch/GuardDuty apply continuously at inference —
+> rather than memorizing the control names in isolation.
+
 ### Data lifecycle
 Managing data from creation/ingestion through storage, use, archival, and
 deletion. For AI workloads this includes classifying data sensitivity

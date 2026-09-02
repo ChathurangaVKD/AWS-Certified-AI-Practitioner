@@ -31,6 +31,7 @@
   - [Data monitoring](#data-monitoring)
 - [5. AWS shared responsibility model applied to AI/ML services](#5-aws-shared-responsibility-model-applied-to-aiml-services)
 - [Worked example: securing and governing a HIPAA-regulated Bedrock application across its lifecycle](#worked-example-securing-and-governing-a-hipaa-regulated-bedrock-application-across-its-lifecycle)
+- [Worked example: a multi-region Bedrock and SageMaker deployment under GDPR, HIPAA, and the NIST AI RMF](#worked-example-a-multi-region-bedrock-and-sagemaker-deployment-under-gdpr-hipaa-and-the-nist-ai-rmf)
 - [Comparison table: governance and monitoring services](#comparison-table-governance-and-monitoring-services)
 - [Comparison table: governance and compliance regulations at a glance](#comparison-table-governance-and-compliance-regulations-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
@@ -1510,6 +1511,120 @@ must never leave EU AWS Regions.
 > governs *where* data physically lives and is enforced through Region
 > selection and SCPs. A single misconfigured control can violate one
 > requirement without violating the other.
+
+---
+
+## Worked example: a multi-region Bedrock and SageMaker deployment under GDPR, HIPAA, and the NIST AI RMF
+
+The HIPAA walkthrough above shows one regulation and one region driving
+every decision. Exam scenarios more often stack two *binding*, region-
+scoped laws against a *voluntary*, global framework on the same system —
+so this walkthrough follows one company through exactly that, across two
+AWS AI/ML services at once.
+
+**Scenario:** Northfield Genomics runs genetic-risk screening clinics in
+the United States and the European Union. A fine-tuned **Amazon Bedrock**
+model turns lab results into plain-language explanations for patients in
+both regions, while a custom **Amazon SageMaker** model scores each
+patient's genetic risk and flags high-risk cases for a clinician's
+follow-up. Northfield must satisfy **HIPAA** for U.S. patients' protected
+health information (PHI), **GDPR** for EU patients' personal data
+(genetic data is a GDPR "special category"), and has voluntarily adopted
+the **NIST AI RMF** because the SageMaker model's risk flags directly
+influence clinical follow-up decisions.
+
+1. **Mapping three frameworks to one system.** Using the [compliance
+   framework decision matrix](#compliance-framework-decision-matrix), the
+   team sorts the three frameworks by scope: HIPAA
+   ([HIPAA](#hipaa-health-insurance-portability-and-accountability-act-conceptual-level))
+   is a binding US law covering the PHI in the lab-result explanations;
+   GDPR
+   ([GDPR](#gdpr-general-data-protection-regulation-conceptual-level))
+   is a binding EU law covering any EU patient's personal data, genetic
+   data included; and the **NIST AI RMF**
+   ([NIST AI RMF](#nist-ai-risk-management-framework-ai-rmf-conceptual-level))
+   is voluntary guidance the company applies to the SageMaker risk-scoring
+   model specifically because its output changes a patient's care path.
+2. **Two regional deployments, one architecture.** Exactly as with a
+   single-framework scenario, Northfield runs fully separate stacks —
+   `us-east-1` and `eu-central-1` — each with its own Bedrock model and
+   SageMaker endpoint, with an AWS Organizations SCP denying any Bedrock
+   or SageMaker call outside a patient's assigned Region
+   ([data residency](#data-residency)). This is what makes reconciling
+   two different regional laws possible at all: neither law is asked to
+   govern the other region's data.
+3. **Least privilege for two services.** Two IAM execution roles are
+   created per Region — one scoped to `bedrock:InvokeModel` on only the
+   fine-tuned explanation model's ARN, one scoped to
+   `sagemaker:InvokeEndpoint` on only the risk-scoring endpoint's ARN —
+   following the [IAM roles and policies](#iam-roles-and-policies-for-ai-services)
+   least-privilege pattern. Because the Bedrock model ingests raw lab-report
+   text, the team also checks it against the
+   [OWASP Top 10 for LLM Applications](#security-frameworks-for-ai-systems-mitre-atlas-and-owasp-top-10-for-llm-applications)
+   checklist for indirect prompt injection hidden in report text.
+4. **Encryption and private connectivity for both services.** In each
+   Region, lab reports and risk scores are encrypted at rest with a
+   Region-local, customer managed **AWS KMS** key
+   ([encryption at rest and in transit](#data-encryption-at-rest-and-in-transit)),
+   and both the Bedrock Runtime and SageMaker Runtime endpoints are reached
+   only through **AWS PrivateLink** VPC endpoints
+   ([PrivateLink and VPC endpoints](#aws-privatelink-and-vpc-endpoints-for-ai-services)),
+   so PHI and EU personal data never cross the public internet in either
+   Region.
+5. **Where HIPAA and GDPR genuinely diverge.** Before processing any U.S.
+   patient data, Northfield executes a **Business Associate Addendum
+   (BAA)** through **AWS Artifact** for the `us-east-1` stack, since both
+   Bedrock and SageMaker are HIPAA-eligible services
+   ([AWS Artifact](#aws-artifact)). GDPR has no BAA equivalent: for the
+   `eu-central-1` stack, Northfield instead documents its role as **data
+   controller**, records a lawful basis for processing special-category
+   genetic data, and honors data-subject rights — obligations a HIPAA BAA
+   does nothing to satisfy. A control that closes the U.S. gap closes
+   none of the EU gap, and vice versa.
+6. **Layering the NIST AI RMF over both regions at once.** Unlike HIPAA
+   and GDPR, the NIST AI RMF isn't tied to a jurisdiction, so Northfield
+   applies it identically to the SageMaker risk-scoring model in *both*
+   Regions: **Govern** (a model-risk review committee), **Map** (the
+   model's intended use and limitations documented in a SageMaker Model
+   Card), **Measure** (**Amazon SageMaker Clarify** bias scans run against
+   both regional training sets), and **Manage** (an **AWS Config** rule
+   that flags any redeployment of the risk-scoring endpoint without an
+   updated Model Card). The same voluntary framework sits on top of two
+   different binding regional laws without conflicting with either.
+7. **Governance instrumentation shared across all three frameworks.**
+   **AWS CloudTrail** logs every `InvokeModel` and `InvokeEndpoint` call in
+   both Regions; **AWS Config** continuously evaluates encryption and
+   public-access settings; and a single **AWS Audit Manager** assessment
+   reuses that same CloudTrail/Config evidence twice — once assembled into
+   a HIPAA-mapped evidence folder for a U.S. auditor, and once into a
+   NIST AI RMF-aligned risk-management report for Northfield's board
+   ([Section 3](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)).
+8. **Shared responsibility across two services and two regions.** A
+   review finds a `eu-central-1` SageMaker endpoint's security group
+   accidentally left open to `0.0.0.0/0`. Fixing it is Northfield's
+   responsibility, not AWS's, in exactly the same way it would be for a
+   single-Region, single-service system — the shared responsibility line
+   doesn't move just because two services and two Regions are involved
+   ([shared responsibility model](#5-aws-shared-responsibility-model-applied-to-aiml-services)).
+   AWS Config's continuous evaluation is what caught the drift, feeding
+   straight back into step 3's access design.
+9. **A cross-framework conflict, resolved by the regional split.** An EU
+   patient exercises GDPR's right to erasure. Northfield deletes that
+   patient's record from the `eu-central-1` training bucket
+   ([data lifecycle](#data-lifecycle)) and excludes it from the next
+   SageMaker retraining run — but a U.S. patient's record in `us-east-1`,
+   subject only to HIPAA's retention expectations and no equivalent
+   erasure right, is untouched. Because step 2 kept the two regional
+   datasets fully separate, honoring one region's erasure right never
+   forces a decision about the other region's retention obligation.
+
+> **Exam tip:** When a scenario names more than one framework at once,
+> sort them first: **binding, region-scoped** laws (GDPR, HIPAA) apply
+> only within their own jurisdiction and must be satisfied per Region,
+> while **voluntary, global** frameworks (the NIST AI RMF) apply uniformly
+> regardless of Region. Never assume a control that satisfies one also
+> satisfies another — a HIPAA-eligible service and a signed BAA say
+> nothing about GDPR's lawful-basis requirement, and vice versa.
 
 ---
 

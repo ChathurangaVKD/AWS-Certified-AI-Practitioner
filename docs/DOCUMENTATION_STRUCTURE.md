@@ -52,7 +52,7 @@ domain, currently 1,568–2,870 lines each:
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
 - Domain 4: 1,611 lines
-- Domain 5: 1,853 lines
+- Domain 5: 1,968 lines
 
 All five follow the same template:
 
@@ -129,11 +129,23 @@ governance material, applying Service Quotas and API Gateway usage plans
 to three distinct threat models (malicious abuse, an accidental spike,
 and a fixed budget ceiling).
 
+Domain 5 also added a second standalone "## Worked example" section
+tracing Northfield Genomics, a company running genetic-risk screening
+clinics in both the US and EU, through a single deployment that must
+satisfy GDPR, HIPAA, and the NIST AI RMF simultaneously across both
+Amazon Bedrock and Amazon SageMaker — showing how a binding, region-
+scoped law (GDPR or HIPAA) and a voluntary, global framework (the NIST
+AI RMF) layer differently over the same two-service, two-region
+architecture. Domain 5 therefore now has two standalone "## Worked
+example" sections (the closing HIPAA walkthrough and this new
+multi-framework example) plus the one nested cost-capping subsection
+described above.
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 5's cost-capping
-subsection), the five domain guides mark **19+ worked-example sections in
+subsection), the five domain guides mark **20+ worked-example sections in
 total**, plus further example content nested at the sub-bullet level
 within some of those sections.
 

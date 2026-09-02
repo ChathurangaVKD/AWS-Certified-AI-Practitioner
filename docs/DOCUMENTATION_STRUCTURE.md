@@ -51,7 +51,7 @@ domain, currently 1,568–2,870 lines each:
 - Domain 1: 1,568 lines
 - Domain 2: 1,794 lines
 - Domain 3: 2,870 lines
-- Domain 4: 1,701 lines
+- Domain 4: 1,796 lines
 - Domain 5: 2,062 lines
 
 All five follow the same template:
@@ -268,7 +268,7 @@ of duplicating material inside them:
   questions.
 - **`master-glossary.md`** and **`GLOSSARY.md`** — two views of the same
   merged, alphabetical term set spanning all five domains' "Key terms"
-  sections, **155 entries** each: `master-glossary.md` as a compact index
+  sections, **156 entries** each: `master-glossary.md` as a compact index
   with `[D#, ...]` domain tags per term, `GLOSSARY.md` as full backlinked
   prose entries. Both answer "where is 'prompt injection' explained?"
   without knowing which domain defines it.

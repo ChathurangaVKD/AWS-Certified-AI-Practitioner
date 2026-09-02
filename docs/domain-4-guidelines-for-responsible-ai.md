@@ -378,6 +378,96 @@ monitoring bias drift over time with **Amazon SageMaker Model Monitor**.
 > before a model is even built is still a Clarify pre-training bias
 > metric, not a post-training one.
 
+### Worked example: representativeness vs. demographic fairness bias
+
+Everything above in this section — disparate impact, DPL, class
+imbalance — measures **fairness bias**: whether a model's outcomes differ
+across *demographic groups it already has data for*. There is a distinct
+failure mode that those same metrics can miss entirely: **representativeness
+bias**, where a whole *segment of the deployment population* is thin or
+absent from the training data in the first place, so the model
+underperforms for that segment regardless of whether any protected
+demographic attribute is unfairly treated. The two are easy to conflate
+because both are called "bias" and both trace back to unrepresentative
+data — but they're detected differently, and a model can pass one check
+while badly failing the other.
+
+**Scenario:** A retailer trains a classical SageMaker image classifier to
+tag product photos, using a training set scraped almost entirely from
+sellers and warehouses in the continental United States. The model ships
+well in US-based QA testing. Three months after a push into rural US
+markets and an international expansion into Southeast Asia, support
+tickets spike: the classifier misfires constantly on product photos from
+those regions — different packaging conventions, lighting, backgrounds,
+and product mixes the US-heavy training set never saw.
+
+1. **Notice which check this evades.** The team already ran SageMaker
+   Clarify before and after training. Clarify's **pre-training** metrics
+   (class imbalance, DPL) and **post-training** metrics (disparate impact,
+   accuracy/recall difference) all came back clean — because those
+   metrics compare outcomes *across demographic groups present in the
+   labeled data*. They say nothing about a geography that barely appears
+   in the data at all: there's no demographic group label for "rural US"
+   or "Southeast Asia" to compute a disparity against, so Clarify has
+   nothing to flag. This is the same trap as [cross-domain scenario
+   question 20](cross-domain-scenario-questions.md#practice-questions): a
+   held-out test split drawn from the *same* non-representative
+   collection pool will also score well, because the split doesn't fix a
+   coverage gap baked in before the split ever happened.
+2. **Detect representativeness with a different check.** Fairness bias
+   metrics answer "are groups *in the data* treated equitably?"
+   Representativeness has to be checked separately, by comparing the
+   *training data's coverage* against the *deployment population* — for
+   example, auditing what fraction of training images come from each
+   target region/market versus that region's expected share of
+   production traffic, and directly measuring held-out accuracy
+   **broken out by region** rather than trusting one aggregate score.
+   Only once region-level segments exist as labeled slices does a tool
+   like SageMaker Clarify become useful again — computed *on the region
+   label* the same way it would be computed on any other group.
+3. **Mitigate the coverage gap, not a demographic disparity.** Because the
+   root cause is missing coverage rather than an unfair split of an
+   existing population, the fix is **pre-processing** aimed at coverage:
+   collect or license additional product photos from rural US sellers and
+   the new Southeast Asia market, augment the underrepresented segments,
+   and re-scrape with quotas per target region instead of an
+   unconstrained crawl. Rebalancing classes or adding a fairness
+   constraint (the usual fairness-bias mitigations) would not help here —
+   there's no unfair treatment of a group that's already in the data to
+   correct; the data for that group barely exists yet.
+4. **Recheck both dimensions after retraining.** The team re-trains on the
+   expanded dataset and confirms two separate things, not one: per-region
+   accuracy now meets the bar for rural US and Southeast Asian segments
+   (closing the representativeness gap), *and* SageMaker Clarify's
+   post-training metrics still show no disparate impact across whatever
+   demographic groups apply within each region (confirming fairness
+   wasn't traded away while fixing coverage). They document both checks,
+   and the target regional coverage mix, in a **SageMaker Model Card**.
+5. **Govern coverage on an ongoing basis.** As the retailer expands into
+   further markets, **SageMaker Model Monitor** watches for both data
+   drift (new regions appearing in production traffic that aren't yet
+   represented in training) and bias drift within already-covered
+   regions, so a coverage gap is caught before it becomes months of
+   misfires like the one that started this example.
+
+| | Demographic fairness bias | Representativeness bias |
+|---|---|---|
+| **Question it answers** | Are outcomes equitable *across groups present in the data*? | Does the training data *cover* the population the model will serve? |
+| **Typical detection** | SageMaker Clarify: class imbalance, DPL (pre-training); disparate impact, accuracy/recall difference (post-training) | Compare training-data coverage per segment against expected deployment-population share; accuracy broken out per segment (not one aggregate score) |
+| **Why a clean Clarify report can still miss it** | Clarify compares groups that already have labels/rows in the dataset | A missing or thin segment has no meaningful group to compare against — there isn't enough data to compute a stable metric on |
+| **Typical mitigation** | Rebalance classes, fairness constraints, threshold calibration per group | Collect/augment data for the underrepresented segment; sampling quotas per target segment |
+
+> **Exam tip:** A scenario where a model "scores well on its held-out test
+> set" but "performs far worse" for a specific **region, market, or
+> deployment context** that was thin in the training data — rather than
+> for a demographic group that's well-represented but treated unfairly —
+> is testing **representativeness/transferability**, not a standard
+> SageMaker Clarify fairness metric. The held-out test score looking fine
+> is a clue, not a reassurance: a test split drawn from the same
+> non-representative pool inherits the same gap. The fix is auditing and
+> expanding data coverage for the missing segment, not rebalancing
+> classes or adding a fairness constraint.
+
 #### Mini-quiz: Test your understanding of identifying bias and fairness issues
 
 1. A facial recognition dataset contains mostly images of one demographic
@@ -1308,6 +1398,11 @@ label-rate gap across groups).
   data (distinct from bias; see [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)).
 - **Sampling bias** — training data does not represent the real-world
   population the model will serve.
+- **Representativeness bias** — a whole segment of the deployment
+  population (e.g., a geographic region or market) is thin or absent
+  from the training data, causing poor performance for that segment;
+  distinct from demographic fairness bias because there's no group
+  present in the data to compute a disparity metric against.
 - **Historical bias** — training data accurately reflects a real world
   that itself contains pre-existing societal inequities.
 - **Label bias / human bias** — bias introduced by human annotators when

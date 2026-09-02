@@ -313,12 +313,16 @@ exam-testable.
 > Canvas** has added **virtual try-on** (compositing a product image onto
 > a person/model image) alongside its existing inpainting/outpainting/
 > background-removal editing set, so the row below now reflects that
-> broader edit surface; the rest of the **Nova** family (Micro/Lite/Pro/
-> Premier, Reel, Sonic) and the remaining rows were re-checked against the
-> catalog and found unchanged since the prior pass. The previous pass
-> (2026-08-30) had already retired **Titan Text** (Lite/Express/Premier)
-> in favor of **Nova**, added **Titan Multimodal Embeddings** and **Nova
-> Sonic**, removed AI21's **Jurassic** line and Cohere's original (non-R)
+> broader edit surface; **OpenAI's gpt-oss** line (gpt-oss-120b/gpt-oss-20b)
+> is now available as a new third-party provider in the catalog — an
+> open-weight, reasoning-oriented text family distinct from every existing
+> row, so a new row has been added below rather than folded into an
+> existing one; the rest of the **Nova** family (Micro/Lite/Pro/Premier,
+> Reel, Sonic) and the remaining rows were re-checked against the catalog
+> and found unchanged since the prior pass. The previous pass (2026-08-30)
+> had already retired **Titan Text** (Lite/Express/Premier) in favor of
+> **Nova**, added **Titan Multimodal Embeddings** and **Nova Sonic**,
+> removed AI21's **Jurassic** line and Cohere's original (non-R)
 > **Command** models, and moved Stability AI's offering to the
 > task-specific **Stable Image** line; none of that required further
 > changes in this pass. The next reviewer should update this date and
@@ -353,6 +357,7 @@ exam-testable.
 | **Cohere Command R / Command R+ / Embed / Rerank** | Cohere | Command R/R+: text in → text out, RAG- and tool-use-optimized; Embed: text → vector; Rerank: reorders search results | Mid-large (Command R/R+) | Enterprise text generation and RAG-oriented tool use (Command R/R+), embeddings (Embed), improving RAG retrieval relevance (Rerank) | "Improve search relevance," "rerank retrieved documents" — plain **Command** (non-R) has been retired in favor of Command R/R+ |
 | **Mistral AI models** | Mistral AI | Text in → text out for the core line; newer additions add vision (**Pixtral**) and audio (**Voxtral**) input | Small (efficient) → large | Cost-efficient, low-latency text generation; some models support function calling; Pixtral/Voxtral cover multimodal needs in the same family | "Low latency," "function calling," "efficient" |
 | **Stability AI (Stable Image)** | Stability AI | Text/image in → image out | N/A | High-control, style-flexible image generation and editing (upscaling, inpainting, outpainting, background removal, style transfer) | "Image generation," "fine-grained style control" — current Bedrock catalog exposes this as the task-specific **Stable Image** line rather than general Stable Diffusion checkpoints |
+| **OpenAI gpt-oss** (gpt-oss-120b/gpt-oss-20b) | OpenAI | Text in → text out | Large, reasoning-oriented | Open-weight reasoning and text tasks where a scenario specifically calls for OpenAI-trained weights through Bedrock's managed API, rather than Amazon's or another third party's models | "Open-weight," "OpenAI model," "reasoning model" — newest third-party addition to the catalog; don't confuse with Meta Llama, which is the open-weight family the exam more commonly tests |
 
 > **Exam tip — pick the *capability*, not the brand name.** Exam
 > scenarios rarely ask "which company makes this model?" They describe a

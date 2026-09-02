@@ -52,7 +52,7 @@ domain, currently 1,406–2,870 lines each:
 - Domain 2: 1,701 lines
 - Domain 3: 2,870 lines
 - Domain 4: 1,524 lines
-- Domain 5: 1,632 lines
+- Domain 5: 1,719 lines
 
 All five follow the same template:
 
@@ -115,12 +115,20 @@ a second "## Worked example" section estimating tokens for RAG retrieval
 and long-document summarization, and a third (closing) section selecting
 and comparing models for a real-time voice assistant use case — three
 standalone "## Worked example" sections in total for Domain 2 as well.
+Domain 5 also now has one nested worked-example subsection alongside its
+closing HIPAA walkthrough: a "#### Worked example: capping cost under
+three different threat models" subsection inside Section 1's cost-
+governance material, applying Service Quotas and API Gateway usage plans
+to three distinct threat models (malicious abuse, an accidental spike,
+and a fixed budget ceiling).
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
-four-techniques-on-one-task walkthrough), the five domain guides mark
-**17+ worked-example sections in total**, plus further example content
-nested at the sub-bullet level within some of those sections.
+four-techniques-on-one-task walkthrough; Domain 5's cost-capping
+subsection), the five domain guides mark **18+ worked-example sections in
+total**, plus further example content nested at the sub-bullet level
+within some of those sections.
 
 **Diagrams:** The five domain guides contain 25 Mermaid flowchart diagrams
 in total: Domain 1 has six (the 8-stage ML lifecycle loop,

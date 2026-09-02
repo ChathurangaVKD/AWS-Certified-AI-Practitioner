@@ -138,13 +138,13 @@ detection/mitigation workflow, Section 2); Domain 5 has three (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1).
 `cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
 overview" section, bringing the total to **26 Mermaid diagrams**. On top of
-those, two plain-text ASCII diagrams are provided for readers without
+those, 2 ASCII diagrams are provided in plain text for readers without
 Mermaid rendering, duplicating diagrams that already exist as Mermaid
 above rather than adding new content: Domain 1's ML lifecycle diagram
 (Section 2) and Domain 5's shared-responsibility boundary diagram for
-Bedrock vs. SageMaker (Section 5). That makes **28 total diagrams**: 25
-Mermaid diagrams in the domain guides + 1 in the cross-domain support doc
-= 26 total Mermaid diagrams + 2 ASCII diagrams.
+Bedrock vs. SageMaker (Section 5). In total: 25 Mermaid diagrams in the
+domain guides + 1 in the cross-domain support doc = 26 total Mermaid
+diagrams + 2 ASCII diagrams = **28 total diagrams**.
 
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,

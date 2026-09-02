@@ -241,18 +241,23 @@ exam-testable.
 > [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
 > before relying on this table outside exam prep.
 >
-> **Last verified:** 2026-08-30, against the official Bedrock model
-> catalog above. Changes found and applied in that pass: **Titan Text**
-> (Lite/Express/Premier) has been retired from the catalog — Amazon's
-> current text-generation line is **Nova**; Titan's embeddings and image
-> lines continue under newer versions (**Titan Text Embeddings V2**,
-> **Titan Image Generator G1 v2**), and **Titan Multimodal Embeddings**
-> and **Nova Sonic** (real-time speech-to-speech) were added as
-> current-generation models missing from the prior table; AI21's
-> **Jurassic** line and Cohere's original (non-R) **Command** models are
-> no longer listed; and Stability AI's Bedrock offering is now the
-> task-specific **Stable Image** line rather than general Stable
-> Diffusion checkpoints. The next reviewer should update this date and
+> **Last verified:** 2026-09-02, against the official Bedrock model
+> catalog above. Changes found and applied in that pass: AI21's **Jamba**
+> line has been updated to **Jamba 2.0** (superseding the prior 1.5
+> generation) with improved long-context throughput — the row below now
+> names the current version instead of the family alone; **Amazon Nova
+> Canvas** has added **virtual try-on** (compositing a product image onto
+> a person/model image) alongside its existing inpainting/outpainting/
+> background-removal editing set, so the row below now reflects that
+> broader edit surface; the rest of the **Nova** family (Micro/Lite/Pro/
+> Premier, Reel, Sonic) and the remaining rows were re-checked against the
+> catalog and found unchanged since the prior pass. The previous pass
+> (2026-08-30) had already retired **Titan Text** (Lite/Express/Premier)
+> in favor of **Nova**, added **Titan Multimodal Embeddings** and **Nova
+> Sonic**, removed AI21's **Jurassic** line and Cohere's original (non-R)
+> **Command** models, and moved Stability AI's offering to the
+> task-specific **Stable Image** line; none of that required further
+> changes in this pass. The next reviewer should update this date and
 > summary after re-checking against the catalog link above.
 >
 > **Verification process (for maintainers):** the Bedrock catalog is
@@ -275,12 +280,12 @@ exam-testable.
 | **Amazon Titan Multimodal Embeddings** | Amazon | Text and/or image in → vector out | N/A (embeddings, not generation) | Embedding images and text into the same vector space for multimodal search (e.g., "find images similar to this description") | "Multimodal search," "embed images and text together" |
 | **Amazon Titan Image Generator G1 v2** | Amazon | Text/image in → image out | N/A | Image generation and editing with built-in invisible watermarking for provenance | "Generate an image," "watermark," "responsible image generation" |
 | **Amazon Nova** (Micro/Lite/Pro/Premier) | Amazon | Text; Lite/Pro/Premier add image and video understanding | Micro smallest/fastest → Premier largest/most capable | Latency- and cost-sensitive text tasks (Micro) up to complex multimodal reasoning (Premier); Amazon's current general-purpose text family, superseding Titan Text | "Fast and low-cost," "understand video," "tiered by speed vs. capability" |
-| **Amazon Nova Canvas** | Amazon | Text/image in → image out | N/A | Studio-quality image generation and editing (inpainting, outpainting, background removal) | "Image generation," "edit an existing image" |
+| **Amazon Nova Canvas** | Amazon | Text/image in → image out | N/A | Studio-quality image generation and editing (inpainting, outpainting, background removal, virtual try-on) | "Image generation," "edit an existing image," "composite a product onto a model photo" |
 | **Amazon Nova Reel** | Amazon | Text/image in → video out | N/A | Short-form video generation from a text or image prompt | "Generate a video" |
 | **Amazon Nova Sonic** | Amazon | Speech in → speech/text out (real-time, bidirectional) | N/A | Real-time, low-latency speech-to-speech conversational applications (voice assistants/agents) | "Real-time voice conversation," "speech-to-speech," not just transcription |
 | **Anthropic Claude** | Anthropic | Text, and multimodal text+image input | Large (tens of thousands of tokens+) | Complex reasoning, long-document analysis, agentic tool use, careful instruction-following | "Long document," "reasoning," "agents," "analyze an image and answer questions about it" |
 | **Meta Llama** | Meta | Text in → text out for the 3.x line; **Llama 4** (Scout/Maverick) adds native multimodal text+image input | Mid → large depending on version | Open-weight model needs — fine-tuning control, on-prem/portability considerations, cost-efficient general text tasks; multimodal open-weight needs point to Llama 4 | "Open source," "open-weight," "fine-tune and control the weights" |
-| **AI21 Labs Jamba** | AI21 Labs | Text in → text out | Large, efficient long-context handling | Long-context summarization and text generation with efficient inference | "Long context," "efficient at scale" — the older **Jurassic** line has been retired; Jamba is AI21's only current Bedrock family |
+| **AI21 Labs Jamba 2.0** | AI21 Labs | Text in → text out | Large, efficient long-context handling | Long-context summarization and text generation with efficient inference | "Long context," "efficient at scale" — the older **Jurassic** line has been retired; Jamba 2.0 is AI21's only current Bedrock family |
 | **Cohere Command R / Command R+ / Embed / Rerank** | Cohere | Command R/R+: text in → text out, RAG- and tool-use-optimized; Embed: text → vector; Rerank: reorders search results | Mid-large (Command R/R+) | Enterprise text generation and RAG-oriented tool use (Command R/R+), embeddings (Embed), improving RAG retrieval relevance (Rerank) | "Improve search relevance," "rerank retrieved documents" — plain **Command** (non-R) has been retired in favor of Command R/R+ |
 | **Mistral AI models** | Mistral AI | Text in → text out for the core line; newer additions add vision (**Pixtral**) and audio (**Voxtral**) input | Small (efficient) → large | Cost-efficient, low-latency text generation; some models support function calling; Pixtral/Voxtral cover multimodal needs in the same family | "Low latency," "function calling," "efficient" |
 | **Stability AI (Stable Image)** | Stability AI | Text/image in → image out | N/A | High-control, style-flexible image generation and editing (upscaling, inpainting, outpainting, background removal, style transfer) | "Image generation," "fine-grained style control" — current Bedrock catalog exposes this as the task-specific **Stable Image** line rather than general Stable Diffusion checkpoints |

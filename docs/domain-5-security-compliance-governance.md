@@ -23,6 +23,7 @@
   - [NIST AI Risk Management Framework (AI RMF) — conceptual level](#nist-ai-risk-management-framework-ai-rmf-conceptual-level)
   - [EU AI Act — conceptual level](#eu-ai-act-conceptual-level)
   - [ISO/IEC 42001 and the Algorithmic Accountability Act — conceptual level](#isoiec-42001-and-the-algorithmic-accountability-act-conceptual-level)
+  - [Compliance framework decision matrix](#compliance-framework-decision-matrix)
 - [3. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
 - [4. Data governance strategies](#4-data-governance-strategies)
   - [Data lifecycle](#data-lifecycle)
@@ -936,6 +937,45 @@ binding EU *laws*; **HIPAA** is a binding US *law*; the **NIST AI RMF** and
 chooses to adopt; the **Algorithmic Accountability Act** is *proposed*
 (not-yet-binding) US legislation. A question asking "which of these is
 legally mandatory" hinges on this distinction.
+
+### Compliance framework decision matrix
+A scenario question typically gives you a region, a data type, and a use
+case, then asks which framework or AWS control applies. Use this matrix to
+go straight from those clues to the right framework and AWS services:
+
+| Framework | Type | Geographic scope | Covered data / subject matter | Applicable AWS services |
+|---|---|---|---|---|
+| GDPR | Binding EU law | EU/EEA — protects personal data of individuals in the EU/EEA regardless of where the processing company is based | Personal data of individuals (broad — any PII) | AWS Regions (EU data residency), AWS Artifact (data processing agreement), IAM/AWS KMS (access and encryption controls) |
+| HIPAA | Binding US law | United States | Protected health information (PHI) | AWS Artifact (Business Associate Addendum), HIPAA-eligible services (Amazon SageMaker, Amazon Comprehend Medical), AWS KMS/S3 encryption |
+| EU AI Act | Binding EU law | EU — applies to AI systems placed on the EU market or affecting people in the EU | AI systems themselves, tiered by risk (not a specific data type) | Guardrails for Amazon Bedrock (transparency/content controls), Amazon SageMaker Model Cards (documentation for high-risk obligations), AWS Audit Manager (compliance evidence) |
+| NIST AI Risk Management Framework (AI RMF) | Voluntary US framework | United States (voluntary guidance, referenced globally) | AI system risk across its lifecycle (process-oriented, not tied to a data type) | Amazon SageMaker Model Cards (Govern/Map documentation), AWS Audit Manager, AWS Config (continuous risk tracking) |
+| ISO/IEC 42001 | Voluntary international standard | Global — adoptable by any organization | AI management system (AIMS) processes | AWS Artifact (AWS's own ISO certifications), AWS Audit Manager (framework-mapped evidence for certification) |
+| Algorithmic Accountability Act | Proposed US legislation | United States (proposed) | Automated decision systems / algorithmic impact assessments | Amazon SageMaker Clarify (bias/impact assessment), AWS Audit Manager (evidence collection) |
+
+**Visual summary — matching a scenario to a compliance framework:** the
+diagram below turns the table above into the sequence of questions an exam
+scenario is really asking:
+
+```mermaid
+flowchart TD
+    START(["Scenario names a region,\na data type, and a use case"]) --> Q1{"Is the data personal data\nof individuals in the EU/EEA?"}
+    Q1 -->|"YES"| GDPR["GDPR\ndata controller/processor roles;\nEU Region residency"]
+    Q1 -->|"NO"| Q2{"Is the data US protected\nhealth information (PHI)?"}
+    Q2 -->|"YES"| HIPAA["HIPAA\nrequires a BAA via AWS Artifact\nand HIPAA-eligible services"]
+    Q2 -->|"NO"| Q3{"Is the question about an\nAI system's risk tier under\nbinding EU AI regulation?"}
+    Q3 -->|"YES"| EUAI["EU AI Act\nrisk-tiered legal obligations\n(unacceptable/high/limited/minimal)"]
+    Q3 -->|"NO"| Q4{"Is it a US-proposed law requiring\nimpact assessments for automated\ndecisions?"}
+    Q4 -->|"YES"| AAA["Algorithmic Accountability Act\nproposed algorithmic impact\nassessments"]
+    Q4 -->|"NO"| Q5{"Is it voluntary guidance for\nmanaging AI risk, or a\ncertifiable AI management standard?"}
+    Q5 -->|"Voluntary process framework"| NIST["NIST AI RMF\nGovern, Map, Measure, Manage"]
+    Q5 -->|"Certifiable management system"| ISO["ISO/IEC 42001\nAI management system (AIMS)"]
+```
+
+**Exam tip:** Anchor on two clues together, not one: *region* (EU vs. US
+vs. global) plus *whether it's binding or voluntary*. A question mentioning
+"PHI" always means HIPAA regardless of region context; a question
+mentioning "risk tiers" for an AI system always means the EU AI Act, not
+GDPR.
 
 #### Mini-quiz: Test your understanding of AWS compliance standards for AI workloads
 

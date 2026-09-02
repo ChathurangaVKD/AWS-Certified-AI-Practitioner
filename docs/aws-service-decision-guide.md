@@ -305,28 +305,24 @@ exam-testable.
 > [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
 > before relying on this table outside exam prep.
 >
-> **Last verified:** 2026-09-02, against the official Bedrock model
-> catalog above. Changes found and applied in that pass: AI21's **Jamba**
-> line has been updated to **Jamba 2.0** (superseding the prior 1.5
-> generation) with improved long-context throughput — the row below now
-> names the current version instead of the family alone; **Amazon Nova
-> Canvas** has added **virtual try-on** (compositing a product image onto
-> a person/model image) alongside its existing inpainting/outpainting/
-> background-removal editing set, so the row below now reflects that
-> broader edit surface; **OpenAI's gpt-oss** line (gpt-oss-120b/gpt-oss-20b)
-> is now available as a new third-party provider in the catalog — an
-> open-weight, reasoning-oriented text family distinct from every existing
-> row, so a new row has been added below rather than folded into an
-> existing one; the rest of the **Nova** family (Micro/Lite/Pro/Premier,
-> Reel, Sonic) and the remaining rows were re-checked against the catalog
-> and found unchanged since the prior pass. The previous pass (2026-08-30)
-> had already retired **Titan Text** (Lite/Express/Premier) in favor of
-> **Nova**, added **Titan Multimodal Embeddings** and **Nova Sonic**,
-> removed AI21's **Jurassic** line and Cohere's original (non-R)
-> **Command** models, and moved Stability AI's offering to the
-> task-specific **Stable Image** line; none of that required further
-> changes in this pass. The next reviewer should update this date and
-> summary after re-checking against the catalog link above.
+> **Last verified:** 2026-11-01, against the official Bedrock model
+> catalog above. Changes found and applied in that pass: **DeepSeek** is
+> now available as a new third-party provider in the catalog, with
+> **DeepSeek-R1** — an open-weight, chain-of-thought reasoning model
+> distinct from both Meta Llama's open-weight text line and OpenAI's
+> gpt-oss — so a new row has been added below; **Anthropic Claude** has
+> added **computer use** (controlling a desktop via screenshots and
+> coordinate-based mouse/keyboard actions) as a supported agentic
+> capability, so the row below now reflects that alongside its existing
+> reasoning/tool-use strengths; the rest of the catalog (Nova family,
+> Titan, AI21 Jamba 2.0, Cohere, Mistral AI, Stability AI, OpenAI gpt-oss)
+> was re-checked against the catalog and found unchanged since the prior
+> pass. The previous pass (2026-09-02) had already updated AI21's **Jamba**
+> line to **Jamba 2.0**, added **virtual try-on** to **Amazon Nova
+> Canvas**, and added **OpenAI's gpt-oss** line as a new third-party
+> provider; none of that required further changes in this pass. The next
+> reviewer should update this date and summary after re-checking against
+> the catalog link above.
 >
 > **Verification process (for maintainers):** the Bedrock catalog is
 > observed to change roughly monthly, so treat this table as due for
@@ -351,13 +347,14 @@ exam-testable.
 | **Amazon Nova Canvas** | Amazon | Text/image in → image out | N/A | Studio-quality image generation and editing (inpainting, outpainting, background removal, virtual try-on) | "Image generation," "edit an existing image," "composite a product onto a model photo" |
 | **Amazon Nova Reel** | Amazon | Text/image in → video out | N/A | Short-form video generation from a text or image prompt | "Generate a video" |
 | **Amazon Nova Sonic** | Amazon | Speech in → speech/text out (real-time, bidirectional) | N/A | Real-time, low-latency speech-to-speech conversational applications (voice assistants/agents) | "Real-time voice conversation," "speech-to-speech," not just transcription |
-| **Anthropic Claude** | Anthropic | Text, and multimodal text+image input | Large (tens of thousands of tokens+) | Complex reasoning, long-document analysis, agentic tool use, careful instruction-following | "Long document," "reasoning," "agents," "analyze an image and answer questions about it" |
+| **Anthropic Claude** | Anthropic | Text, and multimodal text+image input | Large (tens of thousands of tokens+) | Complex reasoning, long-document analysis, agentic tool use, careful instruction-following, and **computer use** (controlling a desktop via screenshots and coordinate-based mouse/keyboard actions) | "Long document," "reasoning," "agents," "analyze an image and answer questions about it," "control a desktop application" |
 | **Meta Llama** | Meta | Text in → text out for the 3.x line; **Llama 4** (Scout/Maverick) adds native multimodal text+image input | Mid → large depending on version | Open-weight model needs — fine-tuning control, on-prem/portability considerations, cost-efficient general text tasks; multimodal open-weight needs point to Llama 4 | "Open source," "open-weight," "fine-tune and control the weights" |
 | **AI21 Labs Jamba 2.0** | AI21 Labs | Text in → text out | Large, efficient long-context handling | Long-context summarization and text generation with efficient inference | "Long context," "efficient at scale" — the older **Jurassic** line has been retired; Jamba 2.0 is AI21's only current Bedrock family |
 | **Cohere Command R / Command R+ / Embed / Rerank** | Cohere | Command R/R+: text in → text out, RAG- and tool-use-optimized; Embed: text → vector; Rerank: reorders search results | Mid-large (Command R/R+) | Enterprise text generation and RAG-oriented tool use (Command R/R+), embeddings (Embed), improving RAG retrieval relevance (Rerank) | "Improve search relevance," "rerank retrieved documents" — plain **Command** (non-R) has been retired in favor of Command R/R+ |
 | **Mistral AI models** | Mistral AI | Text in → text out for the core line; newer additions add vision (**Pixtral**) and audio (**Voxtral**) input | Small (efficient) → large | Cost-efficient, low-latency text generation; some models support function calling; Pixtral/Voxtral cover multimodal needs in the same family | "Low latency," "function calling," "efficient" |
 | **Stability AI (Stable Image)** | Stability AI | Text/image in → image out | N/A | High-control, style-flexible image generation and editing (upscaling, inpainting, outpainting, background removal, style transfer) | "Image generation," "fine-grained style control" — current Bedrock catalog exposes this as the task-specific **Stable Image** line rather than general Stable Diffusion checkpoints |
-| **OpenAI gpt-oss** (gpt-oss-120b/gpt-oss-20b) | OpenAI | Text in → text out | Large, reasoning-oriented | Open-weight reasoning and text tasks where a scenario specifically calls for OpenAI-trained weights through Bedrock's managed API, rather than Amazon's or another third party's models | "Open-weight," "OpenAI model," "reasoning model" — newest third-party addition to the catalog; don't confuse with Meta Llama, which is the open-weight family the exam more commonly tests |
+| **OpenAI gpt-oss** (gpt-oss-120b/gpt-oss-20b) | OpenAI | Text in → text out | Large, reasoning-oriented | Open-weight reasoning and text tasks where a scenario specifically calls for OpenAI-trained weights through Bedrock's managed API, rather than Amazon's or another third party's models | "Open-weight," "OpenAI model," "reasoning model" — don't confuse with Meta Llama, which is the open-weight family the exam more commonly tests |
+| **DeepSeek-R1** | DeepSeek | Text in → text out | Large, reasoning-oriented | Open-weight, chain-of-thought reasoning tasks (multi-step math, coding, logic) at lower inference cost than comparably-sized closed-weight models | "Open-weight," "chain-of-thought," "reasoning model," "cost-efficient reasoning" — newest third-party addition to the catalog; distinct from OpenAI's gpt-oss (also open-weight and reasoning-oriented) and from Meta Llama (general-purpose, not reasoning-specialized) |
 
 > **Exam tip — pick the *capability*, not the brand name.** Exam
 > scenarios rarely ask "which company makes this model?" They describe a

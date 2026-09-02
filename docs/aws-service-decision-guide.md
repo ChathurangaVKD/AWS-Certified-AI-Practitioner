@@ -494,6 +494,22 @@ compliance evidence.
 > appear in the same "model denial of service" scenario, but only one
 > answers the specific question asked.
 
+**Visual summary — cost governance decision tree:** the three
+cost-control mechanisms above aren't interchangeable fallbacks for each
+other — each one is the right answer for a different shape of scenario.
+The diagram below routes a scenario to the right one based on *who* or
+*what* is generating the volume that needs to be controlled:
+
+```mermaid
+graph TD
+    START{"What needs to be cost-controlled?"}
+    START -- "Multiple external callers hit your own API;\none noisy caller shouldn't degrade it for the rest" --> APIGW["Amazon API Gateway usage plans\nper-client (API key) rate & burst limits,\nconfigured by you in front of your own API"]
+    START -- "Requests are hitting an AWS-imposed,\naccount/service-wide ceiling" --> QUOTA["AWS Service Quotas\naccount- and service-level caps;\nrequest an increase for capacity planning"]
+    START -- "Traffic is steady, high-volume, and predictable;\nthe requirement is guaranteed latency/cost" --> PT["Provisioned Throughput\nreserved Bedrock model capacity,\n1- or 6-month commitment"]
+    APIGW -. "per-client limits still sit inside\nthe account-wide ceiling" .-> QUOTA
+    PT -. "doesn't stop one caller from starving\nanother of the reserved capacity" .-> APIGW
+```
+
 **Exam-style scenario:** A company exposes a customer-support chatbot
 backed by Amazon Bedrock through a public REST API, with several external
 partner integrations calling it. They want to make sure a single partner

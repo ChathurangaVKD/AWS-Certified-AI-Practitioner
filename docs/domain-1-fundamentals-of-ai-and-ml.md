@@ -75,6 +75,21 @@ nests inside AI:
 AI  ⊃  ML  ⊃  DL  ⊃  Generative AI
 ```
 
+**Visual hierarchy:** the diagram below renders the same relationship as
+literal nested boxes — each field is drawn *inside* its parent field — so
+the containment (not a sequence or a pipeline) is unmistakable:
+
+```mermaid
+flowchart TD
+    subgraph AI["Artificial Intelligence (AI)<br/>Broadest field — any system that performs<br/>tasks normally requiring human intelligence"]
+        subgraph ML["Machine Learning (ML)<br/>Learns patterns from data<br/>instead of hand-written rules"]
+            subgraph DL["Deep Learning (DL)<br/>Multi-layer neural networks that<br/>learn features automatically"]
+                GENAI["Generative AI<br/>Foundation models that generate<br/>new text, images, code, or audio"]
+            end
+        end
+    end
+```
+
 Other core vocabulary you must know cold:
 
 - **Model** — the artifact produced by training; a set of learned

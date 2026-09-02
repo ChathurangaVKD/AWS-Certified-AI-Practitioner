@@ -491,52 +491,6 @@ its documented limitations before deciding.
 > content/safety/privacy filtering** — they solve different problems at
 > different stages (dataset/model evaluation vs. live inference).
 
-#### Mini-quiz: Test your understanding of AWS tools for responsible AI
-
-1. Which AWS capability would you use to redact personally identifiable
-   information (PII) from a live generative AI application's prompts and
-   responses?
-   A. Amazon SageMaker Clarify
-   B. Guardrails for Amazon Bedrock sensitive information filters
-   C. Amazon SageMaker Model Cards
-   D. AI Service Cards
-
-   **Answer: B** — Guardrails' sensitive information filters detect and
-   redact or block PII in prompts and responses at inference time.
-   SageMaker Clarify (A) detects bias and generates explanations, not PII
-   redaction; Model Cards (C) and AI Service Cards (D) are documentation
-   artifacts, not runtime controls.
-
-2. A fraud-detection team wants low-confidence predictions automatically
-   routed to a human reviewer before any action is taken. Which AWS
-   service is purpose-built for this?
-   A. Amazon Augmented AI (Amazon A2I)
-   B. Amazon SageMaker Clarify
-   C. Guardrails for Amazon Bedrock
-   D. AI Service Cards
-
-   **Answer: A** — Amazon A2I is designed specifically for
-   human-in-the-loop review workflows for low-confidence or high-stakes
-   predictions. Clarify (B) measures bias/explainability; Guardrails (C)
-   filters generative AI content at inference time; AI Service Cards (D)
-   are documentation, not a review workflow tool.
-
-3. Which statement correctly distinguishes a SageMaker Model Card from an
-   AI Service Card?
-   A. Both document AWS-managed services only
-   B. A Model Card documents a model the customer built; an AI Service
-      Card is AWS-published documentation for an AWS-managed AI service
-   C. A Model Card is a runtime content filter; an AI Service Card is a
-      training data quality report
-   D. They are interchangeable terms for the same artifact
-
-   **Answer: B** — A Model Card is filled in by the organization that
-   built the model (typically in SageMaker), while an AI Service Card is
-   authored and published by AWS for one of its own managed AI services.
-   A reverses this; C mischaracterizes both artifacts as technical
-   controls rather than documentation; D is false since they serve
-   distinct, non-interchangeable purposes.
-
 ### Worked example: routing low-confidence predictions to human review with Amazon A2I
 
 The bullet list above introduces **Amazon A2I** in one sentence — "route
@@ -626,6 +580,52 @@ describes.
 > means the model has no notion of confidence at all — every classical
 > probabilistic classifier already outputs a predicted probability that's
 > a natural, ready-made signal to threshold on.
+
+#### Mini-quiz: Test your understanding of AWS tools for responsible AI
+
+1. Which AWS capability would you use to redact personally identifiable
+   information (PII) from a live generative AI application's prompts and
+   responses?
+   A. Amazon SageMaker Clarify
+   B. Guardrails for Amazon Bedrock sensitive information filters
+   C. Amazon SageMaker Model Cards
+   D. AI Service Cards
+
+   **Answer: B** — Guardrails' sensitive information filters detect and
+   redact or block PII in prompts and responses at inference time.
+   SageMaker Clarify (A) detects bias and generates explanations, not PII
+   redaction; Model Cards (C) and AI Service Cards (D) are documentation
+   artifacts, not runtime controls.
+
+2. A fraud-detection team wants low-confidence predictions automatically
+   routed to a human reviewer before any action is taken. Which AWS
+   service is purpose-built for this?
+   A. Amazon Augmented AI (Amazon A2I)
+   B. Amazon SageMaker Clarify
+   C. Guardrails for Amazon Bedrock
+   D. AI Service Cards
+
+   **Answer: A** — Amazon A2I is designed specifically for
+   human-in-the-loop review workflows for low-confidence or high-stakes
+   predictions. Clarify (B) measures bias/explainability; Guardrails (C)
+   filters generative AI content at inference time; AI Service Cards (D)
+   are documentation, not a review workflow tool.
+
+3. Which statement correctly distinguishes a SageMaker Model Card from an
+   AI Service Card?
+   A. Both document AWS-managed services only
+   B. A Model Card documents a model the customer built; an AI Service
+      Card is AWS-published documentation for an AWS-managed AI service
+   C. A Model Card is a runtime content filter; an AI Service Card is a
+      training data quality report
+   D. They are interchangeable terms for the same artifact
+
+   **Answer: B** — A Model Card is filled in by the organization that
+   built the model (typically in SageMaker), while an AI Service Card is
+   authored and published by AWS for one of its own managed AI services.
+   A reverses this; C mischaracterizes both artifacts as technical
+   controls rather than documentation; D is false since they serve
+   distinct, non-interchangeable purposes.
 
 ---
 

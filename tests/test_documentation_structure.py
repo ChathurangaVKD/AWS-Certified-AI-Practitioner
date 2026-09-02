@@ -217,7 +217,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("19", diagrams_section)
+        self.assertIn("25", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -572,17 +572,82 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn(
-            f"All {actual_total} flowchart-style diagrams",
+            f"{actual_total} Mermaid flowchart diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md's stated total diagram count does "
-            "not match the actual number of ```mermaid blocks across the "
-            "domain guides",
+            "DOCUMENTATION_STRUCTURE.md's stated domain-guide diagram "
+            "count does not match the actual number of ```mermaid blocks "
+            "across the domain guides",
         )
         self.assertNotIn(
             "not among the 13 flowcharts",
             diagrams_section,
             "DOCUMENTATION_STRUCTURE.md still references the stale "
             "13-diagram count",
+        )
+        self.assertNotIn(
+            "All 24 flowchart-style diagrams",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md still references the stale "
+            "24-diagram count",
+        )
+
+    def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
+        # The domain guides' 25 Mermaid diagrams are not the whole picture:
+        # cross-domain-concept-map.md's "Visual overview" section has one
+        # more Mermaid diagram (26 Mermaid diagrams total), and two of the
+        # domain guides also carry a plain-text ASCII rendering of a
+        # diagram that already exists as Mermaid (Domain 1's ML lifecycle
+        # and Domain 5's shared-responsibility model), for 28 diagrams
+        # overall. DOCUMENTATION_STRUCTURE.md previously undercounted this
+        # (stating "All 24 flowchart-style diagrams") and omitted the
+        # cross-domain diagram and the ASCII diagrams entirely.
+        domain_mermaid_total = sum(
+            len(re.findall(r"```mermaid", path.read_text(encoding="utf-8")))
+            for path in DOMAIN_FILES.values()
+        )
+        concept_map_path = DOCS_DIR / "cross-domain-concept-map.md"
+        concept_map_mermaid_total = len(
+            re.findall(r"```mermaid", concept_map_path.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(
+            concept_map_mermaid_total,
+            1,
+            "sanity check: expected exactly one Mermaid diagram in "
+            "cross-domain-concept-map.md's Visual overview section",
+        )
+        grand_mermaid_total = domain_mermaid_total + concept_map_mermaid_total
+        self.assertEqual(grand_mermaid_total, 26)
+        ascii_diagram_count = 2
+        grand_total = grand_mermaid_total + ascii_diagram_count
+        self.assertEqual(grand_total, 28)
+
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        self.assertNotEqual(diagrams_idx, -1)
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 1600]
+        self.assertIn(
+            "cross-domain-concept-map.md",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md's diagram count does not mention "
+            "cross-domain-concept-map.md's additional Mermaid diagram",
+        )
+        self.assertIn(
+            f"{grand_mermaid_total} Mermaid diagrams",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md does not state the 26-diagram "
+            "Mermaid total once cross-domain-concept-map.md is included",
+        )
+        self.assertIn(
+            "2 ASCII diagrams",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md does not call out the 2 ASCII "
+            "diagrams (Domain 1's ML lifecycle, Domain 5's shared "
+            "responsibility model)",
+        )
+        self.assertIn(
+            f"{grand_total} total diagrams",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md does not state the 28-diagram "
+            "grand total (26 Mermaid + 2 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):

@@ -122,8 +122,8 @@ four-techniques-on-one-task walkthrough), the five domain guides mark
 **17+ worked-example sections in total**, plus further example content
 nested at the sub-bullet level within some of those sections.
 
-**Diagrams:** All 24 flowchart-style diagrams across the guide are Mermaid flowchart
-diagrams, not ASCII art: Domain 1 has six (the 8-stage ML lifecycle loop,
+**Diagrams:** The five domain guides contain 25 Mermaid flowchart diagrams
+in total: Domain 1 has six (the 8-stage ML lifecycle loop,
 Section 2; decision trees for learning-type selection (Section 3),
 use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
 (Section 5), and metric selection (Section 6); and the
@@ -136,11 +136,15 @@ retrieval-failure decision tree);
 Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has three (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1).
-Two domains also carry separate plain-text ASCII notations for readers
-without Mermaid rendering, which are not among the 21 flowcharts: Domain
-1's AI ⊃ ML ⊃ DL ⊃ GenAI nesting notation (Section 1) and Domain 5's
-shared-responsibility boundary diagram for Bedrock vs. SageMaker (Section
-5).
+`cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
+overview" section, bringing the total to **26 Mermaid diagrams**. On top of
+those, 2 ASCII diagrams are provided in plain text for readers without
+Mermaid rendering, duplicating diagrams that already exist as Mermaid
+above rather than adding new content: Domain 1's ML lifecycle diagram
+(Section 2) and Domain 5's shared-responsibility boundary diagram for
+Bedrock vs. SageMaker (Section 5). In total: 25 Mermaid diagrams in the
+domain guides + 1 in the cross-domain support doc = 26 total Mermaid
+diagrams + 2 ASCII diagrams = **28 total diagrams**.
 
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,

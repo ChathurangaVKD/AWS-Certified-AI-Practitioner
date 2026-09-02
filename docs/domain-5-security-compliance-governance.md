@@ -1376,9 +1376,7 @@ customer's responsibility.
 service (Bedrock > SageMaker JumpStart > SageMaker custom training), the
 less infrastructure security the customer must handle — but the customer
 is **always** responsible for their data and access configuration,
-regardless of how managed the service is. See the [worked example
-below](#worked-example-shared-responsibility-for-a-sagemaker-to-bedrock-fine-tuning-pipeline)
-for how this split plays out across a real SageMaker-to-Bedrock pipeline.
+regardless of how managed the service is. The [worked example below](#worked-example-shared-responsibility-for-a-sagemaker-to-bedrock-fine-tuning-pipeline) shows how this split plays out across a real SageMaker-to-Bedrock pipeline.
 
 #### Worked example: shared responsibility for a SageMaker-to-Bedrock fine-tuning pipeline
 
@@ -1433,8 +1431,8 @@ Bedrock Provisioned Throughput.
 
 3. **Stage 3 — serving the custom model on Bedrock Provisioned
    Throughput.**
-   - *Customer responsibility:* configuring **Guardrails for Amazon
-     Bedrock** on the custom model's endpoint (denied topics, PII
+   - *Customer responsibility:* configuring **Guardrails for Amazon Bedrock**
+     on the custom model's endpoint (denied topics, PII
      filters) before analysts can query it; the IAM policy restricting
      `bedrock:InvokeModel` on the custom model ARN to only the analyst
      team's role; and enabling **AWS CloudTrail** logging so every

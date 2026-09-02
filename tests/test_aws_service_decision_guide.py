@@ -607,6 +607,32 @@ class TestAwsServiceDecisionGuideApiGatewaySection(unittest.TestCase):
     def test_links_back_to_domain_5_threat_section(self):
         self.assertIn("domain-5-security-compliance-governance.md", self.section_text)
 
+    def test_has_cost_governance_decision_tree_diagram(self):
+        # The three cost-control mechanisms this section covers (Service
+        # Quotas, API Gateway usage plans, Provisioned Throughput) get a
+        # table and a worked scenario, but previously no single visual
+        # entry point for choosing between them. Guards the Mermaid
+        # decision-tree diagram added to close that gap.
+        self.assertIn(
+            "```mermaid",
+            self.section_text,
+            "expected a Mermaid decision-tree diagram in the API "
+            "Gateway/cost-governance section",
+        )
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match, "could not locate the Mermaid code block")
+        diagram_body = diagram_match.group("body")
+        self.assertRegex(diagram_body, re.compile(r"^\s*graph (TD|LR)", re.M))
+        for term in [
+            "Amazon API Gateway usage plans",
+            "AWS Service Quotas",
+            "Provisioned Throughput",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram_body)
+
 
 class TestAwsServiceDecisionGuidePromptManagementSection(unittest.TestCase):
     """Section 7 -- Bedrock Prompt Management vs. Prompt Flows vs. direct

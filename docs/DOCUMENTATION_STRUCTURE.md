@@ -52,7 +52,7 @@ domain, currently 1,319–2,816 lines each:
 - Domain 2: 1,701 lines
 - Domain 3: 2,816 lines
 - Domain 4: 1,524 lines
-- Domain 5: 1,418 lines
+- Domain 5: 1,581 lines
 
 All five follow the same template:
 
@@ -152,8 +152,8 @@ evaluation term coverage (D1), glossary size (≥15 entries), practice
 question count (15–20 per domain, **26 for Domain 5**, **106 total**),
 answer explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
-sheet, its subsection mini quizzes (32 in total: 7 each for Domains 1 and
-2, 8 for Domain 3, and 5 each for Domains 4 and 5), and its footer
+sheet, its subsection mini quizzes (35 in total: 7 each for Domains 1 and
+2, 8 for Domain 3, 5 for Domain 4, and 8 for Domain 5), and its footer
 breadcrumb navigation.
 
 ## Cross-domain support documents
@@ -222,8 +222,8 @@ of duplicating material inside them:
 
 **Total assessment:** 106 domain practice questions (across the five
 domain guides) + 65 mock-exam questions + 22 scenario questions +
-32 embedded mini-quiz questions (across the five domain guides'
-subsections) = 225 total practice items across the repository.
+35 embedded mini-quiz questions (across the five domain guides'
+subsections) = 228 total practice items across the repository.
 
 ## Navigation
 

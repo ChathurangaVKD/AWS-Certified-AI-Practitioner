@@ -152,16 +152,14 @@ Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has five (covering the
 KMS key lifecycle and data-security/encryption architecture, Section 1, a
 compliance-framework decision matrix, Section 2, and a data-governance
-lifecycle diagram tracing data through classification, retention, and the
-training/fine-tuning/RAG/inference pipeline, Section 4).
+lifecycle diagram, Section 4).
 `cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
 overview" section, bringing the total to **28 Mermaid diagrams**. On top of
 those, 3 ASCII diagrams are provided in plain text for readers without
 Mermaid rendering, duplicating diagrams that already exist as Mermaid
 above rather than adding new content: Domain 1's ML lifecycle diagram
 (Section 2), Domain 5's data-governance lifecycle diagram (Section 4), and
-Domain 5's shared-responsibility boundary diagram for Bedrock vs.
-SageMaker (Section 5). In total: 27 Mermaid diagrams in the
+Domain 5's shared-responsibility diagram (Section 5). In total: 27 Mermaid diagrams in the
 domain guides + 1 in the cross-domain support doc = 28 total Mermaid
 diagrams + 3 ASCII diagrams = **31 total diagrams**.
 

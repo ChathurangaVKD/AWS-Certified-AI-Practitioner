@@ -150,9 +150,9 @@ D1-to-D3 inference-type decision tree, Section 8, and the RAG
 retrieval-failure decision tree);
 Domain 4 has three (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has five (covering the
-KMS key lifecycle and data-security/encryption architecture, Section 1, a
-compliance-framework decision matrix, Section 2, and a data-governance
-lifecycle diagram, Section 4).
+KMS key lifecycle and encryption architecture, Section 1, a compliance
+decision matrix, Section 2, and a data-governance lifecycle diagram,
+Section 4).
 `cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
 overview" section, bringing the total to **28 Mermaid diagrams**. On top of
 those, 3 ASCII diagrams are provided in plain text for readers without

@@ -98,16 +98,16 @@ model tiers, comparing fine-tuning against prompt engineering, and a
 Bedrock Agent executing a multi-step task with tool calling), plus seven
 further worked examples that are subsections nested at the "###" or
 "####" level inside their enclosing numbered sections rather than
-standalone sections: two concrete model-pair comparisons; the same task
-worked four different ways; building a product-knowledge assistant using
-Kendra's GenAI Index as a Bedrock Knowledge Base data source; when
-QLoRA's quality loss becomes unacceptable; when to use Cohere Rerank in a
-RAG pipeline; whether a 2-point BLEU/ROUGE improvement is statistically
-significant ("### Worked example: is a 2-point BLEU/ROUGE improvement
-statistically significant?"); and picking evaluation metrics for a
-scenario. Counting standalone sections only, Domain 3 has eight worked
-examples; counting the seven nested subsections too, it has fifteen —
-more worked examples than any other domain guide.
+standalone sections: whether a 2-point BLEU/ROUGE improvement is
+statistically significant ("### Worked example: is a 2-point BLEU/ROUGE
+improvement statistically significant?"); two concrete model-pair
+comparisons; the same task worked four different ways; building a
+product-knowledge assistant using Kendra's GenAI Index as a Bedrock
+Knowledge Base data source; when QLoRA's quality loss becomes
+unacceptable; when to use Cohere Rerank in a RAG pipeline; and picking
+evaluation metrics for a scenario. Counting standalone sections only,
+Domain 3 has eight worked examples; counting the seven nested subsections
+too, it has fifteen — more worked examples than any other domain guide.
 
 Domain 4 similarly grew beyond a single worked example: alongside the
 closing e-commerce recommendation-engine audit, it now has a second

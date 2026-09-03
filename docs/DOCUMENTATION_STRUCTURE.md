@@ -46,12 +46,12 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,568–2,870 lines each:
+domain, currently 1,583–2,870 lines each:
 
-- Domain 1: 1,568 lines
-- Domain 2: 1,794 lines
+- Domain 1: 1,583 lines
+- Domain 2: 1,875 lines
 - Domain 3: 2,870 lines
-- Domain 4: 1,796 lines
+- Domain 4: 1,819 lines
 - Domain 5: 2,062 lines
 
 All five follow the same template:
@@ -73,9 +73,10 @@ All five follow the same template:
 - a `## Key terms glossary` (15–50 entries; Domain 5's heading matches the
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
-- `## Practice questions` (15–20 per domain, except **24 for Domain 1**
-  and **26 for Domain 5**, including exactly 2 multiple-response ["select
-  TWO"] questions, for **110 domain practice questions in total** across
+- `## Practice questions` (15–20 per domain, except **24 for Domain 1**,
+  **24 for Domain 2**, and **26 for Domain 5** (Domain 3 and Domain 4 each
+  have 20), including exactly 2 multiple-response ["select TWO"]
+  questions, for **114 domain practice questions in total** across
   the five domain guides) and a full `## Answer key` with justifications
   ruling out each wrong answer.
 
@@ -172,8 +173,8 @@ shared-responsibility subsections), the five domain guides mark **20+
 worked-example sections in total**, plus further example content nested
 at the sub-bullet level within some of those sections.
 
-**Diagrams:** The five domain guides contain 27 Mermaid flowchart diagrams
-in total: Domain 1 has six (the 8-stage ML lifecycle loop,
+**Diagrams:** The five domain guides contain 29 Mermaid flowchart diagrams
+in total: Domain 1 has seven (the 8-stage ML lifecycle loop,
 Section 2; decision trees for learning-type selection (Section 3),
 use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
 (Section 5), and metric selection (Section 6); and the
@@ -183,26 +184,26 @@ pipeline, Section 1); Domain 3 has nine (including the FM-customization
 decision tree, Section 4, the vector store decision tree, Section 3, the
 D1-to-D3 inference-type decision tree, Section 8, and the RAG
 retrieval-failure decision tree);
-Domain 4 has three (including the bias
+Domain 4 has four (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has five (covering the
 KMS key lifecycle and encryption architecture, Section 1, a compliance
 decision matrix, Section 2, and a data-governance lifecycle diagram,
 Section 4).
 `cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
-overview" section, bringing the total to **28 Mermaid diagrams**. On top of
+overview" section, bringing the total to **30 Mermaid diagrams**. On top of
 those, 3 ASCII diagrams are provided in plain text for readers without
 Mermaid rendering, duplicating diagrams that already exist as Mermaid
 above rather than adding new content: Domain 1's ML lifecycle diagram
 (Section 2), Domain 5's data-governance lifecycle diagram (Section 4), and
-Domain 5's shared-responsibility diagram (Section 5). In total: 27 Mermaid diagrams in the
-domain guides + 1 in the cross-domain support doc = 28 total Mermaid
-diagrams + 3 ASCII diagrams = **31 total diagrams**.
+Domain 5's shared-responsibility diagram (Section 5). In total: 29 Mermaid diagrams in the
+domain guides + 1 in the cross-domain support doc = 30 total Mermaid
+diagrams + 3 ASCII diagrams = **33 total diagrams**.
 
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,
 evaluation term coverage (D1), glossary size (≥15 entries), practice
-question count (15–20 per domain, **24 for Domain 1**, **26 for Domain 5**,
-**110 total**),
+question count (15–20 per domain, **24 for Domain 1**, **24 for Domain 2**,
+**26 for Domain 5**, **114 total**),
 answer explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
 sheet, its subsection mini quizzes (35 in total: 7 each for Domains 1 and
@@ -273,10 +274,10 @@ of duplicating material inside them:
   prose entries. Both answer "where is 'prompt injection' explained?"
   without knowing which domain defines it.
 
-**Total assessment:** 110 domain practice questions (across the five
+**Total assessment:** 114 domain practice questions (across the five
 domain guides) + 65 mock-exam questions + 22 scenario questions +
 35 embedded mini-quiz questions (across the five domain guides'
-subsections) = 232 total practice items across the repository.
+subsections) = 236 total practice items across the repository.
 
 ## Navigation
 

@@ -268,7 +268,52 @@ job → training job → model artifact → endpoint.
 **Exam tip:** Source citation is about *end-user trust in generated
 output* (RAG citing documents); data lineage is about *tracing a
 dataset/model's history for governance*. Don't conflate the two — the
-exam tests both as distinct concepts under "transparency."
+exam tests both as distinct concepts under "transparency." A third
+transparency mechanism — provenance watermarking for AI-generated
+images — is traced end to end in the [worked example
+below](#worked-example-tracing-provenance-through-a-titan-image-generator-watermarking-pipeline).
+
+#### Worked example: tracing provenance through a Titan Image Generator watermarking pipeline
+
+**Scenario:** Meridian Wire, a photo-syndication service, generates
+thousands of illustrative images per week with Amazon Titan Image
+Generator G1 v2 through Amazon Bedrock and distributes them to
+subscriber newsrooms. Regulators and publishing partners are asking
+Meridian to prove, on demand, that any image flagged as suspicious was
+(or was not) produced by its AI pipeline — a responsible-AI and
+content-provenance requirement, not just an image-quality one.
+
+1. **Generation.** Meridian's pipeline calls Bedrock's `InvokeModel`
+   API against Titan Image Generator G1 v2 with a text prompt. Every
+   image the model returns carries an invisible digital watermark
+   embedded automatically in the pixel data — a built-in, always-on
+   property of the model that Meridian cannot disable, and unrelated
+   to the *negative prompting* technique covered elsewhere in this
+   guide, where a prompt like "no text, no watermark" merely asks the
+   model to keep a visible logo or watermark graphic out of the
+   rendered scene.
+2. **Embedding.** The watermark survives ordinary downstream handling
+   — resizing, format conversion, moderate compression — so it stays
+   attached as the image moves through Meridian's CMS and out to
+   subscriber CDNs.
+3. **Downstream detection and verification.** When a reader disputes
+   whether a viral image is AI-generated, a newsroom fact-checker
+   submits it through Bedrock's watermark-detection capability, which
+   analyzes the pixel data and reports whether a Titan-embedded
+   watermark is present. A positive result gives Meridian defensible
+   evidence of AI provenance without relying on file metadata, which
+   can be stripped or forged.
+4. **Governance framing.** Meridian logs each detection check
+   alongside the original generation request in its audit trail,
+   treating the watermark as a transparency and accountability
+   control — evidence it can produce when disclosing AI-generated
+   content — rather than a security control.
+
+**Exam tip:** Don't confuse the two "watermark" concepts this guide
+covers: negative prompting *excludes* a visible watermark/logo from an
+image's rendered content (Domains 2–3), while Titan Image Generator's
+built-in invisible watermark *embeds* a provenance marker for later
+detection — the responsible-AI control tested here in Domain 5.
 
 ### Common security threats to AI systems and how to mitigate them
 AI/ML systems face threats beyond traditional application security, because

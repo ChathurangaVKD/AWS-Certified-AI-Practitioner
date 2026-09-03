@@ -359,8 +359,8 @@ class TestDocumentationStructureDomain3WorkedExampleCountAccuracy(unittest.TestC
 class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously described the five domain
     guides as marking "20+ worked-example sections in total", with no
-    per-domain breakdown. That vague figure undercounted reality (26
-    worked-example headings total: 2+4+10+6+4 across Domains 1-5) and gave
+    per-domain breakdown. That vague figure undercounted reality (27
+    worked-example headings total: 2+4+10+6+5 across Domains 1-5) and gave
     no way to check it against the domain guides directly. These tests
     derive the true per-domain and grand-total counts from every "##"/
     "###"/"####" level "Worked example[s]" heading in each domain guide and
@@ -368,7 +368,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 2, 2: 4, 3: 10, 4: 6, 5: 4}
+    EXPECTED_PER_DOMAIN = {1: 2, 2: 4, 3: 10, 4: 6, 5: 5}
 
     @classmethod
     def setUpClass(cls):
@@ -393,19 +393,19 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
                     f"'####' level), found {actual}",
                 )
 
-    def test_grand_total_worked_example_count_is_26(self):
+    def test_grand_total_worked_example_count_is_27(self):
         actual_total = sum(
             self._worked_example_heading_count(path.read_text(encoding="utf-8"))
             for path in DOMAIN_FILES.values()
         )
         self.assertEqual(
             actual_total,
-            26,
-            "sanity check: expected 26 total 'Worked example' headings "
+            27,
+            "sanity check: expected 27 total 'Worked example' headings "
             "across the five domain guides",
         )
 
-    def test_structure_doc_states_26_worked_examples_with_per_domain_breakdown(self):
+    def test_structure_doc_states_27_worked_examples_with_per_domain_breakdown(self):
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(
@@ -416,9 +416,9 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
         )
         window = self.structure_text[max(0, idx - 50) : idx + 300]
         self.assertIn(
-            "26",
+            "27",
             window,
-            "DOCUMENTATION_STRUCTURE.md does not state the 26-worked-example "
+            "DOCUMENTATION_STRUCTURE.md does not state the 27-worked-example "
             "grand total",
         )
         for domain_number, count in self.EXPECTED_PER_DOMAIN.items():
@@ -436,7 +436,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
             "20+",
             self.structure_text,
             "DOCUMENTATION_STRUCTURE.md still uses vague '20+' "
-            "worked-example language instead of the exact 26-count "
+            "worked-example language instead of the exact 27-count "
             "breakdown",
         )
 

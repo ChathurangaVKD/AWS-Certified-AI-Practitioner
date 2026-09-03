@@ -1126,5 +1126,115 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         self.assertNotIn("188 total questions", self.structure_text)
 
 
+class TestDocumentationStructureDomain2Domain4Domain5LineCounts(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously stated stale per-domain line
+    counts for Domain 2 (1,986), Domain 4 (1,879), and Domain 5 (2,162)
+    that no longer matched the actual, larger current line counts of those
+    guides (1,993 / 1,905 / 2,305 respectively) after later commits added
+    content to them. These tests pin the stated Domain 2/4/5 line counts to
+    the files' actual current line counts so the two can't silently drift
+    apart again."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def test_domain_2_domain_4_domain_5_line_counts_are_current(self):
+        for domain_number in (2, 4, 5):
+            actual = _line_count(DOMAIN_FILES[domain_number])
+            formatted = f"{actual:,}"
+            with self.subTest(domain=domain_number):
+                self.assertIn(
+                    f"Domain {domain_number}: {formatted} lines",
+                    self.structure_text,
+                    f"DOCUMENTATION_STRUCTURE.md does not state the "
+                    f"current line count ({formatted}) for domain "
+                    f"{domain_number}'s guide",
+                )
+
+    def test_no_stale_domain_2_domain_4_domain_5_line_counts_linger(self):
+        stale_counts = {2: "1,986 lines", 4: "1,879 lines", 5: "2,162 lines"}
+        for domain_number, stale in stale_counts.items():
+            with self.subTest(domain=domain_number):
+                self.assertNotIn(
+                    f"Domain {domain_number}: {stale}",
+                    self.structure_text,
+                    f"DOCUMENTATION_STRUCTURE.md still states the stale "
+                    f"Domain {domain_number} line count ({stale})",
+                )
+
+
+class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's "**Diagrams:**" paragraph, which states
+    the total number of Mermaid flowchart diagrams across the domain guides
+    and the two cross-domain documents that also carry one (
+    cross-domain-concept-map.md's "Visual overview" section and
+    aws-service-decision-guide.md's Section 4.1 and Section 6 decision
+    flows), had gone missing from the file entirely and, before that, had
+    stated a stale total (37) that undercounted the actual, larger current
+    total (39) once Domain 2 gained an additional diagram. These tests
+    derive the true per-file and grand-total Mermaid diagram counts
+    directly from the source files and assert DOCUMENTATION_STRUCTURE.md's
+    "**Diagrams:**" paragraph states them, guarding against the paragraph
+    drifting stale -- or disappearing -- again."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    @staticmethod
+    def _mermaid_count(path):
+        return len(re.findall(r"```mermaid", path.read_text(encoding="utf-8")))
+
+    def test_domain_guide_mermaid_total_is_36(self):
+        actual_total = sum(
+            self._mermaid_count(path) for path in DOMAIN_FILES.values()
+        )
+        self.assertEqual(
+            actual_total,
+            36,
+            "sanity check: expected 36 total Mermaid diagrams across the "
+            "five domain guides",
+        )
+
+    def test_concept_map_and_decision_guide_mermaid_counts(self):
+        concept_map_path = DOCS_DIR / "cross-domain-concept-map.md"
+        decision_guide_path = DOCS_DIR / "aws-service-decision-guide.md"
+        self.assertEqual(self._mermaid_count(concept_map_path), 1)
+        self.assertEqual(self._mermaid_count(decision_guide_path), 2)
+
+    def test_structure_doc_has_diagrams_paragraph_stating_grand_total_of_39(self):
+        domain_total = sum(
+            self._mermaid_count(path) for path in DOMAIN_FILES.values()
+        )
+        concept_map_total = self._mermaid_count(
+            DOCS_DIR / "cross-domain-concept-map.md"
+        )
+        decision_guide_total = self._mermaid_count(
+            DOCS_DIR / "aws-service-decision-guide.md"
+        )
+        grand_total = domain_total + concept_map_total + decision_guide_total
+        self.assertEqual(grand_total, 39)
+
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        self.assertNotEqual(
+            diagrams_idx,
+            -1,
+            "expected a '**Diagrams:**' paragraph in "
+            "DOCUMENTATION_STRUCTURE.md",
+        )
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
+        self.assertIn(f"{domain_total} Mermaid flowchart diagrams", diagrams_section)
+        self.assertIn("cross-domain-concept-map.md", diagrams_section)
+        self.assertIn("aws-service-decision-guide.md", diagrams_section)
+        self.assertIn(f"{grand_total} Mermaid", diagrams_section)
+
+    def test_structure_doc_does_not_state_stale_37_diagram_total(self):
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        self.assertNotEqual(diagrams_idx, -1)
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
+        self.assertNotIn("37 Mermaid", diagrams_section)
+
+
 if __name__ == "__main__":
     unittest.main()

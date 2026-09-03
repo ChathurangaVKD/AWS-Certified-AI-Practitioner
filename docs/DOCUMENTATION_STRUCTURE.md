@@ -182,10 +182,9 @@ use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has eleven (including the FM-customization
-decision tree, Section 4, the vector store decision tree, Section 3, the
-D1-to-D3 inference-type decision tree, Section 8, the RAG
-retrieval-failure decision tree, and the reranking/hybrid-search decision
-tree, Section 6);
+tree, Section 4, the vector store and reranking/hybrid-search trees,
+Section 6, the D1-to-D3 inference-type tree, Section 8, and the RAG
+retrieval-failure tree);
 Domain 4 has four (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has five (covering the
 KMS key lifecycle and encryption architecture, Section 1, a compliance

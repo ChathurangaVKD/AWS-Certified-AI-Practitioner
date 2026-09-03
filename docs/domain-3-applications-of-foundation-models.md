@@ -17,6 +17,7 @@
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
+  - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
@@ -1349,6 +1350,55 @@ well-known benchmarks recur across FM leaderboards and documentation:
 > memorize benchmark internals — just match the described task type to the
 > benchmark name so you can recognize what a question is implying.
 
+**Beyond named benchmarks: additional automated metrics.** Named benchmarks
+like MMLU and GSM8K score a specific task against a fixed answer key, but
+they don't cover every property an FM application needs evaluated. Three
+metrics fill gaps that recur on the exam and in real evaluation pipelines:
+safety, similarity-to-reference, and raw language-model fluency.
+
+| Metric | What it measures | How to interpret it |
+| --- | --- | --- |
+| **Toxicity scoring** | Whether generated output contains harmful, hateful, or unsafe language | A classifier scores each output on a 0–1 scale; **lower is better** (closer to 0 = safer). **Amazon Bedrock automatic model evaluation** includes a built-in toxicity metric, so this can run in the same automated job as accuracy/robustness checks, without a human reading every output. |
+| **Semantic similarity (BERTScore)** | How close a generated output is *in meaning* to a reference answer, even when the wording differs | Encodes the candidate and reference into contextual embeddings and compares them; **higher is better** (closer to 1 = closer meaning). Unlike BLEU/ROUGE, which reward exact n-gram/word overlap, BERTScore recognizes a correctly paraphrased answer as a good match — useful whenever there's more than one acceptable way to phrase a correct response (e.g., summarization, open-ended Q&A). |
+| **Perplexity** | How well a language model predicts held-out text — a fluency/confidence measure, not a correctness measure | Computed from the probability the model assigns to the actual next tokens in a sample of text; **lower is better** (lower perplexity means the model was less "surprised" by the real text, i.e., a better statistical fit to that language distribution). A model can have low perplexity (fluent, confident) while still being factually wrong, so perplexity is best used to compare candidate models' general language fit — not to judge whether an application's answers are correct. |
+
+> **Exam tip:** Match the metric to what's actually being screened for: *is
+> this output safe to show a user* → **toxicity scoring**; *does this
+> output mean the same thing as a reference answer, allowing for different
+> wording* → **BERTScore** (semantic similarity); *how fluent/confident is
+> the model's language modeling, independent of task correctness* →
+> **perplexity**. Also note the direction of "better" differs by metric:
+> toxicity and perplexity are **lower-is-better**, while MMLU/ARC/HumanEval/
+> GSM8K accuracy and BERTScore are **higher-is-better** — a question asking
+> you to pick the model with the "best" score needs you to know which
+> direction counts as good for that particular metric.
+
+**Interpreting benchmark and metric scores.** A raw number like "MMLU:
+68%" or "perplexity: 12.4" is close to meaningless in isolation — the exam
+expects you to reason about scores comparatively, not as pass/fail
+thresholds:
+
+- **Compare, don't isolate.** A score is only informative next to a
+  baseline: the previous production model, a competing candidate, or a
+  published leaderboard number for the same benchmark, evaluated under the
+  same conditions (same prompt template, same number of few-shot examples).
+  "Model A scores 68% on MMLU" tells you little on its own; "Model A scores
+  5 points higher than Model B on the same MMLU run" tells you it's
+  comparatively stronger at broad knowledge and reasoning.
+- **Know which direction is "better"** for the metric in play (see the exam
+  tip above) before concluding a higher or lower number is the win.
+- **Match the metric family to the property under test:** accuracy-style
+  benchmarks (MMLU/ARC/HumanEval/GSM8K) for task correctness and reasoning;
+  similarity metrics (BLEU/ROUGE/BERTScore) for how closely generated text
+  matches a reference; toxicity scoring for safety; perplexity for general
+  language-modeling fluency.
+- **No single metric tells the whole story.** A model can top one axis and
+  fail another — fluent (low perplexity) but toxic, or strong on MMLU but
+  weak at matching your domain's expected phrasing (low BERTScore against
+  your own reference answers). Combine at least one correctness/reasoning
+  metric, one similarity/quality metric, and the toxicity metric before
+  treating a candidate as ready to ship.
+
 **Decision tree: which evaluation approach should I use?** Work an exam
 scenario by following the branch that matches what the question tells you
 about the goal and the constraints (cost, latency, interpretability) in
@@ -1418,6 +1468,19 @@ explanation.
    **Answer: B** — Human evaluation uses people to score outputs on
    subjective criteria like tone and creativity that automatic metrics
    can't capture.
+
+4. A team wants to check whether a generated answer means the same thing
+   as a reference answer, even when the exact wording differs. Which
+   metric is best suited to this, compared with BLEU/ROUGE?
+   A. Perplexity
+   B. Toxicity scoring
+   C. BERTScore
+   D. GSM8K
+
+   **Answer: C** — BERTScore compares contextual embeddings of the
+   candidate and reference text, so it recognizes correct paraphrases as a
+   good match; BLEU/ROUGE instead reward exact n-gram overlap and would
+   penalize valid rewordings.
 
 ### Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?
 
@@ -1514,6 +1577,62 @@ declaring the candidate model ready to replace the baseline in production.
 > point estimate looks; (3) **human evaluation needs multiple raters plus
 > a measured agreement score** (Cohen's kappa / Krippendorff's alpha) — a
 > single rater's opinion is not a reliable evaluation result.
+
+### Worked example: picking evaluation metrics for a scenario
+
+Naming the right benchmarks and metrics is only useful if you can map a
+concrete scenario's requirements onto them. Work through one scenario
+end-to-end.
+
+**Scenario:** A team is building a Bedrock-based customer-support
+assistant that must (1) give factually correct answers to policy questions
+pulled from a knowledge base, (2) respond in the company's approved tone
+even when its wording differs from any single reference answer, (3) never
+return toxic or offensive language to a customer, and (4) sound fluent and
+natural. Which evaluation metric fits each requirement?
+
+| Requirement | Property being tested | Best-fit metric | Why |
+| --- | --- | --- | --- |
+| Factually correct policy answers | Task correctness against a labeled answer set | Accuracy against a held-out labeled QA set (benchmark-style automatic evaluation) | Closed-domain question answering has a defined right answer, so an objective accuracy metric is cheap to compute and directly measures the property that matters. |
+| Same meaning as a reference answer, different wording allowed | Semantic similarity, not exact wording | BERTScore | BLEU/ROUGE would penalize a correctly paraphrased answer for not matching the reference's exact words; BERTScore's contextual-embedding comparison rewards it for matching the *meaning* instead. |
+| Never toxic or offensive to a customer | Safety | Toxicity scoring | This is a screening gate, not a quality score — every output should be checked, and anything above a toxicity threshold blocked or routed to a human, regardless of how well it scores on other metrics. |
+| Fluent, natural-sounding language | Raw language-modeling fluency, independent of task correctness | Perplexity, computed on a sample of company-domain text, during model *selection* | Comparing candidate models' perplexity on text written in the company's own style shows which model's language distribution fits before spending time on deeper task-specific evaluation; unlike toxicity scoring, it isn't run per customer-facing output in production. |
+
+**Step-by-step reasoning:**
+
+1. Start from what each requirement is actually testing — correctness,
+   similarity, safety, or fluency — since that determines the metric
+   family, not the other way around.
+2. For the correctness requirement, because there's a labeled answer set,
+   reach for an accuracy-style automatic evaluation rather than a
+   similarity or human-judgment metric — it's the cheapest option that
+   directly measures what's needed.
+3. For the tone requirement, recognize that exact-wording metrics
+   (BLEU/ROUGE) would produce false negatives on valid paraphrases, so
+   BERTScore is the better fit.
+4. For the safety requirement, treat toxicity scoring as a gate applied to
+   every production output, not a one-time model-selection metric.
+5. For the fluency requirement, use perplexity as an upfront
+   model-selection filter comparing candidates before deeper evaluation,
+   not as an ongoing production check — the other three metrics already
+   cover the task-specific properties.
+
+**AWS example:** The team runs an **Amazon Bedrock automatic model
+evaluation** job comparing three candidate models: it scores task accuracy
+against the labeled policy-QA set, computes BERTScore against a set of
+approved reference responses to check tonal/semantic match, and applies the
+built-in toxicity metric to every generated output. Before finalizing the
+shortlist, they also compare each candidate's perplexity on a sample of the
+company's internal policy documents to confirm its language style is a good
+fit. The top candidate from that combined evaluation then goes through a
+**Bedrock human evaluation** job where support agents give a final
+subjective check on tone.
+
+> **Exam tip:** When a scenario lists multiple requirements (correctness,
+> tone/style, safety, fluency), expect the answer to combine metrics rather
+> than pick just one — the exam tests whether you can match each
+> requirement to the metric that actually measures it, not whether you can
+> name a single "best" metric for an entire scenario.
 
 ---
 

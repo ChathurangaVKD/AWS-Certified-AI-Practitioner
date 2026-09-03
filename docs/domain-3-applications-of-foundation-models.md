@@ -823,6 +823,203 @@ themselves live only in S3.
   price for zero infrastructure to build or run — is the better fit for
   this scenario.
 
+#### Worked example: building a product-knowledge assistant using Kendra's GenAI Index as a Bedrock Knowledge Base data source
+
+The vector store worked example above chose between three options that all
+start from a **blank slate** — no existing index, no existing connectors.
+[`aws-service-decision-guide.md`'s Kendra + Bedrock branch expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra-bedrock-vs-bedrock-knowledge-bases-alone)
+covers a different, equally-tested situation: a scenario where **an Amazon
+Kendra deployment (or a Kendra GenAI Index specifically) already exists**,
+and the question is whether to reuse it as the retrieval layer for a new
+generative assistant or to stand up a second, parallel vector store next to
+it. This worked example makes that choice concrete end to end — setup,
+cost, and latency — for a specific scenario, rather than stopping at the
+decision-tree answer.
+
+**What a Kendra GenAI Index is, precisely:** it's an **index type** you
+choose when creating a Kendra index (alongside the older Enterprise/
+Developer Edition indexes), purpose-built to serve as a **retriever for
+generative AI applications**. It keeps everything classic Kendra already
+does well — native connectors (Amazon S3, Confluence, Salesforce,
+SharePoint, and dozens more), incremental sync, and per-document
+**access control list (ACL)** enforcement carried over from the source
+system — but it's the index type that **Amazon Bedrock Knowledge Bases**
+and **Amazon Q Business** can plug into directly as a data source, instead
+of only serving Kendra's own search API. That distinction matters for the
+exam: "Amazon Kendra" alone in a scenario usually means classic enterprise
+search, but "**Kendra GenAI Index**" or "an existing Kendra index used to
+ground a chatbot" signals this retriever role.
+
+**Scenario:** A B2B software vendor already runs a **Kendra GenAI Index**
+that powers an internal natural-language search portal for its support and
+sales teams. That index has connectors syncing four repositories: product
+specification PDFs in **Amazon S3**, architecture docs in **Confluence**,
+customer-facing knowledge articles in **Salesforce**, and release notes in
+**SharePoint** — roughly 40,000 documents in total, growing steadily as new
+product versions ship. The search portal works, but users still have to
+read through ranked result links themselves. Product management now wants
+a **product-knowledge assistant**: the same four repositories, but with a
+conversational interface that returns a synthesized, cited answer instead
+of a results list, at a forecast **~5,000 queries/day**, with a target
+end-to-end latency under **2 seconds** and a small platform team that does
+not want to own a second content pipeline.
+
+**Why not start from Aurora + pgvector or OpenSearch Serverless:**
+
+- **Aurora + pgvector** would require standing up an embeddings pipeline
+  and a chunking strategy for content that isn't relational and doesn't
+  live in Aurora today — Confluence pages, Salesforce articles, and
+  SharePoint files would all need custom extraction code before a single
+  row could be written. None of that reuses the Kendra connectors that
+  already sync and re-sync this exact content.
+- **OpenSearch Serverless** (Bedrock Knowledge Bases' default vector
+  store) can ingest some of these same sources today via Bedrock's own
+  native data source connectors (S3, Confluence, Salesforce, SharePoint,
+  web crawler), which makes it a closer call than Aurora — but choosing it
+  here means **ingesting and indexing the same 40,000 documents a second
+  time**, in a second system, with its own embedding model choice, its own
+  sync schedule, and its own ACL-filtering logic to reimplement, just to
+  answer questions the existing Kendra index can already retrieve for.
+  Running two independently-synced indexes over the same source content is
+  also a drift risk: the Kendra portal and the new assistant could
+  disagree about what's current if one connector sync lags the other.
+
+Both alternatives duplicate a retrieval layer that already exists and
+works — exactly the pattern [the decision guide's exam tip](aws-service-decision-guide.md#branch-expansion-amazon-kendra-bedrock-vs-bedrock-knowledge-bases-alone)
+calls out: when a scenario mentions an existing Kendra deployment (or a
+Kendra GenAI Index) alongside a request for FM-grounded chat, the answer is
+to point Bedrock Knowledge Bases at that index, not provision a second
+vector store next to it.
+
+**Setup walkthrough — pointing a Bedrock Knowledge Base at the existing Kendra GenAI Index:**
+
+1. **Confirm the index type.** The existing Kendra index must be a
+   **GenAI Index** (not a classic Enterprise/Developer Edition index) for
+   Bedrock Knowledge Bases to use it directly as a retriever. If the team's
+   index predates the GenAI Index type, it needs to be created/migrated to
+   one first — the connectors themselves (S3, Confluence, Salesforce,
+   SharePoint) carry over, they just resync into the new index.
+2. **Leave the connectors alone.** No changes are needed to the four
+   existing data source connectors — this is the entire point of reusing
+   the index. Sync schedules, ACL mappings, and field mappings already
+   configured for the search portal keep working unchanged for the new
+   assistant.
+3. **Create the Bedrock Knowledge Base against the Kendra GenAI Index.**
+   Instead of the usual "choose a data source, choose an embedding model,
+   choose a vector store" quick-create flow, Knowledge Bases offers a
+   distinct creation path that takes the **Kendra GenAI Index itself** as
+   the retrieval source. There is no embedding model to pick and no
+   chunking strategy to configure — Kendra already returns ranked,
+   relevant passages, and Knowledge Bases treats those passages the same
+   way it would treat chunks retrieved from OpenSearch or Aurora.
+4. **Grant the Knowledge Base's execution role Kendra query permissions.**
+   The IAM role Bedrock uses for the Knowledge Base needs
+   `kendra:Retrieve` (and `kendra:Query` if the application also wants raw
+   search results) scoped to the specific GenAI Index ARN. No changes are
+   needed on the Kendra side beyond this cross-service grant.
+5. **Preserve per-user access control, if the portal relies on it.** If
+   the existing Kendra index filters results by the querying user's group
+   membership (common for Salesforce/SharePoint content with different
+   visibility per team), the application must pass the same user context
+   token through to Bedrock's retrieval call so Kendra continues enforcing
+   those ACLs — this behavior is inherited from Kendra, not something
+   Knowledge Bases adds on top.
+6. **Call `RetrieveAndGenerate` from the application.** At query time,
+   Bedrock sends the user's question to the Kendra GenAI Index, receives
+   back ranked, ACL-filtered passages with source attribution, inserts
+   them into the prompt, and invokes the chosen foundation model to
+   produce a cited answer — the same `RetrieveAndGenerate` contract
+   [Section 3](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
+   describes for any other Knowledge Base, regardless of which store sits
+   behind it.
+7. **Keep the search portal running unmodified.** Because the underlying
+   index didn't change, the original natural-language search portal keeps
+   working exactly as before — the team now has two front ends (search
+   portal, generative assistant) sharing one retrieval layer, rather than
+   two front ends each backed by their own index.
+
+**Cost trade-offs — reusing the index vs. duplicating it:**
+
+| Cost driver | Reuse Kendra GenAI Index (this scenario) | Add OpenSearch Serverless as a second store | Add Aurora + pgvector as a second store |
+|---|---|---|---|
+| **Incremental indexing/storage cost** | ~$0 marginal — the 40,000 documents are already indexed for the search portal; the assistant adds query load, not a second copy of the data. | New OCU-based indexing and storage charges for a second copy of the same ~40,000 documents, sized independently of the existing Kendra capacity. | New Aurora storage plus the `pgvector` index for a second copy of the same content, on top of whatever Aurora already costs the team. |
+| **Ingestion/connector cost** | $0 — existing Confluence/Salesforce/SharePoint/S3 connectors and sync schedules are unchanged. | Bedrock's native data source connectors resync the same four repositories a second time on their own schedule. | Custom extraction jobs would need to be written and operated for Confluence/Salesforce/SharePoint, since Aurora has no built-in connectors for them. |
+| **Embedding cost** | $0 — Kendra manages relevance internally; there's no separate embedding model invocation to pay for per document or per query. | Embedding cost for every document at ingestion (via a Bedrock embeddings model) plus every query at retrieval time. | Same embedding cost profile as OpenSearch — every document and every query passes through an embeddings model. |
+| **New query-time cost** | Kendra's existing per-query pricing, now invoked ~5,000 times/day by the assistant in addition to the portal's own query volume — an incremental increase on infrastructure already sized for enterprise search. | New OpenSearch Serverless OCU charges scale with the assistant's query volume, on top of the *existing*, still-running Kendra charges for the portal — the team ends up paying for both. | New Aurora compute/IO for vector queries, again on top of the still-running Kendra charges for the portal. |
+| **Operational cost** | Lowest — one index, one set of connectors, one sync schedule, one place ACLs are defined. | Two indexes to keep in sync, two places document freshness can drift, a new vector store to size and monitor. | Same duplication risk as OpenSearch, plus custom connector code to build and maintain long-term. |
+
+These figures are **illustrative, not a live quote** — as with the
+[monthly inference cost worked example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers),
+always check current Bedrock and Kendra pricing pages before sizing a real
+deployment. The qualitative shape holds regardless of the exact numbers,
+though: reusing an existing GenAI Index adds only *incremental* query cost
+on top of infrastructure the company is already paying for, while either
+alternative adds the *full* cost of a second ingestion pipeline and a
+second index over the same content — the underlying documents don't get
+cheaper to store or embed just because a different service is doing it.
+
+**Latency trade-offs:**
+
+- **Retrieval hop:** Querying the existing Kendra GenAI Index through
+  Bedrock Knowledge Bases adds no additional retrieval hop compared to
+  querying OpenSearch or Aurora as a Knowledge Base's vector store —
+  Knowledge Bases calls out to whichever retriever is configured (Kendra,
+  OpenSearch, or Aurora) as a single step in the `RetrieveAndGenerate`
+  pipeline either way. Reusing the index doesn't add latency the
+  alternatives avoid.
+- **Freshness latency:** Because the assistant reads from the *same* index
+  the search portal already keeps in sync, there's exactly one sync
+  schedule to reason about. Standing up a second store introduces a second,
+  independent sync cadence — if the two indexes drift out of sync with
+  each other (e.g., a SharePoint release note updates in Kendra before the
+  new OpenSearch copy resyncs), the portal and the assistant can disagree
+  about the current answer even though both are individually "correct" by
+  their own index's timestamp.
+- **End-to-end target:** At ~5,000 queries/day, both a shared Kendra
+  GenAI Index and a dedicated OpenSearch Serverless collection can return
+  retrieval results well within the assistant's 2-second end-to-end
+  budget — retrieval is typically a small fraction of total latency
+  compared to the foundation model's generation step. Latency alone
+  doesn't force a choice here; it's cost, duplication risk, and
+  operational overhead that decide it.
+
+**Choice: reuse the existing Kendra GenAI Index as the Bedrock Knowledge
+Base's data source.** No new vector store, no new connectors, no new
+embedding model to choose — the assistant is additive on top of
+infrastructure the company already operates and pays for.
+
+**When the alternatives would win instead:**
+
+- **No Kendra deployment exists yet**, and the content genuinely needs
+  large-scale hybrid keyword-plus-vector search at high query volume — that's
+  the [vector store worked example](#worked-example-selecting-a-vector-store-for-a-compliance-document-qa-assistant)'s
+  OpenSearch scenario, not this one. Standing up a *first* index in
+  OpenSearch isn't "duplicating" anything.
+- **The content already lives in Aurora** for another feature (e.g., the
+  product catalog itself, not just its documentation, is relational data
+  the team already queries with SQL) — reusing `pgvector` on data that's
+  already there avoids paying for a Kendra index at all.
+- **The scenario needs fine-grained control over the embedding model** —
+  picking a specific model, re-embedding after a model upgrade, or tuning
+  a reranker — none of which Kendra exposes, since it manages relevance
+  internally. A team that has that requirement and the ML expertise to act
+  on it may prefer OpenSearch or Aurora even with an existing Kendra index
+  in play.
+
+> **Exam tip:** Watch for scenarios that name a Kendra GenAI Index (or say
+> a Kendra deployment "already exists") *and* ask for the most
+> cost-effective or lowest-operational-overhead way to add a generative,
+> cited-answer experience. The exam-favored answer is almost always
+> **"point Bedrock Knowledge Bases at the existing Kendra GenAI Index"** —
+> reusing a retrieval layer that's already indexed, synced, and
+> ACL-aware — rather than "add OpenSearch Serverless" or "add Aurora with
+> pgvector," both of which are distractors that reindex the same content a
+> second time. If instead the scenario describes a **greenfield** project
+> with no existing search infrastructure, fall back to the
+> [vector store decision tree](#vector-store-decision-guide-opensearch-vs-aurora-pgvector-vs-amazon-kendra)
+> above — that's the flow for choosing a *first* retrieval layer, not for
+> deciding whether to reuse one.
+
 ---
 
 ## 4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering

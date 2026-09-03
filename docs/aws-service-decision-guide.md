@@ -127,6 +127,12 @@ also part of the picture?
 > "natural-language search across our documents" — adding Bedrock at all
 > is the distractor; **Kendra alone** already answers it.
 
+For a full worked example of this branch — setup steps, and a cost/latency
+comparison against standing up Aurora + pgvector or OpenSearch Serverless
+as a second, duplicate vector store — see [domain-3's "Building a
+product-knowledge assistant using Kendra's GenAI Index as a Bedrock
+Knowledge Base data source"](domain-3-applications-of-foundation-models.md#worked-example-building-a-product-knowledge-assistant-using-kendras-genai-index-as-a-bedrock-knowledge-base-data-source).
+
 ### Branch expansion: layering Amazon Q Business on an existing Bedrock deployment
 
 This expands the "YES → ready-made application" branch above for the case

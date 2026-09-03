@@ -46,12 +46,12 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,760–3,956 lines each, **12,417 lines total**:
+domain, currently 1,792–4,670 lines each, **13,169 lines total**:
 
-- Domain 1: 1,760 lines
+- Domain 1: 1,792 lines
 - Domain 2: 2,169 lines
-- Domain 3: 3,956 lines
-- Domain 4: 2,112 lines
+- Domain 3: 4,670 lines
+- Domain 4: 2,118 lines
 - Domain 5: 2,420 lines
 
 All five follow the same template:
@@ -74,9 +74,9 @@ All five follow the same template:
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **24 for Domain 1**,
-  **24 for Domain 2**, **26 for Domain 3**, and **32 for Domain 5**
+  **24 for Domain 2**, **28 for Domain 3**, and **32 for Domain 5**
   (Domain 4 has 20), including exactly 2 multiple-response ["select TWO"]
-  questions, for **126 domain practice questions in total** across
+  questions, for **128 domain practice questions in total** across
   the five domain guides) and a full `## Answer key` with justifications
   ruling out each wrong answer.
 
@@ -87,19 +87,27 @@ support assistant (D2), a RAG-based policy-lookup assistant (D3), auditing
 and documenting a responsible e-commerce recommendation engine (D4), and a
 HIPAA-regulated Bedrock application (D5).
 
-Domain 3 carries more worked examples than any other domain, so its count
-needs its own methodology note: it has seven standalone "## Worked
+Domain 3 carries far more worked examples than any other domain, so its
+count needs its own methodology note: it has eight standalone "## Worked
 example" sections in total (implementing RAG for a policy-lookup
 assistant — the closing example referenced above — troubleshooting a
 failing RAG system, selecting a foundation model under multiple competing
 constraints, estimating a context-window token budget, estimating tokens
 for long-document summarization, comparing monthly inference costs across
-model tiers, and comparing fine-tuning against prompt engineering), plus
-one additional worked example that is a subsection nested inside Section 7
-rather than a standalone section ("### Worked example: is a 2-point
-BLEU/ROUGE improvement statistically significant?"). Counting standalone
-sections only, Domain 3 has seven worked examples; counting the nested
-Section-7 subsection too, it has eight.
+model tiers, comparing fine-tuning against prompt engineering, and a
+Bedrock Agent executing a multi-step task with tool calling), plus seven
+further worked examples that are subsections nested at the "###" or
+"####" level inside their enclosing numbered sections rather than
+standalone sections: two concrete model-pair comparisons; the same task
+worked four different ways; building a product-knowledge assistant using
+Kendra's GenAI Index as a Bedrock Knowledge Base data source; when
+QLoRA's quality loss becomes unacceptable; when to use Cohere Rerank in a
+RAG pipeline; whether a 2-point BLEU/ROUGE improvement is statistically
+significant ("### Worked example: is a 2-point BLEU/ROUGE improvement
+statistically significant?"); and picking evaluation metrics for a
+scenario. Counting standalone sections only, Domain 3 has eight worked
+examples; counting the seven nested subsections too, it has fifteen —
+more worked examples than any other domain guide.
 
 Domain 4 similarly grew beyond a single worked example: alongside the
 closing e-commerce recommendation-engine audit, it now has a second
@@ -241,21 +249,35 @@ drift-triggered emergency retrain bound to a 24-hour compliance SLA
 
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 1's training-cost-
-estimation subsection; Domain 3's BLEU/ROUGE-significance and
-model-pair-comparison subsections, and its four-techniques-on-one-task
-walkthrough; Domain 4's confidence-threshold/Amazon A2I and Clarify/Guardrails-layering
+estimation subsection; Domain 3's model-pair-comparison and
+four-techniques-on-one-task subsections, its Kendra-GenAI-Index-as-a-
+Bedrock-Knowledge-Base-data-source and QLoRA-quality-loss-threshold
+subsections, its Cohere-Rerank-in-a-RAG-pipeline subsection, and its
+BLEU/ROUGE-significance and evaluation-metric-picking subsections;
+Domain 4's confidence-threshold/Amazon A2I and Clarify/Guardrails-layering
 subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **34
-worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 10 in
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **39
+worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 15 in
 Domain 3, 7 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
-**Diagrams:** The five domain guides contain 36 Mermaid flowchart diagrams
-in total: Domain 1 has seven, Domain 2 has five, Domain 3 has fourteen,
-Domain 4 has five, and Domain 5 has five. `cross-domain-concept-map.md`
+Every depth gap previously flagged against this documentation is now
+filled by one of those worked examples rather than left open: Amazon Q
+Business coverage (Domain 2's closing "Amazon Q Business vs. a custom
+Bedrock assistant" worked example), LoRA/QLoRA fine-tuning benchmarks
+(Domain 3's "when does QLoRA's quality loss become unacceptable?"
+subsection), Kendra-plus-Bedrock integration (Domain 3's
+Kendra-GenAI-Index-as-a-Bedrock-Knowledge-Base-data-source subsection),
+RAG troubleshooting (Domain 3's "troubleshooting a failing RAG system"
+worked example), and layering SageMaker Clarify with Bedrock Guardrails
+(Domain 4's Clarify/Guardrails-layering subsection).
+
+**Diagrams:** The five domain guides contain 39 Mermaid flowchart diagrams
+in total: Domain 1 has seven, Domain 2 has five, Domain 3 has sixteen,
+Domain 4 has six, and Domain 5 has five. `cross-domain-concept-map.md`
 adds two more Mermaid diagrams (the "Visual overview" section's
 cross-domain flowchart, and the "Inference deployment pattern comparison"
 section's decision-tree diagram comparing real-time, batch, serverless,
@@ -263,6 +285,6 @@ and provisioned-throughput inference), and
 `aws-service-decision-guide.md` adds two further Mermaid diagrams of its
 own (the Section 4.1 Bedrock model family selection decision flow, and
 the Section 6 cost-control decision flow for Amazon API Gateway in front
-of Bedrock/SageMaker endpoints), bringing the total to **40 Mermaid
-diagrams** (36 in the domain guides + 2 in cross-domain-concept-map.md +
+of Bedrock/SageMaker endpoints), bringing the total to **43 Mermaid
+diagrams** (39 in the domain guides + 2 in cross-domain-concept-map.md +
 2 in aws-service-decision-guide.md).

@@ -3513,6 +3513,36 @@ via Lambda).
     C. QLoRA
     D. Continued pre-training
 
+27. **[Intermediate]** A well-funded research team has ample GPU budget and
+    training time, and its top priority is squeezing out the absolute
+    highest possible task-specific accuracy from a fine-tuned model;
+    resource cost is a secondary concern. Which technique best fits this
+    priority?
+    A. Full fine-tuning
+    B. LoRA
+    C. QLoRA
+    D. Retrieval Augmented Generation (RAG)
+
+28. **[Advanced]** A team fine-tuning a mid-size foundation model has enough
+    GPU memory to comfortably fit the full model, but wants to cut
+    training time and storage cost while accepting only a modest, usually
+    acceptable quality trade-off. The scenario does not mention any GPU
+    memory constraint or model quantization. Which technique fits best?
+    A. Full fine-tuning
+    B. LoRA
+    C. QLoRA
+    D. Continued pre-training
+
+29. **[Intermediate]** A company wants its fine-tuned model to reliably
+    follow a wide variety of natural-language instructions across many
+    different tasks, not just one narrow labeled task, and has only a
+    single mid-range GPU available for training. Which combination of
+    techniques best satisfies both requirements?
+    A. Full fine-tuning, because it produces the highest quality
+    B. Continued pre-training on unlabeled instruction manuals
+    C. Instruction tuning performed with QLoRA, to fit the single GPU's memory
+    D. RAG with a knowledge base of instruction examples
+
 ---
 
 ## Answer key and explanations
@@ -3724,6 +3754,42 @@ via Lambda).
     (D) deepens general domain knowledge from unlabeled text and is a
     different customization approach entirely, not a resource-efficiency
     technique for fine-tuning.
+
+27. **A — Full fine-tuning.** Updating every weight gives the highest
+    possible task-specific quality ceiling, which is exactly what this
+    team is optimizing for, and their ample GPU budget removes the usual
+    reason to trade quality away. LoRA (B) and QLoRA (C) are
+    resource-efficient alternatives built for exactly the constraint this
+    team doesn't have, and both accept a quality trade-off versus full
+    fine-tuning to get that efficiency; RAG (D) is a different
+    customization approach that retrieves context at query time rather
+    than updating the model's weights at all, so it doesn't fit a
+    fine-tuning quality question.
+
+28. **B — LoRA.** With GPU memory not a constraint, LoRA's small low-rank
+    adapter matrices cut training time and storage versus full
+    fine-tuning while keeping the quality trade-off modest, without
+    needing the additional quantization step QLoRA adds. Full fine-tuning
+    (A) is the slow, high-storage-cost baseline this team is explicitly
+    trying to avoid; QLoRA (C) quantizes the frozen base model to shrink
+    GPU memory further, which solves a constraint that isn't present here
+    and only adds unnecessary quantization quality loss; continued
+    pre-training (D) is a different customization approach for deepening
+    general domain knowledge from unlabeled text, not a parameter-efficient
+    fine-tuning method.
+
+29. **C — Instruction tuning performed with QLoRA, to fit the single GPU's
+    memory.** Instruction tuning is the training *objective* — training on
+    (instruction, response) pairs so the model generalizes to follow varied
+    instructions rather than one narrow task — and QLoRA is the resource
+    strategy that lets that training fit on a single, memory-constrained
+    GPU by quantizing the frozen base model before training adapters on
+    top of it. Full fine-tuning (A) would exceed a single mid-range GPU's
+    memory budget; continued pre-training (B) deepens general domain
+    fluency from unlabeled text but doesn't teach instruction-following,
+    which requires labeled instruction/response pairs; RAG (D) retrieves
+    context at query time and doesn't change how the model itself was
+    trained to behave, so it can't teach general instruction-following.
 
 ---
 

@@ -16,25 +16,37 @@ The domain tags are:
 
 A service tagged `[D1, D3]` is discussed in both Domain 1 and Domain 3 — follow either link to reach that domain's coverage. A service with only one tag is still included: even single-domain coverage is worth a direct jump-link rather than a full re-read of the guide.
 
-> **Completeness note (last audited 2026-09-01):** this index is scoped to
+> **Completeness note (last audited 2026-09-02):** this index is scoped to
 > services **discussed in the five domain guides** (per its definition
 > above), not to every model name that appears in the [AWS Service
 > Decision Guide](aws-service-decision-guide.md)'s Bedrock model-catalog
 > reference table (its §4). That table intentionally also lists
 > current-generation Bedrock models that the domain guides mention only
 > in passing or not at all, for staleness-tracking purposes against the
-> live Bedrock catalog. A pass cross-checking every service/model named in
-> the decision guide against this index added the three services below
-> that *are* discussed in a domain guide but were missing here (**Amazon
-> Nova Sonic**, **Amazon Titan Text Embeddings**, **AWS Service Quotas**)
-> and confirmed the following decision-guide-§4-only model names are
-> correctly excluded, since no domain guide discusses them by name: AI21
-> Labs Jamba, Cohere Command R / Command R+ / Embed / Rerank, Mistral
-> Pixtral / Voxtral, Amazon Titan Multimodal Embeddings, Amazon Titan
-> Image Generator G1 v2, and Stability AI's Stable Image line (all covered
-> here only under their generic provider entries — **Cohere**, **Mistral
-> AI**, **Amazon Titan**, **Stability AI** — since that's the level of
-> detail the domain guides themselves discuss).
+> live Bedrock catalog. An earlier pass cross-checking every service/model
+> named in the decision guide against this index added three services that
+> *are* discussed in a domain guide but were missing here (**Amazon Nova
+> Sonic**, **Amazon Titan Text Embeddings**, **AWS Service Quotas**). This
+> pass re-ran that cross-check against the decision guide's §4 table after
+> its own 2026-09-02 re-verification (which renamed AI21's Jamba line to
+> **Jamba 2.0**, added **DeepSeek-R1** and **OpenAI gpt-oss** as new
+> third-party providers, and added Claude's **computer use** capability)
+> and found that **AI21 Labs** itself — the provider, named directly in
+> [Domain 3, Section
+> 1](domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications)
+> alongside Anthropic, Cohere, Meta, Mistral AI, and Stability AI — was
+> missing its own entry even though every one of those sibling providers
+> already had one; it has been added below. DeepSeek-R1, OpenAI gpt-oss,
+> and Claude's computer-use capability remain correctly excluded, since no
+> domain guide discusses any of them by name yet — consistent with the
+> following decision-guide-§4-only model/feature names that are also
+> correctly excluded for the same reason: AI21 Labs' **Jamba 2.0** line,
+> Cohere Command R / Command R+ / Embed / Rerank, Mistral Pixtral /
+> Voxtral, Amazon Titan Multimodal Embeddings, Amazon Titan Image
+> Generator G1 v2, and Stability AI's Stable Image line (all covered here
+> only under their generic provider entries — **AI21 Labs**, **Cohere**,
+> **Mistral AI**, **Amazon Titan**, **Stability AI** — since that's the
+> level of detail the domain guides themselves discuss).
 
 ## Jump to a letter
 
@@ -45,6 +57,7 @@ A service tagged `[D1, D3]` is discussed in both Domain 1 and Domain 3 — follo
 ## A
 
 - **AI Service Cards** `[D4]` — AWS-published documentation describing the intended use, limitations, and design considerations of a specific pre-built AWS AI service (e.g., Rekognition, Transcribe). [D4](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai)
+- **AI21 Labs** `[D3]` — a third-party foundation model provider available on Amazon Bedrock alongside Amazon, Anthropic, Cohere, Meta, Mistral AI, and Stability AI. [D3](domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications)
 - **Amazon API Gateway** `[D5]` — a managed API front door; usage plans on it (alongside Service Quotas) throttle per-client request rates to bound inference cost and mitigate model-denial-of-service attacks. [D5](domain-5-security-compliance-governance.md#common-security-threats-to-ai-systems-and-how-to-mitigate-them)
 - **Amazon Athena** `[D1]` — a serverless, interactive SQL query service used to run ad hoc queries directly against data in Amazon S3 during exploratory data analysis. [D1](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle)
 - **Amazon Augmented AI (Amazon A2I)** `[D4]` — a human-in-the-loop review workflow builder for low-confidence or high-stakes ML predictions. [D4](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai)

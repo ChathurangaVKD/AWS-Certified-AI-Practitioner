@@ -82,6 +82,7 @@ REQUIRED_THIRD_PARTY_FM_PROVIDERS = [
     "Cohere",
     "Mistral AI",
     "Stability AI",
+    "AI21 Labs",
 ]
 
 # The Amazon Nova model family variants mentioned in the AWS service

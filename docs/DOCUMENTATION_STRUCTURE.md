@@ -52,7 +52,7 @@ domain, currently 1,583–3,502 lines each:
 - Domain 2: 1,993 lines
 - Domain 3: 3,502 lines
 - Domain 4: 1,879 lines
-- Domain 5: 2,119 lines
+- Domain 5: 2,205 lines
 
 All five follow the same template:
 
@@ -164,14 +164,36 @@ customer-vs-AWS responsibility per stage, then contrasts a data-leak
 incident traced back to the customer-owned anonymization code in stage 1
 against AWS's own infrastructure responsibilities.
 
+Domain 5 also has a third nested "####"-level worked-example
+subsection, added between the cost-capping and shared-responsibility
+ones: "#### Worked example: sizing service quotas for a multi-team
+Bedrock workload," nested inside the cost-governance subsection right
+after the cost-capping worked example. It walks through inventorying
+per-team RPM/TPM demand, comparing it against the Service Quotas
+console limit, requesting a sized increase, and setting AWS Budgets
+alert thresholds as a proactive spend backstop, contrasting with the
+reactive threat-model examples above it.
+
+Domain 5 also has a fourth nested "####"-level worked-example
+subsection: "#### Worked example: tracing provenance through a Titan
+Image Generator watermarking pipeline," nested inside Section 1's
+"Source citation and data lineage" subsection right after its exam
+tip. It traces a photo-syndication company's Titan Image Generator G1
+v2 pipeline from generation through Titan's built-in invisible
+watermark embedding to a newsroom fact-checker's downstream detection
+of that watermark, distinguishing this provenance mechanism from the
+unrelated negative-prompting technique (covered in Domains 2–3) that
+excludes a visible watermark/logo from an image's rendered content.
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
-Amazon A2I subsection; Domain 5's cost-capping and SageMaker-to-Bedrock
-shared-responsibility subsections), the five domain guides mark **26
+Amazon A2I subsection; Domain 5's cost-capping, multi-team quota-sizing,
+SageMaker-to-Bedrock shared-responsibility, and Titan Image Generator
+watermarking-provenance subsections), the five domain guides mark **28
 worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
-Domain 3, 6 in Domain 4, and 4 in Domain 5, plus further example content
+Domain 3, 6 in Domain 4, and 6 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 **Diagrams:** The five domain guides contain 35 Mermaid flowchart diagrams

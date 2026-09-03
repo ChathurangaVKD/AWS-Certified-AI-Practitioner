@@ -14,6 +14,7 @@ covers:
 3. [Recommended reading order](#3-recommended-reading-order)
 4. [Common exam traps, consolidated](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts)
 5. [1-week / 2-week / 4-week study plans](#5-study-plans)
+6. [Topic-based review quick reference](#6-topic-based-review-quick-reference)
 
 This guide does not introduce new exam content — every fact and trap here is
 drawn from (and links back to) the five domain guides. Use it as the
@@ -459,3 +460,85 @@ per hour studied when time is the binding constraint:
 | 5 | [AWS service decision guide](aws-service-decision-guide.md) + [GLOSSARY.md](GLOSSARY.md) skim + [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) in full. |
 | 6 | Take the [full-length mock exam](full-length-mock-exam.md): 65 questions, 90 minutes, weighted and mixed across all five domains. Score it and identify your two weakest domains. Also work through the [cross-domain scenario questions](cross-domain-scenario-questions.md) for practice combining domains in one question. |
 | 7 | Re-review only your two weakest domains from Day 6, plus a final skim of [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts). Keep the day before the exam light — recognition review, not new material. |
+
+---
+
+## 6. Topic-based review quick reference
+
+The [full-length mock exam](full-length-mock-exam.md)'s
+[score-band remediation tables](full-length-mock-exam.md#score-band-remediation-by-domain)
+are *domain*-shaped: they take your weakest domain's score and point you at
+specific sections within that one domain's guide. That works well when an
+entire domain is weak, but not every review gap is domain-shaped — a missed
+mock-exam question or practice question often traces back to one narrow
+*topic* that cuts across several domains at once, not a whole domain. If
+you already know the specific concept you're shaky on (not just which
+domain it lives in), this section gets you there faster than re-reading a
+domain guide end to end.
+
+Each table below covers one high-leverage, cross-domain topic and links to
+where it's covered in every domain guide that addresses it, plus the
+matching entry in the [cross-domain concept map](cross-domain-concept-map.md),
+which explains *why* the topic connects across domains rather than just
+that it does.
+
+### Cost governance
+
+Bounding what an AI workload actually costs — per request and in total —
+comes up from Domain 1's build-vs-buy service choice through Domain 3 and
+Domain 5's dedicated cost-control mechanics.
+
+| Guide | Section |
+|---|---|
+| Domain 1 | [§5 AWS managed AI/ML services (conceptual overview)](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview) — choosing a purpose-built managed service over a custom SageMaker model is a build-vs-buy cost decision before it's anything else |
+| Domain 2 | [§7 Foundation model selection criteria](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria) — cost is one of the selection criteria weighed alongside latency and context window |
+| Domain 3 | [Cost governance: bounding per-request cost with max tokens and provisioned throughput](domain-3-applications-of-foundation-models.md#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput) |
+| Domain 4 | [§4 Legal and ethical considerations](domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) — the environmental-impact bullet covers the compute/resource cost of training and running foundation models |
+| Domain 5 | [Cost governance: bounding total spend with Service Quotas and API Gateway usage plans](domain-5-security-compliance-governance.md#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans) |
+| Cross-domain concept map | [Domain 2 → Domain 3: Applications of Foundation Models](cross-domain-concept-map.md#domain-2-domain-3-applications-of-foundation-models) — traces how Domain 2's cost/latency selection criteria become Domain 3's application-design decisions |
+
+### Bias and fairness
+
+The exam tests a specific distinction here: *statistical* bias (a model-fit
+property) versus *fairness* bias (a systematic, unfair skew toward or
+against a demographic group) — and where each kind of bias can enter a
+system.
+
+| Guide | Section |
+|---|---|
+| Domain 1 | [§7 Overfitting, underfitting, and the bias–variance trade-off](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off) — the *statistical* bias definition that fairness bias is commonly confused with |
+| Domain 2 | [§3 Advantages and disadvantages of generative AI](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) — hallucination, the generative-AI failure mode Domain 4 teaches you to distinguish from fairness-driven output skew |
+| Domain 3 | [§3 Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) — a RAG knowledge base's documents are a second source of bias on top of the base model's training data |
+| Domain 4 | [§2 Identifying bias and fairness issues in training data and model outputs](domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) (primary coverage) |
+| Domain 5 | [Common security threats to AI systems and how to mitigate them](domain-5-security-compliance-governance.md#common-security-threats-to-ai-systems-and-how-to-mitigate-them) — training-data poisoning as a deliberate attack that biases a model |
+| Cross-domain concept map | [Commonly confused concept pairs (quick reference)](cross-domain-concept-map.md#commonly-confused-concept-pairs-quick-reference) — the statistical-bias-vs-fairness-bias row |
+
+### RAG (Retrieval-Augmented Generation) concepts
+
+RAG spans a design decision (Domain 3), a responsible-AI risk (Domain 4),
+and a governance/traceability requirement (Domain 5) — all attached to the
+same retrieval corpus.
+
+| Guide | Section |
+|---|---|
+| Domain 1 | [§2 The ML development lifecycle](domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle) — the data collection/preparation discipline that curating a RAG retrieval corpus borrows from |
+| Domain 2 | [§1 Generative AI core concepts](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) — tokens and embeddings, the building blocks RAG retrieval operates on |
+| Domain 3 | [§3 Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) (primary coverage) and [§6 Vector databases and embeddings for search and retrieval](domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) |
+| Domain 4 | [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](domain-4-guidelines-for-responsible-ai.md#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant) |
+| Domain 5 | [Source citation and data lineage](domain-5-security-compliance-governance.md#source-citation-and-data-lineage) |
+| Cross-domain concept map | [Domain 3 → Domain 5: Security, Compliance, and Governance](cross-domain-concept-map.md#domain-3-domain-5-security-compliance-and-governance) — RAG's source citation reframed as a data-lineage and governance requirement, not just a UX nicety |
+
+### Model evaluation and performance measurement
+
+The same underlying question — "how good is this model, and how do you
+know?" — starts as classical model evaluation in Domain 1 and gets
+extended, not replaced, all the way through Domain 5's audit evidence.
+
+| Guide | Section |
+|---|---|
+| Domain 1 | [§6 Model evaluation basics](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) (primary coverage — accuracy, precision, recall, F1, AUC-ROC) |
+| Domain 2 | [§7 Foundation model selection criteria](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria) — comparing models against each other on cost, latency, and context window is an evaluative judgment that precedes evaluating a deployed model's output |
+| Domain 3 | [§7 Evaluating foundation model performance](domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) (primary coverage) |
+| Domain 4 | [§5 Balancing model performance and interpretability](domain-4-guidelines-for-responsible-ai.md#5-balancing-model-performance-and-interpretability) — weighing performance against interpretability assumes you can already measure the performance side |
+| Domain 5 | [§3 AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) — Audit Manager collects evaluation evidence for compliance reporting |
+| Cross-domain concept map | [Domain 1 → Domain 3: Applications of Foundation Models](cross-domain-concept-map.md#domain-1-domain-3-applications-of-foundation-models) — the row tracing Domain 1's classification metrics into Domain 3's FM evaluation framework |

@@ -52,7 +52,7 @@ domain, currently 1,583–3,502 lines each:
 - Domain 2: 1,993 lines
 - Domain 3: 3,502 lines
 - Domain 4: 1,879 lines
-- Domain 5: 2,226 lines
+- Domain 5: 2,241 lines
 
 All five follow the same template:
 
@@ -185,15 +185,28 @@ of that watermark, distinguishing this provenance mechanism from the
 unrelated negative-prompting technique (covered in Domains 2–3) that
 excludes a visible watermark/logo from an image's rendered content.
 
+Domain 5 also has a fifth nested "####"-level worked-example
+subsection: "#### Worked example: applying differential privacy to a
+healthcare model-training pipeline," nested inside the "Common security
+threats to AI systems and how to mitigate them" subsection right after
+its exam tip and before that subsection's mini-quiz. It walks Meridian
+Health Alliance, a hospital consortium, through applying DP-SGD-style
+noise injection during SageMaker training to bound how much any single
+patient's record can influence a readmission-risk model, weighing the
+resulting privacy-budget/accuracy trade-off, and distinguishing that
+training-time protection from the KMS-based encryption-at-rest control
+covered earlier in the file.
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
 Amazon A2I subsection; Domain 5's cost-capping, multi-team quota-sizing,
-SageMaker-to-Bedrock shared-responsibility, and Titan Image Generator
-watermarking-provenance subsections), the five domain guides mark **28
+SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
+watermarking-provenance, and differential-privacy healthcare-training
+subsections), the five domain guides mark **29
 worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
-Domain 3, 6 in Domain 4, and 6 in Domain 5, plus further example content
+Domain 3, 6 in Domain 4, and 7 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 **Diagrams:** The five domain guides contain 35 Mermaid flowchart diagrams

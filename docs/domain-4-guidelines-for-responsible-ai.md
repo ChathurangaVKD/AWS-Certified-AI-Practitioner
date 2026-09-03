@@ -948,6 +948,12 @@ flowchart TD
    controls rather than documentation; D is false since they serve
    distinct, non-interchangeable purposes.
 
+> **See also:** This section frames Guardrails for Amazon Bedrock as a
+> responsible-AI tool. For the implementation detail of Guardrails as a
+> runtime feature — denied topics, content filters, PII filters, and
+> contextual grounding checks — see [Domain 3 §5, Amazon Bedrock
+> features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features).
+
 ---
 
 ## 4. Legal and ethical considerations

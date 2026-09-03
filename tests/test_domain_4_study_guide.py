@@ -455,6 +455,20 @@ class TestDomain4StudyGuideStructure(unittest.TestCase):
             with self.subTest(tool=tool):
                 self.assertIn(tool, tools_section)
 
+    def test_aws_tools_section_cross_links_domain_3_bedrock_features(self):
+        # Guardrails for Amazon Bedrock is covered here (responsible-AI
+        # framing) and again in Domain 3 §5 (runtime implementation detail).
+        # Readers studying one should be pointed at the other.
+        tools_section = _section(
+            self.text, r"\n## 3\. AWS tools for responsible AI"
+        )
+        self.assertIn(
+            "domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features",
+            tools_section,
+            "AWS tools section should cross-link Domain 3 §5's "
+            "implementation detail for Guardrails",
+        )
+
     def test_legal_ethical_section_covers_required_topics(self):
         legal_section = _section(
             self.text, r"\n## 4\. Legal and ethical considerations"

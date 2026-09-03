@@ -1633,6 +1633,12 @@ explanation.
    throughput/latency, and is generally the required and cost-effective
    choice for high, steady, predictable volume on a custom model.
 
+> **See also:** This section covers Guardrails for Amazon Bedrock as a
+> runtime safety feature. For how Guardrails fits into the broader
+> responsible-AI toolset alongside SageMaker Clarify and Amazon A2I, see
+> [Domain 4 §3, AWS tools for responsible
+> AI](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai).
+
 ---
 
 ## 6. Vector databases and embeddings for search and retrieval

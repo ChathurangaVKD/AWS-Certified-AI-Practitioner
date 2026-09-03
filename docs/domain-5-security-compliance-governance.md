@@ -739,6 +739,48 @@ buying Provisioned Throughput (Domain 3) — those bound *per-request*
 cost, not the *number* of requests, which is exactly what all three
 threat models attack.
 
+#### Worked example: sizing service quotas for a multi-team Bedrock workload
+
+The threat-model examples above show how to cap cost *reactively* on an
+endpoint that already exists. Sizing quotas is the *proactive* half of the
+same problem: setting the right limits **before** launch so a legitimate
+multi-team workload doesn't get throttled by its own success, while still
+protecting the account from runaway spend.
+
+*Scenario:* Three teams — a customer-support chatbot, an internal document
+Q&A tool, and a batch summarization job — will all call the same on-demand
+foundation model through Amazon Bedrock, in the same account and Region.
+Each team estimates its own peak demand: support needs 4,000 requests per
+minute (RPM) and 400,000 tokens per minute (TPM) during business-hours
+spikes; document Q&A needs 1,500 RPM / 150,000 TPM; and the batch job,
+though not latency-sensitive, still bursts to 2,000 RPM / 300,000 TPM when
+a nightly run kicks off. Combined peak demand is **7,500 RPM / 850,000
+TPM** — but the account's default on-demand quota for that model, visible
+in the Service Quotas console under the Bedrock service, is only 5,000 RPM
+/ 500,000 TPM.
+
+*Configuration:* Comparing combined peak demand against the console's
+**Applied account-level quota value** shows both the RPM and TPM limits
+would be exceeded once all three teams are live, so a quota increase
+request is submitted through the Service Quotas console rather than a
+generic support ticket — the console routes it directly to the Bedrock
+quota-management workflow and lets the request cite actual per-team usage
+data as justification. Request a limit with headroom above the summed
+peak, not the bare minimum: roughly 9,000 RPM / 1,000,000 TPM, leaving room
+for one team's traffic to grow without a repeat request. As a backstop
+against the larger quota being fully consumed — whether by legitimate
+growth or a bug in one team's integration — set an **AWS Budgets** cost
+budget scoped to the Bedrock service (or tagged to the shared endpoint),
+with alert thresholds at **80% and 100%** of the monthly forecast, each
+notifying the account owner and the three team leads via SNS.
+
+*Why this combination:* the quota increase is sized from measured,
+per-team peak demand rather than a round number, so it clears the
+account's actual ceiling without over-requesting; the budget alerts don't
+replace the quota — they catch runaway *spend* even while every call still
+falls comfortably within the newly raised RPM/TPM limits, which a Service
+Quota alone can't do since it bounds request volume, not dollars.
+
 ### Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications
 Two industry frameworks help teams reason about AI-specific threats
 systematically, and the exam expects you to recognize them by name and

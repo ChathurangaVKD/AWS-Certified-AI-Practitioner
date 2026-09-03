@@ -530,7 +530,7 @@ the other three (access control, input/output filtering). Differential privacy, 
 
 **The scenario.** Meridian Health Alliance, a hospital consortium, trains a readmission-risk model on Amazon SageMaker using pooled patient records from member hospitals, then deploys it behind a Bedrock-fronted clinical decision-support app used across the consortium.
 
-**What it protects against.** The model inversion / extraction attacks described above show an attacker with only ordinary query access can sometimes infer whether a specific individual's record was in training data. **Differential privacy (DP)** defends against exactly this: during training, the SageMaker job clips each example's gradient contribution and adds calibrated random (Gaussian) noise before each parameter update — commonly implemented as DP-SGD. This bounds how much any single patient's record can influence the final model, tracked as a **privacy budget (epsilon, ε)**: a smaller ε is a stronger, more provable guarantee that no patient's data can be reverse-engineered or confirmed present from the model's outputs alone.
+**What it protects against.** The model inversion / extraction attacks described above show an adversary with only ordinary query access can sometimes infer whether a specific individual's record was in training data. **Differential privacy (DP)** defends against exactly this: during training, the SageMaker job clips each example's gradient contribution and adds calibrated random (Gaussian) noise before each parameter update — commonly implemented as DP-SGD. This bounds how much any single patient's record can influence the final model, tracked as a **privacy budget (epsilon, ε)**: a smaller ε is a stronger, more provable guarantee that no patient's data can be reverse-engineered or confirmed present from the model's outputs alone.
 
 **The accuracy/privacy trade-off.** The injected noise is the cost of that guarantee: a small ε (strong privacy) adds enough noise to measurably reduce diagnostic accuracy (AUC-ROC), while a larger ε preserves accuracy but weakens the privacy guarantee. Meridian's team must tune ε deliberately — validating that ε = 3 keeps AUC-ROC in an acceptable clinical range, rather than defaulting to the tightest ε without checking accuracy impact.
 
@@ -1933,7 +1933,8 @@ aid once you already have.
   access keys.
 - **Resource-based policies** (an S3 bucket policy, a Bedrock model
   resource policy) restrict access independently of the caller's
-  identity policy.
+  identity
+policy.
 - **IAM Access Analyzer** continuously checks resource-based policies
   and flags anything shared with a principal outside your account or
   organization — it validates that least privilege actually holds.
@@ -2021,6 +2022,9 @@ aid once you already have.
 - **EU AI Act** — A binding EU regulation that classifies AI systems into risk tiers (unacceptable, high, limited, minimal) and imposes obligations scaled to risk.
 - **ISO/IEC 42001** — An international standard for a certifiable AI management system (AIMS), conceptually similar to ISO 27001 for information security.
 - **Algorithmic Accountability Act** — Proposed US legislation that would require impact assessments for automated decision systems.
+- **Differential privacy** — A privacy-preserving technique that adds calibrated statistical noise during model training to bound how much any individual training record can influence the model's outputs.
+- **Privacy budget (epsilon, ε)** — A parameter controlling the strength of a differential privacy guarantee; smaller ε means stronger privacy but typically reduced accuracy.
+- **DP-SGD** — Differential Privacy Stochastic Gradient Descent; a training method that clips gradients and adds noise before each model parameter update.
 
 ## Practice questions
 
@@ -2199,6 +2203,24 @@ aid once you already have.
     C. A digital signature is visible to viewers, while a watermark is always invisible
     D. Digital signatures can be verified programmatically, but an embedded watermark can never be detected once applied
 
+30. **[Intermediate]** A hospital's model training data is already encrypted at rest with a customer-managed KMS key. Leadership is now concerned that an adversary could analyze the *deployed model's* outputs to infer whether a specific patient's record was part of the training set. Which technique most directly addresses this risk, and why doesn't the existing KMS encryption solve it?
+    A. The existing KMS encryption already solves this — no further action is needed
+    B. Differential privacy — it adds calibrated statistical noise (e.g., during training) so no single individual's record can be confidently inferred from the model's outputs; KMS encryption only protects stored files from unauthorized access, not inference from a model both parties are allowed to query
+    C. Enforcing TLS for all inference traffic
+    D. Using AWS PrivateLink to keep inference traffic off the public internet
+
+31. **[Intermediate]** A team is tuning the privacy budget (epsilon) when applying differential privacy to a training pipeline. Which statement correctly describes the fundamental trade-off they are managing?
+    A. Adding more noise (smaller epsilon) strengthens the privacy guarantee but tends to reduce model accuracy; adding less noise (larger epsilon) preserves accuracy but weakens the privacy guarantee
+    B. The privacy budget only affects training time, not accuracy or privacy
+    C. There is no trade-off — increasing the privacy guarantee and increasing accuracy always improve together
+    D. Epsilon controls the encryption key length used to protect the training data
+
+32. **[Advanced]** A financial firm has two distinct concerns for its fraud-detection model: (1) preventing unauthorized parties from reading raw training files stored in S3, and (2) preventing the trained model itself from memorizing and leaking individual customers' transaction details when queried by an authorized user. Which pairing of controls correctly matches each concern?
+    A. (1) Differential privacy protects the raw S3 files; (2) encryption at rest prevents the model from memorizing training data
+    B. (1) Encryption at rest (customer-managed KMS key) protects raw stored files from unauthorized access; (2) differential privacy (e.g., calibrated noise added during training, such as DP-SGD) limits how much any individual's data can be inferred from the trained model's behavior, even by users with legitimate query access
+    C. TLS alone fully addresses both concerns
+    D. IAM least privilege alone addresses both concerns; no encryption or differential privacy is needed
+
 ---
 
 ## Answer key
@@ -2232,6 +2254,9 @@ aid once you already have.
 27. **C.** Titan Image Generator G1 v2's embedded watermark exists to let anyone later verify whether an image was AI-generated, a transparency and content-provenance control, not a security control. It does not restrict copying (A), it is not encryption (B), and it has no compression function (D).
 28. **B.** Amazon Titan Image Generator G1 v2, accessed through Amazon Bedrock, automatically embeds an invisible digital watermark in every image it generates as a built-in, always-on property the caller cannot disable. Rekognition (A) analyzes images/video, Comprehend (C) analyzes text, and Polly (D) synthesizes speech — none generate or watermark images.
 29. **B.** The watermark is embedded in the pixel data itself and is engineered to survive ordinary downstream handling like resizing, format conversion, and moderate compression, so it can still be detected later. A digital signature, by contrast, is a separate cryptographic artifact computed over the exact original bytes — any modification to the file invalidates it. (A) conflates two distinct concepts; (C) reverses reality (Titan's watermark is invisible, not the signature); (D) is false — both are designed to be verifiable, just via different mechanisms (Bedrock's watermark-detection capability vs. cryptographic signature verification).
+30. **B.** Differential privacy adds calibrated statistical noise so that no individual's record can be confidently inferred from a model's outputs or behavior — a membership-inference risk that exists even when both parties are authorized to query the model. (A) is wrong because KMS encryption only protects stored files from unauthorized *access*, not inference drawn from a deployed model's legitimate outputs; TLS (C) protects data in transit, not inference risk; PrivateLink (D) provides private network connectivity, not a privacy guarantee about model outputs.
+31. **A.** Differential privacy involves a direct trade-off governed by the privacy budget (epsilon): more noise (smaller epsilon) gives a stronger privacy guarantee at the cost of accuracy, while less noise (larger epsilon) preserves accuracy but weakens the privacy guarantee. (B) and (C) both incorrectly claim there's no accuracy impact; (D) conflates the privacy budget with encryption key management, which is an unrelated concept.
+32. **B.** Encryption at rest protects raw stored files from unauthorized access, while differential privacy protects against a trained model memorizing and leaking individual records to *authorized* users — these are distinct threats requiring distinct controls. (A) swaps the pairing; (C) and (D) each claim a single control covers both concerns, which is incorrect since encryption does not limit what a model learns and memorizes, and differential privacy does not restrict access to raw files.
 
 ---
 

@@ -1311,6 +1311,32 @@ involved.
 > answers "what should this live application never say or leak?", and
 > **A2I** answers "who double-checks this before it's used?"
 
+**Decision flowchart — bias metric selection and tool layering:** the
+table above lists what each tool *is*; the flowchart below walks the same
+decisions the [decision framework](#decision-framework-choosing-a-bias-metric-and-layering-tools-for-high-stakes-ai)
+below spells out in prose — which bias metric to run, when to layer SHAP
+on top, and when a human needs to sign off — as a single path you can
+trace for a given scenario.
+
+```mermaid
+flowchart TD
+    A["Auditing training data\nor model predictions?"] -->|"Training data\n(no model yet)"| B["Run DPL\n(difference in proportions\nof labels - pre-training)"]
+    A -->|"Model predictions\n(already trained/deployed)"| C["Run disparate impact\n(post-training)"]
+
+    B --> D{"Is this a\nhigh-stakes use case?"}
+    C --> D
+
+    D -->|"Yes"| E["Favor an interpretable model\n+ SHAP (via SageMaker Clarify)\nfor per-decision explanations"]
+    D -->|"No"| F["Complex/black-box model\nwith Clarify bias checks\nis acceptable"]
+
+    E --> G{"Is human review\nof individual decisions required?"}
+    F --> G
+
+    G -->|"Yes"| H["Add Amazon A2I\n(route to a human reviewer\nbefore action is taken)"]
+    G -->|"No"| I["Document metrics, mitigations,\nand (if used) SHAP methodology\nin a SageMaker Model Card"]
+    H --> I
+```
+
 ---
 
 ## Decision framework: choosing a bias metric and layering tools for high-stakes AI

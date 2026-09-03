@@ -524,10 +524,7 @@ poisoning corrupts training data, prompt injection hijacks instructions at
 inference time, and model inversion/extraction targets the deployed model
 through its API. Model drift is degradation, not an attack — the
 mitigation (monitoring + retraining) is different from the mitigation for
-the other three (access control, input/output filtering). Differential
-privacy, applied during training, is a complementary defense specifically
-against model inversion/extraction (see [worked example
-below](#worked-example-applying-differential-privacy-to-a-healthcare-model-training-pipeline)).
+the other three (access control, input/output filtering). Differential privacy, applied during training, is a complementary defense specifically against model inversion/extraction (see [worked example below](#worked-example-applying-differential-privacy-to-a-healthcare-model-training-pipeline)).
 
 #### Worked example: applying differential privacy to a healthcare model-training pipeline
 

@@ -11,6 +11,7 @@
   - [Comparison table: prompt engineering techniques at a glance](#comparison-table-prompt-engineering-techniques-at-a-glance)
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
 - [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
+  - [Fine-tuning efficiency techniques: full fine-tuning vs. LoRA vs. QLoRA vs. instruction tuning](#fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
@@ -887,6 +888,94 @@ language before fine-tuning on top of it.
 > input/output pairs; continued pre-training needs only unlabeled
 > domain text** — that labeled-vs-unlabeled distinction is exactly what
 > the exam tests between these two.
+
+### Fine-tuning efficiency techniques: full fine-tuning vs. LoRA vs. QLoRA vs. instruction tuning
+
+The comparison above treats "fine-tuning" as one option, but the exam also
+expects you to distinguish **how** a model gets fine-tuned once you've
+decided fine-tuning is the right approach — especially in a
+**resource-constrained scenario** (limited GPU budget, limited time,
+limited labeled data). These are the four techniques you need to be able
+to tell apart:
+
+- **Full fine-tuning** — updates **every weight** in the model on your
+  labeled dataset. Produces the highest possible task-specific quality
+  ceiling, but requires storing and updating a complete copy of the
+  model's parameters, the most GPU memory and compute of any option, and
+  the longest training time. Each fine-tuned task needs its own full
+  copy of the model.
+- **LoRA (Low-Rank Adaptation)** — freezes the original model weights and
+  trains a **small pair of low-rank matrices** injected into the model's
+  layers, so only a tiny fraction of parameters (often under 1%) is
+  updated. Dramatically cuts training time, GPU memory, and storage
+  (you only save the small adapter, not a full model copy) versus full
+  fine-tuning, at a modest, usually acceptable, quality trade-off.
+- **QLoRA (Quantized LoRA)** — the same low-rank-adapter approach as LoRA,
+  but the frozen base model is first **quantized to a lower precision**
+  (e.g., 4-bit) before adapters are trained on top of it. Cuts GPU memory
+  further still, which is what makes fine-tuning a large model feasible
+  on a **single, smaller GPU** — at the cost of a small amount of
+  additional quality loss from quantization on top of LoRA's own
+  trade-off.
+- **Instruction tuning** — a **fine-tuning objective**, not a parameter
+  strategy: it further trains a model on a dataset of
+  (instruction, response) pairs so the model learns to follow natural-
+  language instructions generally, rather than one narrow task. It can be
+  performed as full fine-tuning or with a parameter-efficient method like
+  LoRA/QLoRA — the resource cost depends on which of those it's layered
+  on top of, not on "instruction tuning" itself.
+
+**Visual summary:** the diagram below lines up full fine-tuning, LoRA,
+and QLoRA on the dimensions the exam tests most — training
+speedup, GPU/resource cost, and quality trade-off relative to full
+fine-tuning — so you can recognize which technique fits a
+resource-constrained scenario at a glance:
+
+```mermaid
+graph LR
+    subgraph FULL["Full fine-tuning"]
+        FULL_PARAMS["Parameters updated: 100%\n(every weight)"]
+        FULL_SPEED["Training speedup: Baseline -\nslowest, longest to train"]
+        FULL_RESOURCE["Resource cost: Highest -\nmost GPU memory + storage"]
+        FULL_QUALITY["Quality: Highest ceiling -\nfull-capacity adaptation"]
+    end
+
+    subgraph LORA["LoRA"]
+        LORA_PARAMS["Parameters updated: <1% -\nsmall low-rank adapter matrices"]
+        LORA_SPEED["Training speedup: Much faster -\nfewer gradients to compute"]
+        LORA_RESOURCE["Resource cost: Low -\nsmall adapter to store, less memory"]
+        LORA_QUALITY["Quality: Modest trade-off vs.\nfull fine-tuning, usually acceptable"]
+    end
+
+    subgraph QLORA["QLoRA"]
+        QLORA_PARAMS["Parameters updated: <1% -\nLoRA adapters on a quantized base"]
+        QLORA_SPEED["Training speedup: Fastest to fit -\nenables single smaller GPU"]
+        QLORA_RESOURCE["Resource cost: Lowest -\n4-bit quantized base model"]
+        QLORA_QUALITY["Quality: Small added loss vs.\nLoRA, from quantization"]
+    end
+
+    FULL --> LORA --> QLORA
+```
+
+**Comparison table:**
+
+| Technique | Parameters updated | Training speedup | Resource cost | Quality trade-off | Best fit |
+|---|---|---|---|---|---|
+| Full fine-tuning | 100% of model weights | Baseline (slowest) | Highest — full model copy in GPU memory + storage per task | Highest quality ceiling | Ample GPU budget, need maximum task-specific accuracy |
+| LoRA | Small low-rank adapter matrices (<1% of weights) | Much faster than full fine-tuning | Low — only the small adapter is trained and stored | Modest, usually acceptable trade-off vs. full fine-tuning | Resource-constrained teams that still need good quality and fast iteration |
+| QLoRA | Same as LoRA, on a quantized (e.g., 4-bit) frozen base | Fastest to fit a training run | Lowest — fits large models on a single smaller GPU | Small additional loss vs. LoRA from quantization | Fine-tuning a large model when GPU memory is the hard constraint |
+| Instruction tuning | Depends on the method it's layered on (full, LoRA, or QLoRA) | Depends on the underlying method | Depends on the underlying method | Improves general instruction-following rather than one narrow task | Want a model that reliably follows varied natural-language instructions, not just one fixed task |
+
+> **Exam tip:** If a scenario says "limited GPU budget" or "fine-tune a
+> large model on a single GPU," that's **QLoRA**. If it says "faster,
+> cheaper fine-tuning with only a small quality trade-off, without
+> quantization mentioned," that's **LoRA**. If it says "needs the
+> absolute best possible accuracy and cost/time isn't the constraint,"
+> that's **full fine-tuning**. And if the scenario describes teaching a
+> model to follow **general instructions** (not one narrow labeled task),
+> that's **instruction tuning** — remember it's an orthogonal choice of
+> *training objective*, and it's commonly combined with LoRA or QLoRA to
+> keep the resource cost down.
 
 #### Mini-quiz: Test your understanding of customization approach trade-offs
 

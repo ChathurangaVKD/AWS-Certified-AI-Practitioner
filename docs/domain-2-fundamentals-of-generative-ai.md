@@ -7,6 +7,7 @@
 ## Table of contents
 
 - [1. Generative AI core concepts](#1-generative-ai-core-concepts)
+  - [Choosing an embedding model](#choosing-an-embedding-model)
 - [2. LLM lifecycle basics](#2-llm-lifecycle-basics)
 - [3. Advantages and disadvantages of generative AI](#3-advantages-and-disadvantages-of-generative-ai)
 - [4. Business use cases for generative AI](#4-business-use-cases-for-generative-ai)
@@ -205,6 +206,46 @@ answer.
 > (where those arrays are stored and searched). Also expect a question
 > testing that **tokens ≠ words** — a single word can be multiple tokens,
 > which is why context windows and LLM pricing are measured in tokens.
+
+### Choosing an embedding model
+
+Not every use case needs the same embeddings model, and the choice is a
+genuine cost/accuracy trade-off rather than "always pick the best model."
+The decision generally comes down to three questions, in order: is a
+general-purpose model good enough, is the domain specialized enough to
+need domain-specific embeddings, and — only if so — is fine-tuning
+actually justified by the data and accuracy bar. This same trade-off
+resurfaces in [Domain 3](domain-3-applications-of-foundation-models.md)
+when selecting and tuning the embedding layer of a vector store/RAG
+pipeline.
+
+```mermaid
+%% Embedding model selection decision tree
+%% general-purpose vs. domain-specific vs. fine-tuned, with cost/latency/accuracy notes
+graph TD
+    START["Need to choose\nan embeddings model"] --> Q1{"Is a general-purpose\nembedding model\nsufficient?"}
+
+    Q1 -->|"Yes — broad domain,\nstandard vocabulary"| GP["Use a general-purpose model\n(e.g., Amazon Titan Text Embeddings)\nCost: $ (lowest per-call cost)\nLatency: lowest (no extra infra)\nAccuracy: good on broad/common domains"]
+
+    Q1 -->|"No — retrieval quality\nis poor on a general model"| Q2{"Is the domain\nspecialized\n(legal, medical,\nfinancial, etc.)?"}
+
+    Q2 -->|"No — just a narrow\nbut ordinary domain"| GP2["Try a larger general-purpose model\nor improve retrieval\n(chunking, hybrid search)\nCost: $$ (larger model = more\ncompute per embedding call)\nLatency: slightly higher\nAccuracy: incremental improvement"]
+
+    Q2 -->|"Yes — specialized\nvocabulary/jargon"| DS["Use a domain-specific\npretrained embedding model\n(e.g., legal/medical/financial\nembeddings)\nCost: $$ (specialized hosting\nand/or licensing)\nLatency: comparable to general model\nAccuracy: meaningfully better on\ndomain-specific semantics"]
+
+    DS --> Q3{"Is fine-tuning justified\nby data volume and\naccuracy requirements?"}
+
+    Q3 -->|"No — limited labeled data,\nor accuracy gap already\nacceptable"| DS2["Stay with the domain-specific\npretrained model as-is\nCost: $$\nLatency: unchanged\nAccuracy: acceptable without the\nextra training investment"]
+
+    Q3 -->|"Yes — large labeled dataset\nand a high-accuracy bar\n(e.g., regulated search or\ncompliance use case)"| FT["Fine-tune an embedding model\non domain-specific data\n(e.g., via Amazon SageMaker)\nCost: $$$ (training compute plus\nongoing hosting/maintenance)\nLatency: comparable to the base\nmodel once deployed\nAccuracy: highest, but requires\nretraining as data drifts"]
+```
+
+As a rule of thumb: cost and operational overhead increase at each step
+down the tree (general-purpose → domain-specific → fine-tuned), so the
+right stopping point is the earliest branch that meets your accuracy
+requirement — jumping straight to fine-tuning "to be safe" usually just
+adds training and maintenance cost for accuracy the domain-specific or
+general-purpose model already delivered.
 
 #### Mini-quiz: Test your understanding of generative AI core concepts
 

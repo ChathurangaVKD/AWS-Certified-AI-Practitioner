@@ -104,9 +104,14 @@ class TestDomain5WatermarkingWorkedExample(unittest.TestCase):
         nested_level_3 = re.findall(r"^### Worked example:", self.text, re.M)
         self.assertEqual(len(nested_level_3), 0)
 
-    def test_is_the_third_level_4_nested_worked_example_in_domain_5(self):
+    def test_is_the_fourth_level_4_nested_worked_example_in_domain_5(self):
+        # Pre-existing level-4 nested worked examples: "capping cost under
+        # three different threat models", "sizing service quotas for a
+        # multi-team Bedrock workload", and "shared responsibility for a
+        # SageMaker-to-Bedrock fine-tuning pipeline". This one is the
+        # fourth.
         nested_level_4 = re.findall(r"^#### Worked example:", self.text, re.M)
-        self.assertEqual(len(nested_level_4), 3)
+        self.assertEqual(len(nested_level_4), 4)
 
     def test_covers_titan_image_generator_and_bedrock(self):
         for expected in [

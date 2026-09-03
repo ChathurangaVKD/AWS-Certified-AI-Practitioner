@@ -42,7 +42,6 @@ REQUIRED_TOPIC_HEADINGS = [
     "Data governance strategies",
     "AWS shared responsibility model applied to AI/ML services",
 ]
-
 # 5.1 "Explain methods to secure AI systems" sub-areas the exam guide
 # requires: named threats, the AI-vs-traditional distinction, and named
 # frameworks, in addition to the IAM/encryption/networking already covered.
@@ -67,35 +66,14 @@ REQUIRED_REGULATIONS = [
 ]
 
 # Domain 5's 5.1/5.2 sub-topic count, after closing this content gap,
-# genuinely exceeds the 15-20 range used by Domains 1-4 (29 questions
-# covering both task statements' full sub-area lists, including the
-# watermarking/AI-generated-content-detection questions) -- MAX_QUESTIONS
-# is widened accordingly rather than left copy-pasted from another domain.
+# genuinely exceeds the 15-20 range used by Domains 1-4 (26 base questions
+# covering both task statements' full sub-area lists, plus 3 watermarking
+# questions covering AI-generated-content detection, plus 3 differential
+# privacy / privacy-preserving training questions, for 32 total) --
+# MAX_QUESTIONS is widened accordingly rather than left copy-pasted from
+# another domain.
 MIN_QUESTIONS = 15
-MAX_QUESTIONS = 29
-
-
-def _read_doc():
-    return DOC_PATH.read_text(encoding="utf-8")
-
-
-def _section(text, start_heading_regex, end_heading_regex=r"\n## "):
-    """Return the text between a heading matching start_heading_regex and
-    the next top-level (##) heading, or end of file."""
-    start = re.search(start_heading_regex, text)
-    assert start, f"heading not found: {start_heading_regex}"
-    rest = text[start.end():]
-    end = re.search(end_heading_regex, rest)
-    return rest[: end.start()] if end else rest
-
-
-class TestDomain5StudyGuideExists(unittest.TestCase):
-    def test_file_exists(self):
-        self.assertTrue(DOC_PATH.is_file(), f"expected study guide at {DOC_PATH}")
-
-
-class TestDomain5PracticeQuestionDifficultyTags(unittest.TestCase):
-    """Domain 5's practice questions must carry difficulty tags like
+MAX_QUESTIONS = 32
     Domains 1-4, so this class covers that one requirement directly."""
 
     @classmethod
@@ -765,6 +743,19 @@ class TestDomain5PracticeQuestions(unittest.TestCase):
                     r"\*\*[A-E](?:\s*(?:,|and)\s*[A-E])*\.\*\*",
                     f"answer {anum} should clearly state the correct option letter(s)",
                 )
+
+    def test_covers_differential_privacy_and_privacy_budget(self):
+        combined = self.questions_section + self.answers_section
+        self.assertIn(
+            "differential privacy",
+            combined.lower(),
+            "practice questions should cover differential privacy",
+        )
+        self.assertTrue(
+            "epsilon" in combined.lower() or "privacy budget" in combined.lower(),
+            "practice questions should cover the privacy budget "
+            "(epsilon) accuracy/privacy trade-off",
+        )
 
 
 if __name__ == "__main__":

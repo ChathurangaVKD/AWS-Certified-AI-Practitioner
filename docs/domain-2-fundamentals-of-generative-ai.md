@@ -1470,7 +1470,7 @@ systems is a configuration task (grant access, pick the connector, map a
 sync schedule), not an engineering project. **Knowledge Bases for Amazon
 Bedrock**, by contrast, ingests natively from Amazon S3 (or an existing
 **Amazon Kendra GenAI Index**, per the [Kendra + Bedrock branch
-expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra--bedrock-vs-bedrock-knowledge-bases-alone))
+expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra-bedrock-vs-bedrock-knowledge-bases-alone))
 — anything else, including Zendesk, Salesforce, and Confluence, first has
 to land in S3 through a pipeline Northwind builds and maintains itself
 (e.g., a scheduled export job per source, re-triggering a Knowledge Base
@@ -1501,7 +1501,7 @@ questions per workday, across 21 workdays a month:
 | Cost driver | Amazon Q Business | Custom Bedrock assistant |
 |---|---|---|
 | Billing axis | Per named user/month | Per 1,000 tokens generated (on-demand) |
-| Illustrative rate | $20/user/month | $0.003/1K input tokens, $0.015/1K output tokens (a mid-tier model, matching the Claude Sonnet-tier rate used in [Domain 3's cost-comparison worked example](domain-3-applications-of-foundation-models.md#worked-example-comparing-monthly-inference-costs-across-model-tiers)) |
+| Illustrative rate | $20/user/month | $0.003/1K input tokens, $0.015/1K output tokens (a mid-tier model, matching the Claude Sonnet-tier rate used in [Domain 3's cost-comparison worked example](domain-3-applications-of-foundation-models.md#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)) |
 | Monthly volume | 200 named agents | 105,000 messages → 126,000,000 input tokens + 26,250,000 output tokens |
 | Monthly calculation | 200 × $20 | (126,000 × $0.003) + (26,250 × $0.015) = $378 + $393.75 |
 | **Monthly total** | **$4,000** | **≈ $772** (inference only) |

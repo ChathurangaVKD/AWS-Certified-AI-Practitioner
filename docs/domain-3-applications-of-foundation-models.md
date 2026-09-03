@@ -15,6 +15,7 @@
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
+  - [Choosing an embedding model: domain-specific vs. general vs. fine-tuned](#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
@@ -1237,6 +1238,89 @@ flowchart TD
 > the scenario adds "and we also need keyword/full-text search fused into
 > the same query," that pulls the answer toward **OpenSearch** instead,
 > regardless of which relational database is already in place.
+
+### Choosing an embedding model: domain-specific vs. general vs. fine-tuned
+
+The guidance above treats "pick an embeddings model" as a solved,
+one-line step — in practice it's its own decision, and picking the wrong
+embedding model is one of the most common root causes of poor RAG
+retrieval (see [failure mode 2 in the RAG troubleshooting worked
+example](#failure-mode-2-an-embedding-model-mismatched-to-the-domain)).
+There are three tiers to choose from, not one:
+
+- **General-purpose embedding model** (e.g., **Amazon Titan Text
+  Embeddings**, Cohere Embed on Bedrock) — pretrained on broad, general
+  web/text corpora. Zero extra training, cheapest, fastest to ship, and
+  the right default when the content is everyday business language.
+  Struggles when the corpus is dense with specialized vocabulary the
+  model rarely saw during pretraining (legal clauses, medical
+  terminology, internal jargon/abbreviations) — those terms get embedded
+  close to unrelated general-English concepts instead of to each other.
+- **Domain-specific pretrained embedding model** — a model (often a
+  third-party or open-source option, rather than a Bedrock built-in)
+  pretrained or continually trained specifically on legal, medical,
+  financial, or similar domain text. Captures domain vocabulary
+  out of the box with no training pipeline of your own to build, at the
+  cost of an extra model to evaluate, license, and host outside (or
+  alongside) Bedrock's built-in embeddings models.
+- **Fine-tuned embedding model** — a general-purpose or domain-specific
+  embedding model further trained on **your own** labeled query/relevant-
+  passage pairs so its vector space reflects exactly how *your* users
+  phrase questions and *your* documents use terminology. Highest accuracy
+  ceiling for a narrow corpus, but also the highest cost and complexity:
+  you need a labeled dataset, ML expertise, and — because Amazon Bedrock
+  does not offer a managed fine-tuning workflow for embedding models the
+  way it does for text-generation FMs — typically a separate training and
+  hosting pipeline (e.g., fine-tuning an open-source embedding model on
+  **Amazon SageMaker**) rather than a Bedrock fine-tuning job.
+
+| Dimension | General-purpose (Titan Text Embeddings / Cohere Embed) | Domain-specific pretrained | Fine-tuned on your data |
+|---|---|---|---|
+| **Best fit** | Everyday business language; broad, mixed-topic corpora | Corpus is dominated by one well-known specialized domain (legal, medical, financial) | A narrow corpus with its own vocabulary/phrasing *and* you can produce labeled query/passage pairs |
+| **Setup cost/complexity** | Lowest — call the Bedrock API, no training | Low/medium — evaluate and integrate a third-party model, no training pipeline | Highest — labeled data, training job, hosting/versioning (typically via SageMaker, not a Bedrock fine-tuning job) |
+| **Where it runs** | Amazon Bedrock (fully managed) | Often outside Bedrock (self-hosted or third-party API), sometimes alongside a Bedrock Knowledge Base | Self-hosted/managed by your team (e.g., Amazon SageMaker endpoint) |
+| **When fine-tuning pays off** | N/A | N/A | When retrieval quality tests show *even* a domain-specific pretrained model still misses your users' exact phrasing/jargon, and you have (or can generate) enough labeled pairs to justify the training and hosting cost |
+
+**Decision tree: general-purpose vs. domain-specific vs. fine-tuned
+embeddings.** Read the corpus and data situation a scenario describes and
+follow the matching branch:
+
+```mermaid
+flowchart TD
+    START(["Choosing an embedding model\nfor RAG / semantic search?"])
+    START --> Q1{"Is the corpus dense with\nspecialized jargon a general-purpose\nmodel rarely saw in pretraining\n(legal, medical, financial, internal)?"}
+    Q1 -->|"NO"| GEN["GENERAL-PURPOSE EMBEDDING MODEL\n(Amazon Titan Text Embeddings or\nCohere Embed on Bedrock) - fully\nmanaged, zero extra training,\nfastest to ship"]
+    Q1 -->|"YES"| Q2{"Does a pretrained domain-specific\nembedding model already exist and\ntest well on THIS corpus (often\na third-party/open-source option,\nnot a Bedrock built-in)?"}
+    Q2 -->|"YES - tests well"| DOM["USE THE DOMAIN-SPECIFIC\nPRETRAINED MODEL\nbetter semantic fit for the\ndomain, no training pipeline\nof your own to build"]
+    Q2 -->|"NO / not well enough"| Q3{"Do you have - or can you generate -\nlabeled query/relevant-passage pairs,\nplus ML expertise and time to train\nand host a custom model?"}
+    Q3 -->|"YES"| FT["FINE-TUNE AN EMBEDDING MODEL\non your own data (e.g., via\nAmazon SageMaker, not a Bedrock\nfine-tuning job) - highest accuracy\nceiling, highest cost/complexity"]
+    Q3 -->|"NO"| FALLBACK["FALL BACK TO GENERAL-PURPOSE\nOR DOMAIN-SPECIFIC PRETRAINED +\nMITIGATIONS - expand jargon/\nabbreviations in source text, add\nreranking, revisit once labeled\ndata exists"]
+```
+
+**AWS example:** A legal-tech vendor's contract-analysis RAG assistant
+starts with **Amazon Titan Text Embeddings** because the first release
+only handles general correspondence. Once the product expands to dense
+litigation filings full of legal-specific phrasing, retrieval quality
+drops — the team evaluates a **domain-specific, legal-tuned third-party
+embedding model** and finds it separates their clauses far better than
+the general-purpose model did. A separate team building the same
+capability for a single, narrow, highly repetitive contract template
+(where they already have hundreds of labeled query/clause pairs from
+past support tickets) instead **fine-tunes an embedding model on Amazon
+SageMaker**, since their corpus is narrow enough and their labeled data
+plentiful enough to make the extra training investment worthwhile.
+
+> **Exam tip:** Default to **Amazon Titan Text Embeddings** (or Cohere
+> Embed on Bedrock) whenever a scenario doesn't call out a specialized
+> domain — it's the fully managed, lowest-effort answer. A scenario that
+> emphasizes **legal/medical/financial-specific terminology** and retrieval
+> quality problems traceable to the embedding model (not the vector store
+> or chunking) is pointing at a **domain-specific pretrained embedding
+> model**. Only pick **fine-tuning an embedding model** when the scenario
+> explicitly mentions **your own labeled query/passage examples** *and*
+> a narrow, stable domain — and remember fine-tuning an embedding model is
+> **not** a Bedrock-native workflow the way fine-tuning a text-generation
+> FM is.
 
 ### Reranking and hybrid search: sharpening vector-only results
 

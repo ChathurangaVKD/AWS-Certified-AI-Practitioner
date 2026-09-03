@@ -727,7 +727,7 @@ explanation.
 3. Which AWS offering lets a foundation model plan and execute multi-step
    tasks by calling your own APIs or Lambda functions and reasoning over
    the results?
-   A. Amazon Bedrock Guardrails
+   A. Guardrails for Amazon Bedrock
    B. Agents for Amazon Bedrock
    C. Amazon Q Developer
    D. Amazon SageMaker JumpStart
@@ -1193,7 +1193,7 @@ employee accidentally pastes into a prompt.
    tone and format of drafted replies, per the techniques in [Section
    6](#6-prompt-engineering-fundamentals).
 4. **Add guardrails before exposing it to customers.** The team configures
-   **Amazon Bedrock Guardrails** to block prompts and outputs that mention
+   **Guardrails for Amazon Bedrock** to block prompts and outputs that mention
    pricing-sheet-style content, filter harmful content, and redact any PII
    a customer might paste into the chat — enforced independently of
    whatever the underlying FM would otherwise do, so a clever prompt can't

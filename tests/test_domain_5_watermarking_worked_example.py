@@ -109,9 +109,11 @@ class TestDomain5WatermarkingWorkedExample(unittest.TestCase):
         # three different threat models", "sizing service quotas for a
         # multi-team Bedrock workload", and "shared responsibility for a
         # SageMaker-to-Bedrock fine-tuning pipeline". This one is the
-        # fourth.
+        # fourth. A fifth ("applying differential privacy to a healthcare
+        # model-training pipeline") was added later, so the total count
+        # below is 5, not 4.
         nested_level_4 = re.findall(r"^#### Worked example:", self.text, re.M)
-        self.assertEqual(len(nested_level_4), 4)
+        self.assertEqual(len(nested_level_4), 5)
 
     def test_covers_titan_image_generator_and_bedrock(self):
         for expected in [

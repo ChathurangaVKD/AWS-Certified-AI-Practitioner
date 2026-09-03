@@ -108,7 +108,7 @@ class TestDomain5CostGovernanceSubsection(unittest.TestCase):
         self.assertIn(CROSS_LINK, self.subsection)
 
     def test_has_an_example_and_exam_tip(self):
-        self.assertIn("**Example:**", self.subsection)
+        self.assertIn("**AWS example:**", self.subsection)
         self.assertIn("**Exam tip:**", self.subsection)
 
     def test_no_new_numbered_section_was_introduced(self):

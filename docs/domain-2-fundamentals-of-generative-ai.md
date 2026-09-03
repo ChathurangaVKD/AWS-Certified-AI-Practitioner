@@ -19,6 +19,7 @@
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
 - [Worked example: selecting and comparing models for a real-time voice assistant use case](#worked-example-selecting-and-comparing-models-for-a-real-time-voice-assistant-use-case)
 - [Worked example: end-to-end LLM lifecycle for an insurance claims-triage assistant](#worked-example-end-to-end-llm-lifecycle-for-an-insurance-claims-triage-assistant)
+- [Worked example: Amazon Q Business vs. a custom Bedrock assistant for enterprise customer support](#worked-example-amazon-q-business-vs-a-custom-bedrock-assistant-for-enterprise-customer-support)
 - [Comparison table: AWS generative AI services at a glance](#comparison-table-aws-generative-ai-services-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -1422,6 +1423,181 @@ issuing a final approve/deny decision on its own.
 > **unlabeled**, domain-vocabulary problem points to **continued
 > pre-training**. Full pretraining of a brand-new foundation model is
 > almost never the right exam answer for an adaptation problem.
+
+---
+
+## Worked example: Amazon Q Business vs. a custom Bedrock assistant for enterprise customer support
+
+[Section 5](#5-aws-generative-ai-services-and-capabilities) introduces
+**Amazon Q Business** as a ready-made enterprise assistant standing next to
+a custom **Amazon Bedrock** build, and the [AWS Service Decision
+Guide](aws-service-decision-guide.md#branch-expansion-layering-amazon-q-business-on-an-existing-bedrock-deployment)
+works through whether Q Business *replaces or sits alongside* a Bedrock
+deployment a team has *already* built. This worked example steps back one
+decision earlier — a team that hasn't built anything yet — and walks the
+choice with real numbers: **per-user Q Business pricing** against
+**on-demand Bedrock token cost**, how many data sources each option reaches
+out of the box, and how much customization each keeps or gives up.
+
+**Scenario:** Northwind Outfitters, a mid-size outdoor-gear retailer, runs
+a 200-person internal customer-support team. Agents need grounded answers
+pulled from four separate systems: **Zendesk** (public help-center
+articles), **Salesforce** (order and customer records), **Confluence**
+(internal return-policy wiki), and **SharePoint** (shipping-carrier SOPs).
+Today an agent manually searches all four before replying to a ticket, and
+Northwind wants an assistant that answers a question like "can this
+customer return this item outside the 30-day window?" by pulling from
+whichever of the four systems actually holds the answer — without an
+engineering team spending months building four separate ingestion
+pipelines before agents see any value. The budget owner wants a monthly
+cost estimate before approving either option.
+
+**Options considered:**
+
+1. **Amazon Q Business**, connected directly to Zendesk, Salesforce,
+   Confluence, and SharePoint using its own pre-built connectors, with the
+   out-of-the-box chat experience deployed as the agents' assistant.
+2. **A custom Amazon Bedrock assistant** — **Knowledge Bases for Amazon
+   Bedrock** for retrieval, **Agents for Amazon Bedrock** for any
+   multi-step lookups, and **Guardrails for Amazon Bedrock** for safety —
+   built and operated by Northwind's own engineering team.
+
+**Dimension 1: data-connector breadth.** Amazon Q Business ships with
+several dozen natively maintained, pre-built connectors — including
+Zendesk, Salesforce, Confluence, SharePoint, ServiceNow, Slack, Google
+Drive, Jira, and Amazon S3 — so pointing it at all four of Northwind's
+systems is a configuration task (grant access, pick the connector, map a
+sync schedule), not an engineering project. **Knowledge Bases for Amazon
+Bedrock**, by contrast, ingests natively from Amazon S3 (or an existing
+**Amazon Kendra GenAI Index**, per the [Kendra + Bedrock branch
+expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra--bedrock-vs-bedrock-knowledge-bases-alone))
+— anything else, including Zendesk, Salesforce, and Confluence, first has
+to land in S3 through a pipeline Northwind builds and maintains itself
+(e.g., a scheduled export job per source, re-triggering a Knowledge Base
+sync on every change). Four source systems means four such pipelines, each
+with its own failure modes, schema drift, and on-call burden.
+
+**Dimension 2: cost model — per-user Q Business pricing vs. on-demand
+Bedrock token cost.** The two options bill on entirely different axes: Q
+Business charges **per named user per month**, so cost tracks headcount
+regardless of how often each agent actually asks a question; Bedrock bills
+**per token actually generated**, so cost tracks conversation volume
+regardless of headcount. The table below applies **illustrative,
+round-number rates** to Northwind's 200-agent team — always check the
+current Amazon Q Business and Amazon Bedrock pricing pages for live rates,
+since both change over time and by Region.
+
+Northwind's helpdesk logs show each agent asks the assistant roughly 25
+questions per workday, across 21 workdays a month:
+
+- Monthly message volume: 200 agents × 25 questions/day × 21 days =
+  **105,000 messages/month**.
+- Each request (system prompt + retrieved passages from the four sources +
+  conversation history, following the same estimation approach as the
+  [token-budgeting worked
+  example](#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization))
+  averages **1,200 input tokens** and **250 output tokens**.
+
+| Cost driver | Amazon Q Business | Custom Bedrock assistant |
+|---|---|---|
+| Billing axis | Per named user/month | Per 1,000 tokens generated (on-demand) |
+| Illustrative rate | $20/user/month | $0.003/1K input tokens, $0.015/1K output tokens (a mid-tier model, matching the Claude Sonnet-tier rate used in [Domain 3's cost-comparison worked example](domain-3-applications-of-foundation-models.md#worked-example-comparing-monthly-inference-costs-across-model-tiers)) |
+| Monthly volume | 200 named agents | 105,000 messages → 126,000,000 input tokens + 26,250,000 output tokens |
+| Monthly calculation | 200 × $20 | (126,000 × $0.003) + (26,250 × $0.015) = $378 + $393.75 |
+| **Monthly total** | **$4,000** | **≈ $772** (inference only) |
+
+At this message volume, Bedrock's raw on-demand inference cost comes in
+well *under* Q Business's flat per-user subscription — and that's before
+adding the vector-store cost (e.g., a minimum-sized Amazon OpenSearch
+Serverless collection backing the Knowledge Base, roughly another
+$300–$400/month), which still leaves the custom option's **infrastructure**
+bill lower than Q Business's subscription. The token math alone doesn't
+settle the decision, though — it only prices the *compute*, not the
+**engineering cost** of Dimension 1's four ingestion pipelines and their
+ongoing maintenance, which the per-user Q Business fee already bundles in.
+
+**Dimension 3: customization trade-offs.** Amazon Q Business gives
+Northwind a configured, not coded, experience: a ready-made chat UI,
+admin-configurable safety and topic controls, and access control that
+**automatically mirrors each source system's own permissions** — an agent
+only ever sees results they were already entitled to see in Zendesk or
+Salesforce, with no extra engineering. What it does *not* give Northwind is
+control over the underlying prompt chain, retrieval logic, or a
+multi-step tool-calling flow beyond Q Business's own configured actions —
+if a later requirement needs the assistant to autonomously look up an
+order, check return eligibility against a business rule, and draft a
+tailored reply as one orchestrated action, that's the kind of custom
+application logic **Agents for Amazon Bedrock** is built for, not Q
+Business's configuration surface. The custom Bedrock assistant is the
+mirror image: full control over the prompt chain, retrieval strategy,
+agent orchestration, and choice of foundation model, at the cost of having
+to design and maintain a permissions-filtering layer by hand, since
+Knowledge Bases doesn't automatically inherit a source system's ACLs the
+way Q Business's connectors do.
+
+**Recommendation:** **Amazon Q Business** (Option 1) for Northwind's
+scenario as scoped, despite its higher monthly bill.
+
+**Rationale:** Applying the [Section
+5](#5-aws-generative-ai-services-and-capabilities) exam tip — "pre-built
+assistant grounded in enterprise data/systems out of the box" points to
+**Amazon Q Business** — Northwind's actual requirement is grounded Q&A
+across four existing systems, launched quickly, with access control that
+correctly respects each system's own permissions. Dimension 2's raw dollar
+comparison makes Bedrock look cheaper, but that comparison only prices
+compute; it omits the cost of building and maintaining four custom
+ingestion pipelines and a hand-rolled, ACL-aware permissions filter —
+real, ongoing engineering cost that Q Business's per-user fee already
+absorbs. When "minimal setup, ready-made, out-of-the-box" is the stated
+requirement, a lower raw token price on the *other* option is a distractor,
+not a reason to build custom — the same pattern the [end-to-end support
+assistant worked
+example](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
+warns against in reverse (defaulting to custom code instead of a managed
+service).
+
+This doesn't mean Amazon Q Business always wins once cost and connectors
+are both in play. If Northwind instead only needed to ground answers in
+**one** source that already lives in Amazon S3 (say, PDF product manuals),
+and the real requirement was a **multi-step agent** — autonomously
+checking order status through an internal API, applying a return-eligibility
+rule, and drafting a tailored reply as one action, embedded inside
+Northwind's own custom support console — the calculus flips on every
+dimension at once: Dimension 1's four-connector engineering cost drops to
+zero (S3 is Knowledge Bases' native source), Dimension 3's customization
+gap becomes the binding constraint (Q Business's configured actions don't
+reach a bespoke, multi-step business-rule flow), and Dimension 2's
+per-message billing stays cheap at modest volume with no per-user fee
+layered on top. That combination — single already-integrated source, deep
+custom orchestration, cost-sensitive at moderate volume — is exactly the
+"NO" branch of the [Q Business layering
+decision](aws-service-decision-guide.md#branch-expansion-layering-amazon-q-business-on-an-existing-bedrock-deployment):
+keep extending Bedrock directly rather than reaching for a ready-made
+application.
+
+**AWS example:** Northwind deploys **Amazon Q Business** connected to
+Zendesk, Salesforce, Confluence, and SharePoint for its 200-agent support
+team, accepting the higher $4,000/month subscription in exchange for
+skipping four custom ingestion pipelines and a hand-built permissions
+layer. Six months later, a separate team within Northwind needs an
+automated returns-processing bot that checks order eligibility and issues
+refunds through an internal API — genuine multi-step, custom orchestration
+against a single S3-hosted policy document — and builds that instead as a
+**Bedrock Agent** with **Knowledge Bases** and **Guardrails**, coexisting
+alongside the existing Q Business deployment exactly as the [Q Business
+layering branch
+expansion](aws-service-decision-guide.md#branch-expansion-layering-amazon-q-business-on-an-existing-bedrock-deployment)
+describes, rather than replacing it.
+
+> **Exam tip:** When a scenario gives you *both* a per-user headcount and a
+> message/token volume, don't assume the option with the lower raw dollar
+> total is automatically the right exam answer — check whether the
+> scenario's stated requirement is "minimal setup, ready-made, out-of-the-
+> box, multiple existing enterprise data sources" (points to **Amazon Q
+> Business** even if its subscription costs more) versus "deep
+> customization, custom multi-step orchestration, or a single
+> already-integrated source" (points to a **custom Bedrock build**, where
+> the lower on-demand cost and the flexibility argument both line up).
 
 ---
 

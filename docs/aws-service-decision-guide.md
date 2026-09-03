@@ -166,6 +166,15 @@ replace it, or sit alongside it?
 > ("ready-made enterprise assistant, minimal setup"), not the presence of
 > an existing Bedrock deployment by itself.
 
+For a full worked scenario applying this branch with real numbers — a
+200-agent support team choosing between Amazon Q Business and a custom
+Bedrock build from scratch, comparing per-user Q Business pricing against
+on-demand Bedrock token cost, data-connector breadth across four enterprise
+systems, and the customization each option keeps or gives up — see
+[Domain 2's worked example: Amazon Q Business vs. a custom Bedrock
+assistant for enterprise customer
+support](domain-2-fundamentals-of-generative-ai.md#worked-example-amazon-q-business-vs-a-custom-bedrock-assistant-for-enterprise-customer-support).
+
 For the full service-by-service detail behind this flow, see:
 - [Domain 1 §5 — AWS managed AI/ML services (conceptual overview)](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview)
   and its [comparison table](domain-1-fundamentals-of-ai-and-ml.md#comparison-table-aws-managed-aiml-services-at-a-glance)

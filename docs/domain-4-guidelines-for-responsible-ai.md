@@ -15,6 +15,7 @@
 - [Worked example: auditing a classical ML small-business loan-approval classifier for bias](#worked-example-auditing-a-classical-ml-small-business-loan-approval-classifier-for-bias)
 - [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant)
 - [Worked example: deciding whether to trade accuracy for interpretability to meet a regulatory explainability requirement](#worked-example-deciding-whether-to-trade-accuracy-for-interpretability-to-meet-a-regulatory-explainability-requirement)
+- [Worked example: pairing a classical ML ranker scored by SageMaker Clarify with a Bedrock FM protected by Guardrails](#worked-example-pairing-a-classical-ml-ranker-scored-by-sagemaker-clarify-with-a-bedrock-fm-protected-by-guardrails)
 - [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
 - [Decision framework: choosing a bias metric and layering tools for high-stakes AI](#decision-framework-choosing-a-bias-metric-and-layering-tools-for-high-stakes-ai)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)

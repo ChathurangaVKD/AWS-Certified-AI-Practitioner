@@ -1600,22 +1600,26 @@ natural. Which evaluation metric fits each requirement?
 
 **Step-by-step reasoning:**
 
-1. Start from what each requirement is actually testing — correctness,
-   similarity, safety, or fluency — since that determines the metric
-   family, not the other way around.
-2. For the correctness requirement, because there's a labeled answer set,
-   reach for an accuracy-style automatic evaluation rather than a
-   similarity or human-judgment metric — it's the cheapest option that
-   directly measures what's needed.
-3. For the tone requirement, recognize that exact-wording metrics
-   (BLEU/ROUGE) would produce false negatives on valid paraphrases, so
-   BERTScore is the better fit.
-4. For the safety requirement, treat toxicity scoring as a gate applied to
-   every production output, not a one-time model-selection metric.
-5. For the fluency requirement, use perplexity as an upfront
-   model-selection filter comparing candidates before deeper evaluation,
-   not as an ongoing production check — the other three metrics already
-   cover the task-specific properties.
+**Step 1:** Start from what each requirement is actually testing —
+correctness, similarity, safety, or fluency — since that determines the
+metric family, not the other way around.
+
+**Step 2:** For the correctness requirement, because there's a labeled
+answer set, reach for an accuracy-style automatic evaluation rather than a
+similarity or human-judgment metric — it's the cheapest option that
+directly measures what's needed.
+
+**Step 3:** For the tone requirement, recognize that exact-wording metrics
+(BLEU/ROUGE) would produce false negatives on valid paraphrases, so
+BERTScore is the better fit.
+
+**Step 4:** For the safety requirement, treat toxicity scoring as a gate
+applied to every production output, not a one-time model-selection metric.
+
+**Step 5:** For the fluency requirement, use perplexity as an upfront
+model-selection filter comparing candidates before deeper evaluation, not
+as an ongoing production check — the other three metrics already cover the
+task-specific properties.
 
 **AWS example:** The team runs an **Amazon Bedrock automatic model
 evaluation** job comparing three candidate models: it scores task accuracy

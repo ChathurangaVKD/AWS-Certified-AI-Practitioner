@@ -209,14 +209,25 @@ resulting privacy-budget/accuracy trade-off, and distinguishing that
 training-time protection from the KMS-based encryption-at-rest control
 covered earlier in the file.
 
+Domain 5 also has a seventh nested "####"-level worked-example
+subsection, nested inside the cost-governance subsection right after the
+multi-team quota-sizing worked example: "#### Worked example: cost
+optimization tradeoffs for a latency-critical chat workload vs. a batch
+analytics pipeline." It contrasts a customer-facing chat assistant held
+to a hard per-request latency SLA against an overnight batch
+summarization pipeline held only to a completion-window target, showing
+how the SLA target flips which combination of on-demand pricing,
+Provisioned Throughput, Bedrock batch inference, and response caching
+minimizes cost for each.
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
 Amazon A2I subsection; Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
-watermarking-provenance, and differential-privacy healthcare-training
-subsections), the five domain guides mark **31
+watermarking-provenance, differential-privacy healthcare-training, and
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **31
 worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
 Domain 3, 6 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.

@@ -1021,6 +1021,108 @@ infrastructure the company already operates and pays for.
 > above — that's the flow for choosing a *first* retrieval layer, not for
 > deciding whether to reuse one.
 
+#### Worked example: retrieval patterns for a multimodal product-catalog RAG system (text + images)
+
+The two worked examples above both retrieve over **text-only** sources —
+regulatory PDFs, wiki pages, product spec documents. Retrieval isn't
+always that clean: a **product-catalog RAG assistant** commonly has to
+retrieve over **product descriptions (text) and product photos (images)
+at the same time**, and the exam expects you to recognize that this needs
+a deliberate retrieval-pattern decision, not just "pick a vector store"
+from the decision tree above.
+
+**Scenario:** An online furniture retailer's catalog holds **~80,000
+SKUs**. Each SKU has an unstructured text description (materials,
+dimensions, style keywords) and 3-6 product photos. The retailer wants a
+shopping assistant that answers questions like *"find me a mid-century
+modern accent chair in walnut with brass legs, under $400"* — a query
+that mixes **exact spec terms only the text description reliably
+captures** ("walnut," "brass legs," a price constraint) with a **visual
+style attribute the photos capture better than the text does**
+("mid-century modern look"). The team has to design how retrieval pulls
+from both modalities and combines the results before the FM ever sees a
+prompt.
+
+**The two architectural options:**
+
+- **Option A — dual embedding indexes with a merge step.** Text
+  descriptions are embedded and stored in one vector index; product
+  images are embedded (with an image-capable embedding model, e.g.
+  **Amazon Titan Multimodal Embeddings**, which maps both text and images
+  into the same 1,024-dimension space) and stored in a **second, separate**
+  vector index. At query time the customer's question is embedded once
+  and searched against **both indexes independently**, each returning its
+  own top-k. A fusion step — **Reciprocal Rank Fusion (RRF)** or a
+  weighted score blend — merges the two ranked lists into one combined
+  top-k before it's inserted into the generation prompt.
+- **Option B — a single multimodal index.** Both text-description chunks
+  and image chunks are embedded with the same multimodal embedding model
+  and stored in **one shared vector index**. A single query embedding is
+  searched once against the combined index, and whatever mix of text and
+  image hits scores highest by raw similarity becomes the top-k passed to
+  generation — there's no separate merge step, because ranking already
+  happens inside that one query.
+
+**Why raw similarity scores don't merge cleanly across modalities:** even
+when both indexes use the same embedding model, average similarity
+differs by content type. In this catalog, product photos of chairs and
+tables photographed against similar backgrounds cluster tightly in
+embedding space (average intra-catalog cosine similarity **~0.78**),
+while free-text descriptions vary more in wording and length and cluster
+more loosely (average intra-catalog cosine similarity **~0.52**). Pooled
+into one ranked list, the modality with the higher average similarity
+crowds out the other **regardless of which one is actually more relevant
+to the query** — that imbalance is the concrete problem "merging
+modalities" has to solve, not a theoretical concern.
+
+**Quantified comparison for this scenario** (measured against a batch of
+representative shopper queries that combine a spec term and a style
+term):
+
+| Metric | Option A: dual indexes + RRF merge | Option B: single combined index |
+|---|---|---|
+| Modality mix in the top-10 results | Guaranteed floor — top-k pulled from each index before fusion, so both modalities are represented | Unconstrained — averaged 9 image hits / 1 text hit per query in this catalog |
+| Recall@10, spec-only queries (e.g. "brass legs") | **0.87** | **0.61** |
+| Recall@10, style-only queries (e.g. "mid-century modern look") | 0.84 | 0.85 |
+| Recall@10, mixed spec+style queries | **0.83** | **0.68** |
+| Precision@5, mixed queries | **0.90** | **0.68** |
+| Query-time embedding + retrieval calls | 1 embedding call + 2 index queries | 1 embedding call + 1 index query |
+| Added latency vs. a single-index query | +30-60ms for the second index query and the fusion step | baseline |
+| Extra infrastructure to operate | 2 vector indexes/collections, plus fusion logic to tune (RRF's `k` constant or blend weights) | 1 vector index/collection |
+
+**Choice: Option A — dual embedding indexes with an RRF merge — for this
+scenario.** "Brass legs" and "walnut" are terms that live almost
+exclusively in the text description; the image embedding doesn't reliably
+encode them. Because Option B lets whichever modality scores higher on
+average dominate the merged list, image hits crowd out the text hits the
+query actually needs, and Recall@10 on spec-only queries drops from 0.87
+to 0.61. The retailer needs a guaranteed floor of results from each
+modality — something only an explicit per-index retrieval-plus-merge step
+can provide — and the added ~30-60ms latency and second index to operate
+are a worthwhile trade for not silently dropping stated requirements like
+material or hardware finish.
+
+**When the single combined index (Option B) wins instead:** a boutique
+art-print marketplace with **~1,500 SKUs**, where product descriptions are
+minimal (title and price only) and the buying decision is almost entirely
+visual. There, the Recall@10 gap between the two options narrows to near
+parity, because there's little independent text signal for a single
+ranked list to crowd out in the first place — the operational simplicity
+of one index and one query, with no fusion logic to build or tune,
+outweighs the marginal precision Option A would buy.
+
+> **Exam tip:** A scenario describing retrieval over **both text
+> documents and images for the same catalog/entity** is testing whether
+> you know retrieval needs an explicit design decision for multimodal
+> sources, not just "pick a vector store." Default to **dual embedding
+> indexes with a merge step (RRF or a weighted blend)** whenever the text
+> and image content carry meaningfully independent signal — that
+> guarantees both modalities show up in what reaches the FM. Only reach
+> for a **single combined multimodal index** when one modality is clearly
+> primary and the other contributes little independent information, since
+> a single ranked list has no way to guarantee minimum representation from
+> each modality on its own.
+
 ---
 
 ## 4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering

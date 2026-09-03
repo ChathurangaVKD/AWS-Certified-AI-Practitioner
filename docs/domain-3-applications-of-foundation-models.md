@@ -2161,6 +2161,51 @@ actually answers this question."
   different topic. Hybrid search catches the cases where the literal
   words in the query matter as much as their meaning.
 
+### Failure mode 4: query and document phrased in mismatched terminology
+
+**Symptom:** An employee asks, "Can I get reimbursed for a client
+dinner?" and the assistant returns no useful chunks at all — not even a
+topically-close one — even though the handbook has a clearly written
+section titled "Business Meal Expense Policy" that answers exactly this
+question: "Employees may claim reimbursement for meals with clients or
+prospects, subject to the per-person cap in Appendix B."
+
+**Diagnosis.** This isn't failure mode 2 (a domain-mismatched embeddings
+model) or failure mode 3 (a topically-close-but-wrong chunk) — the team
+confirms the embeddings model handles the company's vocabulary fine, and
+the correct chunk isn't even in the raw candidate set, no matter how high
+`numberOfResults` is set. The root cause is a different, more subtle gap:
+the query is a short, casual **question** ("Can I get reimbursed...")
+while the source chunk is a long, formal **policy statement** ("Employees
+may claim reimbursement..."), and these are different *kinds* of text.
+Bi-encoder embedding models — the kind used to embed queries and chunks
+independently for vector search — are trained mostly on symmetric
+text-to-text similarity and don't always bridge that question-vs-statement
+asymmetry, even when a human reader would immediately recognize the two as
+a matching Q&A pair. This is a query/document terminology mismatch, not a
+domain-vocabulary gap, and no amount of expanding jargon in the source
+text (the failure mode 2 fix) resolves it.
+
+**Remediation.** The team applies fixes on both sides of the retrieval
+step rather than expecting a single embeddings-model swap to fix it:
+
+- **Reranking on a wider candidate set** — raising `numberOfResults` so
+  borderline matches are considered, then reranking down to the best few.
+  Rerankers are typically cross-encoders that score the query and the
+  chunk *together* rather than as two independently embedded vectors, so
+  they're far less sensitive to this same question-vs-statement asymmetry
+  than pure vector similarity is. This makes reranking a standard,
+  general-purpose retrieval fix — not just a remedy for failure mode 3.
+- **Query rewriting before embedding** — an intermediate step rewrites
+  the casual question into more document-like phrasing, or generates a
+  short hypothetical answer and embeds *that* instead of the raw question
+  (a technique known as HyDE — Hypothetical Document Embeddings), so what
+  gets embedded resembles the phrasing style used in the source corpus.
+- **Document-side augmentation** — generating and indexing a handful of
+  likely question phrasings alongside each chunk at ingestion time, so a
+  literally-phrased query has a matching question embedded nearby, not
+  just the formal policy text.
+
 ### Summary: matching the symptom to the fix
 
 | Symptom | Root cause | Fix |
@@ -2168,6 +2213,7 @@ actually answers this question."
 | Answer is correct but incomplete, cuts off mid-explanation | Chunks too small / split a self-contained answer across a boundary | Increase chunk size, add chunk overlap, retrieve more chunks |
 | Retrieved chunks are unrelated to the query's actual topic | Embedding model doesn't understand domain-specific vocabulary | Swap to a better-suited embeddings model and re-embed the corpus; expand jargon/abbreviations in source text |
 | Retrieved chunks are topically related but not the specific right answer | Vector similarity alone can't distinguish "close" from "correct" | Add reranking; add hybrid (keyword + vector) search |
+| Retrieval returns nothing relevant even though a clearly-worded answer exists in the corpus | Query/document terminology mismatch — a question embeds differently than the statement that answers it | Rerank a wider candidate set; rewrite/expand the query before embedding (e.g., HyDE); index likely question phrasings alongside each chunk |
 
 > **Exam tip:** When a scenario describes a RAG system that's already
 > live and *underperforming*, the question is testing whether you can map
@@ -2175,22 +2221,23 @@ actually answers this question."
 > embedding, or retrieval — rather than just reciting "use RAG." An
 > incomplete-but-correct answer points to **chunking**; retrieved content
 > that's off-topic entirely points to the **embedding model**; retrieved
-> content that's topically close but not quite right points to needing
-> **reranking or hybrid search** on top of plain vector similarity search.
-> Fine-tuning the FM itself does not fix any of these — all three failure
+> content that's topically close but not quite right, or missing entirely
+> despite a good answer existing, points to needing **reranking, hybrid
+> search, or query rewriting** on top of plain vector similarity search.
+> Fine-tuning the FM itself does not fix any of these — all four failure
 > modes live in the retrieval half of the pipeline, before the FM ever
 > sees a prompt.
 
 ### Decision tree: diagnosing RAG retrieval failures
 
-The three failure modes above are worked end-to-end for one system, but an
+The four failure modes above are worked end-to-end for one system, but an
 exam scenario (or a real on-call page) usually hands you just the
 *symptom* — hallucinated facts, off-topic chunks, a truncated response, an
 answer that's close-but-not-quite — and expects you to work backward to the
 broken pipeline stage. The flowchart below adds two symptoms not covered by
 the worked example (hallucination and token-limit overflow) alongside the
-three above, so it can be used as a single lookup table for "the RAG system
-is misbehaving — where do I look first?":
+first three above, so it can be used as a single lookup table for "the RAG
+system is misbehaving — where do I look first?":
 
 ```mermaid
 flowchart TD
@@ -2207,8 +2254,8 @@ flowchart TD
 ```
 
 > **Exam tip:** Hallucination and token-limit overflow are two more RAG
-> symptoms worth recognizing on sight, alongside the three chunking /
-> embedding / retrieval failure modes walked through above.
+> symptoms worth recognizing on sight, alongside the four chunking /
+> embedding / retrieval / terminology failure modes walked through above.
 > **Hallucination** in an otherwise-working RAG system almost always means
 > retrieval came back empty or thin for that query — the fix lives in
 > retrieval coverage and prompt instructions, not in fine-tuning the model
@@ -2216,6 +2263,79 @@ flowchart TD
 > budgeting problem — see the [context-window token-budget worked
 > example](#worked-example-estimating-a-context-window-token-budget) — and
 > are fixed by retrieving less, not by retrieving differently.
+
+### Debugging method: isolating the broken pipeline stage
+
+The decision tree above starts from a *symptom* and works backward to a
+root cause. It's just as useful to have a repeatable *procedure* for the
+opposite direction: given a failing query, methodically narrow down which
+of the four RAG pipeline stages — **embedding** (turning text into
+vectors and indexing it), **retrieval** (the initial vector-search
+candidate set), **ranking** (reranking/hybrid fusion that orders those
+candidates), or **generation** (the FM producing an answer from whatever
+context it received) — actually produced the failure, by inspecting raw
+output at each stage boundary in order:
+
+1. **Check the embedding stage first: does the correct chunk exist,
+   well-formed, in the index at all?** Look up the source passage that
+   should answer the query. If it was never chunked or indexed, or the
+   chunk is malformed, the fault is upstream of retrieval entirely — an
+   ingestion/chunking problem, not an embeddings-model problem.
+2. **Check the retrieval stage: does the correct chunk appear anywhere in
+   the raw candidate set, before any reranking?** Set `numberOfResults`
+   high (e.g., 50) and inspect the raw `Retrieve` output directly. If the
+   correct chunk never shows up, even at rank 50, the fault is in
+   embedding/retrieval — the query vector and the chunk vector simply
+   aren't close, whether from a domain-mismatched embeddings model
+   (failure mode 2) or a query/document terminology mismatch (failure
+   mode 4). No amount of reranking or prompt tuning downstream can recover
+   a chunk retrieval never surfaced.
+3. **Check the ranking stage: is the correct chunk in that wide candidate
+   set, but not in the final top-K actually sent to the FM?** If step 2
+   shows the chunk is retrievable at a wide `numberOfResults` but doesn't
+   survive being narrowed to the top 3–5, the fault is in ranking, not
+   embedding or retrieval — plain vector-distance ordering put the right
+   chunk too low. This is exactly the gap **reranking** and **hybrid
+   search** close: they replace or supplement raw vector distance with a
+   relevance-aware ordering before the final top-K is chosen.
+4. **Check the generation stage last: did the correct chunk actually
+   reach the FM's prompt, and did the FM still answer wrong?** Log the
+   exact prompt sent for the failing query (system instructions plus
+   retrieved chunks). If the correct chunk is sitting right there in the
+   context and the FM still ignores it, contradicts it, or answers from
+   outside it, the fault is in generation — a prompting or
+   model-capability problem, not a retrieval problem at all. Every fix
+   discussed earlier in this section (chunking, embeddings, reranking,
+   hybrid search, query rewriting) leaves this stage completely untouched.
+
+Working the checks in this order — embedding, then retrieval, then
+ranking, then generation — confirms each earlier stage is innocent before
+spending effort on the next, instead of guessing which of the four to fix
+first.
+
+```mermaid
+flowchart TD
+    START(["RAG system gives a wrong or\nincomplete answer for query Q -\nwhich stage is broken?"])
+    START --> S1{"Does the correct chunk exist,\nwell-formed, in the index at all?"}
+    S1 -->|"NO"| FIX1["STAGE: embedding/ingestion\n\nROOT CAUSE: chunk missing,\nmalformed, or never indexed\n\nFIX: fix chunking/ingestion,\nre-index the corpus"]
+    S1 -->|"YES"| S2{"Raise numberOfResults high\n(e.g. 50). Does the correct\nchunk appear anywhere in the\nraw candidate set?"}
+    S2 -->|"NO"| FIX2["STAGE: embedding / retrieval\n\nROOT CAUSE: embedding model\nmismatched to domain vocabulary,\nor query/document terminology\nmismatch - the query vector\nnever lands near the chunk\n\nFIX: swap/re-embed with a\nbetter-suited embeddings model;\nrewrite the query before\nembedding (e.g. HyDE)"]
+    S2 -->|"YES"| S3{"Is the correct chunk in the\ncandidate set, but not in the\nfinal top-K sent to the FM?"}
+    S3 -->|"YES"| FIX3["STAGE: ranking\n\nROOT CAUSE: vector-similarity\nordering alone ranked the\ncorrect chunk too low\n\nFIX: add reranking (cross-encoder\nre-scoring) and/or hybrid\n(keyword + vector) search so\nrelevance, not raw distance,\npicks the final top-K"]
+    S3 -->|"NO"| S4{"The correct chunk reached the\nFM's prompt. Did the FM still\nanswer wrong or ignore it?"}
+    S4 -->|"YES"| FIX4["STAGE: generation\n\nROOT CAUSE: the FM had the\nright context and still failed\nto use it - a prompting or\nmodel-capability problem, not\na retrieval problem\n\nFIX: tighten the prompt\n(answer only from the provided\ncontext, require citations);\nconsider a stronger FM"]
+    S4 -->|"NO"| FIX5["No fault found in embedding,\nretrieval, ranking, or generation -\nre-examine whether Q was actually\nanswerable from this corpus"]
+```
+
+> **Exam tip:** When a scenario gives you a failing RAG system without
+> telling you which stage broke, work the pipeline in order —
+> **embedding/indexing → retrieval → ranking → generation** — instead of
+> guessing. A chunk missing at a wide `numberOfResults` points to
+> **embedding/retrieval**; a chunk that's retrievable but not in the final
+> top-K points to **ranking** (the standard fix is reranking or hybrid
+> search); a chunk that reached the FM's prompt but was still ignored
+> points to **generation** (prompting or model choice) — which is the one
+> stage none of RAG's retrieval-side fixes can touch.
 
 ---
 

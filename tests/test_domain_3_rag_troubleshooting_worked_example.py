@@ -10,10 +10,11 @@ pipeline stage broke it, even though AIF-C01 scenario questions frequently
 describe an already-deployed RAG system that answers badly and ask which
 fix applies. These tests guard the dedicated worked example added to close
 that gap: it must exist, be linked from the table of contents, cover the
-three named failure modes (chunking, embedding mismatch, retrieval
-quality) each with a diagnosis and a remediation, name the specific fixes
-the task calls for (reranking, hybrid search, embedding-model swap), and
-carry an exam tip like every other worked example in this domain guide.
+four named failure modes (chunking, embedding mismatch, retrieval
+quality, query/document terminology mismatch) each with a diagnosis and a
+remediation, name the specific fixes the task calls for (reranking,
+hybrid search, embedding-model swap, query rewriting), and carry an exam
+tip like every other worked example in this domain guide.
 
 Mirrors the conventions established in
 tests/test_domain_3_study_guide.py::TestDomain3MultiConstraintWorkedExample.
@@ -129,13 +130,37 @@ class TestDomain3RagTroubleshootingWorkedExample(unittest.TestCase):
                     f"worked example should name {term!r} as a remediation",
                 )
 
-    def test_has_three_distinct_failure_mode_subsections(self):
+    def test_covers_query_document_terminology_mismatch_failure_mode(self):
+        self.assertRegex(
+            self.section,
+            r"(?i)terminology mismatch",
+            "expected a fourth failure mode about query/document "
+            "terminology mismatch",
+        )
+        self.assertRegex(
+            self.section,
+            r"(?i)bi-encoder|question-vs-statement|question.{0,15}statement",
+            "expected the diagnosis to explain the query-vs-document "
+            "phrasing asymmetry",
+        )
+
+    def test_names_reranking_query_rewriting_and_hyde_for_terminology_mismatch(self):
+        for term in ["HyDE", "Query rewriting", "cross-encoder"]:
+            with self.subTest(term=term):
+                self.assertIn(
+                    term,
+                    self.section,
+                    f"worked example should name {term!r} as a remediation "
+                    "for the terminology-mismatch failure mode",
+                )
+
+    def test_has_four_distinct_failure_mode_subsections(self):
         headings = re.findall(r"^### (.+)$", self.section, re.M)
         failure_headings = [h for h in headings if "failure mode" in h.lower()]
         self.assertEqual(
             len(failure_headings),
-            3,
-            f"expected exactly 3 failure-mode subsections, found {headings!r}",
+            4,
+            f"expected exactly 4 failure-mode subsections, found {headings!r}",
         )
 
     def test_every_failure_mode_has_symptom_diagnosis_and_remediation(self):
@@ -145,7 +170,7 @@ class TestDomain3RagTroubleshootingWorkedExample(unittest.TestCase):
             for b in failure_blocks
             if b.startswith("### ") and "failure mode" in b.splitlines()[0].lower()
         ]
-        self.assertEqual(len(failure_blocks), 3)
+        self.assertEqual(len(failure_blocks), 4)
         for block in failure_blocks:
             heading = block.splitlines()[0]
             with self.subTest(section=heading):

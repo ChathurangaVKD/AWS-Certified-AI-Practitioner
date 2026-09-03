@@ -12,7 +12,7 @@ in manual review.
 
 Mirrors the conventions established in tests/test_domain_4_study_guide.py,
 adapted to Domain 5's own conventions: section callouts are
-"**Example:**" / "**Exam tip:**" (not "AWS example:"), the answer key
+"**AWS example:**" / "**Exam tip:**", the answer key
 heading is "## Answer key" (not "## Answer key and explanations"), and
 answer entries are formatted "N. **Letter.** explanation" (bold letter(s)
 immediately followed by a period, not an em-dash).
@@ -286,12 +286,12 @@ class TestDomain5SecurityThreatWorkedExamples(unittest.TestCase):
         )
 
     def test_subsection_has_at_least_three_worked_examples(self):
-        examples = re.findall(r"\*\*Example:\*\*", self.section)
+        examples = re.findall(r"\*\*AWS example:\*\*", self.section)
         self.assertGreaterEqual(
             len(examples),
             3,
             "Common security threats subsection should have a worked "
-            "'Example:' scenario for at least three of the named threats",
+            "'AWS example:' scenario for at least three of the named threats",
         )
 
     def test_data_poisoning_example_present(self):
@@ -344,12 +344,12 @@ class TestDomain5ExpandedSecurityThreatWorkedExamples(unittest.TestCase):
         )
 
     def test_subsection_has_at_least_ten_worked_examples(self):
-        examples = re.findall(r"\*\*Example:\*\*", self.section)
+        examples = re.findall(r"\*\*AWS example:\*\*", self.section)
         self.assertGreaterEqual(
             len(examples),
             10,
             "Common security threats subsection should have a worked "
-            "'Example:' scenario for all ten OWASP LLM Top 10 categories, "
+            "'AWS example:' scenario for all ten OWASP LLM Top 10 categories, "
             "not just the original three",
         )
 
@@ -551,9 +551,9 @@ class TestDomain5StudyGuideStructure(unittest.TestCase):
             heading = section.strip().splitlines()[0]
             with self.subTest(section=heading):
                 self.assertIn(
-                    "Example:",
+                    "AWS example:",
                     section,
-                    f"section {heading!r} is missing an 'Example' callout",
+                    f"section {heading!r} is missing an 'AWS example' callout",
                 )
                 self.assertIn(
                     "Exam tip:",

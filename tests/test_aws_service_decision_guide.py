@@ -360,6 +360,105 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
         )
 
 
+BEDROCK_MODEL_REFERENCE_SECTION_RE = re.compile(
+    r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)", re.M | re.S
+)
+
+
+class TestAwsServiceDecisionGuideModelFamilySelectionDiagram(unittest.TestCase):
+    """Section 4 -- the Bedrock model reference table (Nova, Claude, Jamba
+    2.0, DeepSeek-R1, etc.) previously had no visual decision aid, unlike
+    Section 1's SageMaker-vs.-Bedrock-vs.-purpose-built flowchart. Guards
+    the Section 4.1 Mermaid decision-tree diagram added to close that gap
+    (routing on modality, reasoning depth, context window, open-weight
+    need, and cost/latency sensitivity)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = BEDROCK_MODEL_REFERENCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 4"
+        cls.section_text = section_match.group(0)
+
+    def test_has_model_family_selection_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"^###\s+4\.1\s+Decision flow: choosing a Bedrock model"
+                r" family",
+                re.M,
+            ),
+            "expected a '4.1 Decision flow: choosing a Bedrock model "
+            "family' sub-heading inside section 4",
+        )
+
+    def test_does_not_introduce_a_new_top_level_section(self):
+        # This is a sub-heading (###) expansion of the existing section 4,
+        # not a new top-level (##) section -- the numbered section
+        # sequence must stay exactly as it was.
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_has_mermaid_decision_tree_diagram(self):
+        self.assertIn(
+            "```mermaid",
+            self.section_text,
+            "expected a Mermaid decision-tree diagram in the Bedrock "
+            "model reference section",
+        )
+
+    def test_diagram_is_a_valid_graph_and_covers_key_criteria(self):
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match, "could not locate the Mermaid code block")
+        diagram_body = diagram_match.group("body")
+        self.assertRegex(diagram_body, re.compile(r"^\s*graph (TD|LR)", re.M))
+        # Modality, cost/latency, reasoning, and context-window are the
+        # required decision criteria called out in the task description.
+        for term in [
+            "modality",
+            "reasoning",
+            "context window",
+            "latency",
+        ]:
+            with self.subTest(term=term):
+                self.assertRegex(
+                    diagram_body,
+                    re.compile(re.escape(term), re.IGNORECASE),
+                )
+
+    def test_diagram_routes_to_required_model_families(self):
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match)
+        diagram_body = diagram_match.group("body")
+        for family in [
+            "Amazon Nova",
+            "Anthropic Claude",
+            "AI21 Labs Jamba 2.0",
+            "DeepSeek-R1",
+        ]:
+            with self.subTest(family=family):
+                self.assertIn(family, diagram_body)
+
+    def test_subsection_has_an_exam_tip(self):
+        subsection_match = re.search(
+            r"^###\s+4\.1\s+Decision flow: choosing a Bedrock model"
+            r" family.*?(?=^### |^## |\Z)",
+            self.section_text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(subsection_match)
+        self.assertRegex(
+            subsection_match.group(0),
+            re.compile(r"\*\*Exam tip:\*\*"),
+            "expected an exam tip explaining how the diagram's decision "
+            "order relates to the comparison table above it",
+        )
+
+
 DECISION_FLOW_SECTION_RE = re.compile(
     r"^##\s+1\.\s+Decision flow.*?(?=^## |\Z)", re.M | re.S
 )

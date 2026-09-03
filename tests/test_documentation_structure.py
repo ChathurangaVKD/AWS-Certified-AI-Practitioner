@@ -226,7 +226,7 @@ class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
     that all five domains use a uniform 15-20 practice question count.
     Domain 4 actually has a worked example ("## Worked example: auditing
     and documenting a responsible e-commerce recommendation engine") and
-    Domain 5 actually has 26 practice questions, not 15-20. These tests
+    Domain 5 actually has 29 practice questions, not 15-20. These tests
     guard against the doc drifting back to those stale claims."""
 
     @classmethod
@@ -267,12 +267,12 @@ class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
         )
         self.assertEqual(
             len(numbers),
-            26,
-            "expected Domain 5 to currently have 26 practice questions",
+            29,
+            "expected Domain 5 to currently have 29 practice questions",
         )
 
-    def test_structure_doc_documents_domain_5s_26_practice_questions(self):
-        self.assertIn("26", self.structure_text)
+    def test_structure_doc_documents_domain_5s_29_practice_questions(self):
+        self.assertIn("29", self.structure_text)
         idx = self.structure_text.find("15–20 per domain")
         self.assertNotEqual(
             idx,
@@ -281,7 +281,7 @@ class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
             "per-domain practice question norm",
         )
         window = self.structure_text[idx : idx + 200]
-        self.assertIn("26", window)
+        self.assertIn("29", window)
         self.assertIn("Domain 5", window)
 
 
@@ -993,10 +993,10 @@ class TestDocumentationStructureScenarioQuestionCountAccuracy(unittest.TestCase)
 class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously stated 101 total domain
     practice questions and 188 total questions overall (101 domain + 65
-    mock + 22 scenario). The five domain guides actually carry 114 practice
+    mock + 22 scenario). The five domain guides actually carry 117 practice
     questions in total (24 for Domain 1, 24 for Domain 2, 20 each for
-    Domains 3-4, 26 for Domain 5), which combined with the 65-question mock
-    exam and the 22 cross-domain scenario questions comes to 201 total
+    Domains 3-4, 29 for Domain 5), which combined with the 65-question mock
+    exam and the 22 cross-domain scenario questions comes to 204 total
     questions. These tests derive the true figures directly from the
     source files and assert DOCUMENTATION_STRUCTURE.md matches them,
     guarding against the doc drifting stale again."""
@@ -1048,16 +1048,16 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
             total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
         return total
 
-    def test_actual_domain_question_total_is_114(self):
+    def test_actual_domain_question_total_is_117(self):
         self.assertEqual(
             self._actual_domain_question_total(),
-            114,
-            "sanity check: expected 114 practice questions across the "
+            117,
+            "sanity check: expected 117 practice questions across the "
             "five domain guides (24 for Domain 1, 24 for Domain 2, 20 "
-            "each for Domains 3-4, 26 for Domain 5)",
+            "each for Domains 3-4, 29 for Domain 5)",
         )
 
-    def test_actual_grand_total_is_201(self):
+    def test_actual_grand_total_is_204(self):
         grand_total = (
             self._actual_domain_question_total()
             + self._actual_mock_exam_question_total()
@@ -1065,9 +1065,9 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         )
         self.assertEqual(
             grand_total,
-            201,
-            "sanity check: expected 114 domain + 65 mock-exam + 22 "
-            "scenario questions to sum to 201",
+            204,
+            "sanity check: expected 117 domain + 65 mock-exam + 22 "
+            "scenario questions to sum to 204",
         )
 
     def test_structure_doc_states_106_domain_practice_questions(self):

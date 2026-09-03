@@ -74,9 +74,9 @@ All five follow the same template:
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **24 for Domain 1**,
-  **24 for Domain 2**, and **26 for Domain 5** (Domain 3 and Domain 4 each
+  **24 for Domain 2**, and **29 for Domain 5** (Domain 3 and Domain 4 each
   have 20), including exactly 2 multiple-response ["select TWO"]
-  questions, for **114 domain practice questions in total** across
+  questions, for **117 domain practice questions in total** across
   the five domain guides) and a full `## Answer key` with justifications
   ruling out each wrong answer.
 
@@ -231,7 +231,7 @@ diagrams = **41 total diagrams**.
 validates required topic headings, AWS service mentions,
 evaluation term coverage (D1), glossary size (≥15 entries), practice
 question count (15–20 per domain, **24 for Domain 1**, **24 for Domain 2**,
-**26 for Domain 5**, **114 total**),
+**29 for Domain 5**, **117 total**),
 answer explanations (≥120 chars each, bolded answer letter), and sequential
 numbering. Separate test files cover each domain's quick-reference cheat
 sheet, its subsection mini quizzes (35 in total: 7 each for Domains 1 and
@@ -302,10 +302,10 @@ of duplicating material inside them:
   prose entries. Both answer "where is 'prompt injection' explained?"
   without knowing which domain defines it.
 
-**Total assessment:** 114 domain practice questions (across the five
+**Total assessment:** 117 domain practice questions (across the five
 domain guides) + 65 mock-exam questions + 22 scenario questions +
 35 embedded mini-quiz questions (across the five domain guides'
-subsections) = 236 total practice items across the repository.
+subsections) = 239 total practice items across the repository.
 
 ## Navigation
 

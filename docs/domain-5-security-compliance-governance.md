@@ -113,7 +113,7 @@ decrypt operations are traceable via AWS CloudTrail.
 **Exam tip:** "Encryption at rest" = data on disk (S3, EBS, KMS). "Encryption
 in transit" = data moving over the network (TLS/HTTPS). Don't confuse
 KMS (which manages *keys*) with CloudTrail (which *logs* key usage) — a
-common distractor pairing.
+common distractor pairing. The [worked example below](#worked-example-data-encryption-vs-model-encryption-in-a-multi-region-hipaa-fine-tuning-pipeline) extends this distinction to encrypting the trained model itself.
 
 **Visual summary — KMS key lifecycle:** the diagram below traces a
 customer managed key from creation through routine use, automatic
@@ -127,6 +127,49 @@ graph TD
     USE -. "every Encrypt/Decrypt/RotateKey\ncall is recorded" .-> LOG["CloudTrail logging"]
     LOG --> REVOKE["Key revocation\ndisable the key, or schedule\ndeletion with a waiting period"]
 ```
+
+#### Worked example: data encryption vs. model encryption in a multi-region HIPAA fine-tuning pipeline
+
+The Exam tip above draws the data-at-rest/in-transit line, but a Domain 5
+scenario often layers on a second, separately-configured target: the
+trained model itself. The walkthrough below traces one HIPAA-regulated
+pipeline through both.
+
+**Scenario:** Meridian Health runs clinics in `us-east-1` and
+`us-west-2`. In each Region, a SageMaker Processing job de-identifies
+clinical notes, and the de-identified output becomes fine-tuning data
+for a Bedrock custom model that drafts patient-visit summaries for that
+Region's clinicians.
+
+1. **Data encryption — protects PHI confidentiality.** In each Region,
+   the de-identified training data lands in an S3 bucket encrypted at
+   rest with a Region-local customer managed KMS key, and every hop —
+   SageMaker Processing to S3, S3 to the Bedrock fine-tuning job —
+   travels over TLS/HTTPS in transit. This is the data-at-rest/
+   in-transit control set covered above: its job is keeping PHI
+   unreadable to anyone without the key and unreadable on the wire.
+2. **Model encryption — protects the trained model as IP.** The Bedrock
+   model-customization job accepts a *separate* customer managed KMS
+   key used specifically to encrypt the resulting custom model
+   artifact — the fine-tuned weights — distinct from the key protecting
+   the training data. Its job isn't PHI confidentiality; it's
+   controlling who can extract, copy, or serve Meridian's proprietary
+   fine-tuned model, the [model theft](#common-security-threats-to-ai-systems-and-how-to-mitigate-them)
+   threat this domain already flags elsewhere.
+3. **Why both, independently, for the exam.** Encrypting the S3
+   training bucket says nothing about who can access the resulting
+   model artifact, and vice versa — a scenario describing only one of
+   the two controls has left the other gap open. For Meridian, the
+   `us-east-1` training-data CMK and the `us-east-1` model-artifact CMK
+   are two separate key policies, each required, neither substituting
+   for the other; the same pair repeats independently in `us-west-2`,
+   since KMS keys are Region-scoped.
+
+**Exam tip:** If a scenario says training data is encrypted but is
+silent on the *model artifact's* encryption (or vice versa), treat that
+as an open gap, not a solved one. Data encryption and model encryption
+guard two distinct assets — PHI and intellectual property — and each
+must be independently configured; neither substitutes for the other.
 
 ### AWS PrivateLink and VPC endpoints for AI services
 By default, calls from your VPC to an AWS service like Bedrock or

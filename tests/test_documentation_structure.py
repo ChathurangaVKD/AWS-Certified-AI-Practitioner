@@ -649,8 +649,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"```mermaid", text))
         self.assertEqual(
             actual_total,
-            31,
-            "sanity check: expected 31 total Mermaid diagrams across the "
+            32,
+            "sanity check: expected 32 total Mermaid diagrams across the "
             "five domain guides",
         )
         diagrams_idx = self.structure_text.find("**Diagrams:**")
@@ -677,15 +677,15 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         )
 
     def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
-        # The domain guides' 31 Mermaid diagrams are not the whole picture:
+        # The domain guides' 32 Mermaid diagrams are not the whole picture:
         # cross-domain-concept-map.md's "Visual overview" section has one
         # more Mermaid diagram, and aws-service-decision-guide.md's Section
         # 4.1 Bedrock model family selection flow and Section 6 cost-control
-        # decision flow add two more still (34 Mermaid diagrams
+        # decision flow add two more still (35 Mermaid diagrams
         # total), and three of the domain guides also carry a plain-text
         # ASCII rendering of a diagram that already exists as Mermaid
         # (Domain 1's ML lifecycle, Domain 5's data-governance lifecycle
-        # diagram, and Domain 5's shared-responsibility model), for 37
+        # diagram, and Domain 5's shared-responsibility model), for 38
         # diagrams overall. DOCUMENTATION_STRUCTURE.md previously undercounted
         # this (stating "All 24 flowchart-style diagrams") and omitted the
         # cross-domain diagrams and the ASCII diagrams entirely.
@@ -719,10 +719,10 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             + concept_map_mermaid_total
             + decision_guide_mermaid_total
         )
-        self.assertEqual(grand_mermaid_total, 34)
+        self.assertEqual(grand_mermaid_total, 35)
         ascii_diagram_count = 3
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 37)
+        self.assertEqual(grand_total, 38)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
@@ -742,7 +742,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 34-diagram "
+            "DOCUMENTATION_STRUCTURE.md does not state the 35-diagram "
             "Mermaid total once cross-domain-concept-map.md and "
             "aws-service-decision-guide.md are included",
         )
@@ -756,19 +756,19 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 37-diagram "
-            "grand total (34 Mermaid + 3 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 38-diagram "
+            "grand total (35 Mermaid + 3 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):
-        expected_words = {1: "seven", 2: "four", 3: "eleven", 4: "four", 5: "five"}
+        expected_words = {1: "seven", 2: "four", 3: "twelve", 4: "four", 5: "five"}
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         for domain_number, path in DOMAIN_FILES.items():
             text = path.read_text(encoding="utf-8")
             actual_count = len(re.findall(r"```mermaid", text))
             expected_word = expected_words[domain_number]
-            word_to_count = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11}
+            word_to_count = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12}
             with self.subTest(domain=domain_number):
                 self.assertEqual(
                     actual_count,

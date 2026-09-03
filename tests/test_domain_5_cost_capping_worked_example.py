@@ -142,6 +142,41 @@ class TestDomain5CostCappingWorkedExample(unittest.TestCase):
     def test_has_a_closing_exam_tip(self):
         self.assertIn("**Exam tip:**", self.section)
 
+    def test_covers_relevant_cloudwatch_metrics(self):
+        for expected in [
+            "4XXError", "AWS/ApiGateway", "AWS/Usage",
+            "CloudWatch Logs Insights", "$context.identity.apiKey",
+        ]:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, self.section)
+
+    def test_covers_cloudwatch_alarm_setup_steps(self):
+        for expected in ["Create CloudWatch alarm", "80% ", "SNS topic"]:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, self.section)
+
+    def test_incident_diagnosis_differentiates_threat_models_by_signal(self):
+        self.assertIn("*Diagnosis in practice:*", self.section)
+        self.assertIn(
+            "credential-stuffing abuse spread thin across keys", self.section
+        )
+        self.assertIn("single client's runaway retry loop", self.section)
+
+    def test_instrumentation_block_is_between_threat_model_3_and_the_exam_tip(
+        self,
+    ):
+        instrumentation_idx = self.text.index(
+            "**Instrumentation: relevant metrics and CloudWatch alarms"
+        )
+        threat_model_3_idx = self.text.index(
+            "**Threat model 3: a fixed monthly budget ceiling.**"
+        )
+        exam_tip_idx = self.text.index(
+            "**Exam tip:** All three scenarios reuse the same two controls"
+        )
+        self.assertLess(threat_model_3_idx, instrumentation_idx)
+        self.assertLess(instrumentation_idx, exam_tip_idx)
+
     def test_cost_governance_exam_tip_links_forward_to_the_worked_example(
         self,
     ):

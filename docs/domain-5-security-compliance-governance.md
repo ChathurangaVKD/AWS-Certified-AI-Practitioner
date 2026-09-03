@@ -670,6 +670,63 @@ it's a fixed number regardless of cause — so the **quota** (a hard count
 per period) is the primary lever, not the throttle, which shapes *rate*,
 not *total volume over a month*.
 
+**Instrumentation: relevant metrics and CloudWatch alarms for telling the three threat models apart.**
+
+Configuring the controls above is only half the job — without
+monitoring, the team finds out about a cost problem when the bill
+arrives, not while it's still developing. Amazon API Gateway and AWS
+Service Quotas both publish CloudWatch metrics that let you catch each
+of the three threat models while it's happening, and distinguish which
+one you're facing from the shape of the signal alone.
+
+- **Amazon API Gateway** publishes `4XXError` (which includes the `429
+  Too Many Requests` responses every throttled call returns), `Count`,
+  and `Latency` to the `AWS/ApiGateway` CloudWatch namespace, dimensioned
+  by `ApiName` and `Stage`. A usage plan's per-API-key throttling isn't
+  broken out as its own CloudWatch metric, so seeing *which key* is
+  driving a `4XXError` spike requires enabling access logging on the
+  stage with a log format that includes `$context.identity.apiKey` and
+  `$context.status`, then querying those logs with CloudWatch Logs
+  Insights.
+- **AWS Service Quotas** publishes applied-quota usage to the `AWS/Usage`
+  CloudWatch namespace, and the Service Quotas console offers a
+  one-click **"Create CloudWatch alarm"** action on any quota with usage
+  data available — letting you alarm on utilization (for example, 80% of
+  the applied quota) well before the quota itself is hit.
+
+*Step-by-step setup:*
+1. On the API Gateway stage, enable detailed CloudWatch metrics and turn
+   on access logging with a log format that includes
+   `$context.identity.apiKey`, `$context.status`, and
+   `$context.error.responseType`.
+2. Create a CloudWatch alarm on the stage's `4XXError` metric (Sum, over
+   a short period such as 1–5 minutes) with a threshold set just above
+   the endpoint's normal legitimate 4xx baseline — this is the first
+   signal that *something* is throttling.
+3. When that alarm fires, run a CloudWatch Logs Insights query over the
+   access logs (`filter status = 429 | stats count() by
+   identity.apiKey`) to read the shape of the spike: many distinct API
+   keys each with a modest, roughly even count points to threat model 1
+   (credential-stuffing abuse spread thin across keys); one API key with
+   a large count concentrated in a one- to two-minute window points to
+   threat model 2 (a single client's runaway retry loop).
+4. Separately, in the Service Quotas console, create a CloudWatch alarm
+   at 80% utilization on the account-level Service Quota backstopping
+   the endpoint. This alarm firing *without* a matching `4XXError` spike
+   is threat model 3 — steady, legitimate traffic climbing toward the
+   fixed monthly budget ceiling rather than a burst or an abuse pattern
+   — and it gives Finance a warning while there's still headroom to
+   react, instead of finding out only after the quota (or the $500
+   ceiling) is breached.
+5. Route both alarms to an SNS topic so the on-call engineer is paged
+   automatically rather than relying on someone to notice a cost anomaly
+   after the fact.
+
+*Diagnosis in practice:* the alarm that fires, and the shape of the
+underlying data — not just the fact that an alarm fired — is what tells
+the responder which of the three threat models, and therefore which of
+the three configurations above, needs tightening further.
+
 **Exam tip:** All three scenarios reuse the same two controls — Service
 Quotas and an API Gateway usage plan's throttle/quota — so the exam
 expects you to pick the right *knob* for the *stated cause*: many

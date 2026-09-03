@@ -57,13 +57,15 @@ class TestDomain4ConfidenceThresholdA2IWorkedExample(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.text = _read_doc()
-        # Bounded by the mini-quiz heading that follows it, not just the
-        # next "## " top-level heading -- the worked example sits *before*
-        # Section 3's mini-quiz, so without this explicit bound the
-        # section would swallow the mini-quiz too (a "#### " heading isn't
-        # matched by the default "\n## " boundary).
+        # Bounded by the next "### " worked-example heading or the
+        # mini-quiz heading, whichever comes first -- not just the next
+        # "## " top-level heading. A later worked example (the Clarify +
+        # Guardrails layering example) was nested in Section 3 right after
+        # this one, so without this explicit bound the section would
+        # swallow that entire next worked example too (a "### " or
+        # "#### " heading isn't matched by the default "\n## " boundary).
         cls.section = _section(
-            cls.text, WORKED_EXAMPLE_HEADING, re.escape("\n" + MINI_QUIZ_HEADING)
+            cls.text, WORKED_EXAMPLE_HEADING, r"\n### |\n" + re.escape(MINI_QUIZ_HEADING)
         )
         # Markdown line-wraps mid-phrase (e.g. "worker task\ntemplate"), so
         # phrase-level assertions match against whitespace-normalized text

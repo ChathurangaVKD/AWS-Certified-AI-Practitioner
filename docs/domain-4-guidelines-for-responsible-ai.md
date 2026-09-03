@@ -695,6 +695,213 @@ describes.
 > probabilistic classifier already outputs a predicted probability that's
 > a natural, ready-made signal to threshold on.
 
+### Worked example: layering SageMaker Clarify and Guardrails for Amazon Bedrock to audit a generative recommendation engine
+
+The bullet list above and the [comparison table](#comparison-table-aws-responsible-ai-tools-at-a-glance)
+describe **Amazon SageMaker Clarify** and **Guardrails for Amazon
+Bedrock** as two separate tools that solve bias at two separate stages —
+Clarify on training data and trained-model predictions, Guardrails on
+live foundation-model input/output. What neither the bullet list nor the
+exam tip above spells out is what happens when *both* tools are needed on
+the *same* generative AI application, because a single-stage bias review
+only ever catches half the problem. This worked example follows one
+company through building that two-stage pipeline end to end: a
+pre-generation, training-data bias audit with Clarify, and a runtime,
+inference-time content audit with Guardrails, wired together so neither
+stage has to do the other's job.
+
+**Scenario:** Northwind Outfitters, an outdoor-gear retailer, is
+replacing its collaborative-filtering "customers also bought" carousel
+with a generative recommendation assistant: a foundation model,
+fine-tuned on Bedrock using two years of customer profiles, purchase
+history, and support-chat transcripts, that writes a short personalized
+recommendation paragraph for each shopper instead of just listing
+products. The responsible-AI review board raises a specific concern
+neither tool alone resolves: if the fine-tuning data quietly under-serves
+a demographic segment, the model can learn to recommend a narrower slice
+of the catalog to that segment — a **fairness** and **historical bias**
+problem baked into the model itself, which a runtime content filter
+can't retroactively fix — but the board also knows that even a perfectly
+rebalanced model can still generate an inappropriate or stereotyped
+sentence at inference time on some prompt it never saw during evaluation,
+which a one-time training-data audit can't catch either. The board
+requires **both** a pre-generation bias audit of the training data *and*
+the fine-tuned model, **and** runtime Guardrails on the deployed
+endpoint, before the assistant can launch.
+
+**Stage 1 — Pre-generation: auditing the training data and the
+fine-tuned model with SageMaker Clarify**
+
+1. **Assemble the fine-tuning dataset.** The data science team compiles
+   examples pairing a customer profile (age range, past purchases,
+   support-chat excerpts) with a target recommendation paragraph written
+   by a merchandising copywriter, to fine-tune the foundation model on
+   Bedrock to produce Northwind's house style and product knowledge.
+2. **Run SageMaker Clarify's pre-training bias metrics on that dataset,
+   before any fine-tuning happens.** Mirroring the [pre-training vs.
+   post-training decision](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+   from Section 2 — *do you have a trained model yet? No, so check the
+   dataset* — Clarify flags a **class imbalance** and a large
+   **difference in proportions of labels (DPL)**: customers in the
+   55-and-older age bracket have far fewer "adventure/backcountry gear"
+   labeled examples, not because older customers buy less outdoor gear,
+   but because Northwind's own merchandising copywriters historically
+   wrote adventure-gear recommendations mostly for younger customer
+   profiles — a **historical bias**, the data accurately reflects what
+   was written in the past, but what was written in the past was itself
+   skewed.
+3. **Mitigate at the data stage, before fine-tuning.** Because the root
+   cause is the training examples themselves rather than the model's
+   objective function, the team applies a **pre-processing** mitigation:
+   augmenting the fine-tuning set with additional adventure-gear
+   recommendation examples written for older customer profiles, and
+   rebalancing so no age segment is proportionally under-represented in
+   any product category.
+4. **Fine-tune the foundation model on Bedrock** using the rebalanced
+   dataset.
+5. **Run SageMaker Clarify's post-training bias metrics against the
+   fine-tuned model**, not just the dataset. The team scores the
+   fine-tuned model against a held-out set of customer profiles spanning
+   every age segment and category, and computes **disparate impact**:
+   the share of "adventure/backcountry gear" recommendations the model
+   generates for the 55-and-older segment versus every other segment.
+   The first post-training run still shows a residual gap — smaller than
+   before the data rebalancing, but still outside the acceptable range
+   the review board set.
+6. **Close the residual gap.** Rather than a full retrain, the team
+   applies a lightweight **post-processing** adjustment to the
+   recommendation-generation prompt template — explicitly instructing the
+   model to draw candidate categories from the customer's actual
+   purchase and browsing signals rather than any age-correlated default —
+   and reruns Clarify's post-training metrics to confirm disparate impact
+   now falls within the board's threshold.
+
+At the end of Stage 1, Clarify has done everything it can do: it has
+measured and helped close a **structural, statistical** bias baked into
+the training data and the fine-tuned model. But Clarify's job stops at
+model evaluation — it has no visibility into what the model actually
+generates once real customers start typing free-form profile updates and
+support messages into the live application.
+
+**Stage 2 — Runtime: layering Guardrails for Amazon Bedrock on the
+deployed endpoint**
+
+7. **Attach Guardrails for Amazon Bedrock to the production endpoint**
+   before launch, configuring the layers most relevant to a
+   recommendation assistant: **content filters** (block outputs that
+   veer into harassment or insults if a customer's chat excerpt is
+   provocative), **denied topics** (block the model from ever
+   discussing a customer's protected characteristics as a stated reason
+   for a recommendation), **word filters** (block generated phrases that
+   name an age bracket, gender, or similar attribute as a recommendation
+   rationale), **sensitive information filters** (redact any PII the
+   model might otherwise echo back from a customer's own profile text
+   into the generated paragraph), and **contextual grounding checks**
+   (verify each generated recommendation is actually grounded in that
+   customer's real purchase/browsing signals, not a fabricated or
+   stereotyped assumption about what "someone like them" would want).
+8. **A runtime edge case slips through anyway.** Months after launch, a
+   customer's profile update includes the word "retired" in a support
+   chat excerpt used as personalization context. The fine-tuned model —
+   despite passing every pre-launch Clarify check — generates a
+   recommendation paragraph that narrows its suggestions to a
+   low-activity product category and explicitly cites the customer being
+   "retired" as the reason, something no amount of pre-launch dataset
+   rebalancing could have anticipated because that exact prompt pattern
+   never appeared in the fine-tuning or evaluation data.
+9. **Guardrails, not Clarify, catches it live.** The configured **word
+   filter** and **denied topics** checks match on the generated text
+   before it reaches the customer, block the response, and log the
+   blocked interaction — Guardrails cannot explain *why* the model
+   produced that text or fix the underlying tendency, but it stops the
+   harmful output from ever being shown, which is exactly the runtime
+   safety net a one-time, pre-launch Clarify audit cannot provide by
+   itself.
+10. **Close the loop back into Stage 1.** The team doesn't treat the
+    blocked interaction as resolved once Guardrails suppresses it. They
+    add the blocked prompt-and-response pair, and its underlying pattern
+    (age-related language in the support-chat context field), to the
+    fine-tuning dataset as a labeled negative example, and schedule it
+    for the next fine-tuning cycle — re-running Stage 1's Clarify
+    pre-training and post-training metrics on the updated dataset and
+    model, so the runtime finding actually reduces how often Guardrails
+    has to intervene going forward, instead of the two tools running in
+    parallel forever without ever informing each other.
+11. **Document and govern both stages together.** The team records the
+    Stage 1 Clarify metrics (before and after rebalancing), the Stage 2
+    Guardrails configuration, and the Stage 1↔Stage 2 feedback loop from
+    step 10 in a single **SageMaker Model Card**, and attaches
+    **SageMaker Model Monitor** to the endpoint to track bias drift over
+    time and **Guardrails' own blocked/intervened request logs** as a
+    second, independent signal — a rising Guardrails intervention rate
+    for a particular customer segment is itself evidence that Stage 1's
+    training-data mitigation needs another pass, even before Model
+    Monitor's own bias-drift metric moves.
+
+**Why one stage alone was never enough:** Stage 1 (Clarify) is
+*retrospective and structural* — it measures bias that already exists in
+a fixed dataset or a fixed, already-trained model, computed once (or on a
+schedule) before or shortly after deployment. Stage 2 (Guardrails) is
+*prospective and behavioral* — it inspects each individual generation as
+it happens, with no memory of *why* the model behaves that way and no
+ability to change the model's underlying tendencies. Neither can
+substitute for the other: shipping Guardrails alone, with no Clarify
+audit, means the review board would be relying entirely on catching bad
+outputs one at a time at runtime, forever, instead of shrinking how often
+they occur in the first place; shipping Clarify alone, with no
+Guardrails, means the review board would have no defense against the
+prompt patterns that never showed up in the evaluation data used for the
+Clarify audit.
+
+**Visual summary — the two-stage bias-mitigation pipeline:**
+
+```mermaid
+flowchart TD
+    A["Fine-tuning dataset\n(customer profiles + purchase history\n+ support-chat transcripts)"] --> B["SageMaker Clarify\npre-training metrics:\nclass imbalance, DPL"]
+    B --> C{"Bias found?"}
+    C -->|"Yes"| D["Pre-processing mitigation\n(rebalance / augment dataset)"]
+    D --> B
+    C -->|"No / acceptable"| E["Fine-tune foundation model\non Amazon Bedrock"]
+    E --> F["SageMaker Clarify\npost-training metrics:\ndisparate impact"]
+    F --> G{"Disparate impact\nwithin threshold?"}
+    G -->|"No"| H["Post-processing mitigation\n(prompt template adjustment)"]
+    H --> F
+    G -->|"Yes"| I["Deploy fine-tuned model\nbehind a Bedrock endpoint"]
+    I --> J["Guardrails for Amazon Bedrock\n(content filters, denied topics,\nword filters, sensitive info filters,\ncontextual grounding checks)"]
+    J --> K{"Live generation violates\na configured Guardrail?"}
+    K -->|"Yes"| L["Block / redact response\nlog the blocked interaction"]
+    K -->|"No"| M["Return recommendation\nto the customer"]
+    L --> N["Feed blocked interaction back\ninto the fine-tuning dataset"]
+    N --> A
+```
+
+**Comparison — what each stage catches, and what it can't:**
+
+| | Stage 1: SageMaker Clarify (pre-generation) | Stage 2: Guardrails for Amazon Bedrock (runtime) |
+|---|---|---|
+| **When it runs** | Before fine-tuning (on the dataset) and after fine-tuning (on the model), on a schedule or before each release | On every individual inference call, continuously, after deployment |
+| **What it inspects** | The training dataset's label distribution, and the trained/fine-tuned model's aggregate behavior on an evaluation set | Each generated response (and each prompt) in isolation, in real time |
+| **What it catches** | Structural, statistical bias: class imbalance, DPL, disparate impact across demographic segments | Individual harmful, off-policy, or ungrounded outputs: denied topics, PII leakage, toxic content, unfaithful/hallucinated claims |
+| **What it can't catch** | A single bad generation from a prompt pattern that never appeared in the training or evaluation data | *Why* the model behaves a certain way, or any systemic skew across the whole customer base — it only ever sees one request at a time |
+| **Typical mitigation** | Pre-processing (rebalance data), in-processing (fairness constraints), or post-processing (recalibrate/adjust) | Block, redact, or rephrase the individual response before it reaches the user |
+| **Output artifact** | Bias metric values feeding a **SageMaker Model Card** | Blocked/intervened request logs feeding **SageMaker Model Monitor** and the next Stage 1 audit |
+
+> **Exam tip:** A scenario describing a **generative AI** application that
+> needs bias addressed **both** before launch **and** on an ongoing basis
+> once it's serving live traffic is testing whether you'll layer
+> **SageMaker Clarify** (pre-generation: dataset and fine-tuned-model bias
+> metrics) *with* **Guardrails for Amazon Bedrock** (runtime: content and
+> safety filtering on each generation) rather than picking just one. A
+> common wrong answer swaps them: choosing Guardrails alone for a
+> question that's actually about a skewed *training dataset*, or choosing
+> Clarify alone for a question that's actually about filtering *live*
+> model output. Watch for the same tell used throughout this domain — if
+> the scenario is about a *dataset* or an *already-trained model's
+> aggregate predictions*, that's Clarify; if it's about *each individual
+> response as it's generated*, that's Guardrails; a scenario combining
+> both signals is asking about **both tools layered together**, not a
+> choice between them.
+
 #### Mini-quiz: Test your understanding of AWS tools for responsible AI
 
 1. Which AWS capability would you use to redact personally identifiable

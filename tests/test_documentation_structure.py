@@ -1230,11 +1230,19 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
         self.assertIn(f"{grand_total} Mermaid", diagrams_section)
 
     def test_structure_doc_does_not_state_stale_37_or_39_diagram_total(self):
+        # Note: this guards the *grand* total specifically (the bolded
+        # "**N Mermaid diagrams**" figure combining the domain guides with
+        # cross-domain-concept-map.md and aws-service-decision-guide.md),
+        # not the unbolded per-domain-guide subtotal earlier in the same
+        # paragraph -- that subtotal legitimately reads 39 once Domain 3
+        # gains two more diagrams and Domain 4 gains one, coinciding with
+        # (but distinct from) the old stale grand-total figure this test
+        # was written to catch.
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
-        self.assertNotIn("37 Mermaid", diagrams_section)
-        self.assertNotIn("39 Mermaid", diagrams_section)
+        self.assertNotIn("37 Mermaid diagrams**", diagrams_section)
+        self.assertNotIn("39 Mermaid diagrams**", diagrams_section)
 
 
 if __name__ == "__main__":

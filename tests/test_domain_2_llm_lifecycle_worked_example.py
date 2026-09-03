@@ -100,11 +100,14 @@ class TestDomain2LlmLifecycleWorkedExample(unittest.TestCase):
     ):
         # This is a fourth standalone "## Worked example" section for
         # Domain 2 (per docs/DOCUMENTATION_STRUCTURE.md's "Domain 2 also
-        # grew beyond a single worked example..." paragraph), and it must
-        # not add or remove any of the seven required numbered topic
-        # sections.
+        # grew beyond a single worked example..." paragraph). A fifth,
+        # "Amazon Q Business vs. a custom Bedrock assistant for enterprise
+        # customer support" (see
+        # tests/test_domain_2_q_business_bedrock_worked_example.py), was
+        # added afterward — it must not add or remove any of the seven
+        # required numbered topic sections.
         standalone = re.findall(r"^## Worked example:", self.text, re.M)
-        self.assertEqual(len(standalone), 4)
+        self.assertEqual(len(standalone), 5)
         numbered_sections = re.findall(r"\n## [1-7]\. ", self.text)
         self.assertEqual(len(numbered_sections), 7)
 

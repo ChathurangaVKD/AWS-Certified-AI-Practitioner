@@ -46,11 +46,11 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,588–3,730 lines each, **11,636 lines total**:
+domain, currently 1,588–3,796 lines each, **11,878 lines total**:
 
 - Domain 1: 1,588 lines
-- Domain 2: 1,993 lines
-- Domain 3: 3,730 lines
+- Domain 2: 2,169 lines
+- Domain 3: 3,796 lines
 - Domain 4: 1,905 lines
 - Domain 5: 2,420 lines
 
@@ -130,10 +130,15 @@ Domain 2 also grew beyond a single worked example: alongside the
 generative AI support assistant walkthrough referenced above, it now has
 a second "## Worked example" section estimating tokens for RAG retrieval
 and long-document summarization, a third section selecting and comparing
-models for a real-time voice assistant use case, and a fourth (closing)
-section tracing all six Section 2 LLM lifecycle stages end-to-end for an
-insurance claims-triage assistant — four standalone "## Worked example"
-sections in total for Domain 2 as well.
+models for a real-time voice assistant use case, a fourth section tracing
+all six Section 2 LLM lifecycle stages end-to-end for an insurance
+claims-triage assistant, and a fifth (closing) section — "## Worked
+example: Amazon Q Business vs. a custom Bedrock assistant for enterprise
+customer support" — comparing per-user Amazon Q Business pricing against
+on-demand Bedrock token cost, data-connector breadth, and customization
+trade-offs for a 200-agent support team choosing between the two from
+scratch — five standalone "## Worked example" sections in total for
+Domain 2 as well.
 Domain 5 also now has one nested worked-example subsection alongside its
 closing HIPAA walkthrough: a "#### Worked example: capping cost under
 three different threat models" subsection inside Section 1's cost-
@@ -227,8 +232,8 @@ four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
 Amazon A2I subsection; Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **31
-worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **32
+worked-example sections in total**: 2 in Domain 1, 5 in Domain 2, 10 in
 Domain 3, 6 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 

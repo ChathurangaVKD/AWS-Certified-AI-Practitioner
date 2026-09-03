@@ -2064,13 +2064,13 @@ where retrieval quietly returns the right chunks. Real deployments —
 and scenario questions that describe a RAG system already in production —
 usually start from a system that answers badly, and expect you to reason
 about *which pipeline stage* is broken before picking a fix. This
-walkthrough follows one team through three separate RAG failures on the
+walkthrough follows one team through four separate RAG failures on the
 same system, diagnosing each before applying a targeted remediation.
 
 **Scenario:** The insurance company from the worked example above has
 shipped its HR policy-lookup assistant. Three months in, HR starts
 escalating complaints that the assistant gives wrong or unhelpful
-answers. The team pulls transcripts and finds three distinct failure
+answers. The team pulls transcripts and finds four distinct failure
 patterns.
 
 ### Failure mode 1: chunks too small to answer the query

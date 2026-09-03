@@ -291,12 +291,10 @@ cross-domain flowchart, and the "Inference deployment pattern comparison"
 section's decision-tree diagram comparing real-time, batch, serverless,
 and provisioned-throughput inference), and
 `aws-service-decision-guide.md` adds three further Mermaid diagrams of its
-own (the Section 4.1 Bedrock model family selection decision flow, the
-Section 6 cost-control decision flow for Amazon API Gateway in front
-of Bedrock/SageMaker endpoints, and the Section 1 layering scenario
-matrix's request-path diagram for Kendra/Knowledge Bases, Amazon Q
-Business, and Clarify/Guardrails ordering), bringing the total to **44
-Mermaid diagrams** (39 in the domain guides + 2 in
+own (the Section 4.1 Bedrock model family selection flow, the Section 6
+cost-control flow, and the Section 1 layering-matrix request-path
+diagram), bringing the total to **44 Mermaid
+diagrams** (39 in the domain guides + 2 in
 cross-domain-concept-map.md + 3 in aws-service-decision-guide.md).
 
 ## Cross-domain support documents: aws-service-index.md

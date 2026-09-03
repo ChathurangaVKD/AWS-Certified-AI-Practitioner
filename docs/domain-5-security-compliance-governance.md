@@ -524,7 +524,19 @@ poisoning corrupts training data, prompt injection hijacks instructions at
 inference time, and model inversion/extraction targets the deployed model
 through its API. Model drift is degradation, not an attack — the
 mitigation (monitoring + retraining) is different from the mitigation for
-the other three (access control, input/output filtering).
+the other three (access control, input/output filtering). Differential privacy, applied during training, is a complementary defense specifically against model inversion/extraction (see [worked example below](#worked-example-applying-differential-privacy-to-a-healthcare-model-training-pipeline)).
+
+#### Worked example: applying differential privacy to a healthcare model-training pipeline
+
+**The scenario.** Meridian Health Alliance, a hospital consortium, trains a readmission-risk model on Amazon SageMaker using pooled patient records from member hospitals, then deploys it behind a Bedrock-fronted clinical decision-support app used across the consortium.
+
+**What it protects against.** The model inversion / extraction attacks described above show an attacker with only ordinary query access can sometimes infer whether a specific individual's record was in training data. **Differential privacy (DP)** defends against exactly this: during training, the SageMaker job clips each example's gradient contribution and adds calibrated random (Gaussian) noise before each parameter update — commonly implemented as DP-SGD. This bounds how much any single patient's record can influence the final model, tracked as a **privacy budget (epsilon, ε)**: a smaller ε is a stronger, more provable guarantee that no patient's data can be reverse-engineered or confirmed present from the model's outputs alone.
+
+**The accuracy/privacy trade-off.** The injected noise is the cost of that guarantee: a small ε (strong privacy) adds enough noise to measurably reduce diagnostic accuracy (AUC-ROC), while a larger ε preserves accuracy but weakens the privacy guarantee. Meridian's team must tune ε deliberately — validating that ε = 3 keeps AUC-ROC in an acceptable clinical range, rather than defaulting to the tightest ε without checking accuracy impact.
+
+**How this differs from encryption at rest.** A customer managed KMS key (see [Data encryption at rest and in transit](#data-encryption-at-rest-and-in-transit)) protects *stored* training data — the raw S3 records — from anyone without decrypt permissions. It does nothing once the model is deployed: an authorized clinician querying the live endpoint never touches the encrypted S3 objects, yet could still extract information about individual training records purely from the model's predictions. Differential privacy protects that separate layer — what the trained model can reveal through its outputs — which encryption at rest cannot address.
+
+**Exam tip:** If a scenario asks how to stop a *deployed model's predictions* from leaking individual training records, the answer is differential privacy — not KMS/encryption at rest, which protects data only in storage, not what a trained model has memorized.
 
 #### Mini-quiz: Test your understanding of security and responsible AI intersections
 

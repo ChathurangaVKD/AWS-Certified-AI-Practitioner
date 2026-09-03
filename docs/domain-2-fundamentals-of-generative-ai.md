@@ -67,7 +67,10 @@ Core vocabulary you must know cold:
 - **Embedding** — a numeric representation of a piece of data (a word,
   sentence, document, image, etc.) that captures its *meaning* in a way a
   model can compute with. Embeddings are produced by an **embeddings
-  model**.
+  model**. See [Domain 3, Section
+  6](domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval)
+  for detailed guidance on choosing and tuning embedding models once you're
+  building an actual vector store/RAG pipeline.
 - **Vector** — the actual array of numbers (e.g., `[0.12, -0.87, 0.33, ...]`)
   that an embedding is stored as. Semantically similar inputs produce
   vectors that are numerically close together in that high-dimensional
@@ -215,9 +218,10 @@ The decision generally comes down to three questions, in order: is a
 general-purpose model good enough, is the domain specialized enough to
 need domain-specific embeddings, and — only if so — is fine-tuning
 actually justified by the data and accuracy bar. This same trade-off
-resurfaces in [Domain 3](domain-3-applications-of-foundation-models.md)
-when selecting and tuning the embedding layer of a vector store/RAG
-pipeline.
+resurfaces when selecting and tuning the embedding layer of a vector
+store/RAG pipeline — see [Domain 3, Section
+6](domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
+for detailed selection guidance.
 
 ```mermaid
 %% Embedding model selection decision tree
@@ -313,7 +317,10 @@ rather than training one from scratch:
    - **Fine-tuning** — further train the FM on your own labeled examples to
      adjust its weights for a specific task or style. AWS: **Amazon
      Bedrock custom models** (fine-tuning), **SageMaker JumpStart**
-     fine-tuning.
+     fine-tuning. See [Domain 3, Section
+     4](domain-3-applications-of-foundation-models.md#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
+     for detailed guidance on fine-tuning efficiency techniques (LoRA,
+     QLoRA, instruction tuning).
    - **Continued pre-training** — further train the FM on a large corpus of
      your own *unlabeled* domain data to adapt it to specialized vocabulary
      (e.g., legal or medical text) before task-specific fine-tuning. AWS:

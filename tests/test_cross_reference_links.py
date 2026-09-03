@@ -55,6 +55,9 @@ EXPECTED_LINKS = {
         "[Domain 1](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview)",
         "[Domain 4](domain-4-guidelines-for-responsible-ai.md)/[Domain 5](domain-5-security-compliance-governance.md)",
         "[Domain 3](domain-3-applications-of-foundation-models.md)",
+        "[Domain 3, Section\n  6](domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval)",
+        "[Domain 3, Section\n6](domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)",
+        "[Domain 3, Section\n     4](domain-3-applications-of-foundation-models.md#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)",
     ],
     3: [
         "[Domain 2](domain-2-fundamentals-of-generative-ai.md) tests whether",

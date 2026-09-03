@@ -373,6 +373,55 @@ exam-testable.
 > large context windows (Claude, AI21) over one optimized for speed/cost
 > (Nova Micro).
 
+### 4.1 Decision flow: choosing a Bedrock model family
+
+The comparison table above is the reference once you know what you're
+looking for; this flow is the "I have a scenario, which family does it
+point to" decision aid that complements it, in the same spirit as the
+SageMaker-vs.-Bedrock-vs.-purpose-built flow in Section 1. Start from the
+**output modality** the scenario actually needs, then narrow by
+reasoning depth, context-window size, cost/latency sensitivity, and
+whether open weights are required:
+
+```mermaid
+graph TD
+    START{"What output modality\ndoes the scenario need?"}
+    START -- "Image generation/editing" --> IMG{"Amazon-native fit (virtual\ntry-on, in/outpainting), or\nthird-party style control?"}
+    IMG -- "Amazon-native" --> NOVACANVAS["Amazon Nova Canvas"]
+    IMG -- "Third-party, fine-grained\nstyle control" --> STABILITY["Stability AI (Stable Image)"]
+    START -- "Video generation" --> NOVAREEL["Amazon Nova Reel"]
+    START -- "Real-time speech-to-speech\nconversation" --> NOVASONIC["Amazon Nova Sonic"]
+    START -- "Vectors only\n(RAG / semantic search)" --> EMBED{"Text only, or text\n+ image embeddings?"}
+    EMBED -- "Text only" --> TITANEMBED["Amazon Titan Text\nEmbeddings V2"]
+    EMBED -- "Text + image, same\nvector space" --> TITANMM["Amazon Titan\nMultimodal Embeddings"]
+    START -- "Text generation / reasoning" --> MODALITY{"Must it also accept\nimage input (multimodal)?"}
+    MODALITY -- "YES" --> MMDEPTH{"Deep reasoning, agentic\ntool use, or computer use\nneeded alongside the image input?"}
+    MMDEPTH -- "YES" --> CLAUDE["Anthropic Claude"]
+    MMDEPTH -- "NO - tiered by\nspeed vs. capability" --> NOVATIER["Amazon Nova\n(Lite / Pro / Premier)"]
+    MODALITY -- "NO - text-only\nis sufficient" --> REASON{"Multi-step chain-of-thought\nreasoning required\n(math, coding, logic)?"}
+    REASON -- "YES" --> REASONCOST{"Is minimizing inference\ncost the priority?"}
+    REASONCOST -- "YES" --> DEEPSEEK["DeepSeek-R1"]
+    REASONCOST -- "NO - favor reasoning depth,\nlong-document analysis, agents" --> CLAUDE2["Anthropic Claude"]
+    REASON -- "NO" --> CONTEXT{"Very long input document\nor long context window?"}
+    CONTEXT -- "YES - efficient\nlong-context handling" --> JAMBA["AI21 Labs Jamba 2.0"]
+    CONTEXT -- "NO" --> OPENWEIGHT{"Open weights required\n(fine-tune/control/portability)?"}
+    OPENWEIGHT -- "YES" --> OWPROVIDER{"OpenAI-trained weights\nspecifically required?"}
+    OWPROVIDER -- "YES" --> GPTOSS["OpenAI gpt-oss"]
+    OWPROVIDER -- "NO - general-purpose\nopen-weight" --> LLAMA["Meta Llama"]
+    OPENWEIGHT -- "NO" --> LATENCY{"Is latency/cost the\ndominant constraint?"}
+    LATENCY -- "YES - fastest,\nlowest-cost text" --> NOVAMICRO["Amazon Nova Micro"]
+    LATENCY -- "NO - enterprise text gen,\nRAG/tool-use, or reranking" --> COHERE["Cohere Command R / R+"]
+```
+
+> **Exam tip:** Modality is the first fork because it's the hardest
+> constraint — a family that's otherwise a great fit is still wrong if it
+> can't produce the required output type at all (e.g., Jamba 2.0 for an
+> image-generation ask). Once modality narrows the field to text
+> generation, the remaining forks — reasoning depth, context length,
+> open-weight need, and cost/latency — mirror the same criteria the
+> comparison table's "Exam-style cue" column tests, just organized as a
+> sequence of yes/no questions instead of a table scan.
+
 For the underlying Bedrock feature set these models plug into (Knowledge
 Bases, Agents, Guardrails, Model Evaluation, Provisioned Throughput), see
 [Domain 3 §5 — Amazon Bedrock features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features).

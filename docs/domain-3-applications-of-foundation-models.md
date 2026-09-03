@@ -25,6 +25,7 @@
 - [Worked example: estimating tokens for long-document summarization](#worked-example-estimating-tokens-for-long-document-summarization)
 - [Worked example: estimating and comparing monthly inference costs across three model tiers](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
 - [Worked example: comparing fine-tuning and prompt engineering on the same task](#worked-example-comparing-fine-tuning-and-prompt-engineering-on-the-same-task)
+- [Worked example: a Bedrock Agent executing a multi-step task with tool calling](#worked-example-a-bedrock-agent-executing-a-multi-step-task-with-tool-calling)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)

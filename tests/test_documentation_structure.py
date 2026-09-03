@@ -1200,10 +1200,10 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
     def test_concept_map_and_decision_guide_mermaid_counts(self):
         concept_map_path = DOCS_DIR / "cross-domain-concept-map.md"
         decision_guide_path = DOCS_DIR / "aws-service-decision-guide.md"
-        self.assertEqual(self._mermaid_count(concept_map_path), 1)
+        self.assertEqual(self._mermaid_count(concept_map_path), 2)
         self.assertEqual(self._mermaid_count(decision_guide_path), 2)
 
-    def test_structure_doc_has_diagrams_paragraph_stating_grand_total_of_39(self):
+    def test_structure_doc_has_diagrams_paragraph_stating_grand_total_of_40(self):
         domain_total = sum(
             self._mermaid_count(path) for path in DOMAIN_FILES.values()
         )
@@ -1214,7 +1214,7 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
             DOCS_DIR / "aws-service-decision-guide.md"
         )
         grand_total = domain_total + concept_map_total + decision_guide_total
-        self.assertEqual(grand_total, 39)
+        self.assertEqual(grand_total, 40)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(
@@ -1229,11 +1229,12 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
         self.assertIn("aws-service-decision-guide.md", diagrams_section)
         self.assertIn(f"{grand_total} Mermaid", diagrams_section)
 
-    def test_structure_doc_does_not_state_stale_37_diagram_total(self):
+    def test_structure_doc_does_not_state_stale_37_or_39_diagram_total(self):
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertNotIn("37 Mermaid", diagrams_section)
+        self.assertNotIn("39 Mermaid", diagrams_section)
 
 
 if __name__ == "__main__":

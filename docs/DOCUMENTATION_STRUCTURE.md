@@ -46,9 +46,9 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,583–3,502 lines each:
+domain, currently 1,588–3,502 lines each:
 
-- Domain 1: 1,583 lines
+- Domain 1: 1,588 lines
 - Domain 2: 1,993 lines
 - Domain 3: 3,502 lines
 - Domain 4: 1,905 lines
@@ -224,10 +224,13 @@ nested at the sub-bullet level within some of those sections.
 **Diagrams:** The five domain guides contain 36 Mermaid flowchart diagrams
 in total: Domain 1 has seven, Domain 2 has five, Domain 3 has fourteen,
 Domain 4 has five, and Domain 5 has five. `cross-domain-concept-map.md`
-adds one more Mermaid diagram in its "Visual overview" section, and
+adds two more Mermaid diagrams (the "Visual overview" section's
+cross-domain flowchart, and the "Inference deployment pattern comparison"
+section's decision-tree diagram comparing real-time, batch, serverless,
+and provisioned-throughput inference), and
 `aws-service-decision-guide.md` adds two further Mermaid diagrams of its
 own (the Section 4.1 Bedrock model family selection decision flow, and
 the Section 6 cost-control decision flow for Amazon API Gateway in front
-of Bedrock/SageMaker endpoints), bringing the total to **39 Mermaid
-diagrams** (36 in the domain guides + 1 in cross-domain-concept-map.md +
+of Bedrock/SageMaker endpoints), bringing the total to **40 Mermaid
+diagrams** (36 in the domain guides + 2 in cross-domain-concept-map.md +
 2 in aws-service-decision-guide.md).

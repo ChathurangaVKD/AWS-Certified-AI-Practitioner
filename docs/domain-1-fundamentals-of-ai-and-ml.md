@@ -109,6 +109,11 @@ Other core vocabulary you must know cold:
   endpoint), **batch inference** (large offline jobs), **asynchronous
   inference** (large payloads, minutes-long processing, queued), and
   **serverless inference** (intermittent traffic, auto-scales to zero).
+  See the [cross-domain concept map's inference deployment pattern
+  comparison](cross-domain-concept-map.md#inference-deployment-pattern-comparison)
+  for how real-time, batch, serverless, and Domain 3's provisioned
+  throughput compare side by side on latency, cost model, scaling, and
+  use case.
 
 **AWS example:** Amazon SageMaker is AWS's umbrella ML platform — it doesn't
 force you to pick AI vs. ML vs. DL; it gives you the tooling (notebooks,

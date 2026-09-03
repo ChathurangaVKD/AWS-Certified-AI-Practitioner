@@ -2169,6 +2169,24 @@ aid once you already have.
     C. (1) and (2) are both satisfied solely by executing a BAA via AWS Artifact
     D. (1) and (2) are both satisfied solely by enabling AWS Config
 
+27. **[Beginner]** A photo-syndication company generates images with Amazon Titan Image Generator G1 v2 and needs to later prove, on demand, whether a disputed image came from its AI pipeline. What does the model's built-in watermarking primarily protect against / enable?
+    A. Preventing the image from being copied or redistributed without a license
+    B. Encrypting the image so only authorized viewers can open it
+    C. Verifying after the fact whether an image was AI-generated, supporting transparency and content provenance
+    D. Losslessly compressing the image for cheaper storage
+
+28. **[Beginner]** Which AWS model automatically embeds an invisible watermark in every image it generates, as a built-in, always-on provenance control?
+    A. Amazon Rekognition
+    B. Amazon Titan Image Generator G1 v2 (via Amazon Bedrock)
+    C. Amazon Comprehend
+    D. Amazon Polly
+
+29. **[Intermediate]** How does Titan Image Generator G1 v2's built-in invisible watermark differ from a cryptographic digital signature?
+    A. They are functionally identical — "watermark" is simply Amazon's marketing term for a digital signature
+    B. The watermark is embedded directly in the image's pixel data and is designed to survive transformations like resizing and compression, whereas a digital signature is a separate cryptographic artifact tied to the exact original file that breaks with any modification
+    C. A digital signature is visible to viewers, while a watermark is always invisible
+    D. Digital signatures can be verified programmatically, but an embedded watermark can never be detected once applied
+
 ---
 
 ## Answer key
@@ -2199,6 +2217,9 @@ aid once you already have.
 24. **B.** AWS IAM Access Analyzer continuously analyzes resource-based policies (S3 bucket policies, Bedrock model resource policies) to flag resources shared with entities outside your account/organization, directly answering "is this over-shared?" Audit Manager (A) assembles compliance evidence, Macie (C) discovers sensitive data content, and Config (D) tracks configuration compliance rather than external-sharing analysis specifically.
 25. **B.** The NIST AI RMF is voluntary US guidance organized around Govern/Map/Measure/Manage; the EU AI Act is a binding EU regulation that classifies AI systems into risk tiers with mandatory obligations for higher-risk systems. (A), (C), and (D) all misstate which one is binding and their scope.
 26. **B.** The EU AI Act's high-risk obligations are legally mandatory for a high-risk AI system operating in the EU, while ISO/IEC 42001 certification is a voluntary standard organizations pursue to demonstrate a mature AI management system. AWS Artifact/BAA (C) relates to HIPAA, not this scenario, and AWS Config (D) doesn't address either legal compliance or certification.
+27. **C.** Titan Image Generator G1 v2's embedded watermark exists to let anyone later verify whether an image was AI-generated, a transparency and content-provenance control, not a security control. It does not restrict copying (A), it is not encryption (B), and it has no compression function (D).
+28. **B.** Amazon Titan Image Generator G1 v2, accessed through Amazon Bedrock, automatically embeds an invisible digital watermark in every image it generates as a built-in, always-on property the caller cannot disable. Rekognition (A) analyzes images/video, Comprehend (C) analyzes text, and Polly (D) synthesizes speech — none generate or watermark images.
+29. **B.** The watermark is embedded in the pixel data itself and is engineered to survive ordinary downstream handling like resizing, format conversion, and moderate compression, so it can still be detected later. A digital signature, by contrast, is a separate cryptographic artifact computed over the exact original bytes — any modification to the file invalidates it. (A) conflates two distinct concepts; (C) reverses reality (Titan's watermark is invisible, not the signature); (D) is false — both are designed to be verifiable, just via different mechanisms (Bedrock's watermark-detection capability vs. cryptographic signature verification).
 
 ---
 

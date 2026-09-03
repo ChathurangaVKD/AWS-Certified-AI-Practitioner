@@ -67,11 +67,12 @@ REQUIRED_REGULATIONS = [
 ]
 
 # Domain 5's 5.1/5.2 sub-topic count, after closing this content gap,
-# genuinely exceeds the 15-20 range used by Domains 1-4 (26 questions
-# covering both task statements' full sub-area lists) -- MAX_QUESTIONS is
-# widened accordingly rather than left copy-pasted from another domain.
+# genuinely exceeds the 15-20 range used by Domains 1-4 (29 questions
+# covering both task statements' full sub-area lists, including the
+# watermarking/AI-generated-content-detection questions) -- MAX_QUESTIONS
+# is widened accordingly rather than left copy-pasted from another domain.
 MIN_QUESTIONS = 15
-MAX_QUESTIONS = 26
+MAX_QUESTIONS = 29
 
 
 def _read_doc():

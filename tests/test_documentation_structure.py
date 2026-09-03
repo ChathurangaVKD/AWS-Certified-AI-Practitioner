@@ -217,7 +217,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("27", diagrams_section)
+        self.assertIn("29", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -564,8 +564,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"```mermaid", text))
         self.assertEqual(
             actual_total,
-            27,
-            "sanity check: expected 27 total Mermaid diagrams across the "
+            29,
+            "sanity check: expected 29 total Mermaid diagrams across the "
             "five domain guides",
         )
         diagrams_idx = self.structure_text.find("**Diagrams:**")
@@ -592,13 +592,13 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         )
 
     def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
-        # The domain guides' 27 Mermaid diagrams are not the whole picture:
+        # The domain guides' 29 Mermaid diagrams are not the whole picture:
         # cross-domain-concept-map.md's "Visual overview" section has one
-        # more Mermaid diagram (28 Mermaid diagrams total), and three of the
+        # more Mermaid diagram (30 Mermaid diagrams total), and three of the
         # domain guides also carry a plain-text ASCII rendering of a
         # diagram that already exists as Mermaid (Domain 1's ML lifecycle,
         # Domain 5's data-governance lifecycle diagram, and Domain 5's
-        # shared-responsibility model), for 31 diagrams
+        # shared-responsibility model), for 33 diagrams
         # overall. DOCUMENTATION_STRUCTURE.md previously undercounted this
         # (stating "All 24 flowchart-style diagrams") and omitted the
         # cross-domain diagram and the ASCII diagrams entirely.
@@ -617,10 +617,10 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "cross-domain-concept-map.md's Visual overview section",
         )
         grand_mermaid_total = domain_mermaid_total + concept_map_mermaid_total
-        self.assertEqual(grand_mermaid_total, 28)
+        self.assertEqual(grand_mermaid_total, 30)
         ascii_diagram_count = 3
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 31)
+        self.assertEqual(grand_total, 33)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
@@ -634,7 +634,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 28-diagram "
+            "DOCUMENTATION_STRUCTURE.md does not state the 30-diagram "
             "Mermaid total once cross-domain-concept-map.md is included",
         )
         self.assertIn(
@@ -647,12 +647,12 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 31-diagram "
-            "grand total (28 Mermaid + 3 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 33-diagram "
+            "grand total (30 Mermaid + 3 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):
-        expected_words = {1: "six", 2: "four", 3: "nine", 4: "three", 5: "five"}
+        expected_words = {1: "seven", 2: "four", 3: "nine", 4: "four", 5: "five"}
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         for domain_number, path in DOMAIN_FILES.items():
@@ -884,13 +884,13 @@ class TestDocumentationStructureScenarioQuestionCountAccuracy(unittest.TestCase)
 class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously stated 101 total domain
     practice questions and 188 total questions overall (101 domain + 65
-    mock + 22 scenario). The five domain guides actually carry 110 practice
-    questions in total (24 for Domain 1, 20 each for Domains 2-4, 26 for
-    Domain 5), which combined with the 65-question mock exam and the 22
-    cross-domain scenario questions comes to 197 total questions. These
-    tests derive the true figures directly from the source files and
-    assert DOCUMENTATION_STRUCTURE.md matches them, guarding against the
-    doc drifting stale again."""
+    mock + 22 scenario). The five domain guides actually carry 114 practice
+    questions in total (24 for Domain 1, 24 for Domain 2, 20 each for
+    Domains 3-4, 26 for Domain 5), which combined with the 65-question mock
+    exam and the 22 cross-domain scenario questions comes to 201 total
+    questions. These tests derive the true figures directly from the
+    source files and assert DOCUMENTATION_STRUCTURE.md matches them,
+    guarding against the doc drifting stale again."""
 
     @classmethod
     def setUpClass(cls):
@@ -939,16 +939,16 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
             total += len(re.findall(r"^#{3,4} Mini-quiz:", text, re.M))
         return total
 
-    def test_actual_domain_question_total_is_110(self):
+    def test_actual_domain_question_total_is_114(self):
         self.assertEqual(
             self._actual_domain_question_total(),
-            110,
-            "sanity check: expected 110 practice questions across the "
-            "five domain guides (24 for Domain 1, 20 each for Domains "
-            "2-4, 26 for Domain 5)",
+            114,
+            "sanity check: expected 114 practice questions across the "
+            "five domain guides (24 for Domain 1, 24 for Domain 2, 20 "
+            "each for Domains 3-4, 26 for Domain 5)",
         )
 
-    def test_actual_grand_total_is_197(self):
+    def test_actual_grand_total_is_201(self):
         grand_total = (
             self._actual_domain_question_total()
             + self._actual_mock_exam_question_total()
@@ -956,9 +956,9 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         )
         self.assertEqual(
             grand_total,
-            197,
-            "sanity check: expected 110 domain + 65 mock-exam + 22 "
-            "scenario questions to sum to 197",
+            201,
+            "sanity check: expected 114 domain + 65 mock-exam + 22 "
+            "scenario questions to sum to 201",
         )
 
     def test_structure_doc_states_106_domain_practice_questions(self):

@@ -1508,6 +1508,134 @@ involved.
 
 ---
 
+## Worked example: pairing a classical ML ranker scored by SageMaker Clarify with a Bedrock FM protected by Guardrails
+
+The [Section 3 worked example above](#worked-example-layering-sagemaker-clarify-and-guardrails-for-amazon-bedrock-to-audit-a-generative-recommendation-engine)
+layers Clarify and Guardrails on the *same* model: one fine-tuned
+foundation model, audited by Clarify before launch and filtered by
+Guardrails at runtime. That pattern is real, but on its own it can leave
+the impression that Clarify and Guardrails are just two checkpoints in
+one model's lifecycle. Just as often, a production system pairs a
+**classical ML model** and a **foundation model** as two distinct
+components doing two distinct jobs — and each tool applies to exactly
+one of those components, never the other. This worked example follows
+one company through that architecture, to make the boundary between the
+two tools explicit instead of implied.
+
+**Scenario:** Cascade Outdoors, an outdoor-gear retailer, builds a
+two-component product recommendation system. **Component 1** is a
+classical ML ranking model — a gradient-boosted tree trained on
+structured data (past purchases, category views, return rates) — that
+scores and ranks the full catalog down to a shopper's top 12 candidate
+items. **Component 2** is a foundation model on **Amazon Bedrock** that
+takes those 12 ranked candidates plus the shopper's profile and writes a
+short, personalized paragraph explaining why each item was picked,
+displayed on the shopper's homepage. The responsible-AI review board asks
+a pointed question before launch: which tool audits which half of this
+system, and can a single tool cover both?
+
+1. **Match each tool to what it's built to inspect.** Per the [comparison
+   table](#comparison-table-aws-responsible-ai-tools-at-a-glance),
+   **SageMaker Clarify** measures bias in **datasets and trained model
+   predictions** — it needs structured, labeled data and a model that
+   produces a scorable prediction against a defined evaluation set.
+   **Guardrails for Amazon Bedrock** filters **foundation model inputs
+   and outputs at inference time** — it needs live generated text to
+   inspect, not a training dataset. Component 1 (the gradient-boosted
+   ranker) fits Clarify's requirements exactly; Component 2 (the FM
+   writing free-form paragraphs) fits Guardrails' requirements exactly.
+   Neither tool's requirements fit the *other* component.
+2. **Audit Component 1 with SageMaker Clarify — and only Component 1.**
+   The team runs Clarify's pre-training metrics (class imbalance, DPL) on
+   the ranking model's structured training data, then post-training
+   **disparate impact** on its held-out evaluation set, and finds that
+   shoppers in a lower-purchase-frequency segment are systematically
+   ranked lower for an entire product category — a bias in *which 12
+   items get selected at all*. They mitigate with a pre-processing
+   rebalance of the training data and confirm disparate impact falls back
+   within threshold. This is a structural, statistical audit of a
+   scoring model against labeled outcomes — exactly Clarify's job, and a
+   job Guardrails cannot do, because Guardrails has no visibility into a
+   ranking model's training data or its aggregate scoring behavior across
+   the shopper base; it only ever inspects one piece of generated text at
+   a time.
+3. **Attach Guardrails to Component 2 — and only Component 2.**
+   Separately, the team configures **Guardrails for Amazon Bedrock** on
+   the FM endpoint that writes the personalized paragraphs: **denied
+   topics** (never cite a shopper's protected characteristics as a reason
+   for a pick), **content filters** and **word filters** (block
+   stereotyped or inappropriate phrasing), **sensitive information
+   filters** (redact any PII echoed back from the shopper's profile
+   text), and **contextual grounding checks** (verify the generated
+   paragraph only describes the 12 candidates Component 1 actually
+   selected, not a fabricated product). This is a real-time, per-
+   generation check on free-form text — exactly Guardrails' job, and a
+   job Clarify cannot do, because there is no fixed, labeled evaluation
+   set for open-ended generated prose for Clarify to score it against.
+4. **Reject the shortcut of collapsing both audits into one metric.** A
+   junior engineer proposes running Clarify just once against the *whole
+   pipeline's* final output (impressions per demographic segment),
+   reasoning that one aggregate bias metric could cover both components.
+   The review board rejects this: a single end-to-end metric could show
+   the *combined* system looks balanced in aggregate while still hiding a
+   real problem in either half — a ranking model that quietly
+   under-selects one segment's preferred category could be masked by an
+   FM that happens to write enthusiastically for whoever it *is* shown
+   to, and a live prompt-injection attempt against the FM would never
+   show up in a periodic aggregate metric at all. The board requires both
+   audits to stay separate and run on their own cadence, not blended into
+   one combined score.
+5. **Recognize what grounding checks do and don't cover at the
+   boundary.** Component 1 hands Component 2 a fixed candidate list;
+   Guardrails' contextual grounding check on Component 2 is only
+   meaningful because Component 1's list is the ground truth it checks
+   against. If Component 1's ranking were itself biased, Guardrails would
+   faithfully write grounded, well-filtered copy for a biased set of
+   products — a grounding check confirms the paragraph matches the
+   candidates, it says nothing about whether the candidates themselves
+   were fairly chosen. That is precisely why step 2's Clarify audit has
+   to run upstream and independently, rather than being assumed
+   unnecessary because Guardrails is running downstream.
+6. **Document and govern both components in one system-level record.**
+   The team completes a **SageMaker Model Card** for Component 1
+   (training data, pre/post-training Clarify metrics, the mitigation
+   applied, and its intended use as a candidate ranker only) and
+   references Component 2's Guardrails configuration and blocked-request
+   logs alongside it, so a reviewer auditing "the recommendation system"
+   sees one record covering both components instead of two disconnected
+   artifacts. **SageMaker Model Monitor** watches Component 1 for
+   ranking-bias drift; Guardrails' own intervention logs are the
+   equivalent ongoing signal for Component 2 — two independent monitoring
+   streams for two independent components, reviewed together on the same
+   quarterly governance cadence.
+
+**Why this differs from the Section 3 worked example:** the [earlier
+Clarify/Guardrails worked
+example](#worked-example-layering-sagemaker-clarify-and-guardrails-for-amazon-bedrock-to-audit-a-generative-recommendation-engine)
+layers both tools on **one** model across two points in its lifecycle
+(pre-launch and runtime). This example layers both tools on **two
+separate models** that never swap roles: Clarify never touches the FM's
+live generations, and Guardrails never touches the ranking model's
+training data. Both patterns are real and both are testable — the signal
+to watch for is whether a scenario describes *one generative model
+audited at two stages* or *two different model types, each needing its
+own tool*.
+
+> **Exam tip:** If a scenario names two components — a "ranking model,"
+> "scoring model," or any model trained on structured/tabular data,
+> **plus** a separate foundation model that generates text — that's
+> telling you to reach for **SageMaker Clarify on the structured model**
+> and **Guardrails for Amazon Bedrock on the FM**, not one tool for the
+> whole pipeline. A distractor answer that proposes running Clarify
+> against the FM's generated output, or running Guardrails against the
+> ranking model's training data, is testing whether you remember that
+> **Clarify needs labeled structured data and a scorable prediction, and
+> Guardrails needs live FM input/output** — neither tool substitutes for
+> the other, no matter how tightly the two components are wired together
+> downstream.
+
+---
+
 ## Comparison table: AWS responsible AI tools at a glance
 
 | Tool | What it is | Primary use case | Applies to | When to choose it |

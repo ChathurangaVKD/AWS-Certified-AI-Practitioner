@@ -12,6 +12,7 @@
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
 - [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
   - [Fine-tuning efficiency techniques: full fine-tuning vs. LoRA vs. QLoRA vs. instruction tuning](#fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning)
+  - [Reinforcement Learning from Human Feedback (RLHF): aligning fine-tuned models to human preferences](#reinforcement-learning-from-human-feedback-rlhf-aligning-fine-tuned-models-to-human-preferences)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
@@ -1516,6 +1517,83 @@ explanation.
    without any retraining, exactly fitting a frequently changing data
    source; fine-tuning and continued pre-training both bake knowledge into
    static weights that would need daily retraining to stay current.
+
+### Reinforcement Learning from Human Feedback (RLHF): aligning fine-tuned models to human preferences
+
+Everything in the previous subsection — full fine-tuning, LoRA, QLoRA,
+instruction tuning — trains a model on a **fixed dataset of labeled
+examples** using supervised learning: the model sees an input, produces
+an output, and is corrected against a single "correct" target. This is
+usually called **supervised fine-tuning (SFT)**. **RLHF** is a distinct,
+fourth customization technique layered *on top of* SFT rather than a
+replacement for it, and it optimizes for something SFT can't capture on
+its own: which of several plausible responses **humans actually prefer**.
+
+RLHF trains a model in three stages:
+
+- **Stage 1 — start from an SFT model.** Fine-tune (or instruction-tune)
+  a pretrained FM on labeled examples, exactly as described above. This
+  becomes the baseline policy that RLHF further refines.
+- **Stage 2 — train a reward model on human preference data.** Human
+  labelers rank or compare multiple model outputs for the same prompt
+  (e.g., "response A is more helpful/honest/harmless than response B").
+  A separate **reward model** is trained on these pairwise preference
+  rankings to predict a scalar score for how much a human would prefer a
+  given response.
+- **Stage 3 — fine-tune the SFT model against the reward model using
+  reinforcement learning** (commonly **Proximal Policy Optimization**,
+  PPO). The model generates responses, the reward model scores them, and
+  the model's weights are updated to maximize expected reward — i.e., to
+  produce more of what human reviewers preferred, without drifting so
+  far from the original SFT model that output quality or coherence
+  degrades.
+
+The result is a model tuned not just to reproduce labeled examples
+verbatim (what SFT alone does), but to generalize toward the *style* of
+response humans rate highest — more helpful, more honest, less harmful —
+which is exactly what production chat and instruction-following
+assistants need. This is the technique used to turn a raw, instruction-
+tuned FM into an assistant that reliably follows open-ended instructions
+and refuses unsafe requests, rather than one that merely mimics its
+labeled training pairs.
+
+**Positioning RLHF against SFT, RAG, and prompt engineering — extending
+the decision matrix above:**
+
+| Need | Best fit |
+|---|---|
+| Teach one narrow, well-defined task/format from labeled input/output pairs, with no ambiguity about what a "correct" output looks like | SFT alone |
+| Improve open-ended chat/instruction-following quality — helpfulness, tone, honesty, refusing unsafe requests — where "correct" is a matter of degree and human judgment, not one fixed label | SFT, then layer RLHF on top |
+| Ground answers in current, proprietary, or frequently changing knowledge | RAG (RLHF does not fix stale or missing knowledge — it only changes *how* the model expresses what it already knows) |
+| Quick behavior adjustment, no training data or labeler budget available | Prompt engineering |
+
+> **Exam tip:** If a scenario says the model needs to follow one fixed,
+> well-specified labeled task (e.g., "always output a JSON summary in
+> this exact schema"), plain **SFT/fine-tuning** is enough — RLHF adds
+> cost and complexity for a problem SFT already solves. If the scenario
+> instead describes an **open-ended chat or instruction-following
+> assistant** where humans need to judge *which of several responses is
+> better* — more helpful, more polite, safer — that's **RLHF layered on
+> an SFT baseline**. And if the complaint is that answers are outdated or
+> don't reflect proprietary data, RLHF is the wrong lever entirely —
+> reach for **RAG** instead, since RLHF only reshapes response style and
+> preference alignment, not the model's underlying factual knowledge.
+
+**AWS example:** A SaaS company fine-tunes a foundation model on Amazon
+SageMaker to power a customer-support chat assistant. They first run
+**SFT** on a labeled set of transcript/response pairs so the model
+learns the company's tone and product terminology. Support leads then
+notice the SFT model sometimes gives technically correct but unhelpfully
+terse or overly blunt answers. Rather than hand-labeling one "correct"
+response per prompt (which can't capture "this response is *better*,
+not just different"), they collect human rankings of multiple candidate
+responses per prompt and run an **RLHF** pass — training a reward model
+on those rankings and using it to further align the SFT model toward the
+responses reviewers consistently preferred. Because the assistant also
+needs to answer questions about the current product catalog and open
+support tickets, they keep a **RAG** layer over Amazon Bedrock Knowledge
+Bases in front of the whole pipeline — RLHF improves *how* the model
+responds, RAG ensures *what* it knows stays current.
 
 ---
 

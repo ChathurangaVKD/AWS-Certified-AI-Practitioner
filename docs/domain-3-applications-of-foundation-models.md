@@ -15,6 +15,7 @@
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
+  - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
@@ -1236,6 +1237,60 @@ flowchart TD
 > the scenario adds "and we also need keyword/full-text search fused into
 > the same query," that pulls the answer toward **OpenSearch** instead,
 > regardless of which relational database is already in place.
+
+### Reranking and hybrid search: sharpening vector-only results
+
+Plain vector similarity search returns the chunks *closest* to the query vector
+— not necessarily the chunks that best *answer* it, and not necessarily
+chunks that contain an exact term the user cares about (a product code, a
+person's name, an acronym). Two techniques address these gaps, and the
+exam expects you to know when each is worth the added cost/latency versus
+when plain vector search is already good enough:
+
+- **Reranking** — retrieve an initial candidate set with fast vector
+  similarity search (e.g., top 50), then run those candidates through a
+  separate, more expensive **reranking model** that scores each one for
+  relevance to the specific query and re-orders them before the top few
+  are sent to the FM as context. Reranking catches cases where the
+  correct chunk is topically close but not the closest vector match —
+  the same relevance-drift failure mode discussed in the [RAG
+  troubleshooting worked
+  example](#worked-example-troubleshooting-a-failing-rag-system).
+- **Hybrid search** — combine vector (semantic) search with traditional
+  keyword/full-text search in the same query, then fuse the two result
+  sets (e.g., via a weighted score or reciprocal rank fusion). Hybrid
+  search catches cases where semantic similarity alone misses an exact
+  term — a query containing a specific SKU, error code, or proper noun
+  that a purely semantic match might rank low because the *surrounding*
+  words don't line up.
+
+| Dimension | Reranking | Hybrid (vector + keyword) search |
+|---|---|---|
+| **When it's essential** | Retrieved chunks are topically related but the FM keeps citing the *wrong* one among several plausible candidates — relevance needs a second, finer-grained pass. High-stakes answers (legal, medical, financial) where picking the *most* relevant chunk, not just *a* relevant chunk, matters. | Queries routinely include exact terms — product codes, IDs, names, acronyms, error messages — that a semantic-only match can bury under topically similar but wrong content. |
+| **When it's nice-to-have (not essential)** | Retrieval is already precise (a small, narrow corpus) and the top vector match is consistently correct — added latency/cost of a second model isn't buying much. | The corpus is conceptual/narrative (policies, guides) with few exact-match terms, so semantic similarity alone already surfaces the right content. |
+| **Cost/latency tradeoff** | Adds an extra model call per query (on the candidate set, not the whole corpus) — moderate added latency for a relevance boost. | Adds a second (keyword) query path and a fusion step — lower added latency than reranking, but requires a search backend that supports keyword search alongside vectors. |
+| **How Amazon Bedrock Knowledge Bases relates** | Bedrock Knowledge Bases supports plugging in a **reranking model** as an optional step in the retrieval flow, re-scoring the chunks it retrieves before they're passed to the FM — you opt in, you don't have to build the reranking pipeline yourself. | Bedrock Knowledge Bases can perform hybrid search automatically when its underlying vector store supports it (e.g., **Amazon OpenSearch Service/Serverless**) — again, no custom fusion logic to write; you choose a vector store with hybrid support and enable it. |
+
+```mermaid
+flowchart TD
+    START(["Retrieval quality problem,\nor designing retrieval upfront?"])
+    START --> Q1{"Are queries topically broad but\nthe FM often cites the wrong chunk\namong several plausible ones?"}
+    Q1 -->|"YES"| RR["ADD RERANKING\n(Bedrock Knowledge Bases\nreranking model, or a\nstandalone reranker)\nre-scores candidates for\nquery-specific relevance"]
+    Q1 -->|"NO"| Q2{"Do queries often include exact\nterms - IDs, codes, names,\nerror messages - that must\nsurface even if wording differs?"}
+    Q2 -->|"YES"| HS["USE HYBRID SEARCH\n(vector + keyword, e.g. via\nAmazon OpenSearch Service/\nServerless as the Knowledge\nBase's vector store)"]
+    Q2 -->|"NO"| Q3{"Is this high-stakes\n(legal/medical/financial) where\npicking the single MOST relevant\nchunk matters, not just A\nrelevant one?"}
+    Q3 -->|"YES"| BOTH["USE BOTH: hybrid search to\nwiden recall, then reranking\nto sharpen precision on\nthe candidates"]
+    Q3 -->|"NO"| PLAIN["PLAIN VECTOR SEARCH IS\nLIKELY ENOUGH - add reranking\nor hybrid search later only if\nretrieval quality issues appear"]
+```
+
+> **Exam tip:** A scenario describing the FM giving answers built from
+> "close but not quite right" retrieved content — after ruling out a bad
+> embedding model — is pointing at **reranking**. A scenario where users
+> search for exact codes, names, or error messages and don't get them
+> back is pointing at **hybrid search**. Both are configured *within*
+> **Amazon Bedrock Knowledge Bases** (a reranking model option, and a
+> vector store that supports hybrid search, such as OpenSearch) rather
+> than requiring you to build a separate pipeline.
 
 #### Mini-quiz: Test your understanding of vector databases and embeddings
 

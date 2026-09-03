@@ -217,7 +217,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("29", diagrams_section)
+        self.assertIn("30", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -649,8 +649,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"```mermaid", text))
         self.assertEqual(
             actual_total,
-            29,
-            "sanity check: expected 29 total Mermaid diagrams across the "
+            30,
+            "sanity check: expected 30 total Mermaid diagrams across the "
             "five domain guides",
         )
         diagrams_idx = self.structure_text.find("**Diagrams:**")

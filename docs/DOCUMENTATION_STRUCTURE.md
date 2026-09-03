@@ -183,9 +183,8 @@ bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention
 pipeline, Section 1); Domain 3 has ten (including the FM-customization
 decision tree, Section 4, the vector store decision tree, Section 3, the
-D1-to-D3 inference-type decision tree, Section 8, the RAG
-retrieval-failure decision tree, and the Bedrock Agents vs. Prompt Flows
-vs. prompt chaining orchestration decision tree, Section 5);
+D1-to-D3 inference-type decision tree, Section 8, and the RAG
+retrieval-failure decision tree);
 Domain 4 has four (including the bias
 detection/mitigation workflow, Section 2); Domain 5 has five (covering the
 KMS key lifecycle and encryption architecture, Section 1, a compliance

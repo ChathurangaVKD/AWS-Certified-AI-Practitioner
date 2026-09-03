@@ -139,6 +139,40 @@ flowchart LR
 
 ---
 
+## Inference deployment pattern comparison
+
+[Domain 1's inference-type terminology](domain-1-fundamentals-of-ai-and-ml.md#1-basic-aimldl-terminology-and-concepts)
+(real-time, batch, and serverless inference) and
+[Domain 3's Bedrock throughput decision](domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads)
+(on-demand vs. provisioned throughput) are two vocabularies for the same
+underlying trade-off, covered in scattered prose across both domain
+guides. This diagram consolidates all four deployment patterns —
+real-time, batch, serverless, and provisioned throughput — into one
+side-by-side comparison on latency, cost model, scaling behavior, and
+typical use case, so you can see how they relate without flipping between
+sections:
+
+```mermaid
+flowchart TD
+    START(["Choosing an inference\ndeployment pattern"])
+    START --> Q1{"Does a user or system\nwait on a live response?"}
+    Q1 -->|"NO - large volume\nscored offline"| BATCH["BATCH\nLatency: minutes to hours,\nno live request\nCost model: pay only for the\njob's compute duration\nScaling: fixed-size job,\nno persistent endpoint\nTypical use case: nightly\nscoring runs, large offline\nreports"]
+    Q1 -->|"YES - a live request\nneeds a response"| Q2{"Is traffic intermittent\nwith idle gaps, or steady?"}
+    Q2 -->|"Intermittent, spiky, or\nunpredictable - can tolerate\nan occasional cold-start delay"| SERVERLESS["SERVERLESS\nLatency: low, but a cold-start\ndelay after idle periods\nCost model: pay-per-request,\nauto-scales to zero when idle\nScaling: fully automatic,\nno capacity to size\nTypical use case: bursty or\nlow-volume traffic, dev/test\nendpoints"]
+    Q2 -->|"Steady traffic, no\ncold-start tolerance"| Q3{"Is volume high/steady/\npredictable enough to justify\na capacity commitment, or is\na custom/fine-tuned model\nbeing served?"}
+    Q3 -->|"NO - variable or\nlow/moderate volume,\nbase model"| REALTIME["REAL-TIME / ON-DEMAND\nLatency: low, persistent\nendpoint, no cold start\nCost model: pay per request/\ntoken, no capacity commitment\nScaling: auto-scaling\npersistent endpoint\nTypical use case: live chat,\ninteractive apps, variable\nproduction traffic"]
+    Q3 -->|"YES - high/steady/\npredictable volume, a custom\nmodel, or a guaranteed\nlatency SLA"| PROVISIONED["PROVISIONED THROUGHPUT\nLatency: lowest, guaranteed\nSLA regardless of other traffic\nCost model: flat-rate dedicated\ncapacity, 1- or 6-month commit\nScaling: fixed capacity sized\nand paid for up front\nTypical use case: production\ntraffic for a fine-tuned model,\nhigh-volume steady workloads"]
+```
+
+The same four factors keep reappearing whichever vocabulary a scenario
+uses: **does something wait on the response** (batch vs. everything
+else), **how predictable is the traffic** (serverless vs. real-time/
+provisioned), and **is a capacity commitment justified by volume, a
+custom model, or an SLA** (real-time/on-demand vs. provisioned
+throughput).
+
+---
+
 ## Domain 1 → Domain 3: Applications of Foundation Models
 
 | Domain 1 fundamental | Flows into (Domain 3) | Why the connection matters |

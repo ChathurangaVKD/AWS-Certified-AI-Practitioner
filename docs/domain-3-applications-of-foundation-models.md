@@ -1949,7 +1949,12 @@ The three deciding factors are the same ones Domain 1 already trades off for
 real-time vs. batch inference, just re-applied to Bedrock's pricing model:
 **traffic predictability** (steady/high volume vs. variable/spiky),
 **latency needs** (a guaranteed, consistent SLA vs. best-effort), and
-**cost model** (a flat-rate capacity commitment vs. pay-per-token).
+**cost model** (a flat-rate capacity commitment vs. pay-per-token). For a
+single consolidated view of all four deployment patterns side by side —
+real-time, batch, serverless, and provisioned throughput, compared on
+latency, cost model, scaling behavior, and typical use case — see the
+[cross-domain concept map's inference deployment pattern
+comparison](cross-domain-concept-map.md#inference-deployment-pattern-comparison).
 
 #### Mini-quiz: Test your understanding of AWS infrastructure for generative AI workloads
 

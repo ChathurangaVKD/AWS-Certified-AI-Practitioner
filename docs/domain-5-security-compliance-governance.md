@@ -270,8 +270,7 @@ output* (RAG citing documents); data lineage is about *tracing a
 dataset/model's history for governance*. Don't conflate the two — the
 exam tests both as distinct concepts under "transparency." A third
 transparency mechanism — provenance watermarking for AI-generated
-images — is traced end to end in the [worked example
-below](#worked-example-tracing-provenance-through-a-titan-image-generator-watermarking-pipeline).
+images — is traced end to end in the [worked example below](#worked-example-tracing-provenance-through-a-titan-image-generator-watermarking-pipeline).
 
 #### Worked example: tracing provenance through a Titan Image Generator watermarking pipeline
 

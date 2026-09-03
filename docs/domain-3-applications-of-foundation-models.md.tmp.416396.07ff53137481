@@ -2029,6 +2029,34 @@ monitoring a reranking step. This is the comparison table's "nice-to-have"
 case: **retrieval is already precise on a small, narrow corpus**, so the
 second model call is buying very little.
 
+**Side by side: both retailers' numbers, one table.** Laying the two
+scenarios next to each other is what makes the decision legible at a
+glance — the added cost and latency are nearly identical in both cases;
+what changes is the size of the precision gain they're buying, and the
+volume that gain gets multiplied across:
+
+| Dimension | Large retailer (800K SKUs, 2M queries/mo) | Boutique retailer (5K SKUs, 20K queries/mo) |
+|---|---|---|
+| Vector-only precision@5 | 0.62 | 0.93 |
+| Precision@5 with Cohere Rerank | 0.85 | 0.95 |
+| Precision@5 gain | **+23 points** | +2 points |
+| Recall@50 | 0.81 (unchanged after reranking) | Already high (unchanged after reranking) |
+| Added latency | +120 ms | +120 ms |
+| Added cost per query | ~$0.002 | ~$0.002 |
+| Added monthly cost | **~$4,000/mo** | ~$40/mo |
+| Estimated monthly value of the precision gain | **~$1,495,000/mo** (via the conversion-lift assumption above) | Small — little conversion headroom left to gain |
+| **Verdict** | **Add Cohere Rerank** — cost is trivial next to the estimated revenue impact | **Skip it** — cost is trivial too, but so is the return |
+
+The per-query cost and added latency are essentially a *fixed toll* for
+running Cohere Rerank — they don't change much with catalog size. What
+determines whether that toll is worth paying is entirely on the other
+side of the ledger: how much precision headroom the vector-only baseline
+leaves on the table, and how much query volume that precision gain gets
+multiplied across. A narrow, already-precise catalog leaves little
+headroom no matter how large its query volume is; a broad, ambiguous
+catalog leaves a lot of headroom, and reranking's value scales with the
+traffic that flows through it.
+
 **The general heuristic:** don't decide on reranking from the qualitative
 description alone ("queries are topically broad" vs. "retrieval is
 already precise") — run the same offline precision/recall measurement

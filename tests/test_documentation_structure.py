@@ -217,7 +217,7 @@ class TestDocumentationStructureDomain5Accuracy(unittest.TestCase):
         self.assertNotEqual(diagrams_idx, -1)
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         self.assertIn("Mermaid flowchart", diagrams_section)
-        self.assertIn("34", diagrams_section)
+        self.assertIn("35", diagrams_section)
 
 
 class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
@@ -649,8 +649,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             actual_total += len(re.findall(r"```mermaid", text))
         self.assertEqual(
             actual_total,
-            34,
-            "sanity check: expected 34 total Mermaid diagrams across the "
+            35,
+            "sanity check: expected 35 total Mermaid diagrams across the "
             "five domain guides",
         )
         diagrams_idx = self.structure_text.find("**Diagrams:**")
@@ -677,15 +677,15 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         )
 
     def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
-        # The domain guides' 34 Mermaid diagrams are not the whole picture:
+        # The domain guides' 35 Mermaid diagrams are not the whole picture:
         # cross-domain-concept-map.md's "Visual overview" section has one
         # more Mermaid diagram, and aws-service-decision-guide.md's Section
         # 4.1 Bedrock model family selection flow and Section 6 cost-control
-        # decision flow add two more still (37 Mermaid diagrams
+        # decision flow add two more still (38 Mermaid diagrams
         # total), and three of the domain guides also carry a plain-text
         # ASCII rendering of a diagram that already exists as Mermaid
         # (Domain 1's ML lifecycle, Domain 5's data-governance lifecycle
-        # diagram, and Domain 5's shared-responsibility model), for 40
+        # diagram, and Domain 5's shared-responsibility model), for 41
         # diagrams overall. DOCUMENTATION_STRUCTURE.md previously undercounted
         # this (stating "All 24 flowchart-style diagrams") and omitted the
         # cross-domain diagrams and the ASCII diagrams entirely.
@@ -719,10 +719,10 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             + concept_map_mermaid_total
             + decision_guide_mermaid_total
         )
-        self.assertEqual(grand_mermaid_total, 37)
+        self.assertEqual(grand_mermaid_total, 38)
         ascii_diagram_count = 3
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 40)
+        self.assertEqual(grand_total, 41)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
@@ -742,7 +742,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 37-diagram "
+            "DOCUMENTATION_STRUCTURE.md does not state the 38-diagram "
             "Mermaid total once cross-domain-concept-map.md and "
             "aws-service-decision-guide.md are included",
         )
@@ -756,12 +756,12 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 40-diagram "
-            "grand total (37 Mermaid + 3 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 41-diagram "
+            "grand total (38 Mermaid + 3 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):
-        expected_words = {1: "seven", 2: "four", 3: "fourteen", 4: "four", 5: "five"}
+        expected_words = {1: "seven", 2: "five", 3: "fourteen", 4: "four", 5: "five"}
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         for domain_number, path in DOMAIN_FILES.items():

@@ -368,7 +368,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 10, 4: 7, 5: 9}
+    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 10, 4: 8, 5: 9}
 
     @classmethod
     def setUpClass(cls):
@@ -1319,12 +1319,12 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_39_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
-        self.assertEqual(total, 39)
+        self.assertEqual(total, 40)
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(idx, -1)
         window = self.structure_text[max(0, idx - 50) : idx + 300]
-        self.assertIn("39", window)
+        self.assertIn("40", window)
         for domain_number, count in self.EXPECTED_WORKED_EXAMPLES.items():
             with self.subTest(domain=domain_number):
                 self.assertRegex(

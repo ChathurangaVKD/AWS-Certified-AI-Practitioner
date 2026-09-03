@@ -16,6 +16,7 @@
 - [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant)
 - [Worked example: deciding whether to trade accuracy for interpretability to meet a regulatory explainability requirement](#worked-example-deciding-whether-to-trade-accuracy-for-interpretability-to-meet-a-regulatory-explainability-requirement)
 - [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
+- [Decision framework: choosing a bias metric and layering tools for high-stakes AI](#decision-framework-choosing-a-bias-metric-and-layering-tools-for-high-stakes-ai)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
@@ -1309,6 +1310,65 @@ involved.
 > documented limits?" (self-authored vs. AWS-authored), **Guardrails**
 > answers "what should this live application never say or leak?", and
 > **A2I** answers "who double-checks this before it's used?"
+
+---
+
+## Decision framework: choosing a bias metric and layering tools for high-stakes AI
+
+The comparison table above lists what each tool *is*; it doesn't say which
+bias metric to reach for in a given moment, or how to combine tools when
+getting it wrong carries real consequences. Two SageMaker Clarify bias
+metrics get confused often because both compare outcomes across groups,
+but they answer different questions at different lifecycle stages.
+
+**DPL vs. disparate impact — same tool, different question.** Difference
+in Positive Proportions in Labels (DPL) is a **pre-training** metric: it
+audits the training dataset itself, before a model exists, by comparing
+how often the positive outcome label (e.g., "approved," "hired") appears
+for one group versus another in the historical data. Reach for DPL when
+the question is "does our training data already encode an imbalance?" —
+the answer tells you whether to rebalance or augment data *before* you
+ever train. **Disparate impact** is a **post-training** metric: it audits
+the trained model's predictions on new inputs, comparing the rate at
+which each group receives a favorable prediction. Reach for disparate
+impact when the question is "does the model I've already built produce
+disparate outcomes in practice?" A quick shortcut: if a scenario mentions
+a dataset or labels and no trained model yet, it's DPL; if it mentions
+predictions, an endpoint, or a deployed model, it's disparate impact. A
+dataset can pass DPL and still produce disparate impact after training if
+the model amplifies a small data imbalance — which is exactly why Clarify
+checks both stages instead of just one.
+
+**Layering tools for high-stakes scenarios.** No single tool covers
+fairness, explainability, documentation, and human oversight at once, so
+high-stakes use cases should layer several together: run Clarify's DPL
+and disparate impact checks at their respective stages; add **SHAP**
+(also via Clarify) so any individual adverse decision can be explained to
+the affected person or a regulator; capture all of it — the metrics, the
+mitigations applied, and the SHAP methodology — in a **Model Card** so the
+decision is auditable after the fact; and route borderline or high-stakes
+individual predictions through **Amazon A2I** for human sign-off before
+any action is taken.
+
+**Worked example.** A healthcare staffing company builds a model that
+screens job applicants for clinical roles, using historical
+**HIPAA**-covered health-screening data as a feature alongside standard
+hiring data. Before training, the team runs **DPL** and finds candidates
+over age 50 have a markedly lower "hired" label rate in the historical
+data — a red flag for historical bias, addressed with pre-processing
+rebalancing of the training set. After retraining, **disparate impact**
+confirms the model no longer produces a materially different favorable-
+outcome rate across age groups. Because a hiring decision is high-stakes,
+legally sensitive, and touches regulated health data, the team also
+enables **SHAP** explanations for every rejection so a candidate's
+adverse decision can be justified on request, documents the full DPL/
+disparate-impact audit and mitigation history in a **Model Card**, and
+routes any borderline score through **Amazon A2I** for human review
+before an offer is withdrawn — the same layered pattern applies just as
+directly to a HIPAA-adjacent lending scenario, where DPL would flag label
+imbalance in historical loan approvals and disparate impact would confirm
+whether the trained underwriting model still treats protected groups
+unequally.
 
 ---
 

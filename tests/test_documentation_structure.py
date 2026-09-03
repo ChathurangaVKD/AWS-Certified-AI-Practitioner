@@ -719,10 +719,10 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             + concept_map_mermaid_total
             + decision_guide_mermaid_total
         )
-        self.assertEqual(grand_mermaid_total, 38)
+        self.assertEqual(grand_mermaid_total, 37)
         ascii_diagram_count = 3
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 41)
+        self.assertEqual(grand_total, 40)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
@@ -742,7 +742,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 38-diagram "
+            "DOCUMENTATION_STRUCTURE.md does not state the 37-diagram "
             "Mermaid total once cross-domain-concept-map.md and "
             "aws-service-decision-guide.md are included",
         )
@@ -756,12 +756,12 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 41-diagram "
-            "grand total (38 Mermaid + 3 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 40-diagram "
+            "grand total (37 Mermaid + 3 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):
-        expected_words = {1: "seven", 2: "five", 3: "fourteen", 4: "four", 5: "five"}
+        expected_words = {1: "seven", 2: "four", 3: "fourteen", 4: "four", 5: "five"}
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
         for domain_number, path in DOMAIN_FILES.items():

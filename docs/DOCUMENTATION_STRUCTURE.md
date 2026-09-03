@@ -165,6 +165,16 @@ incident traced back to the customer-owned anonymization code in stage 1
 against AWS's own infrastructure responsibilities.
 
 Domain 5 also has a third nested "####"-level worked-example
+subsection, added between the cost-capping and shared-responsibility
+ones: "#### Worked example: sizing service quotas for a multi-team
+Bedrock workload," nested inside the cost-governance subsection right
+after the cost-capping worked example. It walks through inventorying
+per-team RPM/TPM demand, comparing it against the Service Quotas
+console limit, requesting a sized increase, and setting AWS Budgets
+alert thresholds as a proactive spend backstop, contrasting with the
+reactive threat-model examples above it.
+
+Domain 5 also has a fourth nested "####"-level worked-example
 subsection: "#### Worked example: tracing provenance through a Titan
 Image Generator watermarking pipeline," nested inside Section 1's
 "Source citation and data lineage" subsection right after its exam
@@ -179,11 +189,11 @@ Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
-Amazon A2I subsection; Domain 5's cost-capping, SageMaker-to-Bedrock
-shared-responsibility, and Titan Image Generator watermarking-provenance
-subsections), the five domain guides mark **27
+Amazon A2I subsection; Domain 5's cost-capping, multi-team quota-sizing,
+SageMaker-to-Bedrock shared-responsibility, and Titan Image Generator
+watermarking-provenance subsections), the five domain guides mark **28
 worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
-Domain 3, 6 in Domain 4, and 5 in Domain 5, plus further example content
+Domain 3, 6 in Domain 4, and 6 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 **Diagrams:** The five domain guides contain 35 Mermaid flowchart diagrams

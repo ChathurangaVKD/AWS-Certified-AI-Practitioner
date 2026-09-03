@@ -14,6 +14,7 @@ covers:
 3. [Recommended reading order](#3-recommended-reading-order)
 4. [Common exam traps, consolidated](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts)
 5. [1-week / 2-week / 4-week study plans](#5-study-plans)
+6. [Topic-based review quick reference](#6-topic-based-review-quick-reference)
 
 This guide does not introduce new exam content — every fact and trap here is
 drawn from (and links back to) the five domain guides. Use it as the

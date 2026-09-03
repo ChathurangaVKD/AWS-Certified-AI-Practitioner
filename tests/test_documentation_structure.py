@@ -368,7 +368,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 2, 2: 4, 3: 10, 4: 6, 5: 9}
+    EXPECTED_PER_DOMAIN = {1: 2, 2: 5, 3: 10, 4: 6, 5: 9}
 
     @classmethod
     def setUpClass(cls):
@@ -393,15 +393,15 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
                     f"'####' level), found {actual}",
                 )
 
-    def test_grand_total_worked_example_count_is_31(self):
+    def test_grand_total_worked_example_count_is_32(self):
         actual_total = sum(
             self._worked_example_heading_count(path.read_text(encoding="utf-8"))
             for path in DOMAIN_FILES.values()
         )
         self.assertEqual(
             actual_total,
-            31,
-            "sanity check: expected 31 total 'Worked example' headings "
+            32,
+            "sanity check: expected 32 total 'Worked example' headings "
             "across the five domain guides",
         )
 

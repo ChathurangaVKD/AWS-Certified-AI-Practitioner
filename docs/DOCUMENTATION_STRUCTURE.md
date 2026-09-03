@@ -46,12 +46,12 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,760–3,796 lines each, **12,050 lines total**:
+domain, currently 1,760–3,796 lines each, **12,257 lines total**:
 
 - Domain 1: 1,760 lines
 - Domain 2: 2,169 lines
 - Domain 3: 3,796 lines
-- Domain 4: 1,905 lines
+- Domain 4: 2,112 lines
 - Domain 5: 2,420 lines
 
 All five follow the same template:
@@ -249,7 +249,7 @@ multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image
 watermarking-provenance, differential-privacy healthcare-training, and
 cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **33
 worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 10 in
-Domain 3, 6 in Domain 4, and 9 in Domain 5, plus further example content
+Domain 3, 7 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 **Diagrams:** The five domain guides contain 36 Mermaid flowchart diagrams

@@ -46,11 +46,11 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,588–3,502 lines each:
+domain, currently 1,588–3,730 lines each, **11,521 lines total**:
 
 - Domain 1: 1,588 lines
 - Domain 2: 1,993 lines
-- Domain 3: 3,502 lines
+- Domain 3: 3,730 lines
 - Domain 4: 1,905 lines
 - Domain 5: 2,305 lines
 
@@ -74,9 +74,9 @@ All five follow the same template:
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **24 for Domain 1**,
-  **24 for Domain 2**, and **26 for Domain 5** (Domain 3 and Domain 4 each
-  have 20), including exactly 2 multiple-response ["select TWO"]
-  questions, for **114 domain practice questions in total** across
+  **24 for Domain 2**, **26 for Domain 3**, and **32 for Domain 5**
+  (Domain 4 has 20), including exactly 2 multiple-response ["select TWO"]
+  questions, for **126 domain practice questions in total** across
   the five domain guides) and a full `## Answer key` with justifications
   ruling out each wrong answer.
 

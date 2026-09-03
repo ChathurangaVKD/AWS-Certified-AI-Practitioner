@@ -37,10 +37,6 @@ WORKED_EXAMPLE_HEADING = (
     "## Worked example: pairing a classical ML ranker scored by "
     "SageMaker Clarify with a Bedrock FM protected by Guardrails"
 )
-NESTED_LAYERING_HEADING = (
-    "### Worked example: layering SageMaker Clarify and Guardrails for "
-    "Amazon Bedrock to audit a generative recommendation engine"
-)
 TRADEOFF_HEADING = (
     "## Worked example: deciding whether to trade accuracy for "
     "interpretability to meet a regulatory explainability requirement"

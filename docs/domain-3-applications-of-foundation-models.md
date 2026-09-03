@@ -1252,6 +1252,126 @@ graph LR
 > *training objective*, and it's commonly combined with LoRA or QLoRA to
 > keep the resource cost down.
 
+#### Choosing a fine-tuning efficiency technique: GPU memory, training time, and quality benchmarks
+
+The comparison table above is qualitative ("low," "lowest," "modest
+trade-off"). The exam — and a real budgeting conversation with an ML
+team — often needs the quantitative version: roughly how much GPU memory
+does each technique need, roughly how much longer does it take, and
+roughly how much task quality do you give up. The figures below are
+**illustrative, order-of-magnitude approximations for a representative
+~7-billion-parameter model**, not a benchmark from any specific paper or
+service — the exact numbers vary by model architecture, sequence length,
+batch size, and LoRA rank, but the *relative* gap between techniques
+(full fine-tuning needs roughly 5–15× the GPU memory of QLoRA; LoRA and
+QLoRA train in a fraction of the wall-clock time) is what the exam
+expects you to reason about.
+
+**Decision flowchart — choosing a fine-tuning efficiency technique:**
+start from what GPU hardware is actually available and how strict the
+task's quality bar is, and follow the branches down to a technique:
+
+```mermaid
+flowchart TD
+    START(["Need to fine-tune a model -\nwhich efficiency technique?"])
+    START --> Q1{"Is the task safety- or\ncompliance-critical, requiring\nthe highest possible quality\nceiling regardless of cost?"}
+    Q1 -->|"YES"| FULL["FULL FINE-TUNING\n(~16 bytes/param GPU memory,\nbaseline 1x training time,\nhighest quality ceiling)"]
+    Q1 -->|"NO"| Q2{"Can the task tolerate a small\n(~1-2 point) quality gap vs.\nfull fine-tuning?"}
+    Q2 -->|"NO"| FULL
+    Q2 -->|"YES"| Q3{"Is a mid-size single GPU\n(24GB+, e.g., A10G/A100)\navailable to train on?"}
+    Q3 -->|"YES"| LORA["LoRA\n(~16-24GB GPU memory,\n~0.3-0.4x training time,\nmodest quality trade-off)"]
+    Q3 -->|"NO - only a small single\nGPU (<=16GB) is available"| Q4{"Can the task also tolerate the\nsmall additional quality loss\nfrom 4-bit quantization?"}
+    Q4 -->|"YES"| QLORA["QLoRA\n(~6-10GB GPU memory,\n~0.4-0.5x training time,\nsmall added quality loss)"]
+    Q4 -->|"NO"| ESCALATE["No GPU budget for the\nrequired quality bar - escalate\nto a bigger GPU and use LoRA,\nor accept full fine-tuning's cost"]
+
+    LORA -.->|"Also need general\ninstruction-following,\nnot one narrow task?"| INSTR["Layer INSTRUCTION TUNING\non top of the chosen method\n(objective, not a parameter\nstrategy - see above)"]
+    QLORA -.->|"Also need general\ninstruction-following,\nnot one narrow task?"| INSTR
+    FULL -.->|"Also need general\ninstruction-following,\nnot one narrow task?"| INSTR
+```
+
+**Comparison table — approximate GPU memory, training time, and quality
+trade-off for a ~7B-parameter model:**
+
+| Technique | Approx. GPU memory needed | Approx. training time (relative to full fine-tuning) | Approx. quality vs. full fine-tuning | Typical hardware it unlocks |
+|---|---|---|---|---|
+| Full fine-tuning | ~112 GB (≈16 bytes/parameter: fp16 weights + fp16 gradients + fp32 Adam optimizer states + fp32 master weights) | 1.0x (baseline) | 100% (reference ceiling) | Multiple 40–80 GB data-center GPUs (e.g., 2–4x A100 80GB) |
+| LoRA | ~16–24 GB (fp16/bf16 base model + small adapter matrices + activations; base weights are frozen so no optimizer states are needed for them) | ~0.3–0.4x (roughly 3x faster) | ~98–99% (typically within 1–2 points on the target metric) | A single mid-size GPU (e.g., 24 GB A10G or RTX-class card) |
+| QLoRA | ~6–10 GB (4-bit quantized frozen base model + small adapter matrices + activations) | ~0.4–0.5x (slightly slower per step than LoRA due to dequantization overhead, but still far faster than full fine-tuning) | ~93–97% (a further, small drop below LoRA from quantization) | A single small GPU (e.g., 16 GB T4/L4), or a much larger model on the same GPU that would otherwise only fit LoRA on a smaller model |
+| Instruction tuning | Same as whichever of the three rows above it's layered on | Same as whichever of the three rows above it's layered on | Improves general instruction-following; not directly comparable to the task-specific quality column | Same as whichever of the three rows above it's layered on |
+
+> **Exam tip:** Memorize the *shape* of this table, not the exact
+> numbers: full fine-tuning costs roughly an order of magnitude more GPU
+> memory than QLoRA and trains roughly 2–3x slower than LoRA/QLoRA, in
+> exchange for the highest quality ceiling. LoRA sits in the middle on
+> all three axes. QLoRA wins on memory and is what makes a single small
+> GPU feasible, at the cost of the largest quality gap of the three. If
+> an exam question gives you a GPU constraint ("only one 16 GB GPU
+> available") and a quality constraint ("cannot tolerate an accuracy
+> drop"), those two constraints can conflict — that conflict is exactly
+> what the worked example below walks through.
+
+#### Worked example: when does QLoRA's quality loss become unacceptable?
+
+**Scenario 1 — a clinical-documentation team, where the answer is "not
+QLoRA."** A healthcare-adjacent company fine-tunes a ~7B-parameter FM to
+turn clinician visit notes into structured discharge summaries. Their ML
+team has budget for exactly **one 16 GB GPU**. Before committing, they
+benchmark all three techniques on a held-out validation set of a few
+hundred labeled note/summary pairs, scoring both a text-quality metric
+(ROUGE-L against reference summaries) and a safety metric (factual-
+consistency errors — a hallucinated dosage, diagnosis, or date — per 100
+generated summaries):
+
+| Approach | GPU used | Training time | ROUGE-L | Factual-consistency errors per 100 summaries |
+|---|---|---|---|---|
+| Full fine-tuning | 4x A100 80GB | ~20 hours | 0.71 | 1.2 |
+| LoRA | 1x A10G 24GB | ~7 hours | 0.69 | 1.6 |
+| QLoRA | 1x T4 16GB | ~9 hours | 0.63 | 4.8 |
+
+The organization's clinical-safety review sets the bar at **no more than
+2 factual-consistency errors per 100 summaries** — above that, a
+clinician reviewing the AI-drafted summary is statistically likely to
+miss an error that reaches a patient chart. Reading the table against
+that bar:
+
+- **QLoRA fails the bar.** 4.8 errors per 100 is more than double the
+  acceptable threshold. The GPU-memory savings (fitting on a single 16 GB
+  card instead of a multi-GPU cluster) don't matter if the output isn't
+  safe to ship — this is the case where QLoRA's added quantization loss
+  is **unacceptable**, not just "a modest trade-off."
+- **LoRA clears the bar** (1.6 vs. a 2.0 limit), close to full
+  fine-tuning's 1.2, on a single mid-size GPU instead of four data-center
+  GPUs. It's the practical choice here *if* the team can get access to a
+  24 GB card instead of the 16 GB one they had budgeted.
+- **Full fine-tuning is justified** if the team's only available hardware
+  really is capped at 16 GB and can't be upgraded to a 24 GB card: rather
+  than ship QLoRA's 4.8-error rate, the safety requirement forces them to
+  pay for the multi-GPU cluster full fine-tuning needs, because the cost
+  of a missed clinical error outweighs the GPU savings.
+
+**Scenario 2 — an internal tone-adjustment bot, where the answer flips to
+QLoRA.** The same company separately fine-tunes a lightweight internal
+model that rewrites their internal Slack-bot's replies to sound more
+concise and friendly. There's no patient data, no safety review, and no
+regulatory sign-off — the only requirement is "sounds noticeably more
+approachable than the base model most of the time." Running the same
+three techniques here, QLoRA's quality gap (a few points on a subjective
+tone-preference score, well within what a human reviewer would call
+"still clearly friendlier") is **fully acceptable**, and the single 16 GB
+GPU it trains on is far cheaper than reserving a multi-GPU cluster for a
+low-stakes internal tool.
+
+**The general heuristic:** don't pick a fine-tuning efficiency technique
+from the resource savings alone — first quantify the task's minimum
+acceptable quality bar (a safety metric, a compliance requirement, or
+just "good enough for an internal tool"), then check whether each
+technique's typical quality trade-off from the comparison table above
+clears that specific bar. QLoRA's small quantization-driven quality loss
+is a non-issue for a low-stakes task and can be an unacceptable risk for
+a safety- or compliance-critical one — the technique that's "obviously
+right" changes with the stakes of the task, not just the size of the GPU
+budget.
+
 #### Mini-quiz: Test your understanding of customization approach trade-offs
 
 Quick self-check before moving on — try to answer before reading the

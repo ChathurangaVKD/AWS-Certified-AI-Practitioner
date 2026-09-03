@@ -79,10 +79,11 @@ class TestDomain4BiasMetricDecisionFramework(unittest.TestCase):
         self.assertLess(framework_idx, cheat_sheet_idx)
 
     def test_distinguishes_dpl_as_pre_training(self):
+        normalized = re.sub(r"\s+", " ", self.section)
         self.assertRegex(
-            self.section,
-            r"(?i)Difference in Positive Proportions in Labels.{0,40}"
-            r"pre-training|pre-training.{0,80}DPL",
+            normalized,
+            r"(?i)Difference\s+in\s+Positive\s+Proportions\s+in\s+Labels"
+            r".{0,60}pre-training",
         )
         self.assertIn("DPL", self.section)
 

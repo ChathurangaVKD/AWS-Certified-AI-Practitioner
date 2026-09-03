@@ -288,3 +288,12 @@ the Section 6 cost-control decision flow for Amazon API Gateway in front
 of Bedrock/SageMaker endpoints), bringing the total to **43 Mermaid
 diagrams** (39 in the domain guides + 2 in cross-domain-concept-map.md +
 2 in aws-service-decision-guide.md).
+
+## Cross-domain support documents: aws-service-index.md
+
+**`aws-service-index.md`** indexes **83 services**, grouped under letter sections A, C, G, I, M, P, and S.
+That figure counts one `- **Service**` bullet per row: each third-party
+foundation model provider named in the domain guides (AI21 Labs,
+Anthropic Claude, Cohere, Meta Llama, Mistral AI, Stability AI) counts as
+a single row, not as one row per model it offers — so the count is
+provider-level, not model-level.

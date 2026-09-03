@@ -49,7 +49,7 @@ AWS-Certified-AI-Practitioner/
 domain, currently 1,583–3,502 lines each:
 
 - Domain 1: 1,583 lines
-- Domain 2: 1,986 lines
+- Domain 2: 1,993 lines
 - Domain 3: 3,502 lines
 - Domain 4: 1,879 lines
 - Domain 5: 2,119 lines

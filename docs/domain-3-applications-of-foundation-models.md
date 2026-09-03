@@ -106,6 +106,17 @@ weigh against each other, since improving one often costs you on another:
   Choosing a model that doesn't support your required modality is a
   common exam distractor.
 
+**Inference parameters also feed back into cost and latency**, alongside
+model tier: temperature, top-p, and top-k don't change a model's per-token
+price, but a high-temperature/high-top-p setting that produces
+inconsistent or overly long completions drives up **retries** and total
+output tokens, while low temperature reduces both. [Domain 2's cost and
+latency subsection](domain-2-fundamentals-of-generative-ai.md#cost-and-latency-implications-of-temperature-top-p-and-top-k)
+walks through that mechanism with a worked budget example — the same
+lever a design-considerations question in this domain may expect you to
+reach for when a scenario needs to cut cost or latency without swapping
+models.
+
 ### Context window vs. cost and latency: comparing model tiers
 
 Model selection above lists context window as one criterion among several

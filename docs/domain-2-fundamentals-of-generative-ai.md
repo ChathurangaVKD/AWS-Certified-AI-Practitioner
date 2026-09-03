@@ -12,6 +12,7 @@
 - [4. Business use cases for generative AI](#4-business-use-cases-for-generative-ai)
 - [5. AWS generative AI services and capabilities](#5-aws-generative-ai-services-and-capabilities)
 - [6. Prompt engineering fundamentals](#6-prompt-engineering-fundamentals)
+  - [Cost and latency implications of temperature, top-p, and top-k](#cost-and-latency-implications-of-temperature-top-p-and-top-k)
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
 - [Worked example: estimating tokens for RAG retrieval and long-document summarization](#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization)
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
@@ -790,6 +791,75 @@ non-obvious combinations that the exam likes to test:
 > regardless of sampling settings. "Set temperature to 0" is wrong because
 > it removes the creativity the use case requires; "raise top-k" alone is
 > wrong because it does nothing to address harm — only guardrails do.
+
+### Cost and latency implications of temperature, top-p, and top-k
+
+The interaction table above explains what temperature, top-p, and top-k do
+to *output quality* — but the exam also expects you to connect those same
+settings to **cost and latency**, since they're billed and timed the same
+way every other inference parameter is. The key nuance: sampling settings
+don't change the per-token price or the per-token compute cost of a
+request — a provider charges (and spends compute time on) the same amount
+per output token whether that token was chosen greedily or sampled from a
+wide, high-temperature distribution. What they change is **how many tokens
+you end up paying for and waiting on**, through two indirect mechanisms:
+
+- **Retries from inconsistent output.** A high temperature/top-p
+  combination (per the table above) produces more varied, less predictable
+  completions. For tasks with a required output shape — structured JSON, a
+  fixed category label, a specific format — that variability raises the
+  chance a response fails validation and the application has to retry the
+  request. Each retry is a **full additional request/response cycle**: the
+  same input tokens are billed again, new output tokens are generated
+  again, and the user (or downstream step) waits for a second round trip.
+  A lower, more deterministic temperature reduces the retry rate and
+  therefore the *effective* number of billed tokens and requests per
+  successful result, even though the price per token never changed.
+- **Response length before a stop condition.** Because generation is
+  **autoregressive** — the model produces one token at a time, and each
+  token takes roughly the same amount of compute regardless of sampling
+  settings — total latency for a response scales with how many tokens it
+  takes to reach a **stop sequence** or the **maximum length** cap. Low
+  temperature tends to produce terser, more on-point completions that stop
+  sooner; high temperature can wander longer before satisfying (or
+  exhausting) the stop condition, generating — and billing for — more
+  tokens along the way. This is why **maximum length** and **stop
+  sequences** remain the direct, hard levers on cost/latency, while
+  temperature/top-p/top-k are indirect, probabilistic ones.
+
+> **Exam tip:** If a scenario asks how to reduce cost or latency *without*
+> changing the model or the max-token cap, look for a **lower temperature**
+> (or narrower top-p/top-k) as the answer — the mechanism is fewer retries
+> and shorter, more consistent completions, not a lower per-token price.
+> Conversely, "raising temperature increases cost" is only true indirectly
+> (more retries, longer completions), so don't confuse it with a pricing
+> change.
+
+**Worked example — budget impact of a temperature choice.** A support-ticket
+classifier calls a Bedrock model **50,000 times/day**, each call requesting
+a structured JSON label (~120 output tokens) at an on-demand price of
+**$0.015 per 1,000 output tokens**, with each generation taking roughly 2
+seconds. The team is deciding between **temperature 0.9** (more "natural"
+sounding labels) and **temperature 0.2** (more deterministic formatting),
+and measures the resulting JSON-validation failure rate — the fraction of
+calls that fail validation and must be retried once — at each setting:
+
+| Setting | Failure/retry rate | Effective calls/day | Output tokens/day | Daily cost | Aggregate generation time/day |
+|---|---|---|---|---|---|
+| Temperature 0.9 | 12% | 50,000 × 1.12 = 56,000 | 56,000 × 120 = 6,720,000 | 6,720 × $0.015 = **$100.80** | 56,000 × 2s = **112,000s** |
+| Temperature 0.2 | 1.5% | 50,000 × 1.015 = 50,750 | 50,750 × 120 = 6,090,000 | 6,090 × $0.015 = **$91.35** | 50,750 × 2s = **101,500s** |
+
+Lowering temperature from 0.9 to 0.2 cuts the retry rate enough to save
+**$9.45/day (~$283.50/month)** and roughly **10,500 seconds/day** of
+aggregate generation time — without touching the model tier, the max-token
+cap, or the per-token price. That saved throughput matters most when
+requests share a fixed capacity budget, such as **provisioned throughput**
+([Domain 3, Section
+5](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features)),
+where fewer retries mean more real request volume fits inside the same
+committed throughput. The same math applies in reverse: a use case that
+*needs* high temperature for creative variety should budget for a higher
+retry/regeneration rate up front rather than being surprised by it later.
 
 **AWS example:** A developer testing prompts in **PartyRock** or the
 **Amazon Bedrock** console starts with a **zero-shot** prompt asking a model

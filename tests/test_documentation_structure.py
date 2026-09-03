@@ -1245,5 +1245,183 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
         self.assertNotIn("39 Mermaid diagrams**", diagrams_section)
 
 
+class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
+    """A 2026-09-03 documentation scan found several of
+    DOCUMENTATION_STRUCTURE.md's content metrics had drifted stale as the
+    domain guides (especially Domain 3) kept growing: the domain-guide
+    line-count total/breakdown (12,417 stated vs. 13,169 actual, with
+    Domain 1, 3, and 4 each individually wrong), the worked-example total
+    (34 stated vs. 39 actual -- Domain 3 alone has 15, not 10, once all
+    seven of its "###"/"####"-level nested subsections are counted rather
+    than just the BLEU/ROUGE one), the Mermaid diagram total (40 stated
+    vs. 43 actual -- Domain 3 has sixteen, not fourteen, and Domain 4 has
+    six, not five), and the domain practice-question total (126 stated vs.
+    128 actual -- Domain 3 has 28, not 26). These tests derive the true
+    figures directly from the source files and assert
+    DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
+    drifting stale again."""
+
+    EXPECTED_LINE_COUNTS = {1: 1792, 2: 2169, 3: 4670, 4: 2118, 5: 2420}
+    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 15, 4: 7, 5: 9}
+    EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 5}
+    EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 28, 4: 20, 5: 32}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    @staticmethod
+    def _mermaid_count(path):
+        return len(re.findall(r"```mermaid", path.read_text(encoding="utf-8")))
+
+    @staticmethod
+    def _worked_example_heading_count(text):
+        return len(re.findall(r"(?m)^#{2,4} Worked examples?:", text))
+
+    @staticmethod
+    def _practice_question_count(text):
+        match = re.search(
+            r"\n## Practice questions(.*?)\n## Answer key", text, re.DOTALL
+        )
+        assert match is not None, "expected a Practice questions section"
+        return len(re.findall(r"(?m)^(\d+)\.\s", match.group(1)))
+
+    def test_actual_domain_line_counts_match_expected(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                self.assertEqual(
+                    _line_count(path),
+                    self.EXPECTED_LINE_COUNTS[domain_number],
+                    f"sanity check: domain {domain_number}'s guide "
+                    f"({path.name}) line count no longer matches the "
+                    "figure this refresh was based on -- re-verify and "
+                    "update both the guide and this test",
+                )
+
+    def test_structure_doc_states_13169_line_total(self):
+        total = sum(self.EXPECTED_LINE_COUNTS.values())
+        self.assertEqual(total, 13169)
+        self.assertIn(f"**{total:,} lines total**", self.structure_text)
+
+    def test_actual_worked_example_counts_match_expected(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                actual = self._worked_example_heading_count(
+                    path.read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    actual,
+                    self.EXPECTED_WORKED_EXAMPLES[domain_number],
+                    f"sanity check: domain {domain_number}'s guide "
+                    f"({path.name}) has {actual} 'Worked example' "
+                    "headings, not the figure this refresh was based on",
+                )
+
+    def test_structure_doc_states_39_worked_examples_with_domain_3_breakdown(self):
+        total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
+        self.assertEqual(total, 39)
+        anchor = "worked-example sections in total"
+        idx = self.structure_text.find(anchor)
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[max(0, idx - 50) : idx + 300]
+        self.assertIn("39", window)
+        for domain_number, count in self.EXPECTED_WORKED_EXAMPLES.items():
+            with self.subTest(domain=domain_number):
+                self.assertRegex(
+                    window,
+                    re.compile(rf"{count} in\s+Domain {domain_number}"),
+                    "DOCUMENTATION_STRUCTURE.md does not state the "
+                    f"per-domain worked-example count for Domain "
+                    f"{domain_number} ({count}) in its grand-total tally",
+                )
+
+    def test_structure_doc_domain_3_worked_example_methodology_is_8_plus_7(self):
+        idx = self.structure_text.find("Worked examples")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 1600]
+        self.assertIn("eight standalone", window)
+        self.assertIn("seven", window)
+        self.assertIn("fifteen", window)
+        self.assertIn("BLEU/ROUGE", window)
+        self.assertIn("Cohere Rerank", window)
+
+    def test_structure_doc_notes_depth_gaps_now_filled(self):
+        anchor = "depth gap previously flagged"
+        idx = self.structure_text.find(anchor)
+        self.assertNotEqual(
+            idx,
+            -1,
+            "expected DOCUMENTATION_STRUCTURE.md to note that previously "
+            "flagged depth gaps are now filled with worked examples",
+        )
+        window = self.structure_text[idx : idx + 700]
+        for phrase in (
+            "Amazon Q Business",
+            "LoRA/QLoRA",
+            "Kendra",
+            "troubleshooting a failing RAG system",
+            "Clarify",
+            "Guardrails",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, window)
+
+    def test_actual_mermaid_diagram_counts_match_expected(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                actual = self._mermaid_count(path)
+                self.assertEqual(
+                    actual,
+                    self.EXPECTED_MERMAID_DIAGRAMS[domain_number],
+                    f"sanity check: domain {domain_number}'s guide "
+                    f"({path.name}) has {actual} Mermaid diagrams, not "
+                    "the figure this refresh was based on",
+                )
+
+    def test_structure_doc_states_43_mermaid_diagram_grand_total(self):
+        domain_total = sum(self.EXPECTED_MERMAID_DIAGRAMS.values())
+        self.assertEqual(domain_total, 39)
+        concept_map_total = self._mermaid_count(
+            DOCS_DIR / "cross-domain-concept-map.md"
+        )
+        decision_guide_total = self._mermaid_count(
+            DOCS_DIR / "aws-service-decision-guide.md"
+        )
+        self.assertEqual(concept_map_total, 2)
+        self.assertEqual(decision_guide_total, 2)
+        grand_total = domain_total + concept_map_total + decision_guide_total
+        self.assertEqual(grand_total, 43)
+
+        diagrams_idx = self.structure_text.find("**Diagrams:**")
+        self.assertNotEqual(diagrams_idx, -1)
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
+        self.assertIn(f"{domain_total} Mermaid flowchart diagrams", diagrams_section)
+        self.assertIn("sixteen", diagrams_section)
+        self.assertIn("Domain 4 has six", diagrams_section)
+        self.assertIn(f"**{grand_total} Mermaid\ndiagrams**", diagrams_section)
+
+    def test_actual_practice_question_counts_match_expected(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                actual = self._practice_question_count(
+                    path.read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    actual,
+                    self.EXPECTED_PRACTICE_QUESTIONS[domain_number],
+                    f"sanity check: domain {domain_number}'s guide "
+                    f"({path.name}) has {actual} practice questions, not "
+                    "the figure this refresh was based on",
+                )
+
+    def test_structure_doc_states_128_domain_practice_questions(self):
+        total = sum(self.EXPECTED_PRACTICE_QUESTIONS.values())
+        self.assertEqual(total, 128)
+        self.assertIn("**28 for Domain 3**", self.structure_text)
+        self.assertIn(
+            f"**{total} domain practice questions in total**", self.structure_text
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

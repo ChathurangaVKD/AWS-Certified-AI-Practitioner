@@ -46,13 +46,13 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,588–3,730 lines each, **11,521 lines total**:
+domain, currently 1,588–3,730 lines each, **11,636 lines total**:
 
 - Domain 1: 1,588 lines
 - Domain 2: 1,993 lines
 - Domain 3: 3,730 lines
 - Domain 4: 1,905 lines
-- Domain 5: 2,305 lines
+- Domain 5: 2,420 lines
 
 All five follow the same template:
 
@@ -209,16 +209,27 @@ resulting privacy-budget/accuracy trade-off, and distinguishing that
 training-time protection from the KMS-based encryption-at-rest control
 covered earlier in the file.
 
+Domain 5 also has a seventh nested "####"-level worked-example
+subsection, nested inside the cost-governance subsection right after the
+multi-team quota-sizing worked example: "#### Worked example: cost
+optimization tradeoffs for a latency-critical chat workload vs. a batch
+analytics pipeline." It contrasts a customer-facing chat assistant held
+to a hard per-request latency SLA against an overnight batch
+summarization pipeline held only to a completion-window target, showing
+how the SLA target flips which combination of on-demand pricing,
+Provisioned Throughput, Bedrock batch inference, and response caching
+minimizes cost for each.
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 3's
 BLEU/ROUGE-significance and model-pair-comparison subsections, and its
 four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
 Amazon A2I subsection; Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
-watermarking-provenance, and differential-privacy healthcare-training
-subsections), the five domain guides mark **30
+watermarking-provenance, differential-privacy healthcare-training, and
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **31
 worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
-Domain 3, 6 in Domain 4, and 8 in Domain 5, plus further example content
+Domain 3, 6 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 **Diagrams:** The five domain guides contain 36 Mermaid flowchart diagrams

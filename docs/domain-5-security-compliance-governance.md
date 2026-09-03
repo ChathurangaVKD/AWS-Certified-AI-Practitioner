@@ -880,6 +880,121 @@ replace the quota — they catch runaway *spend* even while every call still
 falls comfortably within the newly raised RPM/TPM limits, which a Service
 Quota alone can't do since it bounds request volume, not dollars.
 
+Sizing quotas and bounding aggregate spend both assume every request is
+held to the same SLA. It usually isn't: the
+[worked example below](#worked-example-cost-optimization-tradeoffs-for-a-latency-critical-chat-workload-vs-a-batch-analytics-pipeline)
+shows how the right pricing, batching, and caching combination changes
+once one workload has a hard per-request latency SLA and another only a
+completion-window target.
+
+#### Worked example: cost optimization tradeoffs for a latency-critical chat workload vs. a batch analytics pipeline
+
+The subsections above show how to bound and size cost through Service
+Quotas, usage plans, and Bedrock's request-volume limits — but the *SLA
+target* a workload is held to changes which pricing and architecture
+levers actually lower cost, independent of any quota. The two scenarios
+below run the same underlying foundation model through Amazon Bedrock for
+two teams with opposite latency requirements, and land on different
+combinations of on-demand pricing, Provisioned Throughput, batching, and
+caching as a result.
+
+**Workload 1: a latency-critical real-time chat assistant.**
+
+*Requirements:* A customer-facing chat widget must return a response
+within a **hard 2-second p99 latency SLA**, at a **steady baseline of 300
+requests per minute (RPM)** during business hours with occasional bursts
+to 500 RPM, and roughly **30% of incoming questions are near-duplicates
+of a small set of frequently asked questions** (return policy, shipping
+times, account setup).
+
+*Configuration:*
+- **Provisioned Throughput sized to the steady 300 RPM baseline**, not
+  the burst ceiling — Provisioned Throughput is billed as a flat
+  hourly/monthly commitment regardless of how many requests actually
+  arrive, so sizing it to the sustained floor gets the guaranteed,
+  low-latency capacity the SLA requires without paying for capacity that
+  sits idle outside business-hours bursts.
+- **On-demand pricing left in place to absorb the 300→500 RPM bursts**
+  above the provisioned floor — excess traffic above the provisioned
+  units can fall back to on-demand, so the account pays per-token only
+  for the burst overflow rather than provisioning for worst-case volume
+  year-round.
+- **A response cache (for example, Amazon ElastiCache) in front of the
+  model** for the ~30% of questions that are near-duplicates of a known
+  FAQ set — a cache hit returns in milliseconds and costs nothing in
+  per-token inference, directly helping the p99 latency SLA and cutting
+  the volume of paid model invocations by roughly the same 30%.
+- **Batching explicitly ruled out.** Batching means holding several
+  requests before sending them to the model as one call, trading latency
+  for throughput/cost efficiency — the opposite of what a 2-second p99
+  SLA allows. Batching only pays off when no individual request is
+  waiting on a person, which isn't true here.
+
+*Why this combination:* the hard per-request latency SLA is what rules
+out both batching and reliance on latency-tolerant discounted pricing;
+Provisioned Throughput sized to the steady floor guarantees the SLA is
+met for predictable volume at a flat, budgeted cost, on-demand absorbs
+the unpredictable overflow instead of over-provisioning for it, and
+caching is the one lever that reduces both cost and latency at the same
+time because it skips model invocation entirely for repeat questions.
+
+**Workload 2: a batch-processing analytics pipeline.**
+
+*Requirements:* An internal pipeline summarizes the previous day's
+support transcripts and generates a trend report every morning. Nothing
+is waiting on an individual response — the completion-window target is
+**"finished before 6 a.m.," not a per-request latency number** — and it
+processes roughly **50,000 transcripts nightly, each one different**, so
+there's no repeat-question pattern to exploit.
+
+*Configuration:*
+- **Bedrock batch inference instead of real-time on-demand or
+  Provisioned Throughput.** Because the job has a completion-window
+  target instead of a per-request SLA, every transcript can be submitted
+  as one large asynchronous batch job that Bedrock processes at its own
+  pace within the window, at a lower per-token rate than on-demand
+  real-time inference — trading latency (irrelevant here) for a
+  materially lower unit cost.
+- **No Provisioned Throughput commitment.** A flat, always-on hourly
+  commitment would sit idle for roughly 23 hours a day around one
+  nightly run — the workload is the textbook case Domain 3 already flags
+  as a poor fit for provisioned capacity: low-frequency, non-sustained
+  volume that on-demand-family pricing (batch, in this case) serves more
+  cheaply.
+- **No response cache.** Caching pays off only when requests repeat;
+  each transcript is unique text, so a cache would sit at a near-zero
+  hit rate while still costing storage and lookup overhead for no
+  savings.
+
+*Why this combination:* the completion-window target — not a
+per-request SLA — is what makes batching the right lever here instead of
+the wrong one: with no individual caller waiting, the pipeline can trade
+latency for the batch discount that workload 1 could never take, and the
+two levers that helped workload 1 (Provisioned Throughput, caching) each
+fail their own precondition here — sustained steady volume for the
+former, repeat requests for the latter — so applying them would only add
+cost without a matching benefit.
+
+**Comparison table:**
+
+| Lever | Real-time chat (hard SLA) | Batch analytics (completion window) |
+|---|---|---|
+| Base pricing model | Provisioned Throughput (steady floor) + on-demand (burst overflow) | Bedrock batch inference |
+| Why | Guarantees latency for predictable volume without paying for worst-case capacity | No per-request SLA to protect; discount rewards latency tolerance |
+| Batching | Ruled out — conflicts directly with the 2-second p99 SLA | Core lever — the whole job is one batch |
+| Caching | Response cache for the ~30% repeat FAQ traffic | Not used — no repeat-request pattern to exploit |
+
+**Exam tip:** when a question pairs a cost-optimization lever with a
+workload, check the stated SLA or completion target first — it
+determines which levers are even eligible, not just which is cheapest. A
+hard per-request latency SLA rules out batching and favors Provisioned
+Throughput (sized to the steady baseline, not the peak) plus caching for
+any repeat-request pattern; a completion-window or "no one is waiting on
+an individual response" target flips that: batching and Bedrock's
+discounted batch inference become the cost-saving default, and
+Provisioned Throughput becomes wasted spend unless the volume is also
+sustained and predictable, independent of latency.
+
 ### Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications
 Two industry frameworks help teams reason about AI-specific threats
 systematically, and the exam expects you to recognize them by name and

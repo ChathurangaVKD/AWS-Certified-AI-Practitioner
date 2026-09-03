@@ -1261,8 +1261,8 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
     drifting stale again."""
 
-    EXPECTED_LINE_COUNTS = {1: 1792, 2: 2169, 3: 4670, 4: 2118, 5: 2420}
-    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 15, 4: 7, 5: 9}
+    EXPECTED_LINE_COUNTS = {1: 1792, 2: 2169, 3: 4670, 4: 2247, 5: 2420}
+    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 15, 4: 8, 5: 9}
     EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 5}
     EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 
@@ -1298,9 +1298,9 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "update both the guide and this test",
                 )
 
-    def test_structure_doc_states_13169_line_total(self):
+    def test_structure_doc_states_13298_line_total(self):
         total = sum(self.EXPECTED_LINE_COUNTS.values())
-        self.assertEqual(total, 13169)
+        self.assertEqual(total, 13298)
         self.assertIn(f"**{total:,} lines total**", self.structure_text)
 
     def test_actual_worked_example_counts_match_expected(self):

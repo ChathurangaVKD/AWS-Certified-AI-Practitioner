@@ -46,12 +46,12 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,792–4,670 lines each, **13,169 lines total**:
+domain, currently 1,792–4,670 lines each, **13,298 lines total**:
 
 - Domain 1: 1,792 lines
 - Domain 2: 2,169 lines
 - Domain 3: 4,670 lines
-- Domain 4: 2,118 lines
+- Domain 4: 2,247 lines
 - Domain 5: 2,420 lines
 
 All five follow the same template:
@@ -114,14 +114,22 @@ closing e-commerce recommendation-engine audit, it now has a second
 standalone "## Worked example" section auditing a classical ML
 small-business loan-approval classifier for proxy-variable bias, a third
 diagnosing retrieval-induced bias and hallucination in a RAG-based HR
-assistant, and a fourth isolating the Section 5 performance/
+assistant, a fourth isolating the Section 5 performance/
 interpretability tradeoff itself — a health-insurance prior-authorization
 scenario where a regulatory explainability requirement forces the team off
 a post-hoc-SHAP-on-a-black-box approach and onto a natively interpretable
-model — four standalone "## Worked example" sections in total for
-Domain 4, covering bias-detection patterns across a deep learning ranking
-model, a classical ML classifier, and a foundation-model/RAG application,
-plus a dedicated performance-versus-interpretability tradeoff walkthrough.
+model — and a fifth, "## Worked example: pairing a classical ML ranker
+scored by SageMaker Clarify with a Bedrock FM protected by Guardrails,"
+which contrasts with the nested Section 3 Clarify/Guardrails-layering
+subsection described below: instead of layering both tools on one
+fine-tuned foundation model across two lifecycle stages, it pairs a
+classical ML ranking model (audited with Clarify) with a separate Bedrock
+FM (filtered with Guardrails) as two distinct components in one
+recommendation system — five standalone "## Worked example" sections in
+total for Domain 4, covering bias-detection patterns across a deep
+learning ranking model, a classical ML classifier, a foundation-model/RAG
+application, a dedicated performance-versus-interpretability tradeoff
+walkthrough, and a classical-ML-plus-foundation-model integration pattern.
 
 Domain 4 also has one nested "###"-level worked-example subsection: "###
 Worked example: routing low-confidence predictions to human review with
@@ -259,9 +267,9 @@ subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **39
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **40
 worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 15 in
-Domain 3, 7 in Domain 4, and 9 in Domain 5, plus further example content
+Domain 3, 8 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 Every depth gap previously flagged against this documentation is now

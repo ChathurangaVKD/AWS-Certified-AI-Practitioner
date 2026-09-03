@@ -1201,7 +1201,7 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
         concept_map_path = DOCS_DIR / "cross-domain-concept-map.md"
         decision_guide_path = DOCS_DIR / "aws-service-decision-guide.md"
         self.assertEqual(self._mermaid_count(concept_map_path), 2)
-        self.assertEqual(self._mermaid_count(decision_guide_path), 2)
+        self.assertEqual(self._mermaid_count(decision_guide_path), 3)
 
     def test_structure_doc_has_diagrams_paragraph_stating_grand_total_of_40(self):
         domain_total = sum(
@@ -1378,7 +1378,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "the figure this refresh was based on",
                 )
 
-    def test_structure_doc_states_43_mermaid_diagram_grand_total(self):
+    def test_structure_doc_states_44_mermaid_diagram_grand_total(self):
         domain_total = sum(self.EXPECTED_MERMAID_DIAGRAMS.values())
         self.assertEqual(domain_total, 39)
         concept_map_total = self._mermaid_count(
@@ -1388,9 +1388,9 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
             DOCS_DIR / "aws-service-decision-guide.md"
         )
         self.assertEqual(concept_map_total, 2)
-        self.assertEqual(decision_guide_total, 2)
+        self.assertEqual(decision_guide_total, 3)
         grand_total = domain_total + concept_map_total + decision_guide_total
-        self.assertEqual(grand_total, 43)
+        self.assertEqual(grand_total, 44)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)

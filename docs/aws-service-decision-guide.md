@@ -181,6 +181,56 @@ systems, and the customization each option keeps or gives up — see
 assistant for enterprise customer
 support](domain-2-fundamentals-of-generative-ai.md#worked-example-amazon-q-business-vs-a-custom-bedrock-assistant-for-enterprise-customer-support).
 
+### Layering scenario matrix: Kendra, Knowledge Bases, Q Business, and Clarify + Guardrails side by side
+
+The two branch expansions above resolve the Kendra/Knowledge-Bases question
+and the Q-Business/Bedrock question one at a time. Real scenarios usually
+raise more than one of these layering questions together, plus a third one
+neither branch above touches yet: whether **Amazon SageMaker Clarify** and
+**Guardrails for Amazon Bedrock** run in parallel or in sequence. The table
+below puts all three side by side against concrete scenarios instead of one
+branch at a time.
+
+> **Clarify vs. Guardrails is a timing question, not an ordering
+> question.** They are never really "parallel" or "sequential" alternatives
+> competing for the same slot, because they don't operate on the same
+> timeline at all: **Guardrails** is a synchronous, **per-request** gate
+> sequenced inline around every live call (check the input → let the FM
+> generate → check the output); **Clarify** is an **offline, batch/design-
+> time** analysis run against a sampled dataset or a candidate model on its
+> own schedule (before launch, or periodically), not inside any single
+> request's critical path. A scenario asking "should these run at the same
+> time or one after the other" is testing whether you know Clarify sits
+> outside the request path entirely.
+
+| Scenario | Kendra vs. Bedrock Knowledge Bases | Amazon Q Business vs. custom Bedrock | Clarify + Guardrails ordering | Typical layering (request path, top → bottom) |
+|---|---|---|---|---|
+| **Enterprise content search + FM generation** — employees search a SharePoint/S3 corpus and want a synthesized generative answer, not just a ranked list of documents | An existing Kendra index (or **Kendra GenAI Index**) becomes the retriever *underneath* Bedrock Knowledge Bases — Kendra sits below, Knowledge Bases orchestrates retrieval + generation on top of it, not beside it | If the requirement is "ready-made assistant, minimal setup," **Amazon Q Business** is the layer employees talk to; if custom application logic or a bespoke UI is required, keep a custom Bedrock front end instead — the two can coexist on the same underlying data | Sequential in the request path, never parallel: Clarify runs offline against a sampled evaluation set between releases; Guardrails runs inline, once on the live input and once on the live output, every request | Kendra (connector-managed index) → Bedrock Knowledge Bases (retrieval orchestration) → FM generation → Guardrails (output filter) → Q Business or custom UI |
+| **Customer support with private docs** — a support assistant grounded in product documentation, no existing enterprise search deployment | No Kendra to reuse — Bedrock Knowledge Bases goes directly against a vector store it manages (OpenSearch Service/Serverless or Aurora + pgvector) | **Amazon Q Business** if the requirement is "pre-built support assistant, built-in connectors and access control"; a custom Bedrock + Agents build if the workflow needs custom business logic (ticket creation, order lookups) that Q Business doesn't natively cover | Guardrails runs twice per request (input, then output) sequenced around the FM call; Clarify runs earlier and out-of-band, during model/prompt-variant selection, not on every individual support ticket | Guardrails (input: block PII/off-topic asks) → Knowledge Bases retrieval → FM generation → Guardrails (output: redact/filter) → response |
+| **Multi-tenant knowledge discovery** — a SaaS vendor serves many customer tenants, each with its own private document set | Each tenant typically gets its own isolated retrieval layer — a per-tenant Kendra index or a per-tenant Knowledge Base — the Kendra-underneath-Knowledge-Bases pattern repeats *per tenant*, it isn't shared across them | Amazon Q Business is scoped to one enterprise's own IAM Identity Center users, so a vendor building a single product for many *external* customer tenants almost always builds a custom multi-tenant Bedrock application rather than deploying Q Business once per tenant | Guardrails policies are configured per tenant but still run sequentially, inline, per request; Clarify bias/explainability checks run offline against each tenant's own evaluation dataset, not pooled across tenants | Tenant router → tenant-scoped Kendra index or Knowledge Base → shared or tenant-specific FM → tenant-specific Guardrails config → response |
+
+```mermaid
+graph TD
+    REQ["Live request arrives"]
+    REQ --> GRIN["Guardrails: check input\n(denied topics, PII, prompt attacks)"]
+    GRIN --> RETRIEVE["Retrieval layer:\nKendra (if it exists) underneath\nBedrock Knowledge Bases, or\nKnowledge Bases alone against a vector store"]
+    RETRIEVE --> GEN["Bedrock foundation model\ngenerates a response"]
+    GEN --> GROUT["Guardrails: check output\n(grounding, content filters, PII redaction)"]
+    GROUT --> RESP["Response returned to the\ncustom app, Q Business, or end user"]
+    CLARIFY["SageMaker Clarify:\noffline bias/explainability analysis\nagainst a sampled dataset or\ncandidate model"] -. "runs on its own schedule --\nnever inline in the request path\nabove" .-> GEN
+```
+
+> **Exam tip:** The recurring trap is treating Clarify and Guardrails as
+> interchangeable "safety checks" that could run in either order or at the
+> same time — they don't compete for the same slot at all. Similarly,
+> Kendra and Knowledge Bases aren't alternatives to pick between when both
+> already exist in a scenario — Kendra becomes the retriever *underneath*
+> Knowledge Bases, not a competing top layer. And Amazon Q Business
+> layering is a "which requirement is this" question, not a "which one
+> wins" question, since Q Business and a custom Bedrock integration
+> routinely run side by side against the very same source data for
+> different user populations (see the branch expansion above).
+
 For the full service-by-service detail behind this flow, see:
 - [Domain 1 §5 — AWS managed AI/ML services (conceptual overview)](domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview)
   and its [comparison table](domain-1-fundamentals-of-ai-and-ml.md#comparison-table-aws-managed-aiml-services-at-a-glance)

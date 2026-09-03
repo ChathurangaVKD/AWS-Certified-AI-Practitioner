@@ -539,6 +539,116 @@ class TestAwsServiceDecisionGuideLayeringBranchExpansions(unittest.TestCase):
         )
 
 
+class TestAwsServiceDecisionGuideLayeringScenarioMatrix(unittest.TestCase):
+    """Section 1 expansion -- a consolidated, side-by-side matrix covering
+    three service-layering questions at once (Kendra vs. Bedrock Knowledge
+    Bases ordering, Amazon Q Business vs. a custom Bedrock integration, and
+    whether SageMaker Clarify and Guardrails for Amazon Bedrock run in
+    parallel or in sequence) against concrete scenarios, added as a ###
+    sub-heading within section 1 -- not a new top-level section."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = DECISION_FLOW_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 1"
+        cls.section_text = section_match.group(0)
+        subsection_match = re.search(
+            r"^###\s+Layering scenario matrix:.*?(?=^### |^## |\Z)",
+            cls.section_text,
+            re.M | re.S,
+        )
+        assert subsection_match is not None, (
+            "could not locate the layering scenario matrix subsection"
+        )
+        cls.subsection_text = subsection_match.group(0)
+
+    def test_does_not_introduce_a_new_top_level_section(self):
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_has_layering_scenario_matrix_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"^###\s+Layering scenario matrix:", re.M),
+            "expected a 'Layering scenario matrix' sub-heading inside "
+            "section 1",
+        )
+
+    def test_has_a_comparison_table_with_required_columns(self):
+        header_line = next(
+            (
+                line
+                for line in self.subsection_text.splitlines()
+                if line.strip().startswith("| Scenario")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            header_line, "expected a 'Scenario' header row for the matrix"
+        )
+        for column in [
+            "Kendra vs. Bedrock Knowledge Bases",
+            "Amazon Q Business vs. custom Bedrock",
+            "Clarify + Guardrails ordering",
+        ]:
+            with self.subTest(column=column):
+                self.assertIn(column, header_line)
+
+    def test_covers_required_scenarios(self):
+        for scenario in [
+            "Enterprise content search + FM generation",
+            "Customer support with private docs",
+            "Multi-tenant knowledge discovery",
+        ]:
+            with self.subTest(scenario=scenario):
+                self.assertIn(scenario, self.subsection_text)
+
+    def test_covers_required_services(self):
+        for service in [
+            "Kendra",
+            "Bedrock Knowledge Bases",
+            "Amazon Q Business",
+            "SageMaker Clarify",
+            "Guardrails",
+        ]:
+            with self.subTest(service=service):
+                self.assertIn(service, self.subsection_text)
+
+    def test_explains_clarify_and_guardrails_are_not_interchangeable_timing(self):
+        # The whole point of this subsection is that Clarify (offline,
+        # batch/design-time) and Guardrails (synchronous, per-request)
+        # don't actually compete for the same "parallel vs. sequential"
+        # slot -- assert that distinction is spelled out, not just that
+        # both names appear somewhere.
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"offline.{0,120}Guardrails|Guardrails.{0,120}offline", re.S),
+        )
+        self.assertRegex(self.subsection_text, re.compile(r"per-request", re.IGNORECASE))
+
+    def test_has_mermaid_diagram(self):
+        self.assertIn(
+            "```mermaid",
+            self.subsection_text,
+            "expected a Mermaid diagram illustrating the request-path "
+            "layering order",
+        )
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.subsection_text, re.S
+        )
+        self.assertIsNotNone(diagram_match, "could not locate the Mermaid code block")
+        diagram_body = diagram_match.group("body")
+        self.assertRegex(diagram_body, re.compile(r"^\s*graph (TD|LR)", re.M))
+
+    def test_has_exam_tip(self):
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"\*\*Exam tip:\*\*", re.S),
+            "expected an exam tip for the layering scenario matrix",
+        )
+
+
 GOVERNANCE_SECTION_RE = re.compile(
     r"^##\s+2\.\s+Comparison table: security, compliance, and governance"
     r" services.*?(?=^## |\Z)",

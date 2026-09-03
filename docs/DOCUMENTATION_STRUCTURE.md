@@ -191,18 +191,19 @@ KMS key lifecycle and encryption architecture, Section 1, a compliance
 decision matrix, Section 2, and a data-governance lifecycle diagram,
 Section 4).
 `cross-domain-concept-map.md` adds one more Mermaid diagram in its "Visual
-overview" section, and `aws-service-decision-guide.md` adds one further
-Mermaid diagram of its own (the Section 6 cost-control decision flow for
+overview" section, and `aws-service-decision-guide.md` adds two further
+Mermaid diagrams of its own (the Section 4.1 Bedrock model family
+selection decision flow, and the Section 6 cost-control decision flow for
 Amazon API Gateway in front of Bedrock/SageMaker endpoints), bringing the
-total to **31 Mermaid diagrams**. On top of those, 3 ASCII diagrams are
+total to **32 Mermaid diagrams**. On top of those, 3 ASCII diagrams are
 provided in plain text for readers without Mermaid rendering, duplicating
 diagrams that already exist as Mermaid above rather than adding new
 content: Domain 1's ML lifecycle diagram (Section 2), Domain 5's
 data-governance lifecycle diagram (Section 4), and Domain 5's
 shared-responsibility diagram (Section 5). In total: 29 Mermaid diagrams
-in the domain guides + 1 in cross-domain-concept-map.md + 1 in
-aws-service-decision-guide.md = 31 total Mermaid diagrams + 3 ASCII
-diagrams = **34 total diagrams**.
+in the domain guides + 1 in cross-domain-concept-map.md + 2 in
+aws-service-decision-guide.md = 32 total Mermaid diagrams + 3 ASCII
+diagrams = **35 total diagrams**.
 
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,

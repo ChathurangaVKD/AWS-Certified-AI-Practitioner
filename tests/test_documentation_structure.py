@@ -356,6 +356,91 @@ class TestDocumentationStructureDomain3WorkedExampleCountAccuracy(unittest.TestC
         self.assertNotIn("domain 3 has a single worked example", lowered)
 
 
+class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md previously described the five domain
+    guides as marking "20+ worked-example sections in total", with no
+    per-domain breakdown. That vague figure undercounted reality (26
+    worked-example headings total: 2+4+10+6+4 across Domains 1-5) and gave
+    no way to check it against the domain guides directly. These tests
+    derive the true per-domain and grand-total counts from every "##"/
+    "###"/"####" level "Worked example[s]" heading in each domain guide and
+    assert DOCUMENTATION_STRUCTURE.md's "Worked examples" paragraph states
+    them exactly, guarding against the doc drifting back to vague or
+    stale language."""
+
+    EXPECTED_PER_DOMAIN = {1: 2, 2: 4, 3: 10, 4: 6, 5: 4}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    @staticmethod
+    def _worked_example_heading_count(text):
+        return len(re.findall(r"(?m)^#{2,4} Worked examples?:", text))
+
+    def test_per_domain_worked_example_heading_counts_match_expected(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            text = path.read_text(encoding="utf-8")
+            actual = self._worked_example_heading_count(text)
+            with self.subTest(domain=domain_number):
+                self.assertEqual(
+                    actual,
+                    self.EXPECTED_PER_DOMAIN[domain_number],
+                    f"sanity check: expected domain {domain_number}'s guide "
+                    f"({path.name}) to have "
+                    f"{self.EXPECTED_PER_DOMAIN[domain_number]} "
+                    "'Worked example' headings (any of '##', '###', or "
+                    f"'####' level), found {actual}",
+                )
+
+    def test_grand_total_worked_example_count_is_26(self):
+        actual_total = sum(
+            self._worked_example_heading_count(path.read_text(encoding="utf-8"))
+            for path in DOMAIN_FILES.values()
+        )
+        self.assertEqual(
+            actual_total,
+            26,
+            "sanity check: expected 26 total 'Worked example' headings "
+            "across the five domain guides",
+        )
+
+    def test_structure_doc_states_26_worked_examples_with_per_domain_breakdown(self):
+        anchor = "worked-example sections in total"
+        idx = self.structure_text.find(anchor)
+        self.assertNotEqual(
+            idx,
+            -1,
+            "expected a 'worked-example sections in total' summary in "
+            "DOCUMENTATION_STRUCTURE.md",
+        )
+        window = self.structure_text[max(0, idx - 50) : idx + 300]
+        self.assertIn(
+            "26",
+            window,
+            "DOCUMENTATION_STRUCTURE.md does not state the 26-worked-example "
+            "grand total",
+        )
+        for domain_number, count in self.EXPECTED_PER_DOMAIN.items():
+            with self.subTest(domain=domain_number):
+                self.assertRegex(
+                    window,
+                    re.compile(rf"{count} in\s+Domain {domain_number}"),
+                    "DOCUMENTATION_STRUCTURE.md does not state the "
+                    f"per-domain worked-example breakdown for Domain "
+                    f"{domain_number} ({count})",
+                )
+
+    def test_structure_doc_no_longer_uses_vague_worked_example_count(self):
+        self.assertNotIn(
+            "20+",
+            self.structure_text,
+            "DOCUMENTATION_STRUCTURE.md still uses vague '20+' "
+            "worked-example language instead of the exact 26-count "
+            "breakdown",
+        )
+
+
 class TestDocumentationStructureCrossDomainMaterialsAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously claimed cross-domain materials
     (concept map, mock exam, case study, master glossary/AWS service index,
@@ -594,14 +679,15 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
     def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
         # The domain guides' 29 Mermaid diagrams are not the whole picture:
         # cross-domain-concept-map.md's "Visual overview" section has one
-        # more Mermaid diagram (30 Mermaid diagrams total), and three of the
-        # domain guides also carry a plain-text ASCII rendering of a
-        # diagram that already exists as Mermaid (Domain 1's ML lifecycle,
-        # Domain 5's data-governance lifecycle diagram, and Domain 5's
-        # shared-responsibility model), for 33 diagrams
-        # overall. DOCUMENTATION_STRUCTURE.md previously undercounted this
-        # (stating "All 24 flowchart-style diagrams") and omitted the
-        # cross-domain diagram and the ASCII diagrams entirely.
+        # more Mermaid diagram, and aws-service-decision-guide.md's Section 6
+        # cost-control decision flow has one more still (31 Mermaid diagrams
+        # total), and three of the domain guides also carry a plain-text
+        # ASCII rendering of a diagram that already exists as Mermaid
+        # (Domain 1's ML lifecycle, Domain 5's data-governance lifecycle
+        # diagram, and Domain 5's shared-responsibility model), for 34
+        # diagrams overall. DOCUMENTATION_STRUCTURE.md previously undercounted
+        # this (stating "All 24 flowchart-style diagrams") and omitted the
+        # cross-domain diagrams and the ASCII diagrams entirely.
         domain_mermaid_total = sum(
             len(re.findall(r"```mermaid", path.read_text(encoding="utf-8")))
             for path in DOMAIN_FILES.values()
@@ -616,15 +702,29 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "sanity check: expected exactly one Mermaid diagram in "
             "cross-domain-concept-map.md's Visual overview section",
         )
-        grand_mermaid_total = domain_mermaid_total + concept_map_mermaid_total
-        self.assertEqual(grand_mermaid_total, 30)
+        decision_guide_path = DOCS_DIR / "aws-service-decision-guide.md"
+        decision_guide_mermaid_total = len(
+            re.findall(r"```mermaid", decision_guide_path.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(
+            decision_guide_mermaid_total,
+            1,
+            "sanity check: expected exactly one Mermaid diagram in "
+            "aws-service-decision-guide.md",
+        )
+        grand_mermaid_total = (
+            domain_mermaid_total
+            + concept_map_mermaid_total
+            + decision_guide_mermaid_total
+        )
+        self.assertEqual(grand_mermaid_total, 31)
         ascii_diagram_count = 3
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 33)
+        self.assertEqual(grand_total, 34)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
-        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 1600]
+        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 2000]
         self.assertIn(
             "cross-domain-concept-map.md",
             diagrams_section,
@@ -632,10 +732,17 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             "cross-domain-concept-map.md's additional Mermaid diagram",
         )
         self.assertIn(
+            "aws-service-decision-guide.md",
+            diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md's diagram count does not mention "
+            "aws-service-decision-guide.md's additional Mermaid diagram",
+        )
+        self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 30-diagram "
-            "Mermaid total once cross-domain-concept-map.md is included",
+            "DOCUMENTATION_STRUCTURE.md does not state the 31-diagram "
+            "Mermaid total once cross-domain-concept-map.md and "
+            "aws-service-decision-guide.md are included",
         )
         self.assertIn(
             "3 ASCII diagrams",
@@ -647,8 +754,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 33-diagram "
-            "grand total (30 Mermaid + 3 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 34-diagram "
+            "grand total (31 Mermaid + 3 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):

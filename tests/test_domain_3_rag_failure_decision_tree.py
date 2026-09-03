@@ -133,12 +133,12 @@ class TestDomain3RagFailureDecisionTree(unittest.TestCase):
         ]
         self.assertIn("Exam tip:", section)
 
-    def test_worked_example_still_has_three_failure_mode_subsections(self):
-        # The new diagram must not have disturbed the existing three
+    def test_worked_example_still_has_four_failure_mode_subsections(self):
+        # The diagram must not have disturbed the existing four
         # failure-mode subsections it sits alongside.
         headings = re.findall(r"^### (.+)$", self.worked_example_section, re.M)
         failure_headings = [h for h in headings if "failure mode" in h.lower()]
-        self.assertEqual(len(failure_headings), 3, f"found headings: {headings!r}")
+        self.assertEqual(len(failure_headings), 4, f"found headings: {headings!r}")
 
 
 if __name__ == "__main__":

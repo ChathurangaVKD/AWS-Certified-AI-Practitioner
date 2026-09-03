@@ -677,15 +677,15 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         )
 
     def test_stated_grand_total_diagram_count_includes_cross_domain_and_ascii(self):
-        # The domain guides' 33 Mermaid diagrams are not the whole picture:
+        # The domain guides' 34 Mermaid diagrams are not the whole picture:
         # cross-domain-concept-map.md's "Visual overview" section has one
         # more Mermaid diagram, and aws-service-decision-guide.md's Section
         # 4.1 Bedrock model family selection flow and Section 6 cost-control
-        # decision flow add two more still (36 Mermaid diagrams
+        # decision flow add two more still (37 Mermaid diagrams
         # total), and three of the domain guides also carry a plain-text
         # ASCII rendering of a diagram that already exists as Mermaid
         # (Domain 1's ML lifecycle, Domain 5's data-governance lifecycle
-        # diagram, and Domain 5's shared-responsibility model), for 39
+        # diagram, and Domain 5's shared-responsibility model), for 40
         # diagrams overall. DOCUMENTATION_STRUCTURE.md previously undercounted
         # this (stating "All 24 flowchart-style diagrams") and omitted the
         # cross-domain diagrams and the ASCII diagrams entirely.
@@ -719,10 +719,10 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
             + concept_map_mermaid_total
             + decision_guide_mermaid_total
         )
-        self.assertEqual(grand_mermaid_total, 36)
+        self.assertEqual(grand_mermaid_total, 37)
         ascii_diagram_count = 3
         grand_total = grand_mermaid_total + ascii_diagram_count
-        self.assertEqual(grand_total, 39)
+        self.assertEqual(grand_total, 40)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)
@@ -742,7 +742,7 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_mermaid_total} Mermaid diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 36-diagram "
+            "DOCUMENTATION_STRUCTURE.md does not state the 37-diagram "
             "Mermaid total once cross-domain-concept-map.md and "
             "aws-service-decision-guide.md are included",
         )
@@ -756,8 +756,8 @@ class TestDocumentationStructureDiagramMiniQuizServiceIndexAccuracy(unittest.Tes
         self.assertIn(
             f"{grand_total} total diagrams",
             diagrams_section,
-            "DOCUMENTATION_STRUCTURE.md does not state the 39-diagram "
-            "grand total (36 Mermaid + 3 ASCII)",
+            "DOCUMENTATION_STRUCTURE.md does not state the 40-diagram "
+            "grand total (37 Mermaid + 3 ASCII)",
         )
 
     def test_stated_per_domain_diagram_counts_match_actual(self):

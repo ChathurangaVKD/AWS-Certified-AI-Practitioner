@@ -18,6 +18,7 @@
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
   - [Choosing an embedding model: domain-specific vs. general vs. fine-tuned](#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
+  - [Worked example: when to use Cohere Rerank in a RAG pipeline](#worked-example-when-to-use-cohere-rerank-in-a-rag-pipeline)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
@@ -1865,6 +1866,222 @@ flowchart TD
 > **Amazon Bedrock Knowledge Bases** (a reranking model option, and a
 > vector store that supports hybrid search, such as OpenSearch) rather
 > than requiring you to build a separate pipeline.
+
+#### Worked example: when to use Cohere Rerank in a RAG pipeline
+
+The comparison table above says reranking is "essential" when the FM keeps
+citing a plausible-but-wrong chunk, and "nice-to-have" when the top vector
+match is already reliable — but it doesn't put numbers on that judgment
+call. This worked example does, using **Cohere Rerank** (available on
+**Amazon Bedrock** as a third-party reranking model, the same "opt-in
+reranking model" the table above refers to) as the concrete reranker, and
+an e-commerce product-search assistant as the concrete retrieval workload.
+Cost, latency, and relevance are all measured, not assumed, so the
+trade-off can be weighed the way the exam expects — against a specific
+query volume and a specific business impact, not in the abstract.
+
+**Scenario:** An online outdoor-gear retailer runs a natural-language
+product-search assistant on top of a Bedrock Knowledge Base. The catalog
+holds **~800,000 SKUs**, embedded with **Amazon Titan Text Embeddings**
+and indexed in **Amazon OpenSearch Service**. A shopper's query — e.g.
+*"waterproof hiking boots under $150 with good ankle support"* — is
+embedded and matched against the catalog with vector similarity search,
+and the top results feed a Bedrock FM that generates a short comparison
+summary and product list. The assistant serves **2,000,000 queries/month**
+(roughly 66,000/day, with a peak of ~120 queries/second during evening
+shopping hours). The product team has noticed the assistant sometimes
+surfaces topically related but subtly wrong products — a *waterproof
+jacket* instead of *waterproof boots*, or the right boot but the wrong
+size range — and wants to know whether adding Cohere Rerank is worth its
+added cost and latency at this volume, or whether it's the kind of
+"nice-to-have" the decision table warns isn't always worth paying for.
+
+**Step 1 — measure the vector-only baseline, don't assume it.** The team
+builds a labeled offline evaluation set of **500 real shopper queries**,
+each with human-judged relevant products, and measures the *existing*
+vector-only pipeline (Titan embeddings + OpenSearch k-NN, top 5 results
+shown to the shopper):
+
+| Metric (vector-only) | Result |
+|---|---|
+| Precision@5 (of the 5 shown, how many are actually relevant) | **0.62** |
+| Recall@50 (of all relevant catalog items, how many appear in the top-50 candidate set) | **0.81** |
+| Added retrieval latency (p50, vector search only) | **~45 ms** |
+| Added retrieval cost per query | **~$0** marginal (OpenSearch cluster cost is fixed, not per-query) |
+
+Recall@50 being noticeably higher than precision@5 (0.81 vs. 0.62) is the
+signature this worked example is built around: **the right products are
+usually already in the candidate pool the vector search returns — they're
+just not sorted into the top 5.** That's exactly the "topically close but
+not the closest vector match" failure mode the reranking subsection above
+describes, and it's the signal that a *reranker*, not a *different
+embedding model or vector store*, is the fix worth pricing out.
+
+**Step 2 — measure the same eval set with Cohere Rerank added.** The
+pipeline changes to: retrieve a wider candidate set (**top 50**, unchanged)
+with vector search, pass those 50 candidates plus the original query
+through **Cohere Rerank** (invoked as Bedrock's reranking-model option
+inside the Knowledge Base's retrieval flow), and show the shopper the
+reranked top 5:
+
+| Metric (vector search + Cohere Rerank) | Result | Change vs. vector-only |
+|---|---|---|
+| Precision@5 | **0.85** | **+23 points** |
+| Recall@50 (unchanged — same 50-candidate pool, only the ordering changes) | 0.81 | no change |
+| Added retrieval latency (p50, vector search + rerank call) | **~165 ms** (45 ms search + ~120 ms rerank on 50 documents) | **+120 ms** |
+| Added retrieval cost per query | **~$0.002** (1 Cohere Rerank "search unit" per query, at an illustrative $2.00 per 1,000 search units — verify current Bedrock pricing before sizing a real deployment) | **+$0.002/query** |
+
+Recall@50 staying flat while precision@5 jumps confirms what Step 1
+predicted: reranking isn't finding *new* relevant products the vector
+search missed (that would show up as a recall change), it's **re-sorting
+products that were already retrievable** so the genuinely relevant ones
+land in the top 5 instead of position 12 or 30.
+
+**Setup notes — turning this on inside Amazon Bedrock Knowledge Bases.**
+Measuring the before/after numbers above doesn't require standing up a
+separate reranking service:
+
+1. **Widen the candidate set before reranking, not after.** The Knowledge
+   Base's `numberOfResults` (or the equivalent retrieval-configuration
+   setting) needs to return a wider pool — the top 50 used in this
+   example — *before* reranking runs, not the top 5 the shopper
+   ultimately sees. A reranker can only reorder what it's given; asking it
+   to rerank a candidate set that was already truncated to 5 defeats the
+   point.
+2. **Enable Cohere Rerank as the Knowledge Base's reranking model.**
+   Bedrock Knowledge Bases exposes reranking as an opt-in step in the
+   retrieval configuration, the same "reranking model option" referenced
+   in the comparison table above — no separate inference endpoint or
+   custom scoring code to deploy.
+3. **Set the post-rerank result count to what the FM actually needs.**
+   After Cohere Rerank re-scores the 50 candidates, only the top 5 (the
+   number this scenario's UI displays) are passed on to the FM as
+   context — keeping the FM's prompt the same size it was in the
+   vector-only pipeline, so the added cost/latency stays isolated to the
+   retrieval step measured above.
+4. **Re-run the offline eval set after enabling it.** The 500-query
+   labeled set from Step 1 doubles as a regression check: precision@5
+   should move the way Step 2 measured, and recall@50 should stay flat —
+   if recall@50 *changes* after enabling reranking, something upstream
+   (the candidate-set size, most likely) shifted along with it, and the
+   before/after comparison is no longer measuring the reranker in
+   isolation.
+
+**Step 3 — convert the added cost and latency into monthly, absolute
+terms.** As with the [monthly inference cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers),
+a per-query delta only becomes decision-relevant once it's multiplied out
+against real volume:
+
+- **Added monthly cost:** 2,000,000 queries/month × $0.002/query =
+  **~$4,000/month**.
+- **Added latency:** +120 ms per query, all inside the retrieval step —
+  well within a typical end-to-end budget for this kind of assistant (e.g.
+  a ~900 ms target that also has to cover the FM's summary generation),
+  and nowhere close to a latency SLA violation for a shopping-assistant
+  use case (unlike, say, a sub-200ms real-time bidding system).
+- **Peak throughput check:** at the ~120 queries/second peak, the rerank
+  call needs to sustain that same throughput without becoming the
+  bottleneck — worth confirming against Cohere Rerank's documented
+  throughput limits on Bedrock before committing, but not a cost or
+  latency line item by itself.
+
+**Step 4 — translate the precision gain into a business number, not just
+a metric.** A 23-point precision@5 gain is meaningless to a budget
+conversation until it's connected to revenue. The team already has an
+internal estimate, from a prior UI experiment, that **each 1-point gain in
+precision@5 correlates with roughly a 0.05 percentage-point lift in
+search-to-purchase conversion rate** (illustrative, not a universal
+constant — every catalog and shopper base is different, and a real
+deployment should validate this with its own A/B test rather than assume
+it). Applied here:
+
+- Precision gain: 23 points → **+1.15 percentage points** of conversion
+  lift (23 × 0.05).
+- At 2,000,000 search queries/month and a **$65 average order value**,
+  that conversion lift is worth roughly 2,000,000 × 0.0115 × $65 ≈
+  **+$1,495,000/month** in incremental revenue — several orders of
+  magnitude larger than the **~$4,000/month** Cohere Rerank costs to run.
+
+**Choice: add Cohere Rerank.** At this catalog size and query volume, the
+math isn't close — a ~$4,000/month, ~120ms addition buys a precision gain
+that the business's own conversion data says is worth roughly
+$1.5M/month, while staying comfortably inside the assistant's latency
+budget. This is the case the reranking comparison table calls "essential":
+queries are topically broad, the FM keeps citing a plausible-but-wrong
+product, and the retrieval logs (recall@50 high, precision@5 much lower)
+confirm the right answer is already in the candidate pool waiting to be
+sorted correctly.
+
+**When the same math says "skip it" instead.** A second, smaller retailer
+running the same kind of assistant over a **5,000-SKU** boutique catalog
+(a single, narrow product category) measures its own vector-only baseline
+and finds **precision@5 already at 0.93** — the small, low-ambiguity
+catalog means the top vector match is almost always correct already.
+Adding Cohere Rerank to that pipeline nets only **+2 points** of
+precision@5 (0.93 → 0.95, since there's little room left to improve), for
+the same ~$0.002/query and ~120ms cost. At that retailer's much lower
+volume (~20,000 queries/month), the added cost is trivial in dollar terms
+(~$40/month) — but the *return* is trivial too: a 2-point precision gain
+on an already-precise pipeline isn't likely to move conversion enough to
+justify the added latency and the operational cost of standing up and
+monitoring a reranking step. This is the comparison table's "nice-to-have"
+case: **retrieval is already precise on a small, narrow corpus**, so the
+second model call is buying very little.
+
+**Side by side: both retailers' numbers, one table.** Laying the two
+scenarios next to each other is what makes the decision legible at a
+glance — the added cost and latency are nearly identical in both cases;
+what changes is the size of the precision gain they're buying, and the
+volume that gain gets multiplied across:
+
+| Dimension | Large retailer (800K SKUs, 2M queries/mo) | Boutique retailer (5K SKUs, 20K queries/mo) |
+|---|---|---|
+| Vector-only precision@5 | 0.62 | 0.93 |
+| Precision@5 with Cohere Rerank | 0.85 | 0.95 |
+| Precision@5 gain | **+23 points** | +2 points |
+| Recall@50 | 0.81 (unchanged after reranking) | Already high (unchanged after reranking) |
+| Added latency | +120 ms | +120 ms |
+| Added cost per query | ~$0.002 | ~$0.002 |
+| Added monthly cost | **~$4,000/mo** | ~$40/mo |
+| Estimated monthly value of the precision gain | **~$1,495,000/mo** (via the conversion-lift assumption above) | Small — little conversion headroom left to gain |
+| **Verdict** | **Add Cohere Rerank** — cost is trivial next to the estimated revenue impact | **Skip it** — cost is trivial too, but so is the return |
+
+The per-query cost and added latency are essentially a *fixed toll* for
+running Cohere Rerank — they don't change much with catalog size. What
+determines whether that toll is worth paying is entirely on the other
+side of the ledger: how much precision headroom the vector-only baseline
+leaves on the table, and how much query volume that precision gain gets
+multiplied across. A narrow, already-precise catalog leaves little
+headroom no matter how large its query volume is; a broad, ambiguous
+catalog leaves a lot of headroom, and reranking's value scales with the
+traffic that flows through it.
+
+**The general heuristic:** don't decide on reranking from the qualitative
+description alone ("queries are topically broad" vs. "retrieval is
+already precise") — run the same offline precision/recall measurement
+both scenarios above did, on a labeled eval set, before and after adding
+the reranker. A **large gap between recall@50 (or recall@N at the
+candidate-pool size) and precision@5** is the quantitative signal that a
+reranker has room to help, because it means the right answer is already
+being retrieved and just needs to be sorted correctly. A **small gap**
+means the vector search is already doing the sorting job well, and the
+reranker's added per-query cost and latency are unlikely to be repaid by
+the resulting precision gain — regardless of how large or small that
+gain looks as a percentage.
+
+> **Exam tip:** If a scenario gives you (or lets you infer) a **query
+> volume**, a **precision/recall change from adding a reranker**, and
+> either a **per-query reranking cost** or a way to estimate one, the exam
+> expects the same "multiply out the delta, then compare it to what the
+> business gains" arithmetic as the monthly inference cost worked example
+> uses for model tiers: added monthly cost = queries/month × cost/query;
+> added value = precision gain × its measured (or given) effect on the
+> business metric that matters (conversion, deflection, accuracy). A
+> reranker that costs a few thousand dollars a month against a
+> multi-million-dollar precision-driven revenue impact is an easy yes;
+> the same reranker bolted onto an already-precise, low-volume pipeline is
+> the "nice-to-have, not essential" case the comparison table warns about.
 
 #### Mini-quiz: Test your understanding of vector databases and embeddings
 

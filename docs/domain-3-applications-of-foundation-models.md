@@ -2272,8 +2272,12 @@ mean it runs trouble-free: real-time endpoints and batch jobs each fail in
 their own characteristic way once they hit conditions the initial sizing
 didn't anticipate. The exam expects you to recognize the symptom, name the
 root cause, and pick the fix — not just recite "use auto scaling" or
-"increase the timeout." The two scenarios below walk through one failure
-in each deployment pattern end to end.
+"increase the timeout." The four scenarios below walk through failures in
+each deployment pattern end to end: two about *capacity* (an endpoint that
+can't scale fast enough, a batch job whose payloads outgrow its timeout
+budget), and two about *token budgets* (a conversation that outgrows the
+model's context window, and a workload that outgrows its provisioned or
+on-demand throughput).
 
 ### Scenario 1: a SageMaker real-time endpoint that can't scale fast enough for a traffic spike
 
@@ -2404,20 +2408,190 @@ model:
 > the record size without adjusting those settings is testing whether you
 > know which knobs govern that budget.
 
+### Scenario 3: a request that overflows the model's context window mid-conversation
+
+**Scenario:** A customer-support chatbot built on Amazon Bedrock (a Claude
+model with a 200K-token context window) sends the full conversation
+history — system prompt, all prior turns, and the latest user message —
+with every new request, since the underlying `Converse` API is stateless
+and has no memory of earlier calls. Most sessions stay short, but a
+handful of customers paste large error logs and configuration files into
+the chat while troubleshooting, and one such session runs for over an hour
+across dozens of back-and-forth turns.
+
+**Symptom:** Partway through the long session, the request that had been
+working fine on the previous turn suddenly fails with a `ValidationException`
+— something like "*input length exceeds the model's maximum context
+length*" (on the Converse/InvokeModel API) or an "*expected maxLength,
+actual length*" message. Shorter sessions with the same system prompt and
+application code never hit this error at all. In an application that
+instead tries to "fix" this by silently truncating the payload from the
+end that happens to be easiest to trim, the symptom looks different but is
+just as broken: the model suddenly stops referencing the customer's
+original problem, forgets instructions from the system prompt, or gives
+answers that ignore context the user provided several turns ago.
+
+**Diagnosis.** A foundation model's **context window** is a hard ceiling
+on the combined input and output tokens for a single invocation — it isn't
+a per-message limit, it's a limit on the *entire* payload the model has to
+process at once. Because the chat client resends the full transcript on
+every turn (the API itself is stateless — see the [context-window-vs-cost
+worked example](#worked-example-two-concrete-model-pair-comparisons)
+earlier in this domain for how that budget is estimated up front), the
+token count carried by a single conversation only grows, turn after turn,
+and never shrinks on its own. A session that pastes in large logs or
+documents adds thousands of tokens in one turn instead of the usual
+handful, and once the running total plus the next request's expected
+output crosses the model's context-window ceiling, the *very next* call
+fails — even though nothing about the code, the model, or the system
+prompt changed from the previous, successful turn. This is not a
+throttling or capacity problem like Scenarios 1 and 2 above; the request
+never gets far enough to be throttled — it's rejected before invocation
+because it doesn't fit in the model's window at all. And a naive fix that
+truncates from a fixed end of the payload (say, always dropping the
+oldest characters) is just as likely to cut the system prompt or the
+customer's original problem statement as it is to cut something safe to
+lose, producing a model response that's fluent but has silently lost the
+context it needed.
+
+**Remediation.** The team treats the conversation's token budget as
+something to actively manage, not something to discover only once a
+request fails:
+
+- **Track input tokens client-side before sending** — counting (or closely
+  estimating) the token size of the system prompt plus accumulated history
+  plus the next user turn before each call, so the application can act
+  *before* hitting the hard `ValidationException` rather than only
+  handling it as an error path.
+- **Truncate with a sliding window, not a fixed cut** — keeping the system
+  prompt and the most recent N turns intact (the context most likely to
+  still be relevant) and dropping the oldest turns first, instead of
+  trimming from whichever end of the payload is simplest to code against.
+- **Summarize older turns instead of discarding them** — periodically
+  replacing the oldest chunk of conversation history with a short,
+  model-generated summary of "what's been established so far," preserving
+  the gist of earlier turns (the customer's original issue, key facts
+  already given) at a fraction of the original token cost, then continuing
+  the sliding window on top of that summary.
+- **Chunk and retrieve instead of pasting large documents inline** — when
+  a user pastes a large log file or document into the chat, routing it
+  through the same chunking-and-retrieval pattern used for [RAG
+  ingestion](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
+  instead of stuffing it into the conversation verbatim, so the model sees
+  only the passages relevant to the current question rather than the
+  entire file every turn.
+- **Move to a larger-context-window model if truncation loses too much** —
+  accepting the cost/latency trade-off discussed in the [model-tier
+  comparison worked
+  example](#worked-example-two-concrete-model-pair-comparisons) when the
+  application's use case (e.g., reasoning over an entire long document at
+  once) genuinely needs more room rather than a smarter truncation
+  strategy.
+
+> **Exam tip:** A `ValidationException` (or similar "input too long")
+> error that appears only after a conversation has run for many turns —
+> and never on a fresh, short session — is a **context-window overflow**,
+> not a throttling or capacity issue. The fix is managing the token budget
+> of what gets sent (sliding-window truncation, rolling summarization,
+> chunking + retrieval for large pasted content) or moving to a model with
+> a larger context window — not retrying the request, raising a timeout,
+> or scaling out infrastructure, none of which changes how many tokens the
+> payload contains.
+
+### Scenario 4: a production workload that exceeds its provisioned token budget
+
+**Scenario:** A document-analysis service invokes a foundation model on
+Amazon Bedrock using **Provisioned Throughput** sized for its
+launch-day traffic. Over the following months, the service is rolled out
+to more internal teams and adoption grows steadily — not in a sudden
+spike like Scenario 1, but as a gradual rise in sustained baseline
+volume — until the number of tokens processed per minute regularly runs
+above what the purchased provisioned throughput was sized to deliver.
+
+**Symptom:** Requests increasingly fail with a `ThrottlingException` (on
+provisioned throughput, once demand exceeds the model units purchased) —
+or, for teams still on **on-demand** pricing instead, with
+`ThrottlingException`/`ServiceQuotaExceededException` once sustained usage
+crosses the account's per-model tokens-per-minute (TPM) or
+requests-per-minute (RPM) quota. Unlike Scenario 1's traffic spike, there
+is no single dramatic surge to point to — the error rate simply climbs in
+step with normal business growth over weeks, and it doesn't self-resolve
+the way a spike-driven throttle does, because the sustained demand never
+drops back below the budget on its own.
+
+**Diagnosis.** Both provisioned throughput and on-demand Bedrock access
+have a **fixed ceiling on tokens processed per unit time**, just enforced
+two different ways. Provisioned throughput guarantees a fixed number of
+**model units**, each supporting a fixed maximum tokens-per-minute rate
+for a given model — sized once, at purchase time, for the traffic the
+team expected then. On-demand access instead caps usage against an
+account- and model-level **Service Quota** for TPM/RPM (see [Cost
+governance: bounding per-request cost with max tokens and provisioned
+throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
+earlier in this domain for how those two pricing models compare on cost).
+Either way, the ceiling doesn't move on its own as real usage grows; a
+workload whose *shape* was fine at launch becomes under-provisioned
+exactly the way Scenario 2's batch job became under-provisioned for larger
+payloads — not because anything broke, but because the budget it was
+originally sized against no longer matches current demand. Retrying a
+throttled request doesn't help here, because the constraint is aggregate
+throughput over time, not a transient blip; every retry competes for the
+same already-exhausted budget as the request that just failed.
+
+**Remediation.** The team treats this as a capacity-planning problem, the
+same way Scenario 1's traffic spike was a scaling-speed problem — sizing
+and smoothing the demand against the budget, not chasing individual failed
+requests:
+
+- **Request a Service Quota increase** for the account's on-demand
+  TPM/RPM limit on the affected model, when the workload is a good fit for
+  on-demand's variable pricing but has simply outgrown the default quota.
+- **Purchase additional Provisioned Throughput model units** sized for the
+  new, higher sustained baseline — treating the original purchase as a
+  point-in-time estimate that needs revisiting as adoption grows, not a
+  permanent ceiling.
+- **Add client-side rate limiting and request queuing with exponential
+  backoff**, so traffic that arrives faster than the budget allows is
+  smoothed out over time (accepting slightly higher latency) instead of
+  being thrown away as throttling errors.
+- **Set CloudWatch budget alarms on token/invocation usage** (e.g., on
+  `ThrottlingException` counts or on tracked token consumption against the
+  provisioned/quota ceiling) so the team is alerted while usage is
+  *approaching* the budget, rather than finding out only after production
+  traffic starts failing.
+- **Offload lower-priority or non-latency-sensitive volume** — routing
+  work that doesn't need an immediate response to [batch
+  inference](#8-aws-infrastructure-for-generative-ai-workloads) or to a
+  smaller, cheaper model, reducing sustained draw on the primary model's
+  provisioned or on-demand budget without adding capacity at all.
+
+> **Exam tip:** A rising rate of `ThrottlingException`/`ServiceQuotaExceededException`
+> errors that tracks *gradual* growth in usage over days or weeks — rather
+> than a short, dramatic spike — points to **provisioned throughput or
+> on-demand quota sized below current sustained demand**, not a scaling-speed
+> problem like Scenario 1. The fix is raising the budget (quota increase,
+> more provisioned model units) or reducing draw on it (rate limiting,
+> budget alarms, offloading to batch or a cheaper model) — not tuning
+> auto-scaling policies, since there's no endpoint capacity to scale in
+> the first place.
+
 ### Summary: matching the inference failure to the fix
 
 | Deployment pattern | Symptom | Root cause | Fix |
 |---|---|---|---|
 | Real-time endpoint | Throttling/timeouts during a sudden traffic spike, recovering once traffic subsides | Auto scaling reacts too slowly (alarm evaluation, cooldown, instance launch/model load) for how fast demand changed | Tighten the auto-scaling policy (lower threshold, shorter scale-out cooldown); raise minimum instance count; use provisioned concurrency to pre-warm capacity |
 | Batch Transform job | Per-record payload-size or timeout errors on a subset of unusually large records | Default `MaxPayloadInMB`/`InvocationsTimeoutInSeconds` sized for a smaller typical record no longer fits the larger ones | Lower `MaxPayloadInMB` and use `SingleRecord` strategy for large records; raise `InvocationsTimeoutInSeconds`; split the job by payload size; adjust instance size/`MaxConcurrentTransforms` |
+| Long-running conversation | `ValidationException`/"input too long" only after many turns, or incoherent answers once naive truncation kicks in | Cumulative conversation tokens (system prompt + full history + latest turn) exceed the model's context window | Sliding-window truncation that preserves the system prompt; rolling summarization of older turns; chunk-and-retrieve for large pasted content instead of inlining it; move to a larger-context-window model |
+| Provisioned/on-demand workload | Rising `ThrottlingException`/`ServiceQuotaExceededException` that tracks gradual usage growth, not a single spike | Provisioned Throughput model units or on-demand TPM/RPM quota sized below current sustained demand | Request a Service Quota increase; purchase additional Provisioned Throughput model units; add client-side rate limiting/backoff; set CloudWatch budget alarms; offload lower-priority volume to batch or a cheaper model |
 
-> **Exam tip:** Both scenarios share one exam pattern: a deployment that
-> works fine under the conditions it was originally sized for starts
+> **Exam tip:** All four scenarios share one exam pattern: a deployment
+> that works fine under the conditions it was originally sized for starts
 > failing only once the *shape* of the workload changes (traffic velocity
-> for the real-time endpoint, record size for the batch job). Read for
-> that framing — "worked before, fails now that X changed" — and match it
-> to the scaling or batching knob that governs X, rather than reaching for
-> a generic "add more capacity" answer.
+> for the real-time endpoint, record size for the batch job, conversation
+> length for the context window, sustained volume for the token budget).
+> Read for that framing — "worked before, fails now that X changed" — and
+> match it to the scaling, batching, context, or budget knob that governs
+> X, rather than reaching for a generic "add more capacity" answer.
 
 ---
 

@@ -756,6 +756,72 @@ itself.
 > enterprise repositories, it's **Amazon Kendra**. [Section 6](#6-vector-databases-and-embeddings-for-search-and-retrieval)
 > goes deeper on vector databases and embeddings in general.
 
+#### Worked Example: Selecting a vector store for a compliance-document Q&A assistant
+
+**Scenario:** A regional bank's compliance team wants a RAG-based
+assistant that lets internal auditors ask natural-language questions
+against roughly 150,000 regulatory filings, internal policies, and audit
+reports stored as PDFs in Amazon S3. Query volume is modest — a few
+hundred questions per day — but every answer must cite the source
+passage, and the compliance team has no dedicated search or ML
+engineers to build or operate infrastructure. The bank's core ledger
+already runs on Amazon Aurora PostgreSQL, but the compliance documents
+themselves live only in S3.
+
+**Walking the decision tree:**
+
+- **Q1 — hybrid search at large scale?** No. ~150,000 documents is not
+  "tens of millions," and the ask is natural-language Q&A, not blended
+  keyword-*and*-vector search under heavy, spiky traffic. This rules out
+  OpenSearch's core strength.
+- **Q2 — already on Aurora/PostgreSQL and want to query embeddings with
+  SQL?** Partially — the bank runs Aurora, but the compliance documents
+  aren't in it today, and there's no one on the team to design a
+  chunking strategy, pick and evaluate an embeddings model, build the
+  ingestion pipeline, or tune a `pgvector` index over time. Being an
+  Aurora shop isn't enough on its own when the team can't operate the
+  embeddings layer.
+- **Q3 — fully managed, built-in connectors, no embeddings pipeline to
+  build?** Yes. Kendra ships a native Amazon S3 connector, performs
+  relevance ranking internally, and needs no embeddings-model choice, no
+  vector-index design, and no cluster or database to size or patch.
+
+**Choice: Amazon Kendra.**
+
+**Why the tradeoffs favor Kendra here:**
+
+- **Cost:** Kendra's per-query and per-index pricing is higher than the
+  raw compute cost of a small OpenSearch Serverless collection or an
+  extra Aurora instance. But at a few hundred queries a day, that dollar
+  gap is small, while the *engineering* cost of building and maintaining
+  a self-managed embeddings pipeline — model selection, chunking,
+  index tuning, ongoing drift monitoring — would dwarf it for a team
+  with no dedicated search/ML staff. Measured as total cost of
+  ownership rather than sticker price per query, Kendra is the cheaper
+  option.
+- **Latency:** Both approaches can return sub-second results at this
+  document count and query rate, so latency doesn't favor either choice
+  outright. Kendra's advantage is that its managed relevance ranking
+  removes the need to hand-tune index parameters (e.g., pgvector's
+  `ef_search`/`m`, or OpenSearch's k-NN settings) to hit a latency
+  target — one less thing for a team without search expertise to get
+  wrong.
+- **Scaling:** 150,000 documents and low query volume sit well inside
+  Kendra's automatic scaling envelope, so there's no scaling benefit to
+  gain by self-managing OpenSearch or Aurora capacity that the workload
+  doesn't need in the first place.
+- **When self-managed would win instead:** if the auditor base grew to
+  thousands of concurrent users, or the assistant needed a single query
+  to blend exact keyword matches (e.g., regulation section numbers) with
+  semantic similarity at large scale, OpenSearch's native hybrid search
+  would justify the added operational burden. Likewise, if the
+  compliance documents were already embedded and stored in Aurora for
+  another feature, reusing `pgvector` could avoid paying for a second
+  managed service. Neither condition holds here, so Kendra's
+  fully-managed, higher-per-query-cost model — trading a higher unit
+  price for zero infrastructure to build or run — is the better fit for
+  this scenario.
+
 ---
 
 ## 4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering

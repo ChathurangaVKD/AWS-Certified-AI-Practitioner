@@ -3344,6 +3344,79 @@ via Lambda).
     C. Fine-tuning
     D. Increasing the context window
 
+21. **[Intermediate]** A company's RAG-based HR policy assistant answers a two-part
+    question ("How many weeks of parental leave do I get, and do I need to
+    use vacation days first?") by giving only the first half of the answer,
+    even though the employee handbook covers both points in the same
+    paragraph. Inspecting the raw retrieved chunks shows that paragraph was
+    split mid-sentence across a chunk boundary. What is the most direct fix?
+    A. Fine-tune the foundation model on more example question/answer pairs
+    B. Increase the chunk size and add chunk overlap, then re-index the knowledge base
+    C. Switch the model from on-demand pricing to provisioned throughput
+    D. Lower the foundation model's temperature parameter
+
+22. **[Advanced]** Employees at a company ask its RAG assistant questions using
+    internal jargon (for example, "Does PTO carry over across the FY
+    boundary?") and consistently get back chunks about an unrelated topic,
+    even though a handbook section written in plain language clearly
+    answers the question. The team confirms the correct chunk is
+    well-formed and present in the index, but its embedding vector isn't
+    close to the query's embedding vector at all. What is the most likely
+    root cause?
+    A. The chunks are too large to embed accurately
+    B. The reranking model is mis-scoring the retrieved candidates
+    C. A general-purpose embeddings model was never exposed to this company's internal abbreviations during training
+    D. The foundation model's context window is too small for the query
+
+23. **[Advanced]** A RAG assistant answers "What's the process for expensing a
+    conference registration fee?" using a chunk about general travel
+    expenses instead of the chunk that specifically covers conference and
+    training expenses. Both chunks are well-formed, correctly embedded, and
+    genuinely close to the query in vector space, but only one of them is
+    actually correct. Which combination of fixes most directly addresses
+    this failure? (Select TWO.)
+    A. Add a reranking step that re-scores retrieved candidates for relevance before generation
+    B. Increase the chunk size used during ingestion
+    C. Add hybrid search that combines keyword (lexical) search with vector search
+    D. Swap to a smaller, cheaper foundation model
+    E. Raise the model's temperature parameter
+
+24. **[Intermediate]** A logistics company is choosing a foundation model for an
+    internal dispatcher chatbot. Requirements: text-only input and output,
+    the ability to summarize an entire multi-day ticket thread of roughly
+    50,000 tokens in a single prompt, low latency for live chat, and the
+    ability to later fine-tune on the company's historical dispatch logs.
+    Four Bedrock models are available:
+    Model F — text-only, 8K-token context window, low latency, fine-tunable
+    Model G — text-only, 100K-token context window, low latency, fine-tunable
+    Model H — text-only, 100K-token context window, high latency, fine-tunable
+    Model I — text-only, 100K-token context window, low latency, on-demand only (no fine-tuning support)
+    Which model satisfies every stated requirement?
+    A. Model F
+    B. Model G
+    C. Model H
+    D. Model I
+
+25. **[Beginner]** A team comparing two candidate foundation models finds that Model
+    J is cheaper and faster than Model K, but Model J cannot accept the
+    image attachments the use case requires, while Model K can. Which
+    model should the team choose?
+    A. Model J, because it is cheaper
+    B. Model J, because it is faster
+    C. Model K, because it satisfies the required modality even though it costs more
+    D. Whichever model has the larger context window
+
+26. **[Advanced]** A startup wants to fine-tune a 70-billion-parameter foundation
+    model but has only a single, smaller GPU available and a limited
+    budget. Fitting the training job into available GPU memory is the
+    highest priority, even at the cost of a small amount of additional
+    quality loss beyond what a comparable low-rank-adapter approach would
+    cost. Which technique fits best?
+    A. Full fine-tuning
+    B. LoRA
+    C. QLoRA
+    D. Continued pre-training
+
 ---
 
 ## Answer key and explanations
@@ -3496,6 +3569,65 @@ via Lambda).
     but doesn't teach a consistent output style; increasing the context
     window (D) allows more input text, but doesn't itself teach the model
     a specific tone or format.
+
+21. **B — Increase the chunk size and add chunk overlap, then re-index the
+    knowledge base.** The retrieved chunks show a self-contained answer
+    was split mid-sentence across a chunk boundary, so a larger chunk size
+    plus overlap keeps related sentences together and re-indexing applies
+    the fix. Fine-tuning (A) doesn't touch the retrieval pipeline where
+    this failure actually lives; provisioned throughput (C) is a capacity
+    feature unrelated to chunk boundaries; lowering temperature (D)
+    affects output randomness, not which chunks get retrieved.
+
+22. **C — A general-purpose embeddings model was never exposed to this
+    company's internal abbreviations during training.** The correct chunk
+    exists and is well-formed, but its embedding isn't close to the
+    query's embedding, which points to the embeddings model itself
+    misunderstanding domain-specific jargon rather than a chunking or
+    generation problem. Oversized chunks (A) and a mis-scoring reranker
+    (B) would still leave the correct chunk *among* the candidates, which
+    isn't the case here; a small context window (D) would cause truncation
+    or a token-limit error, not off-topic retrieval.
+
+23. **A and C — Add a reranking step that re-scores retrieved candidates for
+    relevance, and add hybrid search combining keyword and vector search.**
+    Both chunks are well-embedded and genuinely close to the query in
+    vector space, so pure vector similarity can't distinguish "close" from
+    "correct" — reranking re-scores candidates for actual relevance, and
+    hybrid search lets an exact keyword match ("conference registration
+    fee") pull in the right chunk. Increasing chunk size (B) doesn't
+    address a ranking problem between two already well-formed chunks;
+    swapping to a smaller model (D) and raising temperature (E) affect
+    generation, not which chunk gets retrieved and ranked.
+
+24. **B — Model G.** Model G is the only candidate that satisfies every
+    stated requirement: text-only, a 100K-token context window large
+    enough for the 50,000-token ticket thread, low latency for live chat,
+    and fine-tuning support. Model F (A) is fine-tunable and low-latency
+    but its 8K-token window can't hold the full ticket thread; Model H (C)
+    has the context window and fine-tuning support but fails the latency
+    requirement; Model I (D) has the context window and latency but is
+    on-demand only, with no fine-tuning support.
+
+25. **C — Model K, because it satisfies the required modality even though
+    it costs more.** Modality is a hard, binary requirement: if a model
+    can't accept the required input type at all, no amount of lower cost
+    or lower latency makes it viable for this use case. Choosing Model J
+    for being cheaper (A) or faster (B) ignores that it fails the required
+    capability entirely; context window (D) is a separate consideration
+    not mentioned as a differentiator here.
+
+26. **C — QLoRA.** Quantizing the frozen base model to a lower precision
+    before training low-rank adapters on top of it is what lets a
+    70-billion-parameter model's fine-tuning job fit on a single, smaller
+    GPU, at the cost of a small amount of additional quality loss beyond
+    LoRA alone. Full fine-tuning (A) requires the most GPU memory of any
+    option and wouldn't fit the stated constraint; LoRA (B) is more
+    resource-efficient than full fine-tuning but doesn't quantize the base
+    model, so it needs more GPU memory than QLoRA; continued pre-training
+    (D) deepens general domain knowledge from unlabeled text and is a
+    different customization approach entirely, not a resource-efficiency
+    technique for fine-tuning.
 
 ---
 

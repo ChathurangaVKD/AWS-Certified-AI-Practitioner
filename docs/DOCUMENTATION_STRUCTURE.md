@@ -243,11 +243,12 @@ Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 1's training-cost-
 estimation subsection; Domain 3's BLEU/ROUGE-significance and
 model-pair-comparison subsections, and its four-techniques-on-one-task
-walkthrough; Domain 4's confidence-threshold/Amazon A2I subsection;
+walkthrough; Domain 4's confidence-threshold/Amazon A2I and Clarify/Guardrails-layering
+subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **33
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **34
 worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 10 in
 Domain 3, 7 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.

@@ -368,7 +368,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 10, 4: 6, 5: 9}
+    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 10, 4: 7, 5: 9}
 
     @classmethod
     def setUpClass(cls):

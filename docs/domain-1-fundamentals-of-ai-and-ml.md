@@ -1026,6 +1026,28 @@ flowchart TD
 - Classification on a **roughly balanced** dataset → **Accuracy** is a
   reasonable summary metric
 
+**Choosing the right evaluation metric for your use case:** the decision
+tree above sorts by problem shape; this table sorts by the concrete,
+named scenarios exam questions tend to describe:
+
+| Use case | Class balance | What's most costly | Recommended metric |
+|----------|---------------|---------------------|---------------------|
+| Fraud detection | Highly imbalanced (rare fraud) | Missing real fraud (FN) — a false alarm just means a manual review | **Recall** (track overall quality with F1/AUC-ROC) |
+| Spam email filtering | Imbalanced (most email is legitimate) | Flagging a legitimate email as spam (FP) — a missed spam is a minor annoyance | **Precision** |
+| Medical disease screening | Imbalanced (rare disease) | Missing an actual case (FN) can be life-threatening | **Recall** |
+| Loan-default prediction | Imbalanced (most loans repaid) | Both directions matter: false declines (FP) reject good customers, missed defaults (FN) fund bad loans | **F1** (balances precision and recall; see the [end-to-end loan-default worked example](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)) |
+| General product-quality classifier | Roughly balanced classes | No single asymmetric cost called out | **Accuracy** |
+| House-price prediction | N/A — regression, not classification | N/A | **RMSE / MAE** |
+
+**Worked interpretation check:** a classifier evaluated on 1,000 held-out
+loan applications produces TP = 32, FP = 18, FN = 8, TN = 942. Precision =
+32 / (32 + 18) = **64%**. Recall = 32 / (32 + 8) = **80%**. F1 = 2 ×
+(0.64 × 0.80) / (0.64 + 0.80) ≈ **0.71**. Notice recall is higher than
+precision here — this model misses fewer actual defaulters (low FN) than
+it wrongly flags good applicants (higher FP), which is exactly the kind
+of arithmetic an exam scenario question expects you to work through
+rather than just quoting a definition.
+
 #### Mini-quiz: Test your understanding of model evaluation
 
 1. On a dataset that is 98% negative and 2% positive, a model that always
@@ -1058,6 +1080,16 @@ flowchart TD
    **Answer: C** — Raising the threshold makes the model more selective
    about what it flags positive, typically raising precision while
    lowering recall.
+
+4. Using the worked interpretation check above (TP = 32, FP = 18, FN = 8),
+   what is the model's recall?
+   A. 64%
+   B. 71%
+   C. 80%
+   D. 94%
+
+   **Answer: C** — Recall = TP / (TP + FN) = 32 / (32 + 8) = 80%, the
+   fraction of actual positives the model successfully caught.
 
 ---
 

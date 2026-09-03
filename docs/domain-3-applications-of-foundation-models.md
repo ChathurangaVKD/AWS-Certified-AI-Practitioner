@@ -22,6 +22,7 @@
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
+- [Inference failures and recovery strategies](#inference-failures-and-recovery-strategies)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
@@ -2061,6 +2062,165 @@ explanation.
    **Answer: B** — SageMaker JumpStart offers pretrained models and
    templates deployable/fine-tunable with more control over hosting (e.g.,
    a specific instance type or a model not available on Bedrock).
+
+---
+
+## Inference failures and recovery strategies
+
+[Section 8](#8-aws-infrastructure-for-generative-ai-workloads) and its
+[real-time-vs-batch decision
+tree](#8-aws-infrastructure-for-generative-ai-workloads) cover *choosing*
+between real-time and batch inference. Choosing the right pattern doesn't
+mean it runs trouble-free: real-time endpoints and batch jobs each fail in
+their own characteristic way once they hit conditions the initial sizing
+didn't anticipate. The exam expects you to recognize the symptom, name the
+root cause, and pick the fix — not just recite "use auto scaling" or
+"increase the timeout." The two scenarios below walk through one failure
+in each deployment pattern end to end.
+
+### Scenario 1: a SageMaker real-time endpoint that can't scale fast enough for a traffic spike
+
+**Scenario:** A retailer hosts a product-recommendation foundation model
+behind a **SageMaker real-time endpoint** with two `ml.g5.xlarge`
+instances and an **Application Auto Scaling** target-tracking policy on
+`SageMakerVariantInvocationsPerInstance` (scale out when average
+invocations per instance exceeds the target). During a flash sale,
+inbound traffic jumps roughly tenfold within two minutes.
+
+**Symptom:** For several minutes during the spike, clients see sharply
+elevated `ModelLatency`, a burst of `Invocation4XXErrors`
+(`ThrottlingException` — "please reduce your request rate"), and some
+requests time out entirely. CloudWatch shows the endpoint's instance count
+only starting to climb *after* the error spike is already underway, and
+traffic (and errors) subsides before the fleet ever finishes scaling out.
+
+**Diagnosis.** Auto scaling for a SageMaker real-time endpoint is
+*reactive*, not instantaneous, and every step in the reaction chain adds
+delay: CloudWatch has to aggregate enough data points to cross the
+target-tracking alarm's threshold, Application Auto Scaling waits out the
+policy's scale-out cooldown before adding capacity, and each new instance
+still needs to launch and load the model onto it before it can serve
+traffic. Added together, that is easily several minutes between "traffic
+starts spiking" and "new capacity is actually in service" — and a
+tenfold spike arriving in two minutes overwhelms the original two
+instances well before scaling can catch up. This is not a capacity
+*sizing* mistake in the traditional sense (two instances may be exactly
+right for average load); it's a **scaling-speed** mismatch between how
+fast demand changed and how fast the endpoint can add capacity to meet
+it. Fine-tuning the model, or the prompt, does nothing here — the
+foundation model itself never gets a chance to run before the request is
+throttled or times out.
+
+**Remediation.** The team applies fixes on both sides of the gap — how
+early scaling triggers, and how much ready capacity exists before it's
+needed:
+
+- **Tighten the auto-scaling policy** — lowering the target-tracking
+  threshold so scale-out triggers earlier (before the fleet is fully
+  saturated) and shortening the scale-out cooldown so new capacity is
+  requested sooner, while leaving the (typically longer) scale-*in*
+  cooldown alone so the endpoint doesn't flap capacity down again the
+  moment the spike dips.
+- **Raise the minimum instance count** — sizing the endpoint's floor for
+  known peak patterns (e.g., an anticipated flash sale) rather than
+  relying on reactive scaling to cover a predictable event; scheduled
+  scaling actions can pre-scale the endpoint ahead of a known traffic
+  window.
+- **Use provisioned concurrency for bursty, predictable spikes** — for
+  workloads that fit **SageMaker Serverless Inference**, configuring
+  **provisioned concurrency** keeps a set number of instances pre-warmed
+  and ready, eliminating the cold-start delay (endpoint launch plus model
+  load) that a purely reactive policy still has to pay on every scale-out
+  event.
+- **Add a request queue or graceful degradation in front of the
+  endpoint** — so requests that arrive during the scaling gap wait or
+  receive a fallback response instead of hitting a hard throttling error,
+  buying the endpoint the time it needs to finish scaling out.
+
+> **Exam tip:** When a scenario describes a real-time SageMaker endpoint
+> that throttles or times out specifically *during* a sudden traffic
+> spike — and recovers once the spike passes — that's a **scaling-speed**
+> problem, not an under-provisioned endpoint. The fix is tuning the
+> auto-scaling policy (lower threshold, shorter scale-out cooldown),
+> raising the minimum instance count, or pre-warming capacity with
+> provisioned concurrency — not simply "add auto scaling," since the
+> scenario already has auto scaling and it's still too slow to react.
+
+### Scenario 2: a batch inference job that times out on large payloads
+
+**Scenario:** A media company runs a monthly **SageMaker Batch Transform**
+job that scores several million short product descriptions with a
+summarization foundation model, using the default
+`MaxPayloadInMB` and `ModelClientConfig.InvocationsTimeoutInSeconds`
+settings. This month's input file also includes a batch of much longer
+documents (full articles instead of short descriptions) mixed into the
+same manifest.
+
+**Symptom:** The job runs cleanly for most of the input, then fails with
+per-record errors on the long-document batch — some records report a
+payload-size error, others fail with a model invocation timeout — and the
+overall job either ends with a large batch of failed records or misses
+its completion-time window entirely.
+
+**Diagnosis.** Batch Transform groups records into per-invocation
+payloads (controlled by `BatchStrategy` and `MaxPayloadInMB`) and enforces
+a fixed per-invocation timeout (`ModelClientConfig.InvocationsTimeoutInSeconds`,
+60 seconds by default) on every call to the model container. Short product
+descriptions comfortably fit within the default payload size and finish
+well inside the default timeout. The long-document batch changes both
+sides of that budget at once: each record is larger, so grouping records
+into the same mini-batch payload can exceed `MaxPayloadInMB`, and
+inference over a much larger input takes the model container
+proportionally longer per invocation — long enough, for some records, to
+exceed the timeout the job never had to worry about with short inputs.
+Nothing about the model or the job's IAM/network configuration changed;
+the failure is purely a mismatch between the batching/timeout settings
+tuned for one payload profile and a batch that no longer fits that
+profile.
+
+**Remediation.** The team adjusts the batch job's sizing rather than the
+model:
+
+- **Lower `MaxPayloadInMB` and switch `BatchStrategy` to `SingleRecord`**
+  for the long-document batch, so each invocation carries one large
+  record instead of several records bundled together, keeping any single
+  payload well under the size limit.
+- **Raise `InvocationsTimeoutInSeconds`** (up to Batch Transform's maximum
+  of 3,600 seconds) so a single large-document invocation has enough time
+  to complete instead of being killed mid-inference.
+- **Split the input by document size before submitting the job** — routing
+  short descriptions and long articles to two separate Batch Transform
+  jobs, each tuned with its own `MaxPayloadInMB`/timeout/`MaxConcurrentTransforms`
+  appropriate to its payload profile, instead of forcing one configuration
+  to cover both.
+- **Scale up instance type or count, or lower `MaxConcurrentTransforms`**,
+  if the timeouts are driven by compute contention (many concurrent
+  large-payload invocations competing for the same instance) rather than
+  payload size alone.
+
+> **Exam tip:** A batch inference job that fails only on a subset of
+> unusually large records — while the rest of the batch completes fine —
+> points to **payload size and per-invocation timeout settings**
+> (`MaxPayloadInMB`, `BatchStrategy`, `InvocationsTimeoutInSeconds`), not a
+> model, data-quality, or permissions problem. Batch Transform's default
+> settings are tuned for a typical record size; a scenario that changes
+> the record size without adjusting those settings is testing whether you
+> know which knobs govern that budget.
+
+### Summary: matching the inference failure to the fix
+
+| Deployment pattern | Symptom | Root cause | Fix |
+|---|---|---|---|
+| Real-time endpoint | Throttling/timeouts during a sudden traffic spike, recovering once traffic subsides | Auto scaling reacts too slowly (alarm evaluation, cooldown, instance launch/model load) for how fast demand changed | Tighten the auto-scaling policy (lower threshold, shorter scale-out cooldown); raise minimum instance count; use provisioned concurrency to pre-warm capacity |
+| Batch Transform job | Per-record payload-size or timeout errors on a subset of unusually large records | Default `MaxPayloadInMB`/`InvocationsTimeoutInSeconds` sized for a smaller typical record no longer fits the larger ones | Lower `MaxPayloadInMB` and use `SingleRecord` strategy for large records; raise `InvocationsTimeoutInSeconds`; split the job by payload size; adjust instance size/`MaxConcurrentTransforms` |
+
+> **Exam tip:** Both scenarios share one exam pattern: a deployment that
+> works fine under the conditions it was originally sized for starts
+> failing only once the *shape* of the workload changes (traffic velocity
+> for the real-time endpoint, record size for the batch job). Read for
+> that framing — "worked before, fails now that X changed" — and match it
+> to the scaling or batching knob that governs X, rather than reaching for
+> a generic "add more capacity" answer.
 
 ---
 

@@ -699,6 +699,18 @@ class TestDomain3StudyGuideStructure(unittest.TestCase):
                     f"Bedrock features section missing feature: {feature!r}",
                 )
 
+    def test_bedrock_features_section_cross_links_domain_4_guardrails(self):
+        # Guardrails for Amazon Bedrock is covered here (runtime safety) and
+        # again in Domain 4 §3 (responsible-AI tooling). Readers studying one
+        # should be pointed at the other.
+        section = _section(self.text, r"\n## 5\. Amazon Bedrock features")
+        self.assertIn(
+            "domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai",
+            section,
+            "Bedrock features section should cross-link Domain 4 §3's "
+            "responsible-AI coverage of Guardrails",
+        )
+
     def test_vector_database_section_covers_required_services(self):
         section = _section(
             self.text,

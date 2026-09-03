@@ -25,6 +25,7 @@
 - [Worked example: estimating tokens for long-document summarization](#worked-example-estimating-tokens-for-long-document-summarization)
 - [Worked example: estimating and comparing monthly inference costs across three model tiers](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
 - [Worked example: comparing fine-tuning and prompt engineering on the same task](#worked-example-comparing-fine-tuning-and-prompt-engineering-on-the-same-task)
+- [Worked example: a Bedrock Agent executing a multi-step task with tool calling](#worked-example-a-bedrock-agent-executing-a-multi-step-task-with-tool-calling)
 - [Comparison table: customization approaches for foundation model applications](#comparison-table-customization-approaches-for-foundation-model-applications)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
@@ -2400,6 +2401,100 @@ seen enough labeled examples of yet.
 > *per-token* cost cheaper, while its *total* monthly cost can still be
 > higher than prompt engineering's at low-to-moderate volume, because
 > provisioned throughput is billed as a flat commitment, not per token.
+
+---
+
+## Worked example: a Bedrock Agent executing a multi-step task with tool calling
+
+[Section 5](#5-amazon-bedrock-features) introduces Amazon Bedrock Agents at
+a conceptual level — an FM that reasons about a request, breaks it into
+steps, and invokes action groups and Knowledge Bases in a plan → invoke →
+observe → continue loop. This walkthrough follows that loop through one
+actual multi-step request end to end, since AIF-C01 scenario questions
+about Agents are almost always framed as "walk through what happens when
+the user asks X," not "define an Agent."
+
+**Scenario:** An electronics retailer builds a Bedrock Agent for its
+support chat widget. A customer types: *"Where's my order #48213, and if
+it's going to be late, can I get a $15 credit?"* — a single message that
+actually requires information the Agent doesn't have yet, plus a policy
+decision that depends on what that information turns out to be.
+
+The team configures the Agent with:
+
+- An **instruction prompt** describing the Agent's role and boundaries
+  ("You help customers track orders and apply approved goodwill credits;
+  never approve a credit above $20 without escalating.").
+- Two **action groups**, each defined by an OpenAPI schema and backed by
+  an AWS Lambda function: `CheckOrderStatus` (takes an order ID, returns
+  carrier, ETA, and a delay flag) and `IssueCredit` (takes a customer ID
+  and dollar amount, returns a confirmation ID).
+- A **Knowledge Base** containing the current goodwill-credit policy
+  document.
+
+Trace the Agent's reasoning-and-acting loop for this one request:
+
+1. **Plan.** The underlying FM parses the request and determines it can't
+   answer directly — it needs the order's current status first. It selects
+   the `CheckOrderStatus` action group and extracts `order_id=48213` from
+   the user's message as the parameter.
+2. **Invoke (step 1).** The Agent calls the `CheckOrderStatus` Lambda
+   function with `order_id=48213`.
+3. **Observe (step 1).** The function returns `{"carrier": "Regional
+   Freight", "eta": "2026-09-10", "delay_flag": true}` — the order is, in
+   fact, running late.
+4. **Re-plan.** Because `delay_flag` came back `true`, the Agent
+   determines the second half of the question ("can I get a $15 credit")
+   is now relevant, and it needs the goodwill-credit policy before it can
+   answer — a step it would have skipped entirely had the order been on
+   time. This is the part a single tool call or a fixed prompt chain can't
+   do: the set of steps taken depends on an intermediate result observed
+   mid-task, not on a script decided in advance.
+5. **Invoke (step 2).** The Agent queries the attached **Knowledge Base**
+   for the goodwill-credit policy.
+6. **Observe (step 2).** The retrieved policy passage says credits up to
+   $20 are pre-approved for shipments delayed more than 3 days past the
+   original ETA, without human review.
+7. **Invoke (step 3).** Confirming that $15 is within the Agent's
+   instructed $20 ceiling and that the delay qualifies, the Agent calls the
+   `IssueCredit` action group with `customer_id` and `amount=15`.
+8. **Observe (step 3).** The function issues the credit and returns a
+   confirmation ID.
+9. **Final response.** The Agent composes one reply grounded in all three
+   tool results: the order's carrier and new ETA, an explanation that the
+   delay qualifies under policy, and confirmation that the $15 credit has
+   already been applied — all from a single customer message, with no
+   human in the loop and no hardcoded sequence of steps written by a
+   developer.
+
+Notice what made this a job for an Agent rather than a single tool call or
+a fixed Prompt Flow: **the number and order of steps was not known in
+advance.** A customer whose order was on time would have triggered only
+steps 1–3 and a short "your order is on schedule" reply, never touching
+the Knowledge Base or the `IssueCredit` action group at all. That runtime,
+result-dependent branching is exactly the "who decides the next step"
+distinction from the [Agents vs. Prompt Flows vs. prompt chaining
+comparison](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
+earlier in this domain.
+
+**AWS example:** A travel-booking company's Bedrock Agent handles "I need
+to cancel my flight and see if I get a refund" by invoking a
+`CancelBooking` action group first, observing whether the fare class
+returned is refundable, and only then conditionally invoking a
+`ProcessRefund` action group — skipping it entirely, and instead
+explaining the non-refundable fare's terms from a Knowledge Base, whenever
+the fare class isn't eligible.
+
+> **Exam tip:** A scenario that describes a single request producing a
+> **variable number of API calls depending on an intermediate result**
+> ("only check the refund policy if the order is late," "only issue a
+> credit if the delay exceeds 3 days") is describing the Bedrock Agents
+> reasoning-and-acting loop — not a single tool call, and not a Prompt
+> Flow. If every answer choice mentions "action groups" but only one also
+> describes the Agent **re-planning based on what a prior tool call
+> returned**, that's the correct one: the behavior actually being tested is
+> the autonomous, runtime decision of *whether and which* tool to invoke
+> next, not merely that tools get called at all.
 
 ---
 

@@ -46,11 +46,11 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,583–2,870 lines each:
+domain, currently 1,583–2,925 lines each:
 
 - Domain 1: 1,583 lines
 - Domain 2: 1,875 lines
-- Domain 3: 2,870 lines
+- Domain 3: 2,925 lines
 - Domain 4: 1,819 lines
 - Domain 5: 2,062 lines
 
@@ -174,14 +174,14 @@ worked-example sections in total**: 2 in Domain 1, 4 in Domain 2, 10 in
 Domain 3, 6 in Domain 4, and 4 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
-**Diagrams:** The five domain guides contain 29 Mermaid flowchart diagrams
+**Diagrams:** The five domain guides contain 30 Mermaid flowchart diagrams
 in total: Domain 1 has seven (the 8-stage ML lifecycle loop,
 Section 2; decision trees for learning-type selection (Section 3),
 use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
 (Section 5), and metric selection (Section 6); and the
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has four (including the transformer/self-attention
-pipeline, Section 1); Domain 3 has nine (including the FM-customization
+pipeline, Section 1); Domain 3 has ten (including the FM-customization
 decision tree, Section 4, the vector store decision tree, Section 3, the
 D1-to-D3 inference-type decision tree, Section 8, and the RAG
 retrieval-failure decision tree);
@@ -195,15 +195,15 @@ overview" section, and `aws-service-decision-guide.md` adds two further
 Mermaid diagrams of its own (the Section 4.1 Bedrock model family
 selection decision flow, and the Section 6 cost-control decision flow for
 Amazon API Gateway in front of Bedrock/SageMaker endpoints), bringing the
-total to **32 Mermaid diagrams**. On top of those, 3 ASCII diagrams are
+total to **33 Mermaid diagrams**. On top of those, 3 ASCII diagrams are
 provided in plain text for readers without Mermaid rendering, duplicating
 diagrams that already exist as Mermaid above rather than adding new
 content: Domain 1's ML lifecycle diagram (Section 2), Domain 5's
 data-governance lifecycle diagram (Section 4), and Domain 5's
-shared-responsibility diagram (Section 5). In total: 29 Mermaid diagrams
+shared-responsibility diagram (Section 5). In total: 30 Mermaid diagrams
 in the domain guides + 1 in cross-domain-concept-map.md + 2 in
-aws-service-decision-guide.md = 32 total Mermaid diagrams + 3 ASCII
-diagrams = **35 total diagrams**.
+aws-service-decision-guide.md = 33 total Mermaid diagrams + 3 ASCII
+diagrams = **36 total diagrams**.
 
 **Test coverage:** `tests/test_domain_N_study_guide.py` for all five domains
 validates required topic headings, AWS service mentions,

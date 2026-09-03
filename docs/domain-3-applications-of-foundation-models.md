@@ -12,6 +12,7 @@
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
 - [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
+  - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
@@ -996,6 +997,60 @@ throughput** instead of paying on-demand rates.
 > throughput for a custom/fine-tuned model at high, steady volume" →
 > **provisioned throughput**; "unpredictable/low/spiky volume, pay only
 > for what's used" → **on-demand**.
+
+### Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach
+
+Bedrock Agents (above) and Prompt Flows / prompt chaining ([Section
+2](#2-prompt-engineering-techniques)) are all ways of stringing multiple
+prompts or steps into one workflow, and the exam expects you to pick the
+right one from a scenario rather than just recognize the names. The
+distinguishing question isn't *whether* multiple steps happen — all three
+do that — it's **who decides what the next step is, and when that
+decision gets made**:
+
+- **Amazon Bedrock Agents** — the FM itself reasons at *runtime* about
+  which steps to take, in what order, and which tools to invoke, looping
+  through plan → invoke a tool → observe the result → continue until the
+  goal is met. Best when the sequence of steps genuinely varies per
+  request — for example, "look up an order's status, and only if it's
+  delayed, also check the refund policy in a Knowledge Base."
+- **Amazon Bedrock Prompt Flows** — a visual, low-code builder for wiring
+  a sequence of nodes (prompts, Knowledge Base lookups, Lambda calls,
+  simple conditional branches) into a workflow that's defined at *design
+  time*. It's still fundamentally prompt chaining, just built visually
+  instead of in code — there's no autonomous re-planning once the flow
+  runs.
+- **Plain prompt chaining (manual)** — application code calls the model
+  multiple times, feeding one prompt's output into the next prompt's
+  input, with no managed Bedrock orchestration feature involved at all.
+  The developer writes and maintains every step of the sequencing logic.
+
+```mermaid
+flowchart TD
+    START(["Need to chain multiple\nprompts/steps into one task?"])
+    START --> Q1{"Must the FM decide at runtime\nwhich steps/tools to invoke,\nand in what order, based on\nthe request itself?"}
+    Q1 -->|"YES"| AGENTS["AMAZON BEDROCK AGENTS\nFM reasons and plans autonomously;\ninvokes action groups (APIs via\nLambda) and Knowledge Bases in a\nplan -> invoke -> observe loop"]
+    Q1 -->|"NO"| Q2{"Do you want a visual,\nlow-code builder to wire a fixed\nsequence of prompt/KB/Lambda\nsteps, with simple branching?"}
+    Q2 -->|"YES"| FLOWS["AMAZON BEDROCK PROMPT FLOWS\nvisual builder chains prompts,\nKnowledge Base lookups, and\nLambda steps into one workflow"]
+    Q2 -->|"NO"| CHAIN["PROMPT CHAINING (manual)\napplication code calls the model\nmultiple times, feeding each\nprompt's output into the next"]
+```
+
+| Dimension | Amazon Bedrock Agents | Amazon Bedrock Prompt Flows | Plain prompt chaining |
+|---|---|---|---|
+| **Who decides the next step** | The FM, at runtime — reasons about the request and can re-plan mid-task | The developer, at design time — the flow's structure is fixed when built | The developer, at design time — hardcoded directly in application code |
+| **Tool / API calling** | Built in — action groups invoke Lambda-backed APIs as part of the reasoning loop | Supported as flow nodes (e.g., a Lambda node) but not autonomously chosen | Manual — application code decides which API to call and when |
+| **Build experience** | Configure an agent (instructions, action groups, Knowledge Bases) via the Bedrock console/API | Visual, low-code drag-and-drop builder in the Bedrock console | Regular application code — no managed builder or console UI |
+| **Adaptability at runtime** | Fully dynamic — can skip, repeat, or reorder steps based on intermediate results | Simple conditional branches between otherwise fixed nodes | Whatever the developer's code implements — unmanaged but fully flexible |
+| **Best for** | Complex, variable multi-step tasks that need autonomous tool use | Simpler, mostly linear workflows a team wants to visually assemble and maintain | A small number of steps where the team wants full control without adopting a managed feature |
+| **Exam keywords** | "reason and act," "invoke APIs/action groups autonomously," "multi-step task," "agent" | "visual builder," "Bedrock Prompt Flows," "low-code workflow," "chain prompts and Knowledge Base lookups" | "sequence of prompts," "output feeds the next," no named Bedrock orchestration feature in the scenario |
+
+> **Exam tip:** If the scenario says the model **decides for itself** which
+> APIs to call or how many steps are needed, it's **Agents**. If it
+> describes a **visual/low-code builder** for connecting prompts and
+> Knowledge Base steps, it's **Prompt Flows**. If it's just "call the model
+> more than once, feed one output into the next prompt" with no Bedrock
+> feature named, it's plain **prompt chaining** — Prompt Flows is the
+> managed version of the same idea, not a different concept.
 
 ### Cost governance: bounding per-request cost with max tokens and provisioned throughput
 Cost *estimation* (the [monthly-cost worked

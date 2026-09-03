@@ -50,7 +50,7 @@ REQUIRED_SAMPLE_SERVICES = [
     "Amazon SageMaker Clarify",  # D4
     "AWS CloudTrail",  # D5
     "AWS PrivateLink",  # D5
-    "Amazon Kendra",  # D3
+    "Amazon Kendra",  # D2, D3
 ]
 
 # AWS services that are referenced by name in the domain guides but were
@@ -277,6 +277,28 @@ class TestAwsServiceIndexCoverage(unittest.TestCase):
         self.assertEqual(tags.strip(), "D1")
         self.assertIn(
             "domain-1-fundamentals-of-ai-and-ml.md#3-types-of-learning",
+            rest,
+        )
+
+    def test_kendra_tagged_d2_and_d3(self):
+        # Amazon Kendra is discussed in Domain 3 (as an enterprise search
+        # service alternative to a vector database) and also named in
+        # Domain 2's embeddings/vector vocabulary (retrieval) -- regression
+        # guard for that missing D2 tag.
+        by_service_rest = {
+            service: (tags, rest) for service, tags, rest in self.entries
+        }
+        self.assertIn("Amazon Kendra", by_service_rest)
+        tags, rest = by_service_rest["Amazon Kendra"]
+        tag_nums = {t.strip() for t in tags.split(",")}
+        self.assertEqual(tag_nums, {"D2", "D3"})
+        self.assertIn(
+            "domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts",
+            rest,
+        )
+        self.assertIn(
+            "domain-3-applications-of-foundation-models.md"
+            "#6-vector-databases-and-embeddings-for-search-and-retrieval",
             rest,
         )
 

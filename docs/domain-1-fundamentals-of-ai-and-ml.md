@@ -8,6 +8,7 @@
 
 - [1. Basic AI/ML/DL terminology and concepts](#1-basic-aimldl-terminology-and-concepts)
 - [2. The ML development lifecycle](#2-the-ml-development-lifecycle)
+  - [Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand](#worked-example-estimating-training-cost-for-the-loan-default-predictor-sagemaker-managed-spot-training-vs-on-demand)
   - [Production deployment strategies and model versioning](#production-deployment-strategies-and-model-versioning)
     - [Worked example: promoting a new model version with canary deployment via SageMaker Model Registry](#worked-example-promoting-a-new-model-version-with-canary-deployment-via-sagemaker-model-registry)
 - [3. Types of learning](#3-types-of-learning)

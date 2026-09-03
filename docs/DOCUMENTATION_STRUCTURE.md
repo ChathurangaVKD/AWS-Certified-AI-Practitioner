@@ -181,7 +181,7 @@ use-case-to-service mapping (Section 4), purpose-built-vs-SageMaker
 (Section 5), and metric selection (Section 6); and the
 bias-variance trade-off spectrum, Section 7);
 Domain 2 has five (including the transformer/self-attention
-pipeline and the embedding-model-selection tree, Section 1); Domain 3 has
+pipeline, Section 1); Domain 3 has
 fourteen (including the FM-customization and fine-tuning-efficiency trees,
 Section 4, the vector store, embedding-model-selection, and reranking
 trees, Section 6, and the RAG retrieval-failure and

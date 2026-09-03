@@ -2155,6 +2155,31 @@ escalating complaints that the assistant gives wrong or unhelpful
 answers. The team pulls transcripts and finds four distinct failure
 patterns.
 
+### Orientation: a first-pass triage flowchart
+
+Before working through each failure mode in full diagnostic detail below,
+it helps to have a quick visual map of where to look first. The flowchart
+groups the four failure modes by the coarse question that separates
+them — did retrieval come back empty, come back with the wrong chunks, or
+come back fine while generation still got it wrong:
+
+```mermaid
+flowchart TD
+    START(["RAG system gives a wrong or\nunhelpful answer - triage where\nto look first"])
+    START --> Q1{"Is retrieval returning no\nrelevant passages at all?"}
+    Q1 -->|"YES"| C1["Check chunking:\nchunk size and overlap -\nis a self-contained answer\nsplit across a chunk boundary?"]
+    C1 --> C2["Check embedding model:\ndoes it cover this domain's\nvocabulary/jargon, or does it\nembed key terms near unrelated\nconcepts?"]
+    C2 --> C3["Check vector index quality:\nwas the corpus fully and\ncorrectly re-indexed after the\nlast chunking/embedding change?"]
+    Q1 -->|"NO"| Q2{"Is retrieval returning\nirrelevant (or merely\ntopically-close) passages?"}
+    Q2 -->|"YES"| C4["Check the ranking algorithm:\nadd/inspect reranking and\nhybrid (keyword + vector)\nsearch - plain vector\nsimilarity alone can't tell\n'close' from 'correct'"]
+    Q2 -->|"NO"| Q3{"Is retrieval returning the\nright passages, but generation\nis still poor?"}
+    Q3 -->|"YES"| C5["Check generation:\nmodel capability, temperature,\nand prompt engineering -\nthe context is right, so the\ngap is in how the FM uses it"]
+```
+
+The four failure modes that follow drill into the chunking, embedding,
+and ranking branches of this flowchart in detail, one running scenario at
+a time.
+
 ### Failure mode 1: chunks too small to answer the query
 
 **Symptom:** An employee asks, "How many weeks of parental leave do I get

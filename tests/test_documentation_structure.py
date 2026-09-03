@@ -1256,7 +1256,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     than just the BLEU/ROUGE one), the Mermaid diagram total (40 stated
     vs. 43 actual -- Domain 3 has sixteen, not fourteen, and Domain 4 has
     six, not five), and the domain practice-question total (126 stated vs.
-    128 actual -- Domain 3 has 28, not 26). These tests derive the true
+    129 actual -- Domain 3 has 29, not 26). These tests derive the true
     figures directly from the source files and assert
     DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
     drifting stale again."""
@@ -1264,7 +1264,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     EXPECTED_LINE_COUNTS = {1: 1792, 2: 2169, 3: 4670, 4: 2118, 5: 2420}
     EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 15, 4: 7, 5: 9}
     EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 5}
-    EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 28, 4: 20, 5: 32}
+    EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 
     @classmethod
     def setUpClass(cls):
@@ -1338,7 +1338,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     def test_structure_doc_domain_3_worked_example_methodology_is_8_plus_7(self):
         idx = self.structure_text.find("Worked examples")
         self.assertNotEqual(idx, -1)
-        window = self.structure_text[idx : idx + 1600]
+        window = self.structure_text[idx : idx + 2000]
         self.assertIn("eight standalone", window)
         self.assertIn("seven", window)
         self.assertIn("fifteen", window)
@@ -1414,10 +1414,10 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "the figure this refresh was based on",
                 )
 
-    def test_structure_doc_states_128_domain_practice_questions(self):
+    def test_structure_doc_states_129_domain_practice_questions(self):
         total = sum(self.EXPECTED_PRACTICE_QUESTIONS.values())
-        self.assertEqual(total, 128)
-        self.assertIn("**28 for Domain 3**", self.structure_text)
+        self.assertEqual(total, 129)
+        self.assertIn("**29 for Domain 3**", self.structure_text)
         self.assertIn(
             f"**{total} domain practice questions in total**", self.structure_text
         )

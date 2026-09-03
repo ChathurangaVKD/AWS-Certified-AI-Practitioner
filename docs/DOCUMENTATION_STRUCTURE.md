@@ -74,9 +74,9 @@ All five follow the same template:
   same "Key terms glossary" convention used by D1–D4);
 - a dedicated `## Worked example` section closing out each domain;
 - `## Practice questions` (15–20 per domain, except **24 for Domain 1**,
-  **24 for Domain 2**, **28 for Domain 3**, and **32 for Domain 5**
+  **24 for Domain 2**, **29 for Domain 3**, and **32 for Domain 5**
   (Domain 4 has 20), including exactly 2 multiple-response ["select TWO"]
-  questions, for **128 domain practice questions in total** across
+  questions, for **129 domain practice questions in total** across
   the five domain guides) and a full `## Answer key` with justifications
   ruling out each wrong answer.
 

@@ -266,42 +266,9 @@ Domain 4's confidence-threshold/Amazon A2I and Clarify/Guardrails-layering
 subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
-watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **40
-worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 15 in
-Domain 3, 8 in Domain 4, and 9 in Domain 5, plus further example content
-nested at the sub-bullet level within some of those sections.
-
-Every depth gap previously flagged against this documentation is now
-filled by one of those worked examples rather than left open: Amazon Q
-Business coverage (Domain 2's closing "Amazon Q Business vs. a custom
-Bedrock assistant" worked example), LoRA/QLoRA fine-tuning benchmarks
-(Domain 3's "when does QLoRA's quality loss become unacceptable?"
-subsection), Kendra-plus-Bedrock integration (Domain 3's
-Kendra-GenAI-Index-as-a-Bedrock-Knowledge-Base-data-source subsection),
-RAG troubleshooting (Domain 3's "troubleshooting a failing RAG system"
-worked example), and layering SageMaker Clarify with Bedrock Guardrails
-(Domain 4's Clarify/Guardrails-layering subsection).
-
-**Diagrams:** The five domain guides contain 39 Mermaid flowchart diagrams
-in total: Domain 1 has seven, Domain 2 has five, Domain 3 has sixteen,
-Domain 4 has six, and Domain 5 has five. `cross-domain-concept-map.md`
-adds two more Mermaid diagrams (the "Visual overview" section's
-cross-domain flowchart, and the "Inference deployment pattern comparison"
-section's decision-tree diagram comparing real-time, batch, serverless,
-and provisioned-throughput inference), and
-`aws-service-decision-guide.md` adds three further Mermaid diagrams of its
-own (the Section 4.1 Bedrock model family selection flow, the Section 6
-cost-control flow, and the Section 1 layering-matrix request-path
-diagram), bringing the total to **44 Mermaid
-diagrams** (39 in the domain guides + 2 in
-cross-domain-concept-map.md + 3 in aws-service-decision-guide.md).
-
-## Cross-domain support documents: aws-service-index.md
-
-**`aws-service-index.md`** indexes **83 services**, grouped under letter sections A, C, G, I, M, P, and S.
-That figure counts one `- **Service**` bullet per row: each third-party
-foundation model provider named in the domain guides (AI21 Labs,
-Anthropic Claude, Cohere, Meta Llama, Mistral AI, Stability AI) counts as
-a single row, not as one row per model it offers — so the count is
-provider-level, not model-level.
+own (the Section 4.1 Bedrock model family selection decision flow, the
+Section 6 cost-control decision flow for Amazon API Gateway in front
+of Bedrock/SageMaker endpoints, and the Section 1 layering scenario
+matrix's request-path diagram for Kendra/Knowledge Bases, Amazon Q
+Business, and Clarify/Guardrails ordering), bringing the total to **44
+Mermaid diagrams** (39 in the domain guides + 2 in

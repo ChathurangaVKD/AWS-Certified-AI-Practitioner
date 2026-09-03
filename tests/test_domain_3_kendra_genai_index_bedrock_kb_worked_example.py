@@ -124,7 +124,7 @@ class TestDomain3KendraGenAIIndexBedrockKBWorkedExample(unittest.TestCase):
     def test_makes_an_explicit_choice(self):
         self.assertRegex(
             self.section,
-            r"(?i)\*\*choice:\*\*\s*reuse the existing kendra genai index",
+            r"(?i)\*\*choice:\s*reuse the existing kendra genai index",
             "expected an explicit, unambiguous choice statement",
         )
 

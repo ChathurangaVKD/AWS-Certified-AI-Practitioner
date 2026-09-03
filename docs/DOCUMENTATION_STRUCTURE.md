@@ -46,9 +46,9 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,588–3,796 lines each, **11,878 lines total**:
+domain, currently 1,760–3,796 lines each, **12,050 lines total**:
 
-- Domain 1: 1,588 lines
+- Domain 1: 1,760 lines
 - Domain 2: 2,169 lines
 - Domain 3: 3,796 lines
 - Domain 4: 1,905 lines
@@ -225,15 +225,30 @@ how the SLA target flips which combination of on-demand pricing,
 Provisioned Throughput, Bedrock batch inference, and response caching
 minimizes cost for each.
 
+Domain 1 also has a second nested "###"-level worked-example subsection,
+alongside the canary-deployment one: "### Worked example: estimating
+training cost for the loan-default predictor: SageMaker managed spot
+training vs. on-demand," nested inside Section 2 ("The ML development
+lifecycle") right after its exam tip and before the "Production
+deployment strategies and model versioning" subsection. It walks the same
+bank's loan-default XGBoost model through picking a memory-appropriate
+CPU training instance, checkpointing to S3 so Managed Spot Training
+interruptions resume instead of restarting, and a full monthly cost
+comparison between Managed Spot Training and On-Demand training —
+distinguishing a routine, deadline-flexible retrain (Spot) from a
+drift-triggered emergency retrain bound to a 24-hour compliance SLA
+(On-Demand).
+
 Counting every "## Worked example" heading plus the nested "###"/"####"
-worked-example subsections called out above (Domain 3's
-BLEU/ROUGE-significance and model-pair-comparison subsections, and its
-four-techniques-on-one-task walkthrough; Domain 4's confidence-threshold/
-Amazon A2I subsection; Domain 5's cost-capping, data-encryption-vs-model-encryption,
+worked-example subsections called out above (Domain 1's training-cost-
+estimation subsection; Domain 3's BLEU/ROUGE-significance and
+model-pair-comparison subsections, and its four-techniques-on-one-task
+walkthrough; Domain 4's confidence-threshold/Amazon A2I subsection;
+Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **32
-worked-example sections in total**: 2 in Domain 1, 5 in Domain 2, 10 in
+cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **33
+worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 10 in
 Domain 3, 6 in Domain 4, and 9 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 

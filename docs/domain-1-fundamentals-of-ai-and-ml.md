@@ -8,6 +8,7 @@
 
 - [1. Basic AI/ML/DL terminology and concepts](#1-basic-aimldl-terminology-and-concepts)
 - [2. The ML development lifecycle](#2-the-ml-development-lifecycle)
+  - [Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand](#worked-example-estimating-training-cost-for-the-loan-default-predictor-sagemaker-managed-spot-training-vs-on-demand)
   - [Production deployment strategies and model versioning](#production-deployment-strategies-and-model-versioning)
     - [Worked example: promoting a new model version with canary deployment via SageMaker Model Registry](#worked-example-promoting-a-new-model-version-with-canary-deployment-via-sagemaker-model-registry)
 - [3. Types of learning](#3-types-of-learning)
@@ -277,6 +278,177 @@ when accuracy degrades.
 > evaluate/tune → deploy → monitor. Also know that **Feature Store** exists
 > specifically to prevent *training/serving skew* (features computed
 > differently at training time vs. inference time).
+
+### Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand
+
+Step 5 above names **Managed Spot Training** as the AWS tool for cutting
+model-training compute cost, and the
+[end-to-end lifecycle worked example](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
+later in this domain trains the loan-default XGBoost model with Managed
+Spot Training "since these are not time-critical, interactive jobs" — but
+neither stops to show the actual arithmetic. Domain 3 has several worked
+examples that turn a qualitative cost ranking into real dollar figures,
+such as the
+[monthly inference cost worked example](domain-3-applications-of-foundation-models.md#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers);
+this walkthrough applies that same "estimate first, then compare"
+discipline to **training** cost instead — picking a training instance
+type, understanding how spot interruptions are actually handled, and
+building a full monthly cost comparison — because AIF-C01 scenarios that
+say "reduce training cost without disrupting the retraining schedule"
+expect this arithmetic, not just recognition of the term "Managed Spot
+Training."
+
+**Scenario:** The same regional bank from the end-to-end worked example
+now has its loan-default XGBoost model in production. **SageMaker Model
+Monitor** and the monthly loan-performance data refresh both trigger
+retraining: a **routine monthly retrain** on the latest data (no fixed
+deadline — it can run overnight, over a weekend, or be interrupted and
+resumed), and an occasional **drift-triggered emergency retrain** when
+Model Monitor flags a data-drift alarm, which the bank's model-risk policy
+requires to complete and redeploy within a **24-hour compliance SLA**. The
+published Feature Store table now holds **2.4 million** historical
+applications across **42** engineered features, a roughly **4 GB**
+training file in S3. The MLOps team needs to pick a training instance type
+and decide, for each retrain trigger, whether Managed Spot Training or
+On-Demand training is the right call.
+
+**Step 1: Match the instance family to the algorithm, not the biggest
+instance available.** SageMaker's built-in XGBoost algorithm here runs in
+its default **single-instance, CPU** mode: it builds gradient-boosted
+trees over an in-memory data matrix, so the resources that actually limit
+training are **vCPU count and RAM to hold that matrix** — not GPU
+throughput. This is the key distinction from a deep-learning training job
+(large neural networks, which do need GPU instances): classical,
+tabular-data algorithms like XGBoost, Linear Learner, and k-NN are
+generally **CPU-appropriate**, and paying for an idle GPU instance buys
+nothing.
+
+| Instance type | vCPU | Memory | Illustrative on-demand rate* | Fit for this job |
+|---|---|---|---|---|
+| `ml.m5.xlarge` | 4 | 16 GiB | $0.230/hr | Too little headroom — XGBoost's in-memory DMatrix typically needs 3–4x the raw 4 GB file size, plus OS/runtime overhead; risks an out-of-memory failure mid-job |
+| `ml.c5.2xlarge` | 8 | 16 GiB | $0.408/hr | More vCPU than needed, but the **same** memory ceiling as `ml.m5.xlarge` — doesn't fix the actual constraint |
+| **`ml.m5.2xlarge`** | 8 | **32 GiB** | **$0.461/hr** | **Chosen** — comfortable memory headroom for the DMatrix plus OS overhead, at a moderate vCPU count XGBoost's tree-building can actually parallelize across |
+| `ml.p3.2xlarge` (GPU) | 8 | 61 GiB | $3.825/hr | GPU sits idle in single-instance CPU XGBoost — roughly 8x `ml.m5.2xlarge`'s hourly rate for zero training-time benefit |
+
+*Illustrative round numbers picked for this exercise, not a live quote —
+always check the current
+[SageMaker pricing page](https://aws.amazon.com/sagemaker/pricing/) for
+actual, region-specific rates.
+
+The lesson generalizes: **memory-to-data-size fit** drives instance choice
+for classical ML training far more than raw vCPU count or the presence of
+a GPU, which matters for deep learning but not for a single-instance
+gradient-boosted-tree job.
+
+**Step 2: Understand what Managed Spot Training actually changes.** Spot
+capacity is spare EC2 capacity AWS offers at a steep discount versus
+On-Demand — commonly **up to 90%** — but it can be reclaimed with a
+**2-minute interruption notice** if AWS needs that capacity back.
+**SageMaker Managed Spot Training** wraps this into a managed workflow
+instead of requiring you to handle EC2 spot interruptions yourself:
+
+- You set **`MaxRuntimeInSeconds`** (the compute-time budget the job
+  actually needs to finish) and **`MaxWaitTimeInSeconds`** (the wall-clock
+  ceiling, including any time spent waiting for replacement spot capacity
+  after an interruption), where `MaxWaitTimeInSeconds` must be **≥**
+  `MaxRuntimeInSeconds`.
+- To survive an interruption without losing progress, the training job
+  must **checkpoint** its state to S3 periodically (via a configured
+  `checkpoint_s3_uri`). On interruption, SageMaker automatically
+  provisions replacement spot capacity and **resumes training from the
+  last checkpoint** rather than restarting from scratch.
+- **Billing** only covers actual compute seconds consumed — not the time
+  spent waiting for replacement capacity after an interruption. So an
+  interrupted-and-resumed job's **wall-clock duration** can stretch past a
+  smooth run's, but its **billed compute time**, and therefore its cost,
+  stays close to the same job run without interruption.
+
+Skipping the checkpoint step is the trap: without a checkpoint to resume
+from, an interrupted job restarts training from **0% progress**, and a
+job that keeps getting interrupted before finishing can burn through the
+entire `MaxWaitTimeInSeconds` window without ever completing — turning an
+intended cost saving into a missed retrain.
+
+**Step 3: Price a single training run, on-demand vs. spot.** The chosen
+`ml.m5.2xlarge` job takes **90 minutes (1.5 hours)** of billed compute
+time to train on the 2.4-million-row dataset, whether run On-Demand or via
+Managed Spot Training (checkpointing adds negligible overhead).
+
+| | On-Demand | Managed Spot Training |
+|---|---|---|
+| Rate | $0.461/hr | $0.138/hr (≈70% discount, illustrative) |
+| Billed compute time | 1.5 hr | 1.5 hr |
+| **Cost per run** | 1.5 × $0.461 = **$0.69** | 1.5 × $0.138 = **$0.21** |
+
+A single run's saving ($0.48) looks small in isolation — the next step
+scales this up to the bank's actual monthly training workload, where the
+same ~70% ratio compounds into a figure worth acting on.
+
+**Step 4: Scale the per-run cost to a full month's training workload.**
+The monthly retrain doesn't run just once — **SageMaker automatic model
+tuning** ([Section 2](#2-the-ml-development-lifecycle), step 6) launches a
+hyperparameter-search job that trains **30 candidate models** (varying
+tree depth, learning rate, and number of rounds) before the team picks the
+best one, and every one of those 30 training jobs is exactly the same
+~90-minute, `ml.m5.2xlarge`, checkpointed job priced above.
+
+| Monthly workload | Billed compute hours | On-Demand cost | Managed Spot cost | Monthly saving |
+|---|---|---|---|---|
+| 30 tuning-job training runs × 1.5 hr | 45 hr | 45 × $0.461 = **$20.75** | 45 × $0.138 = **$6.21** | **$14.54 (≈70%)** |
+
+At **12 months**, that's roughly **$174.48/year** saved on the routine
+retrain cadence alone, purely by switching the tuning job's training
+instances from On-Demand to Managed Spot Training with checkpointing
+enabled — no change to the algorithm, the data, or the resulting model's
+accuracy. The absolute dollars here look modest because this example uses
+one mid-sized instance type and one team's monthly cadence; the **same
+~70% ratio** scales linearly with larger instances, bigger tuning-job
+fleets, or more frequent retraining, which is the number that matters when
+comparing Spot against On-Demand — not the dollar figure of any single toy
+example.
+
+**Step 5: Recognize when *not* to use Spot.** The drift-triggered
+emergency retrain from this scenario has a **24-hour compliance SLA** —
+and that changes the trade-off entirely. Managed Spot Training's savings
+come from tolerating interruption-and-resume delays that stretch
+wall-clock time in exchange for a lower bill; a job racing a fixed
+deadline can't safely absorb an unlucky string of interruptions eating
+into that 24-hour window. For this retrain, the team accepts On-Demand's
+higher per-run cost ($0.69 instead of $0.21) to buy **certainty of
+completion time**, since missing the SLA is a compliance failure that
+costs far more than the ~$0.48 saved by risking Spot on this one run.
+
+| Retrain trigger | Deadline pressure | Checkpointing feasible? | Spot appropriate? |
+|---|---|---|---|
+| Routine monthly retrain (scheduled) | None — can run overnight or over a weekend | Yes | **Yes** — Managed Spot Training |
+| Drift-triggered emergency retrain | Hard 24-hour compliance SLA | Yes, but doesn't help if capacity keeps getting reclaimed near the deadline | **No** — On-Demand |
+| Automatic model tuning's 30 exploratory training jobs | None — best candidate is picked after the whole tuning job finishes | Yes | **Yes** — Managed Spot Training |
+
+**AWS example:** The bank runs its monthly automatic-model-tuning job on
+`ml.m5.2xlarge` instances via **Managed Spot Training**, with checkpointing
+enabled so an interrupted candidate resumes instead of restarting,
+saving roughly **$14.54/month (≈$174/year)** at this job's current scale
+compared to On-Demand — a ratio, not just a dollar figure, that keeps
+paying off as the tuning fleet or instance size grows. When **Model
+Monitor** fires a drift alarm instead, the team's deployment pipeline
+routes that one retrain to **On-Demand** `ml.m5.2xlarge` instances, paying
+the higher per-run rate to guarantee the refreshed model redeploys inside
+the 24-hour compliance SLA regardless of spot capacity availability that
+day.
+
+> **Exam tip:** Managed Spot Training's advertised savings (up to 90%)
+> assume the training job **checkpoints to S3** so an interruption resumes
+> instead of restarting from zero — a scenario that mentions Managed Spot
+> Training without checkpointing is describing a setup that can burn
+> through `MaxWaitTimeInSeconds` without finishing. Choose **Managed Spot
+> Training** for routine, deadline-flexible training and tuning jobs;
+> choose **On-Demand** the moment a scenario mentions a fixed completion
+> deadline, a time-critical retrain, or a compliance SLA — cost savings
+> never outrank a hard deadline. And for instance-type selection on a
+> classical/tabular algorithm like XGBoost, match **memory to the
+> in-memory data size**, not vCPU count or GPU availability — GPU
+> instances add cost with no training-time benefit for a single-instance
+> CPU algorithm.
 
 ### Production deployment strategies and model versioning
 

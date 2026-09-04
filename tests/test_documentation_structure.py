@@ -1248,12 +1248,12 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_45_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
-        self.assertEqual(total, 45)
+        self.assertEqual(total, 46)
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(idx, -1)
         window = self.structure_text[max(0, idx - 50) : idx + 300]
-        self.assertIn("45", window)
+        self.assertIn("46", window)
         for domain_number, count in self.EXPECTED_WORKED_EXAMPLES.items():
             with self.subTest(domain=domain_number):
                 self.assertRegex(

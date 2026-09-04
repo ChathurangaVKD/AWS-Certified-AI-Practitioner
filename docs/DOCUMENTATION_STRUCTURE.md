@@ -47,13 +47,13 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,930–5,482 lines each, **14,357 lines total**:
+domain, currently 1,930–5,196 lines each, **14,203 lines total**:
 
 - Domain 1: 1,930 lines
 - Domain 2: 2,213 lines
-- Domain 3: 5,538 lines
-- Domain 4: 2,247 lines
-- Domain 5: 2,485 lines
+- Domain 3: 5,196 lines
+- Domain 4: 2,250 lines
+- Domain 5: 2,614 lines
 
 All five follow the same template:
 
@@ -275,6 +275,20 @@ validation/sanitization of untrusted source documents (plus Amazon Macie
 for sensitive-data discovery) that indirect injection additionally
 requires.
 
+Domain 5 also has a tenth nested "####"-level worked-example subsection,
+nested inside Section 2 ("AWS compliance standards relevant to AI
+workloads") right after the "Compliance framework decision matrix"
+subsection's exam tip and before Section 2's mini-quiz: "#### Worked
+example: filling out a SageMaker Model Card for governance sign-off." It
+completes the actual SageMaker Model Card for Domain 4's Meridian
+Community Bank loan-approval classifier — model overview, intended use,
+training data provenance, evaluation metrics, bias assessment results,
+explainability, known limitations, human oversight controls, and
+monitoring plan — flags which sections require the risk-governance
+committee's formal sign-off versus a read-through, and walks through the
+committee meeting where those sections are used to defend the deployment
+decision.
+
 Domain 1 also has a second nested "###"-level worked-example subsection,
 alongside the canary-deployment one: "### Worked example: estimating
 training cost for the loan-default predictor: SageMaker managed spot
@@ -303,11 +317,11 @@ subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training,
-cost-optimization-SLA-tradeoffs, hallucination-rate-drift-monitoring, and
-indirect-prompt-injection-RAG-defense subsections), the five domain guides
-mark **45
+cost-optimization-SLA-tradeoffs, hallucination-rate-drift-monitoring,
+indirect-prompt-injection-RAG-defense, and Model-Card-governance-sign-off
+subsections), the five domain guides mark **46
 worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 18 in
-Domain 3, 8 in Domain 4, and 11 in Domain 5, plus further example content
+Domain 3, 8 in Domain 4, and 12 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 Every depth gap previously flagged against this documentation is now

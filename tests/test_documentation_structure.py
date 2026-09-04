@@ -1354,5 +1354,51 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
         )
 
 
+class TestDocumentationStructureMockExamDistinctionAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's 'Total assessment' paragraph previously
+    described the second 65-question mock-exam.md as "a deliberate
+    duplicate-format check rather than a distinct practice pool" -- which
+    is factually wrong. full-length-mock-exam.md (question set A) and
+    mock-exam.md (question set B) contain two completely different
+    65-question sets, not a format-only duplicate (see
+    tests/test_mock_exam.py and tests/test_full_length_mock_exam.py, which
+    verify each file's own question content independently). These tests
+    guard against the doc drifting back to that misleading description."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def test_does_not_describe_mock_exam_as_a_duplicate_format_check(self):
+        lowered = self.structure_text.lower()
+        self.assertNotIn("duplicate-format check", lowered)
+        self.assertNotIn(
+            "deliberate duplicate-format check rather than a distinct "
+            "practice pool",
+            lowered,
+        )
+
+    def test_describes_mock_exam_as_independent_practice_pool(self):
+        idx = self.structure_text.find("second\n65-question `mock-exam.md`")
+        self.assertNotEqual(
+            idx,
+            -1,
+            "expected the 'Total assessment' paragraph to reference the "
+            "second 65-question `mock-exam.md`",
+        )
+        window = self.structure_text[idx : idx + 250]
+        self.assertIn("independent practice pool", window)
+        self.assertIn("completely different set of questions", window)
+
+    def test_full_length_and_second_mock_exam_have_different_questions(self):
+        # Sanity check the underlying fact the doc now asserts: the two
+        # mock exams are not a format duplicate of each other.
+        full_length_text = MOCK_EXAM_DOC.read_text(encoding="utf-8")
+        second_mock_exam_text = (DOCS_DIR / "mock-exam.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotEqual(full_length_text, second_mock_exam_text)
+
+
 if __name__ == "__main__":
     unittest.main()

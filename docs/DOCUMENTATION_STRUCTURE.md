@@ -431,8 +431,9 @@ of self-testing:
 **Total assessment:** 129 domain practice questions + 65 mock-exam questions +
 22 scenario questions + 35 embedded mini-quiz questions =
 251 total practice items across the repository (this excludes the second
-65-question `mock-exam.md`, which is a deliberate duplicate-format check
-rather than a distinct practice pool).
+65-question `mock-exam.md`, which is a second, independent practice pool
+with a completely different set of questions—meant to be taken as a
+follow-up rehearsal after re-studying weak domains from the first exam).
 
 **Test coverage:** Every content claim in this file is enforced by a
 matching test, not just asserted in prose:

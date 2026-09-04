@@ -46,13 +46,13 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,885–4,670 lines each, **13,391 lines total**:
+domain, currently 1,885–4,670 lines each, **13,407 lines total**:
 
 - Domain 1: 1,885 lines
 - Domain 2: 2,169 lines
 - Domain 3: 4,670 lines
 - Domain 4: 2,247 lines
-- Domain 5: 2,420 lines
+- Domain 5: 2,436 lines
 
 All five follow the same template:
 
@@ -241,6 +241,20 @@ how the SLA target flips which combination of on-demand pricing,
 Provisioned Throughput, Bedrock batch inference, and response caching
 minimizes cost for each.
 
+Domain 5 also has an eighth nested "####"-level worked-example
+subsection, nested inside the "Data monitoring" subsection right after
+its exam tip and before that subsection's mini-quiz: "#### Worked
+example: monitoring hallucination rate drift in a production RAG
+assistant." It walks Aurora Benefits Co.'s Bedrock RAG assistant through
+a hallucination rate that drifts from 2% at launch to 8% three months
+later as its knowledge base goes stale, detecting and quantifying that
+drift via an LLM-as-judge factual-consistency score published as a
+custom CloudWatch metric, setting warning/paging alarm thresholds on it,
+and remediating by refreshing and re-embedding the knowledge base rather
+than retraining the model — contrasting this generative-AI-specific
+monitoring approach with the classical accuracy/precision/recall drift
+monitoring described earlier in the same subsection.
+
 Domain 1 also has a second nested "###"-level worked-example subsection,
 alongside the canary-deployment one: "### Worked example: estimating
 training cost for the loan-default predictor: SageMaker managed spot
@@ -266,10 +280,11 @@ Domain 4's confidence-threshold/Amazon A2I and Clarify/Guardrails-layering
 subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
-watermarking-provenance, differential-privacy healthcare-training, and
-cost-optimization-SLA-tradeoffs subsections), the five domain guides mark **40
+watermarking-provenance, differential-privacy healthcare-training,
+cost-optimization-SLA-tradeoffs, and hallucination-rate-drift-monitoring
+subsections), the five domain guides mark **41
 worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 15 in
-Domain 3, 8 in Domain 4, and 9 in Domain 5, plus further example content
+Domain 3, 8 in Domain 4, and 10 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 Every depth gap previously flagged against this documentation is now

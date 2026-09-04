@@ -365,6 +365,99 @@ BEDROCK_MODEL_REFERENCE_SECTION_RE = re.compile(
 )
 
 
+class TestAwsServiceDecisionGuideMaintenanceProcessSubsection(unittest.TestCase):
+    """Section 4 -- the staleness warning states a ~60-day re-verification
+    cadence but previously didn't spell out what a re-verification pass
+    actually checks or updates. Guards the 'Maintenance process' subsection
+    added near the staleness warning that documents this in prose: which
+    fields to check, where to source the current catalog from, and what to
+    update in the table and the 'Last verified' stamp."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = BEDROCK_MODEL_REFERENCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 4"
+        cls.section_text = section_match.group(0)
+        subsection_match = re.search(
+            r"^###\s+Maintenance process.*?(?=^### |^## |\Z)",
+            cls.section_text,
+            re.M | re.S,
+        )
+        assert subsection_match is not None, (
+            "could not locate the 'Maintenance process' subsection"
+        )
+        cls.subsection_text = subsection_match.group(0)
+
+    def test_has_maintenance_process_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"^###\s+Maintenance process", re.M),
+            "expected a 'Maintenance process' sub-heading near the "
+            "staleness warning inside section 4",
+        )
+
+    def test_does_not_introduce_a_new_top_level_section(self):
+        # 'Maintenance process' is a ### sub-heading expansion of the
+        # existing section 4, not a new ## section -- the numbered
+        # section sequence must stay exactly as it was.
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_appears_before_the_model_comparison_table(self):
+        # The subsection should sit near the staleness warning, ahead of
+        # the table it explains how to maintain.
+        subsection_pos = self.section_text.index("### Maintenance process")
+        table_pos = self.section_text.index("| Model family | Provider |")
+        self.assertLess(
+            subsection_pos,
+            table_pos,
+            "expected the 'Maintenance process' subsection to appear "
+            "before the model comparison table",
+        )
+
+    def test_documents_which_fields_to_check(self):
+        for term in [
+            "model names",
+            "region",
+            "deprecat",
+            "new additions",
+        ]:
+            with self.subTest(term=term):
+                self.assertRegex(
+                    self.subsection_text,
+                    re.compile(re.escape(term), re.IGNORECASE),
+                    f"expected the maintenance process to mention "
+                    f"checking {term!r}",
+                )
+
+    def test_documents_where_to_source_the_catalog(self):
+        self.assertIn(
+            "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md",
+            self.subsection_text,
+            "expected the maintenance process to point at the official "
+            "Bedrock model catalog as the source of truth",
+        )
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"source of truth", re.IGNORECASE),
+        )
+
+    def test_documents_what_to_update_in_table_and_last_verified_stamp(self):
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"update the affected row", re.IGNORECASE),
+            "expected the maintenance process to describe updating the "
+            "table rows",
+        )
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"\*\*Last verified\*\* date", re.IGNORECASE),
+            "expected the maintenance process to describe updating the "
+            "'Last verified' date stamp",
+        )
+
+
 class TestAwsServiceDecisionGuideModelFamilySelectionDiagram(unittest.TestCase):
     """Section 4 -- the Bedrock model reference table (Nova, Claude, Jamba
     2.0, DeepSeek-R1, etc.) previously had no visual decision aid, unlike

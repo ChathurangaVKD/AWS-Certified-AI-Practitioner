@@ -400,6 +400,47 @@ exam-testable.
 > only bumps the date without recording what was checked defeats the
 > purpose of this note.
 
+### Maintenance process
+
+This subsection spells out, concretely, what a re-verification pass
+against the table below actually involves, so a future contributor doing
+the ~60-day check doesn't have to re-derive the process from the
+staleness warning above.
+
+**What to check.** Walk the table row by row and confirm four things per
+family: (1) **model names/versions** — has AWS renamed a tier, retired a
+version, or shipped a new generation (e.g., Titan → Nova was exactly this
+kind of change)? (2) **regional availability** — is the family still
+offered in the AWS Regions this guide's readers are likely to use (the
+table intentionally omits per-region columns since availability shifts
+too often to be exam-testable, but a family that has quietly become
+single-Region or lost broad availability is still worth a callout in
+prose if it changes how the family should be recommended); (3)
+**deprecations** — has AWS announced or completed an end-of-life for a
+model named in the table (as happened with Titan Text, the plain Cohere
+Command line, and AI21's Jurassic)? (4) **new additions** — has a new
+provider or model family appeared in the catalog that isn't represented
+by any existing row (as happened with DeepSeek and OpenAI's gpt-oss)?
+
+**Where to source the current catalog.** Use the official [Bedrock model
+catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
+linked in the staleness warning above as the source of truth — it's the
+same link a reader following this guide's own advice would open. Do not
+rely on memory, training data, or this table's own prior contents as the
+source for what's "current."
+
+**What to update once a pass is done.** If the catalog diff turns up any
+change from bullet 1–4 above: update the affected row(s) in the table
+(family name, provider, modalities, context window, best-fit use case,
+and exam-style cue as needed), then update the **Last verified** date to
+the date of the pass and rewrite the "changes found and applied" summary
+to describe what was actually found — including explicitly noting "no
+changes found, catalog re-checked and unchanged" for families that were
+checked but didn't move, mirroring how the current summary distinguishes
+newly-added/changed rows from the rest of the catalog that was
+"re-checked ... and found unchanged." Bumping only the date without
+recording what was checked is not a valid re-verification pass.
+
 | Model family | Provider | Modalities | Context window (relative) | Best-fit use case | Exam-style cue |
 |---|---|---|---|---|---|
 | **Amazon Titan Text** (Lite/Express/Premier) — *retired, see Nova* | Amazon | Text in → text out | Small → large across tiers | No longer offered for new use as of Aug 2026 — retired in favor of Amazon **Nova**'s text tiers. Kept here because older exam material may still name it | "Cost-effective," "Amazon-native" text-generation cues now point to **Nova**, not Titan Text |

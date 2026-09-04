@@ -297,7 +297,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 17, 4: 8, 5: 11}
+    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
 
     @classmethod
     def setUpClass(cls):
@@ -322,19 +322,19 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
                     f"'####' level), found {actual}",
                 )
 
-    def test_grand_total_worked_example_count_is_44(self):
+    def test_grand_total_worked_example_count_is_45(self):
         actual_total = sum(
             self._worked_example_heading_count(path.read_text(encoding="utf-8"))
             for path in DOMAIN_FILES.values()
         )
         self.assertEqual(
             actual_total,
-            44,
-            "sanity check: expected 44 total 'Worked example' headings "
+            45,
+            "sanity check: expected 45 total 'Worked example' headings "
             "across the five domain guides",
         )
 
-    def test_structure_doc_states_44_worked_examples_with_per_domain_breakdown(self):
+    def test_structure_doc_states_45_worked_examples_with_per_domain_breakdown(self):
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(
@@ -345,9 +345,9 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
         )
         window = self.structure_text[max(0, idx - 50) : idx + 300]
         self.assertIn(
-            "44",
+            "45",
             window,
-            "DOCUMENTATION_STRUCTURE.md does not state the 44-worked-example "
+            "DOCUMENTATION_STRUCTURE.md does not state the 45-worked-example "
             "grand total",
         )
         for domain_number, count in self.EXPECTED_PER_DOMAIN.items():
@@ -1190,8 +1190,8 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
     drifting stale again."""
 
-    EXPECTED_LINE_COUNTS = {1: 1885, 2: 2213, 3: 5069, 4: 2247, 5: 2453}
-    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 17, 4: 8, 5: 11}
+    EXPECTED_LINE_COUNTS = {1: 1885, 2: 2213, 3: 5196, 4: 2247, 5: 2453}
+    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
     EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 5}
     EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 
@@ -1229,7 +1229,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_13298_line_total(self):
         total = sum(self.EXPECTED_LINE_COUNTS.values())
-        self.assertEqual(total, 13867)
+        self.assertEqual(total, 13994)
         self.assertIn(f"**{total:,} lines total**", self.structure_text)
 
     def test_actual_worked_example_counts_match_expected(self):
@@ -1248,12 +1248,12 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_44_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
-        self.assertEqual(total, 44)
+        self.assertEqual(total, 45)
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(idx, -1)
         window = self.structure_text[max(0, idx - 50) : idx + 300]
-        self.assertIn("44", window)
+        self.assertIn("45", window)
         for domain_number, count in self.EXPECTED_WORKED_EXAMPLES.items():
             with self.subTest(domain=domain_number):
                 self.assertRegex(
@@ -1269,8 +1269,8 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
         self.assertNotEqual(idx, -1)
         window = self.structure_text[idx : idx + 2100]
         self.assertIn("eight standalone", window)
-        self.assertIn("nine", window)
-        self.assertIn("seventeen", window)
+        self.assertIn("ten", window)
+        self.assertIn("eighteen", window)
         self.assertIn("BLEU/ROUGE", window)
         self.assertIn("Cohere Rerank", window)
         self.assertIn("multimodal\nproduct-catalog RAG system", window)

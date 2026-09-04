@@ -24,6 +24,7 @@
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
+  - [Worked example: running a Bedrock Model Evaluation job to choose between candidate models](#worked-example-running-a-bedrock-model-evaluation-job-to-choose-between-candidate-models)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
 - [Inference failures and recovery strategies](#inference-failures-and-recovery-strategies)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
@@ -2882,6 +2883,132 @@ subjective check on tone.
 > than pick just one — the exam tests whether you can match each
 > requirement to the metric that actually measures it, not whether you can
 > name a single "best" metric for an entire scenario.
+
+### Worked example: running a Bedrock Model Evaluation job to choose between candidate models
+
+The sections above name the evaluation layers (benchmarks, human
+evaluation, business metrics) and the individual metrics. This example
+walks through the mechanics of actually running **Amazon Bedrock Model
+Evaluation** end-to-end: setting up a job with multiple candidate models,
+choosing metrics that fit the task type, reading the resulting scores, and
+deciding when an automatic comparison is enough versus when to add a human
+evaluation job.
+
+**Scenario:** A team must choose one of three Bedrock models — Model A,
+Model B, and Model C — to power an internal tool that summarizes long
+support tickets into a 3-sentence brief for managers. They need a
+side-by-side comparison before committing to one model.
+
+**Step 1: Set up an automatic evaluation job with the candidate models.**
+In the Bedrock console (**Evaluate model performance → Create automatic
+evaluation job**) — or the equivalent `CreateEvaluationJob` API call — the
+team configures:
+
+- **Task type: Text summarization.** Bedrock uses this to decide which
+  metrics it offers by default (see Step 2). Other task types include
+  question and answer, text classification, and general text generation.
+- **Models to evaluate:** Model A, Model B, and Model C added to the same
+  job, so all three run against the identical prompt set and are scored
+  under the same conditions — a prerequisite for a fair comparison (see
+  "Compare, don't isolate" above).
+- **Prompt dataset:** a custom dataset in S3 (JSONL, one `{"prompt": ...,
+  "referenceResponse": ...}` object per line) built from a sample of real
+  (anonymized) support tickets paired with a manager-written reference
+  summary for each — needed because similarity metrics require something
+  to compare the model's output against. A built-in curated dataset could
+  be used instead for a generic benchmark, but it wouldn't reflect this
+  team's actual ticket content and tone.
+- **Output location:** an S3 bucket where Bedrock writes per-model,
+  per-metric scores and the individual model outputs for review.
+
+Submitting the job runs inference with all three models against every
+prompt in the dataset and computes each selected metric automatically —
+no manual scoring required at this stage.
+
+**Step 2: Choose metrics that fit the task type.** The same automatic
+evaluation job offers different default metrics depending on the task type
+selected in Step 1, because different task types have different
+definitions of a "correct" output:
+
+| Task type | Metrics that fit it | Why |
+| --- | --- | --- |
+| **Summarization** (this scenario) | ROUGE (overlap with the reference summary), BERTScore (semantic similarity, tolerant of rewording), Toxicity | A good summary can be worded differently from the reference while still capturing the same content, so a similarity metric matters as much as, or more than, exact overlap. |
+| **Question and answering** | Accuracy / F1 against the reference answer, BERTScore | Closed-domain answers usually have one correct meaning; F1 credits partial overlap on span-style answers, BERTScore credits a differently-worded but correct paraphrase. |
+| **Text classification** | Accuracy, Robustness | The output is a discrete label with a single right answer, so exact-match accuracy is the direct fit — there's no "close in meaning but different wording" case to account for. |
+
+For this summarization task, the team selects **ROUGE** and **BERTScore**
+as the primary quality metrics and keeps **Toxicity** enabled as a safety
+gate on every generated summary, matching the "picking evaluation metrics"
+worked example above.
+
+**Step 3: Interpret the results to decide between the candidates.** The
+job returns one score per model per metric:
+
+| Model | ROUGE-L | BERTScore | Toxicity |
+| --- | --- | --- | --- |
+| Model A | 0.41 | 0.88 | 0.01 |
+| Model B | 0.36 | 0.91 | 0.01 |
+| Model C | 0.44 | 0.83 | 0.02 |
+
+No model wins on every metric, so the comparison has to be reasoned
+through, not read off a single column:
+
+- **Model C** has the highest ROUGE-L (closest word-level overlap with the
+  reference summaries) but the lowest BERTScore — a sign it may be
+  matching surface wording without always preserving meaning as well as
+  the others.
+- **Model B** has the highest BERTScore (best semantic match) but the
+  lowest ROUGE-L, consistent with it summarizing the same content in
+  different words rather than echoing the reference's phrasing.
+- **Model A** is a balanced second-place on both quality metrics.
+- All three clear the toxicity gate by a wide margin, so safety doesn't
+  break the tie here.
+
+Because the task cares about the summary capturing the *right content*
+more than matching the reference's exact phrasing (a manager skimming a
+brief doesn't need it worded a specific way), the team weights BERTScore
+more heavily than ROUGE-L for this decision and shortlists **Model B**,
+with **Model A** as the runner-up.
+
+**Step 4: Decide whether automatic comparison alone is enough, or whether
+to add human evaluation.** The automatic job above is fast and cheap
+because it scored all three models against 500 tickets in one run with no
+human effort — exactly the "many candidates, cost/latency matter" branch
+of the decision tree earlier in this section. But automatic metrics only
+say how close a summary is to the reference; they can't judge whether the
+summary reads naturally to a manager or omits something a human would
+consider important even though it overlaps well with the reference text.
+So before finalizing, the team submits **only the shortlisted Model B**
+(and runner-up Model A) to a **Bedrock human evaluation** job: 3 human
+raters read each summary alongside the original ticket and score it on
+helpfulness and completeness using a 1–5 scale, without seeing the
+reference summary or the automatic scores. This is the key difference
+between the two approaches in practice:
+
+| | Automatic metric comparison | Human evaluation |
+| --- | --- | --- |
+| **What it measures** | Statistical similarity to a reference (ROUGE, BERTScore) or exact correctness (accuracy/F1) | Subjective judgment: does the output actually read well, help the reader, and capture what matters |
+| **Cost/speed** | Cheap and fast — scores every candidate against the whole dataset in one automated job | Slower and costlier — needs human raters (own SMEs or an AWS-managed work team) reading and scoring each output |
+| **Scale** | Practical to run against all candidates and the full evaluation set | Typically run only on a shortlist, since it doesn't scale as cheaply |
+| **Where it fits in this workflow** | First pass across all three models to narrow the field | Final check on the one or two finalists before choosing a production model |
+
+**AWS example:** After the human evaluation job comes back, both Model A
+and Model B score similarly on helpfulness, but Model B's summaries are
+rated notably more complete — confirming what its higher BERTScore
+suggested. The team selects **Model B** for production, documenting both
+the automatic evaluation job's metric scores and the human evaluation
+job's ratings as the basis for the decision.
+
+> **Exam tip:** A question describing "set up a job to compare several
+> Bedrock models on a dataset" without mentioning human raters is
+> pointing at **automatic model evaluation** — choose the metric family by
+> task type (ROUGE/BERTScore for summarization or open-ended generation,
+> accuracy/F1 for Q&A, accuracy for classification). A question adding
+> "have people review the outputs" or asking about subjective quality
+> (naturalness, helpfulness, completeness) after an automatic shortlist is
+> describing the follow-on **human evaluation** job — the two aren't
+> either/or; the common pattern the exam expects is automatic evaluation
+> to narrow candidates, then human evaluation on the finalists.
 
 ---
 

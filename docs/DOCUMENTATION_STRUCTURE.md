@@ -342,3 +342,195 @@ foundation model provider named in the domain guides (AI21 Labs,
 Anthropic Claude, Cohere, Meta Llama, Mistral AI, Stability AI) counts as
 a single row, not as one row per model it offers — so the count is
 provider-level, not model-level.
+
+## Cross-domain support documents: the rest
+
+The remaining nine files under `docs/` round out the ten cross-domain
+support documents named in the repository layout above. Each one is scoped
+to a different way of reusing the five domain guides' content rather than
+duplicating it:
+
+**`aws-service-decision-guide.md`** is the inverse of `aws-service-index.md`:
+instead of "everywhere this service is mentioned," it answers "which
+service is the exam answer for this scenario?" It carries seven numbered
+sections — a SageMaker-vs.-Bedrock-vs.-purpose-built-service decision flow,
+comparison tables for security/compliance/governance services and for
+encryption/privacy options, a Bedrock model reference, a consolidated
+service matrix spanning all five domains, and dedicated decision guides for
+Amazon API Gateway placement and for Bedrock Prompt Management vs. Prompt
+Flows vs. direct prompting — plus the three Mermaid diagrams already
+counted above (the Section 1 layering-matrix request-path diagram, the
+Section 4.1 Bedrock model family selection flow, and the Section 6
+cost-control flow).
+
+**`cross-domain-concept-map.md`** traces how Domain 1 and Domain 2
+fundamentals reappear, renamed or extended, in Domains 3–5 (and how Domain
+3 decisions in turn feed Domains 4 and 5): six domain-to-domain sections
+(D1→D3, D2→D3, D2→D4, D2→D5, D3→D4, D3→D5), a "Commonly confused concept
+pairs" quick-reference table, and the two Mermaid diagrams already counted
+above (the "Visual overview" cross-domain flowchart and the "Inference
+deployment pattern comparison" decision tree).
+
+**`cross-domain-scenario-questions.md`** carries 22 scenario questions,
+each requiring concepts from 2 or more domains at once to answer — the
+kind of blended scenario the actual exam favors over single-domain recall
+— plus a full `## Answer key` explaining which domain each part of the
+question draws on.
+
+**`case-study-ai-system-lifecycle.md`** follows one fictional company,
+Solstice Outdoors, and one system, Trailhead, through all five domains in
+the order a real team would build it: a classical ML model (Domain 1),
+choosing and prompting a foundation model (Domain 2), designing and
+customizing it with RAG and fine-tuning (Domain 3), finding and fixing a
+bias problem (Domain 4), and securing and governing it before launch
+(Domain 5) — one continuous narrative rather than five isolated worked
+examples.
+
+**`exam-preparation-strategy.md`** covers exam format and time management,
+domain weights and high-yield focus areas, a recommended reading order,
+common exam traps consolidated from every domain guide's "Exam tip"
+callouts, 1-week/2-week/4-week study plans, and a topic-based review quick
+reference — the logistics layer that sits on top of the five domain
+guides' content rather than teaching new material itself.
+
+**`full-length-mock-exam.md`** and **`mock-exam.md`** are two separate,
+non-overlapping 65-question, 90-minute mock exams (130 mock-exam questions
+combined) meant to be taken in sequence: `full-length-mock-exam.md` first,
+`mock-exam.md` second as a fresh check once the first exam's questions are
+no longer novel. Both follow the same shape — a "How to take this mock
+exam" section, the 65 numbered questions, an answer key with explanations,
+and a scoring-by-domain breakdown — so a wrong answer on either one points
+straight back to the domain guide section it came from.
+
+**`master-glossary.md`** and **`GLOSSARY.md`** are two views of the same
+merged term set: `master-glossary.md` groups **156 entries** alphabetically
+under "Jump to a letter" navigation, with each entry tagged
+`[D#, ...]` for the domain guide(s) that define it, while `GLOSSARY.md`
+presents the identical 156-term set as backlinked prose organized the same
+way. Both files must be updated together whenever a term is added, renamed,
+or retagged, which `tests/test_documentation_structure.py` enforces by
+requiring their entry counts to match.
+
+## Practice question and assessment inventory
+
+Beyond the five domain guides' own `## Practice questions` sections (129
+questions total, see above), the repository carries several other layers
+of self-testing:
+
+- **Subsection mini quizzes:** each domain guide embeds short "Mini-quiz"
+  call-outs directly under the subsection they test, distinct from that
+  domain's closing `## Practice questions` section — 35 in total across the
+  five guides: 7 in Domain 1, 7 in Domain 2, 8 in Domain 3, 5 in Domain 4,
+  and 8 in Domain 5.
+- **Cross-domain scenario questions:** 22 questions in
+  `cross-domain-scenario-questions.md`, each spanning 2 or more domains.
+- **Mock exams:** 65 questions each in `full-length-mock-exam.md` and
+  `mock-exam.md` (130 combined), simulating the real AIF-C01 format and
+  timing.
+
+**Total assessment:** 129 domain practice questions + 65 mock-exam
+questions + 22 scenario questions + 35 embedded mini-quiz questions = 251
+total practice items across the repository (this excludes the second
+65-question `mock-exam.md`, which is a deliberate duplicate-format check
+rather than a distinct practice pool).
+
+## Test coverage
+
+Every content claim in this file is enforced by a matching test, not just
+asserted in prose. `tests/test_domain_N_study_guide.py` for all five
+domains checks each domain guide's structure — breadcrumb navigation,
+table of contents, required section headings, and answer-key alignment —
+against its own practice questions, for **129 total** domain practice
+questions verified end to end; `tests/test_domain_N_subsection_mini_quizzes.py`
+and `tests/test_domain_N_quick_reference_cheat_sheet.py` do the same for
+each domain's mini quizzes and cheat sheet, and one dedicated test file
+exists per cross-domain document (`test_cross_domain_scenario_questions.py`,
+`test_full_length_mock_exam.py`, `test_mock_exam.py`,
+`test_case_study_ai_system_lifecycle.py`,
+`test_cross_domain_concept_map.py`, `test_aws_service_decision_guide.py`,
+`test_aws_service_index.py`, `test_master_glossary.py`, `test_glossary.py`,
+`test_exam_preparation_strategy.py`). `tests/test_cross_reference_links.py`
+separately checks that every internal link and anchor across every file
+resolves. `tests/test_documentation_structure.py` (this file's own test)
+then re-derives every line count, worked-example count, diagram count,
+question count, and glossary/service-index entry count directly from the
+source files and asserts this document states them exactly, so the figures
+above can't silently drift stale as the guides grow.
+
+## Navigation
+
+Every domain guide opens with a breadcrumb line (`[← Domain N-1 of 5](...)
+· Domain N of 5 · [Domain N+1 of 5 →](...)`) linking to the previous and
+next domain guide, plus a `## Table of contents` section linking every
+numbered section within that file — checked by
+`tests/test_domain_footer_navigation.py` for all five guides. The
+cross-domain support documents link back into the domain guides with
+inline links to specific sections (e.g.,
+`domain-3-applications-of-foundation-models.md#2-rag`), and
+`master-glossary.md`/`GLOSSARY.md` entries carry `[D#, ...]` tags naming
+which domain guide(s) define each term, so a reader can always jump from a
+term, a scenario question, or a mock-exam answer back to the source
+material it was drawn from.
+
+## Content health
+
+All five domain guides carry a `**Last verified:**` line stamped with the
+date their AWS-service and pricing claims were last re-checked against
+current AWS documentation, enforced by
+`tests/test_domain_last_verified_date.py`. `DOCUMENTATION_STRUCTURE.md`
+itself does not carry a Last verified stamp; instead, its accuracy is
+continuously enforced by `tests/test_documentation_structure.py`, which
+re-derives every figure in this file from the underlying source files
+rather than relying on a point-in-time human check.
+
+## Complete file inventory
+
+The repository's Markdown content is **17 files**: `README.md`; the five
+domain guides (`domain-1-fundamentals-of-ai-and-ml.md` through
+`domain-5-security-compliance-governance.md`); the ten cross-domain support
+documents (`aws-service-index.md`, `aws-service-decision-guide.md`,
+`cross-domain-concept-map.md`, `cross-domain-scenario-questions.md`,
+`case-study-ai-system-lifecycle.md`, `exam-preparation-strategy.md`,
+`full-length-mock-exam.md`, `mock-exam.md`, `master-glossary.md`, and
+`GLOSSARY.md`); and this file, `DOCUMENTATION_STRUCTURE.md`. Every one of
+the sixteen `docs/` files is reachable from `README.md`'s study plan within
+two clicks (either linked directly, or linked from a domain guide's
+breadcrumb or glossary that README.md itself links to).
+
+## Cross-linking architecture
+
+The documents above are not independent files that happen to share a
+`docs/` directory — they form a deliberate, four-layer cross-linking
+system on top of the five domain guides' content:
+
+1. **Glossary layer** (`master-glossary.md` / `GLOSSARY.md`): a flat,
+   alphabetical index of every defined term, each tagged with the domain
+   guide(s) it originates from. This is the "what does this word mean, and
+   where is it explained in full?" entry point.
+2. **Service index layer** (`aws-service-index.md`): a flat, alphabetical
+   index of every AWS (and third-party model provider) service, each
+   listing every domain guide section that mentions it. This is the
+   "everywhere is this service discussed?" entry point — the mirror image
+   of the glossary layer, organized by AWS service instead of by concept.
+3. **Decision guide layer** (`aws-service-decision-guide.md`): a
+   consolidated, cross-domain set of decision flows and comparison tables
+   that sits above the domain guides' own per-domain tables. This is the
+   "given a scenario, which service is the exam answer?" entry point —
+   scenario-first rather than term-first or service-first.
+4. **Concept map layer** (`cross-domain-concept-map.md`): explicit
+   domain-to-domain links tracing how a Domain 1 or 2 fundamental
+   reappears, renamed or extended, in Domains 3–5. This is the "why does
+   this later domain keep saying 'recall from Domain 1...'?" entry point —
+   relationship-first rather than lookup-first.
+
+`cross-domain-scenario-questions.md` and `case-study-ai-system-lifecycle.md`
+exercise all four layers at once (a single scenario or case-study phase
+routinely needs a glossary term, a service lookup, a decision-guide
+comparison, and a concept-map connection to answer fully), and
+`exam-preparation-strategy.md` and the two mock exams sit on top of the
+whole structure as the final rehearsal layer. A contributor adding new
+content should ask, for each of the four layers: does this introduce a
+term the glossary doesn't have yet, a service the index doesn't list yet,
+a decision the guide doesn't cover yet, or a cross-domain connection the
+concept map doesn't trace yet? `tests/test_cross_reference_links.py` then
+verifies every link this architecture depends on actually resolves.

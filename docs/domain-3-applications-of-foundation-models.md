@@ -20,6 +20,7 @@
   - [Choosing an embedding model: domain-specific vs. general vs. fine-tuned](#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
   - [Worked example: when to use Cohere Rerank in a RAG pipeline](#worked-example-when-to-use-cohere-rerank-in-a-rag-pipeline)
+  - [Worked example: budgeting tokens for a multimodal financial-report RAG pipeline (text + tables + images)](#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text--tables--images)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
@@ -2262,6 +2263,147 @@ gain looks as a percentage.
 > multi-million-dollar precision-driven revenue impact is an easy yes;
 > the same reranker bolted onto an already-precise, low-volume pipeline is
 > the "nice-to-have, not essential" case the comparison table warns about.
+
+#### Worked example: budgeting tokens for a multimodal financial-report RAG pipeline (text + tables + images)
+
+[Section 1](#1-design-considerations-for-foundation-model-applications) flags
+multimodal (text + image) input as a design consideration, and the
+[multimodal retrieval worked example above](#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text--images)
+shows how to *merge* text and image search results. Neither one answers a
+question that comes up as soon as a document mixes the two modalities in a
+single page: *how should the table and chart content actually be
+represented for embedding and generation* — as a short text summary, as
+OCR'd text, or as the raw image — and what does each choice cost in
+tokens? The [context-window token-budget worked
+example](#worked-example-estimating-a-context-window-token-budget) only
+estimates prose; it doesn't price a table or a chart.
+
+**Scenario:** An asset-management firm is building a RAG assistant over
+its analysts' **50-page quarterly financial reports (10-Ks/10-Qs)**. Each
+report mixes dense narrative prose (the MD&A section) with **~30 financial
+tables** (balance sheets, income statements, footnote schedules) and
+**~5 trend charts** (revenue-over-time line charts, segment-mix pie
+charts). Analysts ask both precision-sensitive questions ("what was
+accrued liabilities in Q3?") and gist questions ("is revenue trending up
+or down?"). The team has to decide, per table/chart, how it gets
+represented before it ever reaches an embedding call or a generation
+prompt — and that choice drives the per-query token budget.
+
+**The three options considered, per table or chart:**
+
+- **Option A — text summary only.** An LLM generates a one-paragraph
+  natural-language summary of the table or chart (e.g., "operating
+  expenses rose 4% quarter-over-quarter, driven by higher SG&A"), and only
+  that summary is embedded and retrieved. Cheapest option, but the
+  summary is generated once, up front, and **discards the individual
+  cell-level figures** — it can't answer a question about a specific line
+  item the summary didn't happen to call out.
+- **Option B — OCR/extract to structured text.** The table's cells are
+  extracted (via a PDF table-extraction step or OCR) into a plain-text or
+  Markdown table and that structured text is embedded and retrieved.
+  Preserves every exact figure in the table, at the cost of embedding and
+  passing significantly more text than a summary.
+- **Option C — embed the image directly.** The table or chart is kept as
+  an image, embedded with an image-capable multimodal embedding model
+  (e.g., **Amazon Titan Multimodal Embeddings**), and — because the
+  generation step also needs to *see* it, not just retrieve it — the raw
+  image is passed to a multimodal-capable model at generation time.
+  Preserves visual structure an OCR pass can lose (merged cells, footnote
+  markers, a chart's shape/trend), but images are priced and budgeted in
+  **token-equivalent units**, not free.
+
+**Step 1: Price each option in tokens, per table.** A typical table in
+these reports (~40 rows × 6 columns of financial figures) works out to
+roughly the following, using the same ~¾-word-per-token rule of thumb the
+[context-window budget worked
+example](#worked-example-estimating-a-context-window-token-budget) uses
+for prose, and the standard image-token approximation multimodal models on
+Bedrock use for vision input (tokens ≈ image pixel count ÷ 750, e.g. a
+typical ~1,100×1,700px scanned table page):
+
+| Representation | What's embedded/sent | Tokens per table |
+|---|---|---|
+| Option A: text summary only | ~60-word LLM-generated summary | **~80 tokens** |
+| Option B: OCR'd to structured text | ~250-word Markdown table, all cells | **~330 tokens** |
+| Option C: raw table image | Image passed at generation time | **~1,600 tokens** (image-token equivalent) |
+
+Option C costs roughly **20× Option A** and **~5× Option B** per table,
+purely from how multimodal models price image input — a table image isn't
+"free" just because it skips a text-extraction step.
+
+**Step 2: Roll that per-table cost into a full request's token budget.** A
+typical analyst query retrieves 2 pages of surrounding prose (~650 tokens
+each, per the context-window worked example's convention) plus the 5
+most-relevant tables for the question:
+
+| Request component | Option A (summaries) | Option B (OCR'd text) | Option C (raw images) |
+|---|---|---|---|
+| System / instruction prompt | 300 | 300 | 300 |
+| Retrieved prose (2 pages × 650) | 1,300 | 1,300 | 1,300 |
+| Retrieved tables (5 × per-table cost above) | 5 × 80 = 400 | 5 × 330 = 1,650 | 5 × 1,600 = 8,000 |
+| Current question | 40 | 40 | 40 |
+| Reserved output budget | 300 | 300 | 300 |
+| **Total tokens needed** | **2,340** | **3,590** | **9,940** |
+
+Against the [context-window worked example's](#worked-example-estimating-a-context-window-token-budget)
+8K-context model, Option C's **9,940 tokens already overflows the window
+on a single typical query** — before a longer conversation or a sixth
+retrieved table pushes it further over — while Options A and B both fit
+comfortably, and even Option C fits inside Claude's 200K window with room
+to spare. Token budget alone would push every table toward Option A or B.
+
+**Step 3: Weigh the token savings against what each option loses.**
+Cheapest isn't automatically correct — it depends on what the retrieved
+content has to be able to answer:
+
+- **Option A (summaries)** is the cheapest by far, but the summary is
+  written once, before any specific analyst question exists. If accrued
+  liabilities isn't mentioned in the summary's one paragraph, no amount of
+  clever prompting recovers that figure at query time — it was never
+  embedded anywhere. This makes Option A unsuitable whenever a query needs
+  an **exact line-item figure the summary might have omitted.**
+- **Option B (OCR'd text)** preserves every cell's exact value at roughly
+  4× Option A's token cost — still cheap relative to the context window —
+  so an analyst question about any specific line item can be answered
+  precisely from the retrieved text. It fails only when OCR/extraction
+  itself is unreliable: merged cells, footnote markers, or a **chart**
+  with no cell data to extract in the first place (a line chart has no
+  OCR-able "figures," only a plotted shape).
+- **Option C (raw images)** is the only option that preserves a chart's
+  visual shape or a table's exact layout, but at ~5-20× the token cost of
+  the text-based alternatives — a cost worth paying only when there's no
+  cheaper representation that captures what the question needs.
+
+**Choice: Option B (OCR/extract to structured text) for the ~30 financial
+tables, and Option C (embed the raw image) for the ~5 trend charts —
+Option A is rejected for this system.** The tables in these reports are
+clean, machine-generated PDF tables that extract reliably, and analysts'
+questions are precision-sensitive enough ("what was operating cash flow in
+Q2?") that a summary's lossy compression is a non-starter — Option B gets
+exact figures into the retrieved context at a token cost the context
+window absorbs easily. The trend charts have no cell data for OCR to
+extract at all, so **only Option C can answer a question about the
+chart's shape or direction** — for those five images specifically, the
+~1,600-token cost per chart is worth paying because Options A and B
+literally cannot represent that information, not because it's the
+cheapest choice. Mixing representations by content type — text-native
+tables via OCR, visual-native charts via direct image embedding — keeps
+the typical request (per Step 2, Option B's row) at **~3,590 tokens**
+instead of paying Option C's ~10,000-token cost on every table in the
+report, most of which don't need it.
+
+> **Exam tip:** A scenario that mixes prose, tables, and charts/images in
+> the same source document is testing whether you treat "add multimodal
+> support" as one decision instead of a **per-content-type** one. Default
+> to extracting **tables** to text (OCR/structured extraction) whenever
+> the table is machine-readable — it's far cheaper in tokens than
+> embedding or generating from the raw image and preserves exact figures.
+> Reach for embedding the **raw image** directly only for content a text
+> extraction genuinely can't capture — charts, diagrams, scanned/handwritten
+> pages, or complex merged-cell layouts — since multimodal image input is
+> priced in token-equivalent units that typically run **5-20× the token
+> cost of the same content as extracted text**, and that gap compounds
+> fast across a batch of retrieved tables in a single request.
 
 #### Mini-quiz: Test your understanding of vector databases and embeddings
 

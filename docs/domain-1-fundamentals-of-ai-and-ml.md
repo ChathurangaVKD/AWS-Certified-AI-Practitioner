@@ -16,6 +16,7 @@
 - [5. AWS managed AI/ML services (conceptual overview)](#5-aws-managed-aiml-services-conceptual-overview)
 - [6. Model evaluation basics](#6-model-evaluation-basics)
 - [7. Overfitting, underfitting, and the bias–variance trade-off](#7-overfitting-underfitting-and-the-biasvariance-trade-off)
+  - [Ensemble methods: bagging, boosting, and voting](#ensemble-methods-bagging-boosting-and-voting)
 - [Worked example: end-to-end ML lifecycle for a loan-default predictor](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
 - [Comparison table: AWS managed AI/ML services at a glance](#comparison-table-aws-managed-aiml-services-at-a-glance)
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
@@ -1174,6 +1175,98 @@ before deploying to a SageMaker endpoint.
 
    **Answer: B** — High variance means the model is overly sensitive to
    training-data noise, which is the definition of overfitting.
+
+### Ensemble methods: bagging, boosting, and voting
+
+The bias–variance discussion above framed two remedies for high variance
+(overfitting): get more data, or regularize. A third, distinct remedy is
+architectural rather than data- or hyperparameter-based: instead of tuning
+a single model, combine multiple models into an **ensemble**. For
+structured/tabular data — the same data shape XGBoost and SageMaker
+Autopilot target elsewhere in this domain — ensembles are frequently the
+strongest, most exam-relevant fix for high variance, and can also address
+high bias.
+
+- **Bagging (bootstrap aggregating)** — train many instances of the *same*
+  base model (typically decision trees) independently and in parallel,
+  each on a different random bootstrap sample (sampled with replacement)
+  of the training data, then combine their predictions by averaging
+  (regression) or majority vote (classification). Because each tree sees a
+  slightly different slice of the data and their individual errors are
+  largely uncorrelated, averaging cancels out much of that error — this
+  directly **reduces variance** without materially increasing bias.
+  **Random Forest** is the canonical bagging algorithm: many decision
+  trees, each also restricted to a random subset of features at each
+  split, to decorrelate the trees further.
+- **Boosting** — train many instances of the *same* base model
+  **sequentially**, where each new model focuses on correcting the errors
+  (residuals or misclassifications) of the ensemble built so far, and
+  predictions are combined as a weighted sum. Because each stage is
+  trained specifically to fix what came before, boosting primarily
+  **reduces bias** (it can turn a collection of weak learners — models
+  barely better than random guessing — into a strong one), though it is
+  more prone to overfitting than bagging if left unchecked (fixes: fewer
+  boosting rounds/early stopping, shallower trees, a lower learning rate).
+  **Gradient Boosting** (and SageMaker's built-in **XGBoost** algorithm) is
+  the most commonly tested boosting method.
+- **Voting** — train several *different* model types (e.g., logistic
+  regression, a decision tree, and a k-NN classifier) independently on the
+  same full training set, then combine their predictions by majority vote
+  (hard voting) or by averaging predicted class probabilities (soft
+  voting). Unlike bagging and boosting, voting's diversity comes from
+  using different algorithms rather than different data samples or
+  sequential correction, so it helps most when the individual models make
+  **different kinds of errors**.
+
+The shared theme across all three: a single model's prediction is noisy or
+biased in ways an ensemble of models is not, because the ensemble's errors
+partially cancel out — the "wisdom of crowds" argument for combining weak
+or diverse learners into one stronger prediction.
+
+**AWS example:** A logistics company's on-time-delivery classifier,
+trained as a single decision tree on SageMaker, shows the classic
+overfitting symptom from this section: 97% training accuracy but only 71%
+validation accuracy. Instead of only adding regularization, the team
+switches to a **Random Forest-style bagging** model (many decorrelated
+trees averaged together) and separately benchmarks a **gradient-boosted**
+model via the **SageMaker XGBoost** built-in algorithm; both close most of
+the training/validation accuracy gap the single tree could not, because
+the ensemble's averaged or corrected predictions generalize better than
+any one tree.
+
+**Worked example: when bagging helps vs. when the problem needs a
+different architecture.** Two structured-data teams both see 96%+
+training accuracy with poor validation accuracy on tabular data (loan
+applications, delivery records) — this is squarely the overfitting
+problem bagging (Random Forest) or boosting (Gradient Boosting/XGBoost)
+is built to fix, and both close most of the gap by switching from one
+deep, unconstrained tree to an ensemble of many shallower ones. A third
+team sees the same symptom on a *raw image* classification task (photos
+of delivery packages, flagging damaged vs. intact) and reaches for a
+Random Forest expecting the same fix — but bagging a collection of
+decision trees over raw pixel values doesn't help, because decision trees
+split on individual features one at a time and cannot learn the spatial
+patterns (edges, textures, shapes) that distinguish a damaged box from an
+intact one, no matter how many trees are averaged together. The fix here
+isn't a different ensemble strategy at all — it's a different **model
+architecture**: a **convolutional neural network** (or a purpose-built
+service like **Amazon Rekognition** for a standard damage-detection use
+case) that can actually learn spatially structured features from image
+data. The exam-relevant lesson: ensembles reduce variance or bias
+*within* a model family well-suited to the data's shape (structured/
+tabular → tree-based ensembles); they are not a substitute for choosing
+an architecture that fits the data type in the first place.
+
+> **Exam tip:** If a scenario describes **structured/tabular data**, high
+> variance (overfitting), and asks for a technique beyond "get more data"
+> or "add regularization," the answer is almost always an **ensemble
+> method** — **bagging/Random Forest** to reduce variance from a single
+> unstable model, or **boosting/Gradient Boosting/XGBoost** to reduce bias
+> from a collection of weak learners. If the same overfitting symptom
+> shows up on **image, audio, or text** data instead, an ensemble of trees
+> is a distractor — the exam wants a **deep learning architecture** (CNN,
+> transformer) or the matching purpose-built AWS AI service, not more
+> trees.
 
 ---
 

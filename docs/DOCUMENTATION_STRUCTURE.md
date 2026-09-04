@@ -51,7 +51,7 @@ domain, currently 1,930–5,482 lines each, **14,357 lines total**:
 
 - Domain 1: 1,930 lines
 - Domain 2: 2,213 lines
-- Domain 3: 5,482 lines
+- Domain 3: 5,538 lines
 - Domain 4: 2,247 lines
 - Domain 5: 2,485 lines
 

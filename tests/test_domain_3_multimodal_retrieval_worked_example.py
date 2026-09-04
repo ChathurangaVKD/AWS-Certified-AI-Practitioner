@@ -152,6 +152,26 @@ class TestDomain3MultimodalRetrievalWorkedExample(unittest.TestCase):
             "dominant, text-light catalog",
         )
 
+    def test_includes_code_sketch_for_hybrid_retrieval(self):
+        self.assertIn("```python", self.section)
+        self.assertIn("def hybrid_retrieve", self.section)
+        self.assertRegex(self.section, r"(?i)reciprocal rank fusion|RRF")
+        # The code sketch should show fusion combining hits from both
+        # a text index and an image/multimodal index.
+        self.assertIn("text_index", self.section)
+        self.assertIn("image_index", self.section)
+
+    def test_discusses_reranking_for_scoring_ambiguity(self):
+        self.assertRegex(self.section, r"(?i)cohere rerank")
+        self.assertRegex(self.section, r"(?i)rerank")
+        # Should tie reranking back to resolving cross-modal score
+        # ambiguity left over from the fusion step, not present it as an
+        # unrelated feature.
+        self.assertRegex(
+            self.section,
+            r"(?i)near-tied scores across\s+modalities|cross-encoder",
+        )
+
     def test_is_a_single_self_contained_subsection_with_no_new_headings(self):
         nested_headings = re.findall(r"^#{1,6} .+$", self.section, re.M)
         self.assertEqual(

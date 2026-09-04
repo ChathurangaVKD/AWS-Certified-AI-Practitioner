@@ -417,34 +417,33 @@ Beyond the five domain guides' own `## Practice questions` sections (129
 questions total, see above), the repository carries several other layers
 of self-testing:
 
-- **Subsection mini quizzes:** each domain guide embeds short "Mini-quiz"
-  call-outs directly under the subsection they test, distinct from that
-  domain's closing `## Practice questions` section — 35 in total across the
-  five guides: 7 in Domain 1, 7 in Domain 2, 8 in Domain 3, 5 in Domain 4,
-  and 8 in Domain 5.
+- **Subsection mini quizzes (35 in total across the five guides)**: 7 in
+  Domain 1, 7 in Domain 2, 8 in Domain 3, 5 in Domain 4, and 8 in Domain 5,
+  embedded as short "Mini-quiz" call-outs directly under the subsection
+  they test, distinct from each domain's closing `## Practice questions`
+  section.
 - **Cross-domain scenario questions:** 22 questions in
   `cross-domain-scenario-questions.md`, each spanning 2 or more domains.
 - **Mock exams:** 65 questions each in `full-length-mock-exam.md` and
   `mock-exam.md` (130 combined), simulating the real AIF-C01 format and
   timing.
 
-**Total assessment:** 129 domain practice questions + 65 mock-exam
-questions + 22 scenario questions + 35 embedded mini-quiz questions = 251
-total practice items across the repository (this excludes the second
+**Total assessment:** 129 domain practice questions + 65 mock-exam questions +
+22 scenario questions + 35 embedded mini-quiz questions =
+251 total practice items across the repository (this excludes the second
 65-question `mock-exam.md`, which is a deliberate duplicate-format check
 rather than a distinct practice pool).
 
-## Test coverage
-
-Every content claim in this file is enforced by a matching test, not just
-asserted in prose. `tests/test_domain_N_study_guide.py` for all five
-domains checks each domain guide's structure — breadcrumb navigation,
-table of contents, required section headings, and answer-key alignment —
-against its own practice questions, for **129 total** domain practice
-questions verified end to end; `tests/test_domain_N_subsection_mini_quizzes.py`
-and `tests/test_domain_N_quick_reference_cheat_sheet.py` do the same for
-each domain's mini quizzes and cheat sheet, and one dedicated test file
-exists per cross-domain document (`test_cross_domain_scenario_questions.py`,
+**Test coverage:** Every content claim in this file is enforced by a
+matching test, not just asserted in prose:
+`tests/test_domain_N_study_guide.py` for all five domains checks each
+domain guide's structure — breadcrumb navigation, table of contents,
+required section headings, and answer-key alignment — against its own
+practice questions, for **129 total** domain practice questions verified
+end to end. `tests/test_domain_N_subsection_mini_quizzes.py` and
+`tests/test_domain_N_quick_reference_cheat_sheet.py` do the same for each
+domain's mini quizzes and cheat sheet, and one dedicated test file exists
+per cross-domain document (`test_cross_domain_scenario_questions.py`,
 `test_full_length_mock_exam.py`, `test_mock_exam.py`,
 `test_case_study_ai_system_lifecycle.py`,
 `test_cross_domain_concept_map.py`, `test_aws_service_decision_guide.py`,

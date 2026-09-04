@@ -1190,9 +1190,9 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
     drifting stale again."""
 
-    EXPECTED_LINE_COUNTS = {1: 1885, 2: 2213, 3: 5196, 4: 2247, 5: 2453}
+    EXPECTED_LINE_COUNTS = {1: 1885, 2: 2213, 3: 5196, 4: 2247, 5: 2485}
     EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
-    EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 5}
+    EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 6}
     EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 
     @classmethod
@@ -1229,7 +1229,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_13298_line_total(self):
         total = sum(self.EXPECTED_LINE_COUNTS.values())
-        self.assertEqual(total, 13994)
+        self.assertEqual(total, 14026)
         self.assertIn(f"**{total:,} lines total**", self.structure_text)
 
     def test_actual_worked_example_counts_match_expected(self):
@@ -1246,7 +1246,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "headings, not the figure this refresh was based on",
                 )
 
-    def test_structure_doc_states_44_worked_examples_with_domain_3_breakdown(self):
+    def test_structure_doc_states_45_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
         self.assertEqual(total, 45)
         anchor = "worked-example sections in total"
@@ -1309,9 +1309,9 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "the figure this refresh was based on",
                 )
 
-    def test_structure_doc_states_44_mermaid_diagram_grand_total(self):
+    def test_structure_doc_states_45_mermaid_diagram_grand_total(self):
         domain_total = sum(self.EXPECTED_MERMAID_DIAGRAMS.values())
-        self.assertEqual(domain_total, 39)
+        self.assertEqual(domain_total, 40)
         concept_map_total = self._mermaid_count(
             DOCS_DIR / "cross-domain-concept-map.md"
         )
@@ -1321,7 +1321,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
         self.assertEqual(concept_map_total, 2)
         self.assertEqual(decision_guide_total, 3)
         grand_total = domain_total + concept_map_total + decision_guide_total
-        self.assertEqual(grand_total, 44)
+        self.assertEqual(grand_total, 45)
 
         diagrams_idx = self.structure_text.find("**Diagrams:**")
         self.assertNotEqual(diagrams_idx, -1)

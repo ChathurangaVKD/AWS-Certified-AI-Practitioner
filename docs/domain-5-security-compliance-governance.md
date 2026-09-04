@@ -1182,6 +1182,38 @@ functions: **Govern** (cultivate a risk-management culture), **Map**
 RMF is guidance an organization chooses to adopt — it is not legally
 binding.
 
+**Visual summary — mapping the NIST AI RMF's four functions to AWS
+services:** the functions operate as a continuous cycle across an AI
+system's lifecycle, not a one-time checklist; the diagram below shows the
+AWS services that most directly support each one:
+
+```mermaid
+flowchart TD
+    GOVERN["GOVERN\ncultivate a risk-management\nculture and assign accountability"] --> AUDITMGR_G["AWS Audit Manager\nmaps governance controls to\ncontinuous evidence collection"]
+    GOVERN --> CONFIG_G["AWS Config\norganization-wide conformance\npacks enforce AI governance rules"]
+    GOVERN --> MODELCARDS_G["SageMaker Model Cards\ndocument model owners,\nintended use, and risk rating"]
+
+    MAP["MAP\nidentify context, intended use,\nand risks of the AI system"] --> MODELCARDS_M["SageMaker Model Cards\nrecord intended use,\nlimitations, and stakeholders"]
+    MAP --> CLARIFY_M["SageMaker Clarify\npre-training bias report\nsurfaces context and data risk"]
+    MAP --> BEDROCK_M["Amazon Bedrock\nmodel selection and\nuse-case scoping"]
+
+    MEASURE["MEASURE\nassess and track risk\nwith quantitative metrics"] --> CLARIFY_ME["SageMaker Clarify\npost-training bias and\nexplainability metrics"]
+    MEASURE --> MONITOR_ME["SageMaker Model Monitor\ndata-quality and\nmodel-drift metrics"]
+    MEASURE --> GUARDRAILS_ME["Guardrails for Amazon Bedrock\ncontent-filtering and\nresponsible-AI evaluations"]
+    MEASURE --> CLOUDTRAIL_ME["AWS CloudTrail\nlogs every API call\nfor an auditable trail"]
+
+    MANAGE["MANAGE\nprioritize and respond\nto identified risks"] --> CONFIG_MA["AWS Config\ncontinuous compliance\ntracking and auto-remediation"]
+    MANAGE --> AUDITMGR_MA["AWS Audit Manager\nongoing evidence for\nrisk-response reporting"]
+    MANAGE --> MONITOR_MA["SageMaker Model Monitor\ntriggers retraining when\ndrift crosses a threshold"]
+```
+
+**Exam tip:** Govern is the cross-cutting foundation (policies, roles, and
+accountability); Map, Measure, and Manage repeat throughout the AI
+system's lifecycle. A scenario naming a specific service — e.g., "which
+service documents intended use and limitations before deployment?" — is
+really asking which NIST function that service supports (Map, in that
+example).
+
 #### Mini-quiz: Test your understanding of GDPR, HIPAA, and the NIST AI RMF
 
 Quick self-check before moving on — try to answer before reading the

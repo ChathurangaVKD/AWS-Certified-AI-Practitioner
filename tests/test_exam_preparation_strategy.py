@@ -249,6 +249,92 @@ class TestExamPreparationStrategyCoverage(unittest.TestCase):
         )
 
 
+class TestExamPreparationStrategyMiniQuizGuidance(unittest.TestCase):
+    """The exam prep guide discusses domain practice questions, cross-domain
+    scenario questions, and the two mock exams, but historically omitted the
+    35 mini-quizzes embedded within each domain guide's own sections. Verify
+    the guide now explains what they are, where they live, and how they
+    differ from the other, summative practice material."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+
+    def test_has_mini_quiz_subsection(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^### Mini-quizzes", re.M),
+            "expected a 'Mini-quizzes' subsection explaining the embedded "
+            "in-domain self-checks",
+        )
+
+    def test_mini_quiz_subsection_is_nested_under_time_management(self):
+        # Mirrors test_pacing_section_is_nested_under_time_management above:
+        # this subsection should live inside Section 1, not stand alone.
+        section_1_start = self.text.index("## 1. Exam format and time management")
+        section_2_start = self.text.index(
+            "## 2. Domain weights and high-yield focus areas"
+        )
+        mini_quiz_start = self.text.index("### Mini-quizzes")
+        self.assertTrue(
+            section_1_start < mini_quiz_start < section_2_start,
+            "the mini-quiz subsection should appear between Section 1's "
+            "start and Section 2's start",
+        )
+
+    def test_mini_quiz_subsection_states_the_count_and_placement_facts(self):
+        mini_quiz_start = self.text.index("### Mini-quizzes")
+        section_2_start = self.text.index(
+            "## 2. Domain weights and high-yield focus areas"
+        )
+        mini_quiz_text = self.text[mini_quiz_start:section_2_start]
+
+        for fragment in [
+            "35",
+            "5–8 per domain",
+        ]:
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, mini_quiz_text)
+
+        # Markdown source-wraps long lines, so allow whitespace (including a
+        # literal newline) between the two words instead of requiring an
+        # exact substring match.
+        self.assertRegex(
+            mini_quiz_text,
+            re.compile(r"table\s+of\s+contents", re.IGNORECASE),
+            "expected the mini-quiz guidance to explain that mini-quizzes "
+            "are intentionally left out of the domain guides' tables of "
+            "contents",
+        )
+
+    def test_mini_quiz_subsection_distinguishes_formative_from_summative(self):
+        mini_quiz_start = self.text.index("### Mini-quizzes")
+        section_2_start = self.text.index(
+            "## 2. Domain weights and high-yield focus areas"
+        )
+        mini_quiz_text = self.text[mini_quiz_start:section_2_start]
+
+        self.assertIn("formative", mini_quiz_text.lower())
+        self.assertIn(
+            "summative",
+            mini_quiz_text.lower(),
+            "expected the mini-quiz guidance to explicitly contrast "
+            "formative in-section quizzes with summative practice material",
+        )
+        # Must reference at least one of the other practice-material layers
+        # it's being distinguished from.
+        self.assertRegex(
+            mini_quiz_text,
+            re.compile(r"practice questions|scenario questions|mock exam", re.IGNORECASE),
+        )
+
+    def test_intro_links_to_mini_quiz_subsection(self):
+        # The top-of-page summary of what this guide covers should point
+        # readers at the mini-quiz subsection, same as it does for the
+        # numbered sections.
+        self.assertIn("#mini-quizzes-formative-checks-while-you-study", self.text)
+
+
 class TestExamPreparationStrategyLinksResolve(unittest.TestCase):
     """This page's value comes from linking back into the domain guides it
     consolidates. Verify every relative markdown link (optionally with a

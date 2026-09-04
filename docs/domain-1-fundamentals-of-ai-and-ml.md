@@ -8,6 +8,7 @@
 
 - [1. Basic AI/ML/DL terminology and concepts](#1-basic-aimldl-terminology-and-concepts)
 - [2. The ML development lifecycle](#2-the-ml-development-lifecycle)
+  - [SageMaker Autopilot vs. manual model training](#sagemaker-autopilot-vs-manual-model-training)
   - [Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand](#worked-example-estimating-training-cost-for-the-loan-default-predictor-sagemaker-managed-spot-training-vs-on-demand)
   - [Production deployment strategies and model versioning](#production-deployment-strategies-and-model-versioning)
     - [Worked example: promoting a new model version with canary deployment via SageMaker Model Registry](#worked-example-promoting-a-new-model-version-with-canary-deployment-via-sagemaker-model-registry)
@@ -279,6 +280,50 @@ when accuracy degrades.
 > evaluate/tune → deploy → monitor. Also know that **Feature Store** exists
 > specifically to prevent *training/serving skew* (features computed
 > differently at training time vs. inference time).
+
+### SageMaker Autopilot vs. manual model training
+
+Step 5 above names **SageMaker** built-in algorithms and **JumpStart** as
+the tools for the model-training stage, but AIF-C01 also expects you to
+recognize a third option that sits *across* several lifecycle stages at
+once: **SageMaker Autopilot**.
+
+**What Autopilot does.** Given a tabular dataset and a target column,
+Autopilot automates the stages this section just walked through as
+separate, manual steps: it inspects the data, applies feature
+engineering (imputing missing values, encoding categoricals, scaling),
+tries multiple algorithms (e.g., linear models, XGBoost, deep learning),
+tunes each candidate's hyperparameters, and ranks the resulting models on
+a validation metric — producing a leaderboard of candidate pipelines you
+can inspect, and optionally a **notebook** showing exactly what it did at
+each step, which keeps the process from being an opaque black box.
+
+**When to use Autopilot vs. manual training.**
+
+| Use Autopilot when... | Use manual training when... |
+|---|---|
+| You need a fast baseline to sanity-check whether a hand-built model is worth the extra effort | The use case needs a **custom algorithm** Autopilot doesn't try (e.g., a novel neural network architecture) |
+| You're rapidly prototyping and want to establish "what accuracy is achievable" before investing engineering time | You need **domain-specific feature engineering** beyond generic imputation/encoding/scaling (e.g., a hand-crafted debt-to-income ratio, domain-specific text features) |
+| The team has limited ML expertise and needs a reasonable model quickly | You need a **custom loss function** or training objective tailored to the business problem |
+| The dataset is tabular and the problem is standard (classification/regression) | The data is image, audio, or unstructured text requiring a deep-learning architecture built and tuned by hand |
+
+**Autopilot's limitations.** Autopilot's feature-engineering steps are
+**fixed and automatic** — it chooses from its own built-in transformations
+and does not accept a hand-designed feature (like a domain-specific ratio
+or an externally engineered signal) as an input to its search. It also
+does not support **custom loss functions**: it optimizes the objective
+metric you select from its supported list (e.g., F1, accuracy, MSE), not
+an arbitrary business-defined cost function. When a problem needs feature
+engineering that encodes domain expertise, or an objective Autopilot
+doesn't expose, a manually built SageMaker training job — not Autopilot —
+is the right tool.
+
+> **Exam tip:** A scenario that says "quickly establish a baseline" or
+> "the team has little ML expertise and needs a model fast" points to
+> **SageMaker Autopilot**. A scenario that mentions a **custom loss
+> function**, **domain-specific feature engineering**, or a **novel model
+> architecture** is telling you Autopilot's automation can't do that step,
+> and manual **SageMaker** training is the correct answer instead.
 
 ### Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand
 

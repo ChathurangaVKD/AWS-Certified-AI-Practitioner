@@ -16,6 +16,12 @@ covers:
 5. [1-week / 2-week / 4-week study plans](#5-study-plans)
 6. [Topic-based review quick reference](#6-topic-based-review-quick-reference)
 
+This guide's self-assessment advice spans two layers: the in-domain
+[mini-quizzes](#mini-quizzes-formative-checks-while-you-study) you take
+*while* reading a domain, and the end-of-domain practice questions,
+cross-domain scenario questions, and mock exams covered in Sections 1 and 5
+that you take *after*.
+
 This guide does not introduce new exam content — every fact and trap here is
 drawn from (and links back to) the five domain guides. Use it as the
 "how do I actually prepare" companion to their "what do I need to know."
@@ -101,6 +107,37 @@ target for that type, not the overall average:
   flagged question *before* time is at risk of running out, then use any
   remaining time to revisit flagged questions in order and reconsider them
   with fresh eyes.
+
+### Mini-quizzes: formative checks while you study
+
+Beyond the practice-question sets described above, each of the five domain
+guides also embeds **35 short mini-quizzes directly within its sections**
+(5–8 per domain), each placed right where the material it tests was just
+taught, under a heading like `#### Mini-quiz: Test your understanding of
+[topic]`. They are **intentionally left out of every domain guide's table
+of contents** — you're meant to run into them naturally as you read a
+section, not navigate to them directly.
+
+Use a mini-quiz the moment you reach it: it's a **formative** check on the
+paragraph or subsection you just finished, not a substitute for the
+**summative** practice material covered elsewhere on this page.
+
+- **Mini-quiz (35 total, embedded in-section):** "Did I understand what I
+  just read?" Take it immediately after the subsection it follows, before
+  moving on to the next topic.
+- **Domain practice questions (end of each domain guide):** "Can I apply
+  this domain's material, under exam-style conditions, once the whole
+  domain is behind me?" Take these after finishing the entire domain, not
+  after a single subsection — see [Section 1 above](#1-exam-format-and-time-management).
+- **Cross-domain scenario questions and the two mock exams:** "Can I
+  combine material from multiple domains the way the real exam does?"
+  Save these for after all five domains are done — see
+  [Section 5](#5-study-plans).
+
+If you get a mini-quiz question wrong, re-read the subsection right then —
+correcting a gap while it's still the topic on screen is far cheaper than
+waiting to discover the same gap later in a domain's practice questions or,
+worse, on the mock exam.
 
 ---
 

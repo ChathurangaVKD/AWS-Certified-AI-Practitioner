@@ -1557,6 +1557,103 @@ a safety- or compliance-critical one — the technique that's "obviously
 right" changes with the stakes of the task, not just the size of the GPU
 budget.
 
+#### QLoRA in production: inference-latency profile and generalized quality-metric thresholds
+
+The two subsections above quantify the *training-time* cost of each
+technique (GPU memory to run the fine-tuning job, wall-clock training
+time) and walk through *one* pair of metrics (ROUGE-L plus a safety
+metric) for *one* domain (clinical documentation). Two questions the
+exam can also ask sit outside that scope: what happens to **inference
+latency** once the fine-tuned model is actually deployed behind an
+endpoint, and how do the standard NLP quality metrics — **BLEU, ROUGE,
+and F1** — degrade in general, not just in the one worked example
+above? This subsection closes both gaps and folds them into a single
+decision rule.
+
+**Inference latency depends on how the adapter is served, not on which
+technique trained it.** A LoRA or QLoRA adapter can be served in two
+different ways, and that choice — not the training technique itself —
+is what determines inference latency:
+
+- **Merged for serving** — the small adapter matrices are mathematically
+  folded back into the base model's weights once, after training,
+  producing a single dense weight matrix the same shape as a fully
+  fine-tuned model. A **LoRA-merged** model serves at the same latency
+  as full fine-tuning — merging removes any adapter-related overhead at
+  inference time. A **QLoRA-merged** model must first be dequantized
+  back to fp16/bf16 before merging (a full-precision adapter can't be
+  merged into a 4-bit base without a precision mismatch), so it also
+  serves at full-precision baseline latency — but this discards QLoRA's
+  memory savings at serving time; you're using QLoRA only to make
+  *training* cheap, then serving a normal-size model.
+- **Kept unmerged for serving** — the adapter stays separate from the
+  base model, typically so many task- or customer-specific adapters can
+  share one loaded base model and be swapped per request (a common
+  multi-tenant pattern). This adds a small extra matrix multiplication
+  per forward pass for LoRA (a modest latency tax), and for QLoRA adds
+  both that adapter overhead **and** a repeated dequantization cost for
+  the 4-bit base weights on every forward pass — the same
+  memory-for-compute trade that made QLoRA cheap to train now makes it
+  slower to serve.
+
+**Comparison table — approximate relative inference latency by serving
+strategy:**
+
+| Serving strategy | Approx. inference latency (relative to full fine-tuning) | Memory footprint at serving time | When it's used |
+|---|---|---|---|
+| Full fine-tuning (dense weights) | 1.0x (baseline) | Full model size | Single dedicated task, no adapter-swapping need |
+| LoRA, merged | ~1.0x (same as full fine-tuning) | Full model size | Single task, want zero runtime overhead |
+| LoRA, unmerged | ~1.05–1.15x (small adapter compute added per request) | Full model size + tiny adapter | Multiple task adapters sharing one loaded base model |
+| QLoRA, merged (dequantized) | ~1.0x (same as full fine-tuning, after dequantizing to merge) | Full model size (memory savings lost at serving time) | Trained cheaply on a small GPU, then served like a normal model |
+| QLoRA, unmerged (served quantized) | ~1.15–1.3x (adapter compute + repeated dequantization overhead) | Reduced (quantized base + tiny adapter) | Memory-constrained serving, or many adapters sharing one quantized base |
+
+> **Exam tip:** don't assume "QLoRA" automatically means "cheaper *and*
+> faster to serve." QLoRA's memory savings are real at **training** time
+> regardless of what you do next, but at **serving** time they only
+> persist if you keep the model quantized — which adds latency. If a
+> scenario needs both a small memory footprint *and* low inference
+> latency at serving time, that combination doesn't exist for QLoRA —
+> you either accept the latency tax of serving it quantized, or
+> dequantize/merge it and lose the memory saving.
+
+**Quality degradation, generalized across BLEU, ROUGE, and F1 — not
+just the clinical ROUGE-L example above.** The worked example earlier
+scored one task on ROUGE-L and a safety metric. The table below
+broadens that to the three metric families the exam most often pairs
+with fine-tuning questions, as **illustrative, order-of-magnitude
+approximations** (exact numbers vary by task, dataset size, and LoRA
+rank) relative to full fine-tuning as the reference:
+
+| Technique | BLEU (translation/generation) | ROUGE-L (summarization) | F1 (classification/extraction) |
+|---|---|---|---|
+| Full fine-tuning | Reference (100%) | Reference (100%) | Reference (100%) |
+| LoRA | -0.5 to -2 points (~98–99% relative) | -1 to -2 points (~98–99% relative) | -0.5 to -1.5 points (~98–99% relative) |
+| QLoRA | -1.5 to -4 points (~93–97% relative) | -2 to -5 points (~93–97% relative) | -1 to -3 points (~93–97% relative) |
+
+**Decision guidance — is QLoRA sufficient, or is full fine-tuning
+required?** Combine the latency table and the quality-degradation table
+above with the task's own requirements:
+
+1. **Define the quality floor first**, in whatever metric the task
+   actually uses (a BLEU/ROUGE point count, an F1 threshold, or a
+   safety-error rate as in the clinical worked example above) — never
+   start from "QLoRA is cheaper" and work backward from there.
+2. **QLoRA is sufficient** when the quality floor tolerates a few points
+   of BLEU/ROUGE/F1 loss (a non-safety-critical internal tool, an
+   exploratory prototype, a task with a forgiving human-in-the-loop
+   review step) **and** either training-time GPU memory is the binding
+   constraint, or the plan is to dequantize/merge before serving so
+   inference latency stays at baseline.
+3. **Full fine-tuning is required** when the quality floor allows less
+   than roughly **1 point** of degradation on the task's metric, or when
+   the cost of a single bad output (a clinical, legal, or financial
+   error) outweighs the GPU savings — the clinical-documentation
+   scenario in the worked example above is the canonical case.
+4. **LoRA is the middle ground** whenever a mid-size GPU is available:
+   it clears tighter quality floors than QLoRA (its 1–2 point gap is
+   often within noise) while still costing far less than full
+   fine-tuning, and it serves at baseline latency once merged.
+
 #### Mini-quiz: Test your understanding of customization approach trade-offs
 
 Quick self-check before moving on — try to answer before reading the

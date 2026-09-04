@@ -46,13 +46,13 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,885–4,992 lines each, **13,728 lines total**:
+domain, currently 1,885–4,992 lines each, **13,746 lines total**:
 
 - Domain 1: 1,885 lines
 - Domain 2: 2,169 lines
 - Domain 3: 4,992 lines
 - Domain 4: 2,247 lines
-- Domain 5: 2,435 lines
+- Domain 5: 2,453 lines
 
 All five follow the same template:
 
@@ -255,6 +255,21 @@ than retraining the model — contrasting this generative-AI-specific
 monitoring approach with the classical accuracy/precision/recall drift
 monitoring described earlier in the same subsection.
 
+Domain 5 also has a ninth nested "####"-level worked-example subsection,
+nested inside the "Common security threats to AI systems and how to
+mitigate them" subsection right after the indirect-prompt-injection AWS
+example and before the model-inversion/extraction AWS example: "#### Worked
+example: indirect prompt injection via an untrusted document in a RAG
+knowledge base." It walks a customer-support chatbot's Bedrock Knowledge
+Base through ingesting an unmoderated customer-forum thread carrying a
+hidden injection payload, an unrelated customer's query retrieving that
+poisoned document, and the resulting leak — then contrasts Guardrails for
+Amazon Bedrock's post-hoc, per-request input/output filtering (the
+direct-injection mitigation) with the pre-ingestion data
+validation/sanitization of untrusted source documents (plus Amazon Macie
+for sensitive-data discovery) that indirect injection additionally
+requires.
+
 Domain 1 also has a second nested "###"-level worked-example subsection,
 alongside the canary-deployment one: "### Worked example: estimating
 training cost for the loan-default predictor: SageMaker managed spot
@@ -281,10 +296,11 @@ subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training,
-cost-optimization-SLA-tradeoffs, and hallucination-rate-drift-monitoring
-subsections), the five domain guides mark **41
-worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 15 in
-Domain 3, 8 in Domain 4, and 10 in Domain 5, plus further example content
+cost-optimization-SLA-tradeoffs, hallucination-rate-drift-monitoring, and
+indirect-prompt-injection-RAG-defense subsections), the five domain guides
+mark **44
+worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 17 in
+Domain 3, 8 in Domain 4, and 11 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 Every depth gap previously flagged against this documentation is now

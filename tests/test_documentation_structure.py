@@ -1317,14 +1317,14 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "headings, not the figure this refresh was based on",
                 )
 
-    def test_structure_doc_states_39_worked_examples_with_domain_3_breakdown(self):
+    def test_structure_doc_states_44_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
-        self.assertEqual(total, 41)
+        self.assertEqual(total, 44)
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(idx, -1)
         window = self.structure_text[max(0, idx - 50) : idx + 300]
-        self.assertIn("41", window)
+        self.assertIn("44", window)
         for domain_number, count in self.EXPECTED_WORKED_EXAMPLES.items():
             with self.subTest(domain=domain_number):
                 self.assertRegex(

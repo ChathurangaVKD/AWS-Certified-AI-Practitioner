@@ -88,7 +88,14 @@ weigh against each other, since improving one often costs you on another:
   customized (fine-tuned) if needed. On **Amazon Bedrock**, you can
   compare and swap foundation models from multiple providers (Amazon,
   Anthropic, AI21 Labs, Cohere, Meta, Mistral AI, Stability AI) behind a
-  single unified API without re-architecting your application.
+  single unified API without re-architecting your application. Within
+  Amazon's own **Nova** family alone, selection spans seven variants
+  across four modalities — see [Domain 2's Nova comparison
+  table](domain-2-fundamentals-of-generative-ai.md#comparing-amazon-nova-model-variants)
+  for how the text-oriented **Nova Micro**, **Nova Lite**, **Nova Pro**,
+  and **Nova Premier** tiers trade off cost and latency against
+  **Nova Canvas** (image), **Nova Reel** (video), and **Nova Sonic**
+  (speech).
 - **Cost** — generative AI inference is typically billed per input/output
   **token** (on-demand) or as a flat rate for reserved capacity
   (**provisioned throughput**, [Section 5](#5-amazon-bedrock-features)). Larger, more capable models

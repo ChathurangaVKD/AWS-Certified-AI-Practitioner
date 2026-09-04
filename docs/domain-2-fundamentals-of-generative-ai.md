@@ -15,6 +15,7 @@
 - [6. Prompt engineering fundamentals](#6-prompt-engineering-fundamentals)
   - [Cost and latency implications of temperature, top-p, and top-k](#cost-and-latency-implications-of-temperature-top-p-and-top-k)
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
+  - [Comparing Amazon Nova model variants](#comparing-amazon-nova-model-variants)
 - [Worked example: estimating tokens for RAG retrieval and long-document summarization](#worked-example-estimating-tokens-for-rag-retrieval-and-long-document-summarization)
 - [Worked example: building an end-to-end generative AI support assistant](#worked-example-building-an-end-to-end-generative-ai-support-assistant)
 - [Worked example: selecting and comparing models for a real-time voice assistant use case](#worked-example-selecting-and-comparing-models-for-a-real-time-voice-assistant-use-case)

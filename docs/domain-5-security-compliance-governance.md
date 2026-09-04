@@ -1587,7 +1587,23 @@ excluded or redacted before ingestion.
 (PII/PHI) in storage, the answer is Amazon Macie. If it's about
 *operational metrics/logs*, it's CloudWatch. If it's about *threat
 detection*, it's GuardDuty. These three are commonly offered as
-distractors for each other.
+distractors for each other. CloudWatch's operational metrics above are
+infrastructure- and classical-ML-drift-focused; monitoring a generative
+AI application's *output quality* over time needs different metrics
+entirely (see [worked example
+below](#worked-example-monitoring-hallucination-rate-drift-in-a-production-rag-assistant)).
+
+#### Worked example: monitoring hallucination rate drift in a production RAG assistant
+
+**The scenario.** Aurora Benefits Co. launches a Bedrock RAG assistant that answers employee questions against a Bedrock Knowledge Base of benefits-policy documents. At launch, a weekly human-graded sample of 200 conversations shows a **hallucination rate** of 2% — answers containing a claim unsupported by any retrieved passage. Three months later, with no code or model change, the same sample shows the rate has drifted to 8%, traced to policy documents updated in the knowledge base without a matching re-embedding pass, so the retriever keeps returning stale passages that no longer match current wording.
+
+**Detecting and quantifying the drift.** There's no ground-truth label for "hallucinated," so the team can't reuse SageMaker Model Monitor's baseline-vs.-live statistical checks built for a classical model's prediction distribution. Instead, a stratified weekly sample is scored two ways: a Bedrock LLM-as-judge call rates **factual consistency** between each answer and its cited passages, and a small human-reviewed subset audits that judge's accuracy. Both scores publish as custom CloudWatch metrics (namespace `RAGAssistant/Quality`: `HallucinationRate`, `FactualConsistencyScore`), reusing the same alarming already used for infrastructure metrics.
+
+**Thresholds and alarms.** A CloudWatch alarm on `HallucinationRate` warns at 4% — roughly two standard deviations above the 2% baseline — and pages on-call via SNS at 6%; a companion alarm on `FactualConsistencyScore` catches erosion a coarse hallucinated/not-hallucinated label might miss.
+
+**Remediation, and how this differs from classical drift monitoring.** Classical model drift — accuracy or precision/recall degrading against a held-out set — is fixed by retraining the model. Here the model hasn't changed; the **knowledge base** drifted out of sync with it. Remediation means refreshing and re-embedding the knowledge base and retuning retrieval (chunking, reranking), not retraining or fine-tuning the model.
+
+**Exam tip:** If a RAG application's answer quality degrades over time with no model or code change, suspect a stale or unsynced knowledge base, and expect the fix to be knowledge-base refresh/re-embedding — not model retraining, which is the classical-ML-drift answer instead.
 
 #### Mini-quiz: Test your understanding of data governance strategies
 

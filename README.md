@@ -103,6 +103,15 @@ for a single company building one AI system — from a classical ML model,
 through evaluating and customizing a foundation model, to addressing bias
 and securing/governing the deployed result — across all five domains.
 
+## Full-length mock exam
+
+Each domain guide's practice questions are domain-siloed (15–20 questions,
+one domain at a time). For rehearsal under real exam conditions, see
+[`docs/mock-exam.md`](docs/mock-exam.md): a single 65-question mock exam
+mixed across all five domains in the exam's own weight proportions
+(13/16/18/9/9 questions for Domains 1–5), a 90-minute timing budget, and a
+full answer key with explanations tagged by domain.
+
 ## Status
 
 This series is generated and kept current by gd-autopilot's own

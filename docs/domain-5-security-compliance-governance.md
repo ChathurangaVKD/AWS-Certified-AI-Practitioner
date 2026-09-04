@@ -1590,8 +1590,7 @@ detection*, it's GuardDuty. These three are commonly offered as
 distractors for each other. CloudWatch's operational metrics above are
 infrastructure- and classical-ML-drift-focused; monitoring a generative
 AI application's *output quality* over time needs different metrics
-entirely (see [worked example
-below](#worked-example-monitoring-hallucination-rate-drift-in-a-production-rag-assistant)).
+entirely (see [worked example below](#worked-example-monitoring-hallucination-rate-drift-in-a-production-rag-assistant)).
 
 #### Worked example: monitoring hallucination rate drift in a production RAG assistant
 

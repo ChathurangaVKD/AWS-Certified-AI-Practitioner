@@ -1229,7 +1229,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_13298_line_total(self):
         total = sum(self.EXPECTED_LINE_COUNTS.values())
-        self.assertEqual(total, 13797)
+        self.assertEqual(total, 13867)
         self.assertIn(f"**{total:,} lines total**", self.structure_text)
 
     def test_actual_worked_example_counts_match_expected(self):

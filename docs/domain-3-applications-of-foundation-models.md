@@ -14,6 +14,8 @@
   - [Fine-tuning efficiency techniques: full fine-tuning vs. LoRA vs. QLoRA vs. instruction tuning](#fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning)
   - [Reinforcement Learning from Human Feedback (RLHF): aligning fine-tuned models to human preferences](#reinforcement-learning-from-human-feedback-rlhf-aligning-fine-tuned-models-to-human-preferences)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
+  - [Guardrails rule-type decision tree: matching the use case to the right filter](#guardrails-rule-type-decision-tree-matching-the-use-case-to-the-right-filter)
+    - [Worked example: preventing brand-mention violations in product recommendations](#worked-example-preventing-brand-mention-violations-in-product-recommendations)
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
@@ -1745,6 +1747,100 @@ throughput** instead of paying on-demand rates.
 > throughput for a custom/fine-tuned model at high, steady volume" →
 > **provisioned throughput**; "unpredictable/low/spiky volume, pay only
 > for what's used" → **on-demand**.
+
+### Guardrails rule-type decision tree: matching the use case to the right filter
+
+The bullet list above names Guardrails' five rule types — denied topics,
+content filters, word filters, sensitive information (PII) filters, and
+contextual grounding checks — but naming them isn't the same as knowing
+**which one to reach for**. Each rule type matches content a different
+way (exact string, built-in ML classifier, custom semantic topic, or
+source-comparison), so picking the wrong one for a use case either misses
+the violation entirely or burns evaluation cost on a heavier check than
+the job needs. The flowchart below starts from four common use cases the
+exam and real deployments both test — **PII prevention**, **brand
+safety**, **topic restriction**, and **factual grounding** — and routes
+each to its most efficient rule type:
+
+```mermaid
+flowchart TD
+    START(["Which Guardrails rule type fits\nthis safety requirement?"])
+    START --> Q1{"Does it involve detecting or\nredacting personal data (names,\nSSNs, emails, phone numbers,\naccount numbers) in prompts\nor responses?"}
+    Q1 -->|"YES - PII prevention"| PII["SENSITIVE INFORMATION FILTERS\nBuilt-in PII entity types (or a\ncustom regex) are matched and\nmasked/blocked - no semantic\nreasoning needed, so it's the\ncheapest, most deterministic\nfilter for this job"]
+    Q1 -->|"NO"| Q2{"Is the requirement a known,\nfixed list of exact strings to\nblock (competitor names,\nprofanity, banned phrases)?"}
+    Q2 -->|"YES - brand safety"| WORD["WORD FILTERS\nExact string/pattern match\nagainst a configured list -\ncheapest and lowest-latency\nrule type, because the list of\nbad strings is fully known in\nadvance and needs no semantic\njudgment"]
+    Q2 -->|"NO"| Q3{"Must the model avoid an entire\nsubject area regardless of\nhow it's phrased (e.g., \"never\ngive medical/legal/financial\nadvice\"), not just a fixed list\nof words?"}
+    Q3 -->|"YES - topic restriction"| DENIED["DENIED TOPICS\nA natural-language topic\ndefinition is matched\nsemantically, so paraphrases\nand indirect phrasing are\ncaught too - the right tool\nwhen the banned subject can't\nbe reduced to a word list"]
+    Q3 -->|"NO"| Q4{"Is it a standard harmful-content\ncategory (hate, insults, sexual,\nviolence, misconduct, prompt\ninjection) rather than a\nbusiness-specific topic?"}
+    Q4 -->|"YES - general content safety"| CONTENT["CONTENT FILTERS\nBuilt-in ML classifiers score\neach harm category at a\nconfigurable strength threshold\n- no custom topic or word list\nto author"]
+    Q4 -->|"NO - factual grounding"| GROUND["CONTEXTUAL GROUNDING CHECKS\nCompares the response against\nthe supplied source content and\nblocks claims the source\ndoesn't support - the only rule\ntype that evaluates factual\nconsistency, so it's what to\nreach for against hallucination"]
+```
+
+| Use case | Rule type | How it matches | Why it's the efficient choice |
+|---|---|---|---|
+| **PII prevention** | Sensitive information filters | Built-in PII entity recognizers (or custom regex) scanning for identifiers | Deterministic pattern matching — no ML inference needed to decide "is this a phone number," so it's fast and precise |
+| **Brand safety** (banned/competitor names) | Word filters | Exact string/pattern match against a configured list | The set of bad strings is fully known ahead of time; matching it semantically (e.g., via denied topics) would add latency and cost for no accuracy gain |
+| **Topic restriction** (e.g., "no medical advice") | Denied topics | Semantic match against a natural-language topic description | Catches paraphrases a word list would miss — the topic can be raised infinitely many ways, so an exact-match rule under-blocks it |
+| **Factual grounding** (reduce hallucination) | Contextual grounding checks | Compares the response's claims against provided source content | It's the only rule type that checks *truthfulness relative to a source* — content filters, word filters, and denied topics all evaluate the text in isolation, not against a ground truth |
+| General harmful content (hate, violence, sexual, prompt injection) | Content filters | Built-in ML classifiers per harm category, at a configurable strength | Purpose-built categories mean no topic or word list to author or maintain |
+
+#### Worked example: preventing brand-mention violations in product recommendations
+
+A retailer's Bedrock-powered shopping assistant recommends products from
+the retailer's own catalog. Legal flags a recurring problem: the FM
+occasionally recommends or favorably compares a **named competitor's
+product** ("this is similar to [CompetitorBrand]'s model, which some
+shoppers prefer") — a brand-safety violation the team needs blocked
+before the response ever reaches a customer.
+
+1. **Rule out the wrong-but-tempting options first.** A **content
+   filter** category doesn't apply — mentioning a competitor by name
+   isn't hate, violence, sexual, or misconduct content, so no content
+   filter threshold would ever trigger on it. **Contextual grounding
+   checks** don't apply either — the assistant isn't contradicting a
+   source document; it's raising a brand-safety issue, not a factual
+   one. Both would need to be paired with something else and neither
+   catches this case on its own.
+2. **Denied topics is a plausible but inefficient fit.** A denied topic
+   like "discussing competitor products" would eventually catch this,
+   but it costs a full semantic evaluation on every single response, and
+   because the exact set of competitor names is finite and already known
+   to the retailer, that semantic reasoning is unnecessary overhead — the
+   same accuracy is available for less cost and latency.
+3. **Word filters are the efficient match.** The retailer maintains a
+   finite, known list of competitor brand names (e.g., `CompetitorBrand`,
+   `RivalCo`, `OtherStore`). Because the list is exact and known in
+   advance, a **word filter** configured with those brand names as
+   *custom words to block* catches every literal mention at the lowest
+   possible cost — a string match, not an ML inference call — with no
+   risk of the semantic check missing an unusual phrasing or of blocking
+   unrelated "competitor" discussion the topic-level rule would over-catch.
+4. **Configure and test it.** The team adds the competitor names to a
+   Guardrails **word filter** list with the action set to **block**, and
+   attaches the Guardrail to the recommendation model's invocation. A
+   test prompt — "What's a good alternative to the [CompetitorBrand]
+   blender?" — that previously produced a response naming
+   `CompetitorBrand` now returns Guardrails' configured blocked-message
+   response instead, because the output text matched a filtered word
+   before it reached the customer.
+5. **Revisit if the list changes shape.** If the requirement later grows
+   from "block a known list of names" into "never discuss competitors in
+   any form, including unnamed comparisons like 'other retailers'
+   ('avoid comparisons with any other retailer, named or not')," that's a
+   sign the use case has shifted from an exact-match brand-safety problem
+   to a semantic topic-restriction one, and **denied topics** — not an
+   ever-growing word list — becomes the efficient choice instead.
+
+> **Exam tip:** If a scenario gives you a **specific, known list of
+> strings** to block (brand names, profanity, banned phrases), that's
+> **word filters** — the cheapest match for a fixed set. If it describes
+> an entire **subject area** to avoid regardless of phrasing, that's
+> **denied topics**. If it's about **redacting personal data**, that's
+> **sensitive information filters**. If it's about the model
+> **contradicting or inventing facts not in the source**, that's
+> **contextual grounding checks**. A scenario naming a standard harm
+> category (hate, violence, sexual content, prompt injection) instead of
+> a business-specific concern points to **content filters**.
 
 ### Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach
 

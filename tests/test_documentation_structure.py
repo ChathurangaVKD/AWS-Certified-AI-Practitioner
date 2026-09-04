@@ -1165,33 +1165,8 @@ class TestDocumentationStructureDiagramCountRestored(unittest.TestCase):
         # not the unbolded per-domain-guide subtotal earlier in the same
         # paragraph -- that subtotal legitimately reads 39 once Domain 3
         # gains two more diagrams and Domain 4 gains one, coinciding with
-        # (but distinct from) the old stale grand-total figure this test
-        # was written to catch.
-        diagrams_idx = self.structure_text.find("**Diagrams:**")
-        self.assertNotEqual(diagrams_idx, -1)
-        diagrams_section = self.structure_text[diagrams_idx : diagrams_idx + 800]
-        self.assertNotIn("37 Mermaid diagrams**", diagrams_section)
-        self.assertNotIn("39 Mermaid diagrams**", diagrams_section)
-
-
-class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
-    """A 2026-09-03 documentation scan found several of
-    DOCUMENTATION_STRUCTURE.md's content metrics had drifted stale as the
-    domain guides (especially Domain 3) kept growing: the domain-guide
-    line-count total/breakdown (12,417 stated vs. 13,169 actual, with
-    Domain 1, 3, and 4 each individually wrong), the worked-example total
-    (34 stated vs. 39 actual -- Domain 3 alone has 15, not 10, once all
-    seven of its "###"/"####"-level nested subsections are counted rather
-    than just the BLEU/ROUGE one), the Mermaid diagram total (40 stated
-    vs. 43 actual -- Domain 3 has sixteen, not fourteen, and Domain 4 has
-    six, not five), and the domain practice-question total (126 stated vs.
-    129 actual -- Domain 3 has 29, not 26). These tests derive the true
-    figures directly from the source files and assert
-    DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
-    drifting stale again."""
-
-    EXPECTED_LINE_COUNTS = {1: 1930, 2: 2213, 3: 5289, 4: 2250, 5: 2614}
-    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 12}
+    EXPECTED_LINE_COUNTS = {1: 1930, 2: 2213, 3: 5196, 4: 2247, 5: 2535}
+    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
     EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 6}
     EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 

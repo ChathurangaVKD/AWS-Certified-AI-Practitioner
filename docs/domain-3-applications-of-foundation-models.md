@@ -252,6 +252,76 @@ analysis (Haiku); the
 applies the same principle across a wider set of constraints, but the
 takeaway is identical — decide model tier per task, not per product.
 
+**Example 3: AI21 Labs Jamba 2.0 vs. Claude Haiku — high-volume, long-document
+summarization on a tight budget**
+
+*Scenario:* A media-monitoring company ingests several thousand long-form
+documents a day — news wires, earnings-call transcripts, analyst reports
+running up to a couple hundred pages each — and must produce a short
+summary of every one before end of business. No single document demands
+deep multi-step reasoning (it's summarization, not analysis), but the
+sheer daily volume means per-token inference cost, multiplied across
+thousands of long documents, drives the total bill more than any other
+factor. The team has shortlisted two Bedrock models, both known for large
+context windows: **AI21 Labs Jamba 2.0** and **Claude Haiku**.
+
+*Decision factors:*
+
+- **Context window:** both candidates comfortably fit a full document
+  without chunking — Claude Haiku's large (~200K-token) window per the
+  table above, and Jamba 2.0's window, which the [Bedrock model
+  catalog](aws-service-decision-guide.md#4-foundation-model-selection-by-provider-and-use-case)
+  describes as "large, efficient long-context handling." Raw window size
+  doesn't separate the two.
+- **Cost efficiency at scale:** this is where the pair diverges for this
+  scenario. Jamba 2.0 is AI21 Labs' only current Bedrock family, and it's
+  positioned specifically around **efficient inference over long
+  context** — the exam associates it with cues like "long context" and
+  "efficient at scale." Claude Haiku is already the cheapest, fastest tier
+  *within* the Claude family (per the table above), but it's a
+  general-purpose small model rather than one whose defining design goal
+  is long-context cost efficiency specifically. At a handful of documents
+  a day the gap wouldn't matter; multiplied across thousands of daily
+  long-context calls, it compounds into a real difference in the monthly
+  bill, the same way [the monthly cost worked
+  example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+  shows small per-token differences compounding at volume.
+- **Task fit:** both are text-in/text-out, so modality doesn't separate
+  them, and summarization here doesn't call for Claude Sonnet- or
+  Opus-level multi-step reasoning even within the Claude line — Haiku
+  already covers this task's reasoning depth.
+
+*Resolution:* **AI21 Labs Jamba 2.0** is the better fit, because the
+binding constraint isn't "can a model handle one long document" (either
+candidate already can) but "handle thousands of long documents a day as
+cheaply as possible" — exactly the large-context-window-plus-efficient-
+inference combination Jamba 2.0 is built for on Bedrock. If the same
+company instead needed to answer an analyst's nuanced follow-up questions
+about a single transcript, at low volume, where instruction-following
+quality matters more than shaving cost off a bulk batch job, **Claude
+Haiku** would be the better fit — the deciding factor here is genuinely
+volume-driven cost efficiency, not raw capability, and the [foundation
+model selection
+criteria](domain-2-fundamentals-of-generative-ai.md#7-foundation-model-selection-criteria)
+list both cost and context window as separate axes for exactly this
+reason.
+
+*AWS example:* the media-monitoring company selects **AI21 Labs Jamba
+2.0** on **Amazon Bedrock** for its daily bulk summarization pipeline, and
+keeps **Claude Haiku** on the same account for a separate, much
+lower-volume feature — answering ad hoc analyst questions about a specific
+transcript — where per-document reasoning quality matters more than
+shaving cost off a high-volume batch job.
+
+> **Exam tip:** When a scenario emphasizes **volume** ("thousands of
+> documents a day," "at scale") alongside a long-context requirement,
+> don't stop at "which model has the biggest context window" — Claude and
+> Jamba 2.0 can both fit the same document. Look for which model's
+> cost/efficiency profile is built for **repeating that long-context call
+> many times cheaply**, which is what points to **AI21 Labs Jamba 2.0**
+> over a general-purpose model that merely happens to also support a
+> large context window.
+
 > **Exam tip:** When a scenario names two specific models rather than two
 > tiers in the abstract, map each one to the single design consideration
 > ([Section 1](#1-design-considerations-for-foundation-model-applications))

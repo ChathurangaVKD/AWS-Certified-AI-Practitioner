@@ -1246,7 +1246,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     "headings, not the figure this refresh was based on",
                 )
 
-    def test_structure_doc_states_44_worked_examples_with_domain_3_breakdown(self):
+    def test_structure_doc_states_45_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
         self.assertEqual(total, 45)
         anchor = "worked-example sections in total"

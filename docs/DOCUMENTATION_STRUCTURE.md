@@ -321,9 +321,9 @@ RAG troubleshooting (Domain 3's "troubleshooting a failing RAG system"
 worked example), and layering SageMaker Clarify with Bedrock Guardrails
 (Domain 4's Clarify/Guardrails-layering subsection).
 
-**Diagrams:** The five domain guides contain 39 Mermaid flowchart diagrams
+**Diagrams:** The five domain guides contain 40 Mermaid flowchart diagrams
 in total: Domain 1 has seven, Domain 2 has five, Domain 3 has sixteen,
-Domain 4 has six, and Domain 5 has five. `cross-domain-concept-map.md`
+Domain 4 has six, and Domain 5 has six. `cross-domain-concept-map.md`
 adds two more Mermaid diagrams (the "Visual overview" section's
 cross-domain flowchart, and the "Inference deployment pattern comparison"
 section's decision-tree diagram comparing real-time, batch, serverless,
@@ -331,8 +331,8 @@ and provisioned-throughput inference), and
 `aws-service-decision-guide.md` adds three further Mermaid diagrams of its
 own (the Section 4.1 Bedrock model family selection flow, the Section 6
 cost-control flow, and the Section 1 layering-matrix request-path
-diagram), bringing the total to **44 Mermaid
-diagrams** (39 in the domain guides + 2 in
+diagram), bringing the total to **45 Mermaid
+diagrams** (40 in the domain guides + 2 in
 cross-domain-concept-map.md + 3 in aws-service-decision-guide.md).
 
 ## Cross-domain support documents: aws-service-index.md

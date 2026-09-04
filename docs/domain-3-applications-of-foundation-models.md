@@ -270,7 +270,7 @@ context windows: **AI21 Labs Jamba 2.0** and **Claude Haiku**.
 - **Context window:** both candidates comfortably fit a full document
   without chunking — Claude Haiku's large (~200K-token) window per the
   table above, and Jamba 2.0's window, which the [Bedrock model
-  catalog](aws-service-decision-guide.md#4-foundation-model-selection-by-provider-and-use-case)
+  catalog](aws-service-decision-guide.md#4-bedrock-model-reference-capabilities-and-use-case-fit)
   describes as "large, efficient long-context handling." Raw window size
   doesn't separate the two.
 - **Cost efficiency at scale:** this is where the pair diverges for this

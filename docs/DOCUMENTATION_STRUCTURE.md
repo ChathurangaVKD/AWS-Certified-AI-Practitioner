@@ -95,7 +95,7 @@ failing RAG system, selecting a foundation model under multiple competing
 constraints, estimating a context-window token budget, estimating tokens
 for long-document summarization, comparing monthly inference costs across
 model tiers, comparing fine-tuning against prompt engineering, and a
-Bedrock Agent executing a multi-step task with tool calling), plus seven
+Bedrock Agent executing a multi-step task with tool calling), plus nine
 further worked examples that are subsections nested at the "###" or
 "####" level inside their enclosing numbered sections rather than
 standalone sections: whether a 2-point BLEU/ROUGE improvement is
@@ -103,11 +103,14 @@ statistically significant ("### Worked example: is a 2-point BLEU/ROUGE
 improvement statistically significant?"); two concrete model-pair
 comparisons; the same task worked four different ways; building a
 product-knowledge assistant using Kendra's GenAI Index as a Bedrock
-Knowledge Base data source; when QLoRA's quality loss becomes
-unacceptable; when to use Cohere Rerank in a RAG pipeline; and picking
-evaluation metrics for a scenario. Counting standalone sections only,
-Domain 3 has eight worked examples; counting the seven nested subsections
-too, it has fifteen — more worked examples than any other domain guide.
+Knowledge Base data source; retrieval patterns for a multimodal
+product-catalog RAG system combining text and images; when QLoRA's
+quality loss becomes unacceptable; when to use Cohere Rerank in a RAG
+pipeline; budgeting tokens for a multimodal financial-report RAG
+pipeline combining text, tables, and images; and picking evaluation
+metrics for a scenario. Counting standalone sections only, Domain 3 has
+eight worked examples; counting the nine nested subsections too, it has
+seventeen — more worked examples than any other domain guide.
 
 Domain 4 similarly grew beyond a single worked example: alongside the
 closing e-commerce recommendation-engine audit, it now has a second
@@ -288,9 +291,11 @@ Counting every "## Worked example" heading plus the nested "###"/"####"
 worked-example subsections called out above (Domain 1's training-cost-
 estimation subsection; Domain 3's model-pair-comparison and
 four-techniques-on-one-task subsections, its Kendra-GenAI-Index-as-a-
-Bedrock-Knowledge-Base-data-source and QLoRA-quality-loss-threshold
-subsections, its Cohere-Rerank-in-a-RAG-pipeline subsection, and its
-BLEU/ROUGE-significance and evaluation-metric-picking subsections;
+Bedrock-Knowledge-Base-data-source, multimodal-product-catalog-retrieval,
+and QLoRA-quality-loss-threshold subsections, its
+Cohere-Rerank-in-a-RAG-pipeline and multimodal-financial-report-
+token-budgeting subsections, and its BLEU/ROUGE-significance and
+evaluation-metric-picking subsections;
 Domain 4's confidence-threshold/Amazon A2I and Clarify/Guardrails-layering
 subsections;
 Domain 5's cost-capping, data-encryption-vs-model-encryption,

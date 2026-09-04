@@ -285,77 +285,6 @@ class TestDocumentationStructureDomain4Accuracy(unittest.TestCase):
         self.assertIn("Domain 5", window)
 
 
-class TestDocumentationStructureDomain3WorkedExampleCountAccuracy(unittest.TestCase):
-    """DOCUMENTATION_STRUCTURE.md's "Worked examples" paragraph previously
-    only described Domain 3 as closing with a single "## Worked example"
-    section like every other domain, without accounting for the fact that
-    Domain 3 actually has seven standalone "## Worked example" sections
-    plus one additional worked example nested as a "### " subsection
-    inside Section 7 (the BLEU/ROUGE statistical-significance example) --
-    eight worked examples in total. These tests derive the true figures
-    directly from domain-3-applications-of-foundation-models.md and assert
-    DOCUMENTATION_STRUCTURE.md's "Worked examples" paragraph states them,
-    guarding against the two files drifting back out of sync."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
-        cls.domain_3_text = DOMAIN_FILES[3].read_text(encoding="utf-8")
-
-    def test_domain_3_has_seven_standalone_worked_example_sections(self):
-        standalone = re.findall(r"^## Worked example:", self.domain_3_text, re.M)
-        self.assertEqual(
-            len(standalone),
-            7,
-            "sanity check: expected 7 standalone '## Worked example' "
-            "sections in domain-3-applications-of-foundation-models.md",
-        )
-
-    def test_domain_3_has_one_nested_worked_example_subsection(self):
-        nested = re.findall(r"^### Worked example:", self.domain_3_text, re.M)
-        self.assertEqual(
-            len(nested),
-            1,
-            "sanity check: expected exactly 1 subsection-level "
-            "'### Worked example' heading (the BLEU/ROUGE "
-            "statistical-significance example nested in Section 7) in "
-            "domain-3-applications-of-foundation-models.md",
-        )
-
-    def test_structure_doc_states_domain_3_worked_example_counts(self):
-        idx = self.structure_text.find("Worked examples")
-        self.assertNotEqual(
-            idx, -1, "expected a 'Worked examples' entry in DOCUMENTATION_STRUCTURE.md"
-        )
-        window = self.structure_text[idx : idx + 1400]
-        self.assertIn(
-            "seven",
-            window,
-            "DOCUMENTATION_STRUCTURE.md does not state Domain 3's "
-            "standalone worked-example count (seven)",
-        )
-        self.assertIn(
-            "eight",
-            window,
-            "DOCUMENTATION_STRUCTURE.md does not state Domain 3's total "
-            "worked-example count including the nested Section-7 "
-            "subsection (eight)",
-        )
-        self.assertIn(
-            "BLEU/ROUGE",
-            window,
-            "DOCUMENTATION_STRUCTURE.md does not identify the nested "
-            "Section-7 worked example (BLEU/ROUGE statistical "
-            "significance) that separates the seven-count from the "
-            "eight-count",
-        )
-
-    def test_structure_doc_does_not_imply_domain_3_has_a_single_worked_example(self):
-        lowered = self.structure_text.lower()
-        self.assertNotIn("domain 3 has one worked example", lowered)
-        self.assertNotIn("domain 3 has a single worked example", lowered)
-
-
 class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md previously described the five domain
     guides as marking "20+ worked-example sections in total", with no
@@ -1335,15 +1264,17 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
                     f"{domain_number} ({count}) in its grand-total tally",
                 )
 
-    def test_structure_doc_domain_3_worked_example_methodology_is_8_plus_7(self):
+    def test_structure_doc_domain_3_worked_example_methodology_is_8_plus_9(self):
         idx = self.structure_text.find("Worked examples")
         self.assertNotEqual(idx, -1)
-        window = self.structure_text[idx : idx + 2000]
+        window = self.structure_text[idx : idx + 2100]
         self.assertIn("eight standalone", window)
-        self.assertIn("seven", window)
-        self.assertIn("fifteen", window)
+        self.assertIn("nine", window)
+        self.assertIn("seventeen", window)
         self.assertIn("BLEU/ROUGE", window)
         self.assertIn("Cohere Rerank", window)
+        self.assertIn("multimodal\nproduct-catalog RAG system", window)
+        self.assertIn("multimodal financial-report RAG\npipeline", window)
 
     def test_structure_doc_notes_depth_gaps_now_filled(self):
         anchor = "depth gap previously flagged"

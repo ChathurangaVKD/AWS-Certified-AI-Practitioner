@@ -11,13 +11,14 @@ workload that worked fine under normal conditions and only breaks once
 traffic, payload size, conversation length, or sustained volume changes.
 These tests guard the dedicated subsection added to close that gap: it
 must exist, be linked from the table of contents, sit after Section 8,
-and cover four worked scenarios -- a SageMaker real-time endpoint that
-can't scale fast enough for a traffic spike, a batch transform job that
-times out on oversized payloads, a conversation that overflows the
-model's context window, and a production workload that exceeds its
-provisioned/on-demand token budget -- each with a symptom, a diagnosis, a
-remediation, and an exam tip, plus a summary table tying all four
-scenarios together.
+open with a decision-tree flowchart for triaging which failure mode is
+in play, and cover four worked scenarios -- a SageMaker real-time
+endpoint that can't scale fast enough for a traffic spike, a batch
+transform job that times out on oversized payloads, a conversation that
+overflows the model's context window, and a production workload that
+exceeds its provisioned/on-demand token budget -- each with a symptom, a
+diagnosis, a remediation, a dedicated prevention subsection, and an exam
+tip, plus a summary table tying all four scenarios together.
 
 Mirrors the conventions established in
 tests/test_domain_3_rag_troubleshooting_worked_example.py.
@@ -112,6 +113,64 @@ class TestDomain3InferenceFailuresWorkedExample(unittest.TestCase):
                 self.assertIn("**Diagnosis.**", block)
                 self.assertIn("**Remediation.**", block)
                 self.assertIn("Exam tip:", block)
+
+    def test_every_scenario_has_a_dedicated_prevention_subsection(self):
+        # Recovery (Remediation) and prevention are distinct concerns: the
+        # first fixes an active failure, the second stops it from
+        # recurring. Guard that each scenario spells out both rather than
+        # folding prevention advice silently into the remediation bullets.
+        scenario_blocks = re.split(r"\n(?=### )", self.section.strip())
+        scenario_blocks = [
+            b
+            for b in scenario_blocks
+            if b.startswith("### ") and b.splitlines()[0].lower().startswith("### scenario")
+        ]
+        self.assertEqual(len(scenario_blocks), 4)
+        for block in scenario_blocks:
+            heading = block.splitlines()[0]
+            with self.subTest(section=heading):
+                self.assertIn("**Prevention.**", block)
+                # Prevention must appear after remediation and before the
+                # scenario's own exam tip, not floating in another
+                # scenario's block.
+                remediation_pos = block.index("**Remediation.**")
+                prevention_pos = block.index("**Prevention.**")
+                exam_tip_pos = block.index("Exam tip:")
+                self.assertLess(remediation_pos, prevention_pos)
+                self.assertLess(prevention_pos, exam_tip_pos)
+
+    def test_has_an_orientation_triage_flowchart_before_the_scenarios(self):
+        # Mirrors the "Orientation: a first-pass triage flowchart" pattern
+        # from the RAG-troubleshooting worked example: a decision tree that
+        # lets a reader identify which of the four failure modes they're
+        # looking at before reading every scenario in full.
+        self.assertIn(
+            "### Orientation: an inference-failure triage flowchart",
+            self.section,
+        )
+        orientation_pos = self.section.index(
+            "### Orientation: an inference-failure triage flowchart"
+        )
+        scenario_1_pos = self.section.index(
+            "### Scenario 1: a SageMaker real-time endpoint"
+        )
+        self.assertLess(
+            orientation_pos,
+            scenario_1_pos,
+            "the triage flowchart should appear before the first scenario",
+        )
+        orientation_block = self.section[orientation_pos:scenario_1_pos]
+        self.assertIn("```mermaid", orientation_block)
+        self.assertIn("flowchart TD", orientation_block)
+        # The decision tree should route to all four failure modes.
+        for term in [
+            "Context window overflow",
+            "Batch payload/timeout mismatch",
+            "Scaling-speed mismatch",
+            "Provisioned/on-demand budget",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, orientation_block)
 
     def test_covers_realtime_endpoint_autoscaling_lag_failure_mode(self):
         self.assertRegex(

@@ -94,6 +94,7 @@ A term tagged `[D2, D3]` is defined or used in both Domain 2 and Domain 3 -- fol
 - **Difference in proportions of labels (DPL)** `[D4]` — a pre-training bias metric measuring how differently a positive label appears across groups in the dataset. [D4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary)
 - **Disparate impact** `[D4]` — a post-training bias metric measuring how differently a model's outcomes fall across groups in practice. [D4](domain-4-guidelines-for-responsible-ai.md#key-terms-glossary)
 - **DL (Deep Learning)** `[D1]` — subset of ML using multi-layer neural networks to learn representations automatically. [D1](domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary)
+- **DPA (Data Processing Addendum)** `[D5]` — Agreement (available via AWS Artifact) documenting AWS's obligations as data processor before processing EU/EEA personal data under GDPR. [D5](domain-5-security-compliance-governance.md#key-terms-glossary)
 
 ## E
 

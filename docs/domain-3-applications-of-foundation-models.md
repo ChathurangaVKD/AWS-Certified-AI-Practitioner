@@ -1205,6 +1205,62 @@ outweighs the marginal precision Option A would buy.
 > a single ranked list has no way to guarantee minimum representation from
 > each modality on its own.
 
+**Code sketch: hybrid retrieval with score fusion (Option A).** The merge
+step above isn't just a diagram — it's a small amount of concrete
+orchestration code sitting between the two index queries and the prompt
+template:
+
+```python
+def hybrid_retrieve(query, text_index, image_index, k=10, rrf_k=60):
+    query_text_vec = embed_text(query)        # e.g. Titan Text Embeddings
+    query_mm_vec = embed_multimodal(query)    # e.g. Titan Multimodal Embeddings
+
+    text_hits = text_index.query(query_text_vec, top_k=k)
+    image_hits = image_index.query(query_mm_vec, top_k=k)
+
+    # Reciprocal Rank Fusion: score by rank position, not raw similarity,
+    # so the two modalities' differing similarity scales never let one
+    # modality dominate the merged list.
+    fused_scores = {}
+    for rank, hit in enumerate(text_hits, start=1):
+        fused_scores[hit.sku_id] = fused_scores.get(hit.sku_id, 0) + 1 / (rrf_k + rank)
+    for rank, hit in enumerate(image_hits, start=1):
+        fused_scores[hit.sku_id] = fused_scores.get(hit.sku_id, 0) + 1 / (rrf_k + rank)
+
+    ranked = sorted(fused_scores.items(), key=lambda kv: kv[1], reverse=True)
+    return [sku_id for sku_id, _ in ranked[:k]]
+```
+
+Two details matter more than the fusion formula itself. First, fusion
+runs on **rank position** (`1 / (rrf_k + rank)`), not on raw cosine
+similarity values — that's exactly what avoids the crowding-out problem
+described above, because a modality's *average* similarity no longer
+matters, only where each hit lands within its own list. Second, `rrf_k`
+(commonly 60) is a smoothing constant, not a per-scenario knob to tune
+aggressively; which index returns more relevant results near rank 1
+matters far more to the final ranking than retuning `rrf_k`.
+
+**When reranking resolves what fusion can't.** RRF and weighted-score
+blending merge two *already-ranked* lists, but neither can tell that a
+top-ranked image hit and a top-ranked text hit are, in fact, the same
+product, or conflicting ones — that requires scoring both pieces of
+content directly against the query together. This is where a
+**reranking model** (e.g. **Cohere Rerank**, or Bedrock's rerank API)
+earns its place in the pipeline: after Option A's fusion step produces a
+combined candidate set (say, the top 20-30), a cross-encoder reranker
+re-scores every candidate directly against the original query text and
+reorders the final top-5-10 that go to the FM. Reach for a reranking pass
+specifically when: (1) the fused list mixes near-tied scores across
+modalities and the ordering within the top-k noticeably affects answer
+quality, (2) query phrasing is ambiguous enough that first-stage
+retrieval (dense or fused) surfaces plausible-but-wrong candidates, or
+(3) the extra ~50-150ms of reranking latency is acceptable against the
+value of a higher Precision@5. Reranking doesn't replace the dual-index-
+plus-fusion decision above — it's a second-pass refinement layered on top
+of whichever Option A/B pattern was chosen, and it earns its cost most
+clearly on the mixed spec+style queries where Precision@5 in the table
+above (0.90) still leaves room to improve.
+
 ---
 
 ## 4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering

@@ -76,12 +76,19 @@ responsible-AI concerns, and Domain 5 security/governance requirements —
 plus how Domain 3 application choices flow into Domain 4 and Domain 5 in
 turn.
 
-Ready to rehearse actual exam conditions? See
-[`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) for a
+Ready to rehearse actual exam conditions? This series ships **two separate,
+complementary 65-question mock exams** — same structure and domain
+weighting, entirely different questions — so you get two independent
+rehearsal passes instead of memorizing one fixed set of answers. Take
+[`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) first: a
 65-question, 90-minute mock exam weighted across all five domains in the
 same proportions as the real exam (~20%/24%/28%/14%/14%), mixed in
 exam-like order rather than grouped by domain, with timing guidance and a
-full answer key with explanations.
+full answer key with explanations. Once you've reviewed those results,
+use [`docs/mock-exam.md`](docs/mock-exam.md) — a second, independently
+written 65-question mock exam with the same 90-minute timing and domain
+weighting but a completely different question set — as your second
+rehearsal pass; see below.
 
 ## Cross-domain scenario questions
 
@@ -103,14 +110,19 @@ for a single company building one AI system — from a classical ML model,
 through evaluating and customizing a foundation model, to addressing bias
 and securing/governing the deployed result — across all five domains.
 
-## Full-length mock exam
+## Second mock exam
 
 Each domain guide's practice questions are domain-siloed (15–20 questions,
-one domain at a time). For rehearsal under real exam conditions, see
-[`docs/mock-exam.md`](docs/mock-exam.md): a single 65-question mock exam
-mixed across all five domains in the exam's own weight proportions
-(13/16/18/9/9 questions for Domains 1–5), a 90-minute timing budget, and a
-full answer key with explanations tagged by domain.
+one domain at a time), and [`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md)
+above is a first full rehearsal — but taking the same 65 questions twice
+teaches you the answer key, not the material. [`docs/mock-exam.md`](docs/mock-exam.md)
+is a second, independently written 65-question mock exam: a different
+question set with the same structure — mixed across all five domains in
+the exam's own weight proportions (13/16/18/9/9 questions for Domains
+1–5), a 90-minute timing budget, and a full answer key with explanations
+tagged by domain. Use it as your follow-up rehearsal after
+`full-length-mock-exam.md`, ideally after you've re-studied whatever
+domains you missed the first time.
 
 ## Status
 

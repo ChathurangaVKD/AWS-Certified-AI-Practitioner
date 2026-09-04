@@ -389,9 +389,14 @@ examples.
 **`exam-preparation-strategy.md`** covers exam format and time management,
 domain weights and high-yield focus areas, a recommended reading order,
 common exam traps consolidated from every domain guide's "Exam tip"
-callouts, 1-week/2-week/4-week study plans, and a topic-based review quick
-reference — the logistics layer that sits on top of the five domain
-guides' content rather than teaching new material itself.
+callouts, 1-week/2-week/4-week study plans — including a dedicated
+"Mini-quizzes: formative checks while you study" subsection explaining how
+and when to use the 35 embedded mini-quizzes as in-the-moment, formative
+self-checks, distinct from the summative domain practice questions,
+cross-domain scenario questions, and mock exams covered elsewhere on the
+page — and a topic-based review quick reference — the logistics layer
+that sits on top of the five domain guides' content rather than teaching
+new material itself.
 
 **`full-length-mock-exam.md`** and **`mock-exam.md`** are two separate,
 non-overlapping 65-question, 90-minute mock exams (130 mock-exam questions

@@ -3148,6 +3148,30 @@ budget), and two about *token budgets* (a conversation that outgrows the
 model's context window, and a workload that outgrows its provisioned or
 on-demand throughput).
 
+### Orientation: an inference-failure triage flowchart
+
+Before working through each failure mode in full diagnostic detail below,
+it helps to have a quick visual map of where to look first. The
+flowchart groups the four failure modes by the coarse questions that
+separate them — whether the error happens *before* the model ever runs,
+whether it's an offline batch job or a live endpoint, and whether the
+failure tracks a short-lived spike or a gradual rise in sustained demand:
+
+```mermaid
+flowchart TD
+    START(["Inference call is failing or\ndegraded - which failure mode is this?"])
+    START --> Q1{"Does the request fail immediately\nwith a ValidationException/'input too\nlong' error, before the model runs?"}
+    Q1 -->|"YES"| C1["Context window overflow\n(Scenario 3): cumulative conversation\ntokens exceed the model's context\nwindow"]
+    Q1 -->|"NO"| Q2{"Is this an offline SageMaker Batch\nTransform job failing on a subset of\nrecords with payload-size or timeout\nerrors?"}
+    Q2 -->|"YES"| C2["Batch payload/timeout mismatch\n(Scenario 2): MaxPayloadInMB or\nInvocationsTimeoutInSeconds sized for\na smaller record than what's failing"]
+    Q2 -->|"NO"| Q3{"Do throttling/timeout errors track a\nsudden, short-lived traffic spike and\nself-resolve once the spike passes?"}
+    Q3 -->|"YES"| C3["Scaling-speed mismatch\n(Scenario 1): real-time endpoint auto\nscaling reacting too slowly to the\nspike"]
+    Q3 -->|"NO"| C4["Provisioned/on-demand budget\nexceeded (Scenario 4): sustained usage\nhas grown past the purchased model\nunits or the account's TPM/RPM quota"]
+```
+
+The four scenarios that follow drill into each branch of this flowchart
+in full diagnostic detail, one running example at a time.
+
 ### Scenario 1: a SageMaker real-time endpoint that can't scale fast enough for a traffic spike
 
 **Scenario:** A retailer hosts a product-recommendation foundation model
@@ -3206,6 +3230,24 @@ needed:
   endpoint** — so requests that arrive during the scaling gap wait or
   receive a fallback response instead of hitting a hard throttling error,
   buying the endpoint the time it needs to finish scaling out.
+
+**Prevention.** Fixing the immediate spike doesn't stop the next one from
+recurring — the team also builds habits that catch a scaling-speed gap
+before it turns into a customer-facing outage:
+
+- **Load-test the scaling policy against the expected spike shape** —
+  before a known high-traffic event (a flash sale, a product launch),
+  replaying realistic traffic ramps against a staging endpoint to confirm
+  the tuned cooldowns and thresholds actually keep pace, rather than
+  discovering the gap in production.
+- **Dashboard `SageMakerVariantInvocationsPerInstance` and instance count
+  together** — so a fleet trending toward saturation is visible well
+  before it crosses the scaling threshold, not just after throttling
+  errors start appearing.
+- **Treat minimum instance count and provisioned concurrency as a
+  recurring calendar review**, not a one-time setting — revisiting them
+  ahead of each known peak-traffic window instead of relying on the
+  values chosen when the endpoint first launched.
 
 > **Exam tip:** When a scenario describes a real-time SageMaker endpoint
 > that throttles or times out specifically *during* a sudden traffic
@@ -3267,6 +3309,22 @@ model:
   if the timeouts are driven by compute contention (many concurrent
   large-payload invocations competing for the same instance) rather than
   payload size alone.
+
+**Prevention.** The team also adds checks upstream of the job itself, so
+a mismatched payload profile is caught before it burns a full run:
+
+- **Profile the input manifest before submitting the job** — a quick
+  pre-flight check of record-size distribution flags a batch that
+  includes unusually large documents before the job is kicked off,
+  instead of finding out from failed records partway through.
+- **Keep short and long content in separate manifests from the start** —
+  routing distinct content types (short descriptions vs. full articles)
+  into their own recurring jobs each tuned for its own payload profile,
+  rather than merging them and hoping the shared settings still fit.
+- **Run a small canary batch on new or changed input sources** — before
+  scaling a new document source up to the full monthly volume, running a
+  small sample through the job to confirm it completes cleanly under the
+  current `MaxPayloadInMB`/timeout settings.
 
 > **Exam tip:** A batch inference job that fails only on a subset of
 > unusually large records — while the rest of the batch completes fine —
@@ -3357,6 +3415,23 @@ request fails:
   once) genuinely needs more room rather than a smarter truncation
   strategy.
 
+**Prevention.** The team also shifts the token budget from something
+handled reactively in an error path to something managed proactively on
+every turn:
+
+- **Build token counting into the client from day one** — rather than
+  adding it only after an incident, so every application that sends
+  conversation history treats "how many tokens is this payload" as a
+  first-class quantity from the start.
+- **Trigger truncation or summarization at a soft threshold, not the hard
+  ceiling** — proactively sliding the window or summarizing once usage
+  crosses, say, 80% of the model's context window, so the application
+  never actually reaches the `ValidationException` in normal operation.
+- **Add an automated test that simulates a long-running session** —
+  exercising dozens of turns (including a large pasted document) in CI so
+  a context-window regression is caught before it reaches a real
+  customer conversation.
+
 > **Exam tip:** A `ValidationException` (or similar "input too long")
 > error that appears only after a conversation has run for many turns —
 > and never on a fresh, short session — is a **context-window overflow**,
@@ -3433,6 +3508,24 @@ requests:
   inference](#8-aws-infrastructure-for-generative-ai-workloads) or to a
   smaller, cheaper model, reducing sustained draw on the primary model's
   provisioned or on-demand budget without adding capacity at all.
+
+**Prevention.** The team also turns capacity sizing into a recurring
+process rather than a launch-day, one-time estimate:
+
+- **Set graduated CloudWatch budget alarms** — e.g., at 70%, 85%, and 95%
+  of the provisioned throughput ceiling or on-demand quota — so the team
+  is alerted while usage is *approaching* the budget, at each successive
+  stage, rather than learning about it only once throttling has already
+  started.
+- **Tie a capacity review to adoption/rollout milestones** — revisiting
+  provisioned throughput sizing and on-demand quotas whenever the
+  workload is rolled out to a new team or user segment, instead of only
+  reacting after sustained usage has already outgrown the original
+  purchase.
+- **Forecast token growth from usage trend, not just current volume** —
+  extrapolating the gradual month-over-month growth curve to request a
+  quota increase or purchase additional model units ahead of the point
+  where current demand actually crosses the existing ceiling.
 
 > **Exam tip:** A rising rate of `ThrottlingException`/`ServiceQuotaExceededException`
 > errors that tracks *gradual* growth in usage over days or weeks — rather

@@ -1337,7 +1337,136 @@ flowchart TD
 vs. global) plus *whether it's binding or voluntary*. A question mentioning
 "PHI" always means HIPAA regardless of region context; a question
 mentioning "risk tiers" for an AI system always means the EU AI Act, not
-GDPR.
+GDPR. See the [worked example below](#worked-example-filling-out-a-sagemaker-model-card-for-governance-sign-off)
+for how a completed SageMaker Model Card is actually used to defend a
+deployment decision to a compliance/risk committee.
+
+#### Worked example: filling out a SageMaker Model Card for governance sign-off
+
+The [compliance framework decision matrix](#compliance-framework-decision-matrix)
+above and [Domain 4's loan-approval bias audit](domain-4-guidelines-for-responsible-ai.md#worked-example-auditing-a-classical-ml-small-business-loan-approval-classifier-for-bias)
+both point to **Amazon SageMaker Model Cards** as the artifact that
+satisfies the EU AI Act's high-risk documentation obligations and the
+NIST AI RMF's Govern/Map functions — but neither ever shows what a
+completed Model Card actually contains, or how a governance board uses it
+to approve (or block) a launch. This worked example closes that gap: it
+completes the actual Model Card for the same Meridian Community Bank
+loan-approval classifier from Domain 4, section by section, then walks
+through the sign-off meeting where compliance and risk decide whether the
+model can go to production.
+
+**Scenario:** Meridian Community Bank's data science team has finished the
+Domain 4 bias audit — dropping the ZIP-code proxy feature, rechecking
+post-mitigation fairness metrics, and keeping a natively interpretable,
+limited-depth gradient-boosted tree instead of a higher-scoring black-box
+model. Before the classifier can influence a single real loan decision,
+the bank's model risk-governance committee (compliance, legal, and a
+senior small-business lending officer) requires the completed Model Card
+on the agenda for a formal sign-off review.
+
+**The completed Model Card:**
+
+1. **Model overview.** Model name: `meridian-sb-loan-scorer-v3`. Owner:
+   Small Business Lending Data Science team. Model type: gradient-boosted
+   tree classifier, max depth 4 (chosen for native interpretability over a
+   higher-scoring, less interpretable alternative). Risk rating: **High**
+   — the model informs a regulated credit decision.
+2. **Intended use.** Approved use: decision-support ranking that surfaces
+   an application to a human loan officer with a risk score and its top
+   contributing factors. Explicitly out of scope: fully automated approval
+   or denial without a loan officer's review; use for any lending product
+   other than small-business term loans the model was trained on.
+3. **Training data provenance.** Five years (2021–2025) of small-business
+   loan applications and outcomes (48,000 records): revenue, credit
+   history, years in operation, requested amount, and repayment outcome.
+   ZIP code was collected historically but **removed from the feature
+   set** after Clarify's pre-training analysis flagged it as a proxy for
+   race and income; verified time-in-business and cash-flow trend were
+   added in its place.
+4. **Evaluation metrics.** AUC-ROC 0.88, accuracy 84%, precision 79%,
+   recall 81% on a held-out test set — roughly 2 points of AUC-ROC below
+   an unconstrained, deeper model the team also trained and rejected (see
+   the trade-off note below).
+5. **Bias assessment results.** SageMaker Clarify pre-training difference
+   in proportions of labels (DPL) across ZIP-code-correlated groups: 0.34
+   (large). After removing ZIP code and retraining, post-training
+   disparate impact ratio: 0.91 (within the commonly used 0.8–1.25
+   fair-lending band). Feature correlation re-check confirms no remaining
+   feature is a close proxy for a protected characteristic.
+6. **Explainability.** SageMaker Clarify SHAP feature attribution enabled;
+   top drivers of a denial are, in order, cash-flow trend, credit history,
+   and requested-amount-to-revenue ratio — the same factors cited in every
+   adverse-action notice.
+7. **Known limitations.** Not validated for businesses operating fewer
+   than 12 months (insufficient training examples in that range) or for
+   loan amounts above $250,000 (outside the training distribution);
+   predictions for those cases should be treated as low-confidence and
+   reviewed manually regardless of score.
+8. **Human oversight controls.** Every score, whether it favors or
+   disfavors the applicant, routes through **Amazon A2I** to a licensed
+   loan officer; no denial is communicated to an applicant without that
+   officer's sign-off, per Domain 4's audit.
+9. **Monitoring plan.** **SageMaker Model Monitor** tracks post-training
+   bias metrics monthly for drift as the applicant population shifts; the
+   full Model Card is re-reviewed by the compliance board quarterly
+   against fresh Clarify metrics.
+
+**Which sections the committee must formally sign off on, versus simply
+read:**
+
+| Model Card section | Committee sign-off required? | Why |
+|---|---|---|
+| Model overview | No — informational | Identifies the model; nothing to approve |
+| Intended use | **Yes** | Defines the legal boundary of automation the committee is accountable for |
+| Training data provenance | No — reviewed | Supports the bias findings below, not a separate approval gate |
+| Evaluation metrics | No — reviewed | Informs the trade-off discussion, not independently gated |
+| Bias assessment results | **Yes** | Directly evidences fair-lending compliance |
+| Explainability | No — reviewed | Supports the adverse-action-notice requirement, not itself gated |
+| Known limitations | **Yes** | Defines where the model must *not* be trusted without review |
+| Human oversight controls | **Yes** | The committee is approving the control, not just the model |
+| Monitoring plan | **Yes** | The committee's approval is conditional on this ongoing commitment |
+
+**Documenting the performance/fairness trade-off.** The Model Card
+records, in the same place a future auditor would look, that the team
+deliberately chose the lower-scoring, depth-4 tree over a higher-AUC-ROC
+alternative: the higher-scoring model would have needed a post-hoc SHAP
+explanation bolted onto a black box, which the bank's legal team judged
+too fragile to defend in a fair-lending dispute. The 2-point AUC-ROC cost
+is recorded next to the explainability section as an intentional,
+compliance-driven design decision — not a gap the team failed to close.
+
+**Defending the deployment decision to the committee.** The data science
+team doesn't just hand over the document; they use it to answer the
+committee's questions directly, section by section:
+- *Committee:* "How do you know ZIP code isn't still influencing
+  decisions indirectly?" → *Team, pointing to the bias assessment
+  results:* the post-mitigation feature-correlation recheck, plus the
+  0.91 disparate impact ratio.
+- *Committee:* "Why not use the more accurate model?" → *Team, pointing to
+  known limitations and explainability:* the accuracy gain isn't worth
+  losing a defensible, factor-level adverse-action explanation.
+- *Committee:* "What happens when this model sees a business it wasn't
+  trained on?" → *Team, pointing to known limitations:* those cases are
+  flagged low-confidence and forced to human review regardless of score.
+- *Committee:* "How will we know if this stays fair after launch?" →
+  *Team, pointing to the monitoring plan:* monthly Model Monitor
+  bias-drift checks and a quarterly full Card review.
+
+The committee signs off with one condition tied directly to the Card's own
+monitoring plan: production approval is contingent on the quarterly
+review continuing on schedule. The Model Card's risk-rating field is
+updated to "Approved for production — conditional quarterly review," with
+the sign-off date and committee members recorded directly on the
+artifact.
+
+> **Exam tip:** A scenario describing a committee reviewing "intended
+> use, bias metrics, and a monitoring commitment" before approving a model
+> for production is describing the **governance sign-off use of a
+> SageMaker Model Card** — it isn't just a static description of the
+> model, it's the artifact a governance board signs off against. Don't
+> confuse this with an **AI Service Card**: that's AWS's own published
+> documentation for an AWS-managed AI service, which you read but never
+> fill in or sign off on yourself.
 
 #### Mini-quiz: Test your understanding of AWS compliance standards for AI workloads
 

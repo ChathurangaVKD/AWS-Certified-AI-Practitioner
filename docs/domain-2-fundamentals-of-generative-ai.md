@@ -1034,6 +1034,49 @@ data before committing.
 > factor — picking the biggest, most capable model is not always the
 > correct exam answer if latency or cost constraints are called out.
 
+### Comparing Amazon Nova model variants
+
+[Section 5](#5-aws-generative-ai-services-and-capabilities) introduces
+**Amazon Nova** as Amazon's own foundation model family on Bedrock, but
+the family spans seven distinct variants across four modalities — it
+isn't one cost/latency ladder the way the Claude or Llama families are.
+Applying the criteria above to each variant makes the family's shape
+concrete:
+
+| Nova variant | Modality (input → output) | Relative cost | Relative latency | Recommended use case |
+|---|---|---|---|---|
+| **Nova Micro** | Text → text only | Lowest | Lowest | High-volume, latency- and cost-sensitive text tasks: simple chat, classification, extraction — no image/video understanding needed |
+| **Nova Lite** | Text, image, video → text | Low | Low | Low-cost multimodal tasks that need to understand images or video but not top-tier reasoning: lightweight multimodal chat, document Q&A with embedded images |
+| **Nova Pro** | Text, image, video → text | Moderate | Moderate | Balanced production multimodal workloads needing more accuracy than Lite: multimodal RAG, moderately complex agentic reasoning |
+| **Nova Premier** | Text, image, video → text | Highest | Highest | The family's most complex, multi-step multimodal reasoning tasks, including use as a teacher model for distilling smaller custom models |
+| **Nova Canvas** | Text, image → image | Priced per image | N/A (image generation) | Studio-quality image generation and editing: product photos, marketing creative, inpainting/outpainting with negative prompting |
+| **Nova Reel** | Text, image → video | Priced per second of video | N/A (asynchronous video generation) | Short-form video generation from a text or image prompt: marketing clips, storyboarding — not a real-time, interactive workload |
+| **Nova Sonic** | Speech → speech (real-time) | Priced per duration | Lowest for a speech workload | Real-time, bidirectional speech-to-speech conversation: voice assistants and IVR where sub-second response matters more than deep reasoning |
+
+**AWS example:** A retailer needs three text-only Nova-family
+decisions on the same account. Its order-status FAQ bot handles simple,
+high-volume lookups and must stay cheap and fast, so it uses **Nova
+Micro**. Its product-description generator needs to occasionally read a
+supplier's product photo alongside the spec sheet, but doesn't need
+deep reasoning, so it uses **Nova Lite** rather than paying for Pro's
+extra capability it wouldn't use. Its returns-fraud triage tool has to
+reason across several data points (order history, photos of the
+returned item, and free-text customer notes) before flagging a case for
+human review, so it uses **Nova Pro** — a step up from Lite, but still
+well short of Premier's cost, which the team reserves for a separate
+research project distilling a smaller custom model.
+
+> **Exam tip:** Inside the **text-oriented** Micro/Lite/Pro/Premier
+> tiers, cost and latency climb together with capability, the same
+> pattern as the Claude family above — pick the cheapest tier that still
+> meets the accuracy bar, not the largest by default. **Canvas**, **Reel**,
+> and **Sonic** aren't a fourth, more-expensive tier on that same ladder —
+> they're separate models chosen by required *output modality* (image,
+> video, or real-time speech) rather than by text-reasoning depth, so a
+> scenario asking for image or video generation, or real-time voice,
+> should point straight at Canvas, Reel, or Sonic regardless of how the
+> text tiers compare.
+
 #### Mini-quiz: Test your understanding of foundation model selection criteria
 
 Quick self-check before moving on — try to answer before reading the

@@ -56,6 +56,18 @@ REQUIRED_ENCRYPTION_CONCEPTS = [
     "BAA",
 ]
 
+# Model families the Bedrock model reference section must cover -- these
+# are the families the five domain guides mention by name without ever
+# consolidating them into one comparison (the gap this section closes).
+REQUIRED_BEDROCK_MODEL_FAMILIES = [
+    "Titan",
+    "Nova",
+    "Claude",
+    "Llama",
+    "Cohere",
+    "Mistral",
+]
+
 REQUIRED_LINKED_DOMAINS = [
     "domain-1-fundamentals-of-ai-and-ml.md",
     "domain-2-fundamentals-of-generative-ai.md",
@@ -168,6 +180,1019 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
             re.compile(r"decision flow", re.IGNORECASE),
             "expected an explicit decision-flow section for choosing "
             "between SageMaker, Bedrock, and purpose-built services",
+        )
+
+    def test_has_bedrock_model_reference_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^##\s+4\.\s+Bedrock model reference", re.M),
+            "expected a numbered 'Bedrock model reference' section "
+            "closing the model-capability content gap",
+        )
+
+    def test_bedrock_model_reference_covers_required_families(self):
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(
+            section_match, "could not locate the Bedrock model reference section"
+        )
+        section_text = section_match.group(0)
+        for family in REQUIRED_BEDROCK_MODEL_FAMILIES:
+            with self.subTest(family=family):
+                self.assertIn(
+                    family,
+                    section_text,
+                    f"Bedrock model reference section missing model "
+                    f"family: {family!r}",
+                )
+
+    def test_bedrock_model_reference_has_a_comparison_table(self):
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            1,
+            "expected the Bedrock model reference section to include a "
+            "markdown comparison table",
+        )
+
+    def test_bedrock_model_reference_flags_staleness(self):
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        self.assertRegex(
+            section_text,
+            re.compile(r"staleness|changes frequently|snapshot", re.IGNORECASE),
+            "expected the Bedrock model reference to warn readers that "
+            "Bedrock's model catalog changes frequently",
+        )
+
+    def test_bedrock_model_reference_records_last_verification_date(self):
+        # The staleness warning alone doesn't tell a future reviewer
+        # whether the table has ever actually been checked against AWS's
+        # docs, or when. This asserts the section records a concrete
+        # "last verified" checkpoint with a real ISO date, not just the
+        # general warning that the catalog changes often.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        self.assertRegex(
+            section_text,
+            re.compile(r"last verified\W{0,6}\d{4}-\d{2}-\d{2}", re.IGNORECASE),
+            "expected the Bedrock model reference section to record a "
+            "'Last verified: YYYY-MM-DD' checkpoint against the official "
+            "Bedrock model catalog",
+        )
+
+    def test_bedrock_model_reference_retires_titan_text_generation_row(self):
+        # As of the most recent verification pass, Titan Text
+        # (Lite/Express/Premier) has been retired from the Bedrock catalog
+        # in favor of Nova. The row should stay (for exam-history context)
+        # but must be clearly marked retired rather than presented as a
+        # currently available choice.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        titan_text_row = next(
+            (
+                line
+                for line in section_text.splitlines()
+                if line.strip().startswith("| **Amazon Titan Text**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            titan_text_row,
+            "expected an Amazon Titan Text row in the Bedrock model table",
+        )
+        self.assertRegex(
+            titan_text_row,
+            re.compile(r"retired", re.IGNORECASE),
+            "Titan Text (Lite/Express/Premier) is retired in the current "
+            "Bedrock catalog and should be labeled as such rather than "
+            "listed as a currently available family",
+        )
+
+    def test_bedrock_model_reference_jurassic_family_removed(self):
+        # AI21's Jurassic line is no longer offered in Bedrock -- Jamba is
+        # AI21's only current family there. Verify it isn't still listed
+        # as an available option in the table.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+        table_match = re.search(
+            r"^\| Model family \|.*?\n\|---.*?\n(?P<rows>(?:\|.*\n)+)",
+            section_text,
+            re.M,
+        )
+        self.assertIsNotNone(table_match, "could not locate the model table rows")
+        family_column_text = table_match.group("rows")
+        self.assertNotIn(
+            "Jamba/Jurassic",
+            family_column_text,
+            "Jurassic should no longer be listed alongside Jamba as a "
+            "currently available AI21 family name",
+        )
+
+    def test_bedrock_model_reference_documents_reverification_process(self):
+        # A "Last verified: <date>" checkpoint alone tells a future
+        # maintainer *that* the table was checked once, but not *when* to
+        # check it again or *how* -- someone could otherwise just bump the
+        # date without actually re-checking anything. This asserts the
+        # section spells out a concrete re-verification cadence (tied to
+        # how often the real Bedrock catalog changes) and points back at
+        # the same catalog source used for the original verification.
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            self.text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(section_match)
+        section_text = section_match.group(0)
+
+        self.assertRegex(
+            section_text,
+            re.compile(r"verification (cadence|process)", re.IGNORECASE),
+            "expected an explicit maintainer-facing verification "
+            "cadence/process note in the Bedrock model reference section",
+        )
+        self.assertRegex(
+            section_text,
+            re.compile(r"\d+\s*days? old", re.IGNORECASE),
+            "expected the verification process note to give a concrete "
+            "re-verification trigger (e.g. 'more than N days old')",
+        )
+        # The re-verification note must reference the same catalog source
+        # the original "Last verified" pass used, so a future contributor
+        # knows exactly where to look.
+        catalog_url = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md"
+        self.assertGreaterEqual(
+            section_text.count(catalog_url),
+            2,
+            "expected the Bedrock model catalog URL to be referenced by "
+            "both the staleness warning and the re-verification process "
+            "note",
+        )
+
+
+BEDROCK_MODEL_REFERENCE_SECTION_RE = re.compile(
+    r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)", re.M | re.S
+)
+
+
+class TestAwsServiceDecisionGuideModelFamilySelectionDiagram(unittest.TestCase):
+    """Section 4 -- the Bedrock model reference table (Nova, Claude, Jamba
+    2.0, DeepSeek-R1, etc.) previously had no visual decision aid, unlike
+    Section 1's SageMaker-vs.-Bedrock-vs.-purpose-built flowchart. Guards
+    the Section 4.1 Mermaid decision-tree diagram added to close that gap
+    (routing on modality, reasoning depth, context window, open-weight
+    need, and cost/latency sensitivity)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = BEDROCK_MODEL_REFERENCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 4"
+        cls.section_text = section_match.group(0)
+
+    def test_has_model_family_selection_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"^###\s+4\.1\s+Decision flow: choosing a Bedrock model"
+                r" family",
+                re.M,
+            ),
+            "expected a '4.1 Decision flow: choosing a Bedrock model "
+            "family' sub-heading inside section 4",
+        )
+
+    def test_does_not_introduce_a_new_top_level_section(self):
+        # This is a sub-heading (###) expansion of the existing section 4,
+        # not a new top-level (##) section -- the numbered section
+        # sequence must stay exactly as it was.
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_has_mermaid_decision_tree_diagram(self):
+        self.assertIn(
+            "```mermaid",
+            self.section_text,
+            "expected a Mermaid decision-tree diagram in the Bedrock "
+            "model reference section",
+        )
+
+    def test_diagram_is_a_valid_graph_and_covers_key_criteria(self):
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match, "could not locate the Mermaid code block")
+        diagram_body = diagram_match.group("body")
+        self.assertRegex(diagram_body, re.compile(r"^\s*graph (TD|LR)", re.M))
+        # Modality, cost/latency, reasoning, and context-window are the
+        # required decision criteria called out in the task description.
+        for term in [
+            "modality",
+            "reasoning",
+            "context window",
+            "latency",
+        ]:
+            with self.subTest(term=term):
+                self.assertRegex(
+                    diagram_body,
+                    re.compile(re.escape(term), re.IGNORECASE),
+                )
+
+    def test_diagram_routes_to_required_model_families(self):
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match)
+        diagram_body = diagram_match.group("body")
+        for family in [
+            "Amazon Nova",
+            "Anthropic Claude",
+            "AI21 Labs Jamba 2.0",
+            "DeepSeek-R1",
+        ]:
+            with self.subTest(family=family):
+                self.assertIn(family, diagram_body)
+
+    def test_subsection_has_an_exam_tip(self):
+        subsection_match = re.search(
+            r"^###\s+4\.1\s+Decision flow: choosing a Bedrock model"
+            r" family.*?(?=^### |^## |\Z)",
+            self.section_text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(subsection_match)
+        self.assertRegex(
+            subsection_match.group(0),
+            re.compile(r"\*\*Exam tip:\*\*"),
+            "expected an exam tip explaining how the diagram's decision "
+            "order relates to the comparison table above it",
+        )
+
+
+DECISION_FLOW_SECTION_RE = re.compile(
+    r"^##\s+1\.\s+Decision flow.*?(?=^## |\Z)", re.M | re.S
+)
+
+
+class TestAwsServiceDecisionGuideLayeringBranchExpansions(unittest.TestCase):
+    """Section 1 expansion -- edge-case service-layering combinations that
+    build on the main SageMaker/Bedrock/purpose-built flow rather than
+    introducing new top-level sections: Amazon Kendra + Bedrock Knowledge
+    Bases for retrieval, and layering Amazon Q Business on an existing
+    Bedrock deployment."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = DECISION_FLOW_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 1"
+        cls.section_text = section_match.group(0)
+
+    def test_does_not_introduce_new_top_level_sections(self):
+        # The task explicitly calls for expanded decision-tree *branches*
+        # within the existing flow, not new top-level (##) sections, so
+        # the numbered section sequence must stay exactly as it was.
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_has_kendra_bedrock_layering_branch(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"Amazon Kendra.{0,80}Bedrock Knowledge Bases|"
+                r"Bedrock Knowledge Bases.{0,80}Amazon Kendra",
+                re.S,
+            ),
+            "expected a branch expansion covering Amazon Kendra + Bedrock "
+            "vs. Bedrock Knowledge Bases alone inside the decision flow "
+            "section",
+        )
+        self.assertIn("Kendra GenAI Index", self.section_text)
+
+    def test_has_q_business_over_bedrock_layering_branch(self):
+        self.assertIn("Amazon Q Business", self.section_text)
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"existing Bedrock deployment|"
+                r"Bedrock application already exists",
+                re.IGNORECASE,
+            ),
+            "expected a branch expansion covering layering Amazon Q "
+            "Business on top of an existing Bedrock deployment",
+        )
+
+    def test_layering_branches_use_sub_headings_not_new_top_level_sections(self):
+        sub_headings = re.findall(r"^###\s+Branch expansion:.*$", self.section_text, re.M)
+        self.assertGreaterEqual(
+            len(sub_headings),
+            2,
+            "expected the two layering combinations to be introduced as "
+            "### sub-headings within section 1, not new ## sections",
+        )
+
+    def test_layering_branches_include_exam_tips(self):
+        # The pre-existing main-flow exam tip uses a longer heading
+        # ("Exam tip — the rule behind the flow:"); each new branch
+        # expansion below it should carry its own plain "Exam tip:"
+        # callout, consistent with the guide's reasoning-pattern format
+        # used elsewhere (sections 2, 3, 5, 6, 7).
+        exam_tip_count = len(
+            re.findall(r"\*\*Exam tip\b", self.section_text)
+        )
+        self.assertGreaterEqual(
+            exam_tip_count,
+            3,
+            "expected each new branch expansion to carry its own exam "
+            "tip, consistent with the guide's existing reasoning-pattern "
+            "format",
+        )
+
+
+class TestAwsServiceDecisionGuideLayeringScenarioMatrix(unittest.TestCase):
+    """Section 1 expansion -- a consolidated, side-by-side matrix covering
+    three service-layering questions at once (Kendra vs. Bedrock Knowledge
+    Bases ordering, Amazon Q Business vs. a custom Bedrock integration, and
+    whether SageMaker Clarify and Guardrails for Amazon Bedrock run in
+    parallel or in sequence) against concrete scenarios, added as a ###
+    sub-heading within section 1 -- not a new top-level section."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = DECISION_FLOW_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 1"
+        cls.section_text = section_match.group(0)
+        subsection_match = re.search(
+            r"^###\s+Layering scenario matrix:.*?(?=^### |^## |\Z)",
+            cls.section_text,
+            re.M | re.S,
+        )
+        assert subsection_match is not None, (
+            "could not locate the layering scenario matrix subsection"
+        )
+        cls.subsection_text = subsection_match.group(0)
+
+    def test_does_not_introduce_a_new_top_level_section(self):
+        headings = re.findall(r"^##\s+(\d+)\.", self.text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 8)])
+
+    def test_has_layering_scenario_matrix_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"^###\s+Layering scenario matrix:", re.M),
+            "expected a 'Layering scenario matrix' sub-heading inside "
+            "section 1",
+        )
+
+    def test_has_a_comparison_table_with_required_columns(self):
+        header_line = next(
+            (
+                line
+                for line in self.subsection_text.splitlines()
+                if line.strip().startswith("| Scenario")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            header_line, "expected a 'Scenario' header row for the matrix"
+        )
+        for column in [
+            "Kendra vs. Bedrock Knowledge Bases",
+            "Amazon Q Business vs. custom Bedrock",
+            "Clarify + Guardrails ordering",
+        ]:
+            with self.subTest(column=column):
+                self.assertIn(column, header_line)
+
+    def test_covers_required_scenarios(self):
+        for scenario in [
+            "Enterprise content search + FM generation",
+            "Customer support with private docs",
+            "Multi-tenant knowledge discovery",
+        ]:
+            with self.subTest(scenario=scenario):
+                self.assertIn(scenario, self.subsection_text)
+
+    def test_covers_required_services(self):
+        for service in [
+            "Kendra",
+            "Bedrock Knowledge Bases",
+            "Amazon Q Business",
+            "SageMaker Clarify",
+            "Guardrails",
+        ]:
+            with self.subTest(service=service):
+                self.assertIn(service, self.subsection_text)
+
+    def test_explains_clarify_and_guardrails_are_not_interchangeable_timing(self):
+        # The whole point of this subsection is that Clarify (offline,
+        # batch/design-time) and Guardrails (synchronous, per-request)
+        # don't actually compete for the same "parallel vs. sequential"
+        # slot -- assert that distinction is spelled out, not just that
+        # both names appear somewhere.
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"offline.{0,120}Guardrails|Guardrails.{0,120}offline", re.S),
+        )
+        self.assertRegex(self.subsection_text, re.compile(r"per-request", re.IGNORECASE))
+
+    def test_has_mermaid_diagram(self):
+        self.assertIn(
+            "```mermaid",
+            self.subsection_text,
+            "expected a Mermaid diagram illustrating the request-path "
+            "layering order",
+        )
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.subsection_text, re.S
+        )
+        self.assertIsNotNone(diagram_match, "could not locate the Mermaid code block")
+        diagram_body = diagram_match.group("body")
+        self.assertRegex(diagram_body, re.compile(r"^\s*graph (TD|LR)", re.M))
+
+    def test_has_exam_tip(self):
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"\*\*Exam tip:\*\*", re.S),
+            "expected an exam tip for the layering scenario matrix",
+        )
+
+
+GOVERNANCE_SECTION_RE = re.compile(
+    r"^##\s+2\.\s+Comparison table: security, compliance, and governance"
+    r" services.*?(?=^## |\Z)",
+    re.M | re.S,
+)
+
+
+class TestAwsServiceDecisionGuideModelMonitorVsModelEvaluation(unittest.TestCase):
+    """Section 2 -- SageMaker Model Monitor (post-deployment monitoring for
+    classical ML models) vs. Bedrock Model Evaluation (pre-selection quality
+    assessment for foundation models) get mentioned throughout the series
+    but were never contrasted directly, which risked readers confusing when
+    each applies. Guards the comparison table added to close that gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = GOVERNANCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 2"
+        cls.section_text = section_match.group(0)
+
+    def test_has_model_monitor_vs_model_evaluation_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"^###\s+Comparison table: SageMaker Model Monitor vs\."
+                r" Bedrock Model Evaluation",
+                re.M,
+            ),
+            "expected a 'SageMaker Model Monitor vs. Bedrock Model "
+            "Evaluation' sub-heading inside section 2",
+        )
+
+    def test_subsection_has_a_comparison_table(self):
+        # Section 2 already has its own top-level governance table, so the
+        # new subsection must add at least one more.
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", self.section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            2,
+            "expected section 2 to contain both its original governance "
+            "table and the new Model Monitor vs. Model Evaluation table",
+        )
+
+    def test_table_has_both_tool_columns(self):
+        header_line = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| Dimension")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            header_line,
+            "expected a 'Dimension' header row for the Model Monitor vs. "
+            "Model Evaluation table",
+        )
+        self.assertIn("Amazon SageMaker Model Monitor", header_line)
+        self.assertIn("Amazon Bedrock Model Evaluation", header_line)
+
+    def test_table_covers_required_dimensions(self):
+        subsection_match = re.search(
+            r"^###\s+Comparison table: SageMaker Model Monitor vs\."
+            r" Bedrock Model Evaluation.*?(?=^### |^## |\Z)",
+            self.section_text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(subsection_match)
+        subsection_text = subsection_match.group(0)
+        for dimension in [
+            "Use case",
+            "Input/output",
+            "Model types supported",
+            "Typical workflow",
+        ]:
+            with self.subTest(dimension=dimension):
+                self.assertIn(dimension, subsection_text)
+
+    def test_distinguishes_model_types_supported(self):
+        # The whole point of the row is that these tools apply to
+        # different model populations -- traditional ML vs. foundation
+        # models -- so assert that distinction is actually spelled out,
+        # not just that the row exists.
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"[Tt]raditional.{0,40}ML", re.S),
+        )
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"[Ff]oundation model", re.S),
+        )
+
+    def test_has_exam_tip(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Exam tip:\*\*.{0,400}Model Monitor", re.S),
+            "expected an exam tip distinguishing when each service applies",
+        )
+
+
+class TestAwsServiceDecisionGuideModelEvalToolsThreeWay(unittest.TestCase):
+    """Section 2 -- SageMaker Model Monitor, Bedrock Model Evaluation, and
+    SageMaker Clarify all get invoked as "checking a model" tools but apply
+    to different lifecycle stages and model populations. The two-tool
+    subsection above already contrasts Model Monitor vs. Model Evaluation;
+    this guards the follow-up three-way table that adds SageMaker Clarify
+    so learners moving between classical-ML and foundation-model contexts
+    have one consolidated side-by-side comparison."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = GOVERNANCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 2"
+        cls.section_text = section_match.group(0)
+        subsection_match = re.search(
+            r"^###\s+Comparison table: model-evaluation and monitoring"
+            r" tools compared.*?(?=^### |^## |\Z)",
+            cls.section_text,
+            re.M | re.S,
+        )
+        assert subsection_match is not None, (
+            "could not locate the model-evaluation tools comparison "
+            "subsection"
+        )
+        cls.subsection_text = subsection_match.group(0)
+
+    def test_has_three_way_comparison_subsection(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(
+                r"^###\s+Comparison table: model-evaluation and monitoring"
+                r" tools compared",
+                re.M,
+            ),
+            "expected a three-way model-evaluation/monitoring tools "
+            "comparison sub-heading inside section 2",
+        )
+
+    def test_table_has_all_three_tool_rows(self):
+        for tool in [
+            "Amazon SageMaker Model Monitor",
+            "Amazon Bedrock Model Evaluation",
+            "Amazon SageMaker Clarify",
+        ]:
+            with self.subTest(tool=tool):
+                self.assertIn(tool, self.subsection_text)
+
+    def test_table_has_required_columns(self):
+        header_line = next(
+            (
+                line
+                for line in self.subsection_text.splitlines()
+                if line.strip().startswith("| Tool")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            header_line,
+            "expected a 'Tool' header row for the three-way comparison "
+            "table",
+        )
+        for column in [
+            "Purpose",
+            "Applicable model type",
+            "Key metrics/outputs",
+            "When to use it",
+        ]:
+            with self.subTest(column=column):
+                self.assertIn(column, header_line)
+
+    def test_clarify_spans_both_classical_and_foundation_models(self):
+        # The whole point of adding Clarify to this table is that -- unlike
+        # the other two, which each apply to only one side of the
+        # classical-ML/foundation-model line -- Clarify applies to both.
+        clarify_row = next(
+            (
+                line
+                for line in self.subsection_text.splitlines()
+                if line.strip().startswith("| **Amazon SageMaker Clarify**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(clarify_row, "expected a SageMaker Clarify row")
+        self.assertRegex(clarify_row, re.compile(r"[Cc]lassical", re.S))
+        self.assertRegex(clarify_row, re.compile(r"[Ff]oundation model", re.S))
+
+    def test_has_exam_tip(self):
+        self.assertRegex(
+            self.subsection_text,
+            re.compile(r"\*\*Exam tip:\*\*.{0,600}Clarify", re.S),
+            "expected an exam tip covering how to route between all three "
+            "tools",
+        )
+
+    def test_links_back_to_domain_4(self):
+        self.assertIn(
+            "domain-4-guidelines-for-responsible-ai.md",
+            self.subsection_text,
+        )
+
+
+API_GATEWAY_SECTION_RE = re.compile(
+    r"^##\s+6\.\s+Decision guide: Amazon API Gateway.*?(?=^## |\Z)", re.M | re.S
+)
+
+PROMPT_MANAGEMENT_SECTION_RE = re.compile(
+    r"^##\s+7\.\s+Decision guide: Bedrock Prompt Management.*?(?=^## |\Z)",
+    re.M | re.S,
+)
+
+
+class TestAwsServiceDecisionGuideApiGatewaySection(unittest.TestCase):
+    """Section 6 -- API Gateway request throttling/Service Quotas in front
+    of Bedrock/SageMaker endpoints, referenced but previously unguided
+    (see Domain 5's 'model denial of service' mitigation content)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = API_GATEWAY_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 6"
+        cls.section_text = section_match.group(0)
+
+    def test_has_api_gateway_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(
+                r"^##\s+6\.\s+Decision guide: Amazon API Gateway", re.M
+            ),
+            "expected a numbered decision-guide section for Amazon API "
+            "Gateway in front of Bedrock/SageMaker endpoints",
+        )
+
+    def test_covers_related_controls(self):
+        for term in [
+            "Amazon API Gateway",
+            "Service Quotas",
+            "Provisioned Throughput",
+            "Guardrails",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.section_text)
+
+    def test_has_a_comparison_table(self):
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", self.section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            1,
+            "expected the API Gateway section to include a markdown "
+            "comparison table of decision criteria",
+        )
+
+    def test_has_exam_style_scenario_with_answer(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"exam-style scenario", re.IGNORECASE),
+            "expected an explicit exam-style scenario",
+        )
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Answer:\s*[A-D]\*\*"),
+            "expected the scenario to state its answer letter",
+        )
+
+    def test_links_back_to_domain_5_threat_section(self):
+        self.assertIn("domain-5-security-compliance-governance.md", self.section_text)
+
+    def test_has_cost_governance_decision_tree_diagram(self):
+        # The three cost-control mechanisms this section covers (Service
+        # Quotas, API Gateway usage plans, Provisioned Throughput) get a
+        # table and a worked scenario, but previously no single visual
+        # entry point for choosing between them. Guards the Mermaid
+        # decision-tree diagram added to close that gap.
+        self.assertIn(
+            "```mermaid",
+            self.section_text,
+            "expected a Mermaid decision-tree diagram in the API "
+            "Gateway/cost-governance section",
+        )
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match, "could not locate the Mermaid code block")
+        diagram_body = diagram_match.group("body")
+        self.assertRegex(diagram_body, re.compile(r"^\s*graph (TD|LR)", re.M))
+        for term in [
+            "Amazon API Gateway usage plans",
+            "AWS Service Quotas",
+            "Provisioned Throughput",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram_body)
+
+
+class TestAwsServiceDecisionGuidePromptManagementSection(unittest.TestCase):
+    """Section 7 -- Bedrock Prompt Management vs. Prompt Flows vs. direct
+    prompting, referenced but previously unguided (see Domain 3's prompt
+    engineering content)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = PROMPT_MANAGEMENT_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 7"
+        cls.section_text = section_match.group(0)
+
+    def test_has_prompt_management_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(
+                r"^##\s+7\.\s+Decision guide: Bedrock Prompt Management",
+                re.M,
+            ),
+            "expected a numbered decision-guide section for Bedrock "
+            "Prompt Management vs. Prompt Flows vs. direct prompting",
+        )
+
+    def test_covers_all_three_approaches(self):
+        for term in [
+            "Direct prompting",
+            "Amazon Bedrock Prompt Management",
+            "Amazon Bedrock Prompt Flows",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.section_text)
+
+    def test_has_a_comparison_table(self):
+        table_rows = re.findall(r"\|\s*-{2,}\s*\|", self.section_text)
+        self.assertGreaterEqual(
+            len(table_rows),
+            1,
+            "expected the Prompt Management section to include a "
+            "markdown comparison table of decision criteria",
+        )
+
+    def test_has_exam_style_scenario_with_answer(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"exam-style scenario", re.IGNORECASE),
+            "expected an explicit exam-style scenario",
+        )
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Answer:\s*[A-D]\*\*"),
+            "expected the scenario to state its answer letter",
+        )
+
+    def test_links_back_to_domain_3_prompt_engineering_section(self):
+        self.assertIn(
+            "domain-3-applications-of-foundation-models.md",
+            self.section_text,
+        )
+
+
+CONSOLIDATED_MATRIX_HEADING_RE = re.compile(
+    r"^##\s+5\.\s+Consolidated service matrix.*?(?=^## |\Z)", re.M | re.S
+)
+
+# A markdown table row belonging to the consolidated matrix, e.g.:
+# | **Amazon Bedrock** | D2, D3, D4, D5 | ~24% + ~28% | ... | ... |
+MATRIX_ROW_RE = re.compile(r"^\|\s*\*\*(?P<service>[^*]+)\*\*\s*\|", re.M)
+
+# A representative sample spanning multiple domains -- enough to catch a
+# regression that drops a whole domain's services from the matrix, without
+# requiring the test to enumerate all 45+ rows verbatim.
+REQUIRED_MATRIX_SAMPLE_SERVICES = [
+    "Amazon SageMaker",
+    "Amazon Bedrock",
+    "Amazon Rekognition",
+    "Guardrails for Amazon Bedrock",
+    "AWS CloudTrail",
+    "AWS PrivateLink",
+    "Amazon Kendra",
+    "AWS Trainium",
+    "AWS Inferentia",
+]
+
+# A completeness audit cross-checking every service in this matrix against
+# aws-service-index.md found: (a) three services discussed in a domain
+# guide that had an index entry but no matrix row (Amazon Nova Sonic,
+# Amazon Titan Text Embeddings, AWS Service Quotas), and (b) eight services
+# that had an index entry (from an earlier completeness pass) but were
+# never added as matrix rows, silently breaking the matrix/index parity
+# this section claims. Regression guard for both halves of that fix.
+REQUIRED_MATRIX_AUDIT_SERVICES = [
+    "Amazon Nova Sonic",
+    "Amazon Titan Text Embeddings",
+    "AWS Service Quotas",
+    "Amazon API Gateway",
+    "Amazon Bedrock Prompt Flows",
+    "Amazon Bedrock Prompt Management",
+    "Amazon MSK (Managed Streaming for Apache Kafka)",
+    "Amazon SageMaker Autopilot",
+    "Amazon SageMaker Model Monitor",
+    "Amazon SageMaker RL",
+    "AWS DeepRacer",
+]
+
+
+class TestAwsServiceDecisionGuideConsolidatedMatrix(unittest.TestCase):
+    """Section 5 -- the consolidated matrix spanning all 45+ services
+    referenced across the domain guides, with domain, exam-weight,
+    when-to-use, and common-confusion columns."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = CONSOLIDATED_MATRIX_HEADING_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 5"
+        cls.section_text = section_match.group(0)
+
+    def test_has_consolidated_matrix_section(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"^##\s+5\.\s+Consolidated service matrix", re.M),
+            "expected a numbered 'Consolidated service matrix' section "
+            "spanning all domains",
+        )
+
+    def test_matrix_has_required_columns(self):
+        header_line = next(
+            line
+            for line in self.section_text.splitlines()
+            if line.strip().startswith("| Service")
+        )
+        for column in [
+            "Domain",
+            "Exam weight relevance",
+            "When to use it",
+            "Common point of confusion",
+        ]:
+            with self.subTest(column=column):
+                self.assertIn(column, header_line)
+
+    def test_matrix_has_at_least_45_service_rows(self):
+        rows = MATRIX_ROW_RE.findall(self.section_text)
+        self.assertGreaterEqual(
+            len(rows),
+            45,
+            "expected the consolidated matrix to cover at least 45 "
+            f"services (found {len(rows)})",
+        )
+
+    def test_matrix_covers_required_sample_services(self):
+        rows = MATRIX_ROW_RE.findall(self.section_text)
+        for service in REQUIRED_MATRIX_SAMPLE_SERVICES:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    rows,
+                    f"consolidated matrix missing service row: {service!r}",
+                )
+
+    def test_matrix_covers_audit_added_services(self):
+        rows = MATRIX_ROW_RE.findall(self.section_text)
+        for service in REQUIRED_MATRIX_AUDIT_SERVICES:
+            with self.subTest(service=service):
+                self.assertIn(
+                    service,
+                    rows,
+                    f"consolidated matrix missing service row: {service!r}",
+                )
+
+    def test_matrix_row_count_matches_service_index_entry_count(self):
+        # The whole point of this matrix is to cover the exact same
+        # population of services as aws-service-index.md -- just reshaped
+        # into a multi-dimensional table instead of an alphabetical list.
+        index_text = _read(DOCS_DIR / "aws-service-index.md")
+        index_entries = re.findall(r"^- \*\*(?P<service>.+?)\*\* `\[", index_text, re.M)
+        matrix_rows = MATRIX_ROW_RE.findall(self.section_text)
+        self.assertEqual(
+            sorted(s.lower() for s in index_entries),
+            sorted(s.lower() for s in matrix_rows),
+            "consolidated matrix service set does not match "
+            "aws-service-index.md's service set",
+        )
+
+    def test_matrix_links_back_to_service_index(self):
+        self.assertIn("aws-service-index.md", self.section_text)
+
+
+DOMAIN_LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*(?P<date>\d{4}-\d{2}-\d{2})")
+BEDROCK_LAST_VERIFIED_RE = re.compile(
+    r"last verified\W{0,6}(?P<date>\d{4}-\d{2}-\d{2})", re.IGNORECASE
+)
+
+DOMAIN_GUIDE_FILENAMES = [
+    "domain-1-fundamentals-of-ai-and-ml.md",
+    "domain-2-fundamentals-of-generative-ai.md",
+    "domain-3-applications-of-foundation-models.md",
+    "domain-4-guidelines-for-responsible-ai.md",
+    "domain-5-security-compliance-governance.md",
+]
+
+
+class TestAwsServiceDecisionGuideLastVerifiedDateAgreesWithDomains(unittest.TestCase):
+    """The decision guide's Bedrock model reference carries its own
+    'Last verified' checkpoint (section 4), separate from the five domain
+    guides' shared checkpoint. A prior review synced all five domain guides
+    to the same date but left this doc a day behind, which made the
+    series' freshness metadata look inconsistent even though nothing was
+    actually stale. Guard against that drifting again."""
+
+    def test_decision_guide_date_matches_domain_guides(self):
+        domain_dates = set()
+        for filename in DOMAIN_GUIDE_FILENAMES:
+            text = _read(DOCS_DIR / filename)
+            match = DOMAIN_LAST_VERIFIED_RE.search(text)
+            self.assertIsNotNone(
+                match, f"{filename} is missing a 'Last verified' date"
+            )
+            domain_dates.add(match.group("date"))
+
+        self.assertEqual(
+            len(domain_dates),
+            1,
+            f"domain guides disagree on their 'Last verified' date: {domain_dates}",
+        )
+        domain_date = next(iter(domain_dates))
+
+        decision_guide_text = _read(DOC_PATH)
+        section_match = re.search(
+            r"^##\s+4\.\s+Bedrock model reference.*?(?=^## |\Z)",
+            decision_guide_text,
+            re.M | re.S,
+        )
+        self.assertIsNotNone(
+            section_match, "could not locate the Bedrock model reference section"
+        )
+        bedrock_match = BEDROCK_LAST_VERIFIED_RE.search(section_match.group(0))
+        self.assertIsNotNone(
+            bedrock_match,
+            "Bedrock model reference section is missing a 'Last verified' date",
+        )
+
+        self.assertEqual(
+            bedrock_match.group("date"),
+            domain_date,
+            "aws-service-decision-guide.md's 'Last verified' date "
+            f"({bedrock_match.group('date')}) has drifted from the domain "
+            f"guides' shared date ({domain_date}); the whole series should "
+            "stay in sync",
         )
 
 

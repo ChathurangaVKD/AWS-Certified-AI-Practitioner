@@ -73,7 +73,7 @@ REQUIRED_SELECTION_CRITERIA = [
 ]
 
 MIN_QUESTIONS = 15
-MAX_QUESTIONS = 20
+MAX_QUESTIONS = 24
 
 
 def _read_doc():
@@ -108,6 +108,158 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
             self.text, r"^# Domain 2: Fundamentals of Generative AI"
         )
         self.assertIn("## Domain overview", self.text)
+
+    def test_generative_ai_section_has_a_transformer_diagram(self):
+        section = _section(self.text, r"\n## 1\. Generative AI core concepts")
+        fences = re.findall(r"```(.*?)```", section, re.S)
+        self.assertTrue(
+            fences, "core concepts section should include a transformer diagram"
+        )
+        diagram = "\n".join(fences)
+        for term in ["Tokenization", "Embeddings", "Self-Attention", "Feed-Forward"]:
+            with self.subTest(term=term):
+                self.assertIn(term, diagram)
+        self.assertRegex(
+            diagram, r"→|↓", "diagram should show the transformer pipeline flow"
+        )
+
+    def test_generative_ai_section_has_a_token_flow_mermaid_diagram(self):
+        # The core-concepts section must include a Mermaid flowchart (not
+        # just the ASCII pipeline summary) that traces a concrete example
+        # sentence through tokenization, embeddings, and the transformer's
+        # self-attention block to the model's output.
+        section = _section(self.text, r"\n## 1\. Generative AI core concepts")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "core concepts section should include a Mermaid token-flow diagram",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        # Concrete example sentence, tokenized word by word.
+        for token in ["The cat sat", "Token: The", "Token: cat", "Token: sat"]:
+            with self.subTest(token=token):
+                self.assertIn(token, diagram)
+
+        # Stages of the token flow: embeddings -> transformer attention -> output.
+        for stage in [
+            "Embeddings layer",
+            "positional encoding",
+            "Transformer block",
+            "Self-Attention",
+            "Feed-Forward",
+            "Output token probabilities",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertIn(stage, diagram)
+
+        # It should be an actual flowchart with connected nodes, not prose.
+        self.assertRegex(
+            diagram, r"-->", "diagram should connect stages with flowchart edges"
+        )
+
+    def test_generative_ai_section_has_an_attention_weight_matrix_diagram(self):
+        # Beyond the high-level pipeline diagram, the core-concepts section
+        # must include a *detailed* self-attention example: a concrete
+        # sentence with numeric attention weights showing how one token
+        # ("it") attends to every other token, to make the "long-range
+        # dependency" claim concrete rather than just asserted in prose.
+        section = _section(self.text, r"\n## 1\. Generative AI core concepts")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertGreaterEqual(
+            len(mermaid_blocks),
+            2,
+            "core concepts section should include a separate attention-weight "
+            "matrix diagram in addition to the token-flow pipeline diagram",
+        )
+        # The attention diagram is the one keyed on the query token "it".
+        attention_diagrams = [b for b in mermaid_blocks if '"it"' in b]
+        self.assertTrue(
+            attention_diagrams,
+            "expected a Mermaid diagram rooted at the query token \"it\"",
+        )
+        diagram = "\n".join(attention_diagrams)
+
+        # Every token of the example sentence must appear as a key node.
+        for token in [
+            "cat",
+            "sat",
+            "on",
+            "mat",
+            "because",
+            "was",
+            "tired",
+        ]:
+            with self.subTest(token=token):
+                self.assertIn(f'"{token}"', diagram)
+
+        # Edges must carry actual numeric attention weights, and "it" must
+        # attend most strongly back to "cat" (its antecedent).
+        weights = re.findall(r'\|"([0-9]*\.[0-9]+)"\|', diagram)
+        self.assertTrue(
+            weights, "diagram edges should be labeled with numeric attention weights"
+        )
+        self.assertRegex(
+            diagram,
+            r'IT -->\|"0\.62"\|\s*CAT',
+            "highest attention weight from \"it\" should point to \"cat\"",
+        )
+
+        # The full weight distribution should be documented as a matrix
+        # table that sums to 1.0, reinforcing that this is a proper
+        # attention-weight matrix row and not just an arbitrary graph.
+        self.assertIn("Attention weight from \"it\"", section)
+        self.assertIn("**1.00**", section)
+
+    def test_lifecycle_section_has_a_mermaid_flowchart(self):
+        # The LLM lifecycle section must include a Mermaid diagram (not
+        # just prose) showing the six lifecycle stages, the branching
+        # customization options for stage 3, and which AWS service
+        # supports each option.
+        section = _section(self.text, r"\n## 2\. LLM lifecycle basics")
+        mermaid_blocks = re.findall(r"```mermaid\n(.*?)```", section, re.S)
+        self.assertTrue(
+            mermaid_blocks,
+            "LLM lifecycle section should include a Mermaid flowchart",
+        )
+        diagram = "\n".join(mermaid_blocks)
+
+        # All six lifecycle stages must appear as diagram nodes.
+        for stage in [
+            "Scope the use case",
+            "Select a foundation model",
+            "Adapt & customize",
+            "Evaluate the model",
+            "Deploy & integrate",
+            "Monitor",
+        ]:
+            with self.subTest(stage=stage):
+                self.assertIn(stage, diagram)
+
+        # The four customization options branching off stage 3.
+        for option in [
+            "Prompt engineering",
+            "Retrieval Augmented",
+            "Fine-tuning",
+            "Continued pre-training",
+        ]:
+            with self.subTest(option=option):
+                self.assertIn(option, diagram)
+
+        # The AWS services that support each customization path.
+        for service in [
+            "Amazon Bedrock",
+            "Knowledge Bases for",
+            "SageMaker JumpStart",
+        ]:
+            with self.subTest(service=service):
+                self.assertIn(service, diagram)
+
+        # The diagram should show branching out of the adapt/customize
+        # decision node and looping back from monitor for iteration.
+        self.assertRegex(
+            diagram, r"-->\|", "diagram should show labeled branches"
+        )
 
     def test_has_every_required_topic_section(self):
         for heading in REQUIRED_TOPIC_HEADINGS:
@@ -203,6 +355,44 @@ class TestDomain2StudyGuideStructure(unittest.TestCase):
             "key terms glossary should cover at least 15 terms",
         )
 
+    def test_image_generation_model_reference_is_current(self):
+        # Amazon Nova Canvas (not the discontinued-for-this-purpose Titan
+        # Image Generator) is Amazon's current first-party Bedrock
+        # image-generation model, and the AWS services section should name
+        # it explicitly.
+        services_section = _section(
+            self.text,
+            r"\n## 5\. AWS generative AI services and capabilities",
+        )
+        self.assertIn(
+            "Amazon Nova Canvas",
+            services_section,
+            "AWS services section should name Amazon Nova Canvas as "
+            "Amazon's current first-party image-generation model",
+        )
+        self.assertNotIn(
+            "text, embeddings, and image generation models",
+            services_section,
+            "Amazon Titan bullet should no longer claim image-generation "
+            "capability; that moved to Amazon Nova Canvas",
+        )
+
+        # Elsewhere in the doc, Titan Image Generator must not be presented
+        # as a current, working option (a prior review flagged exactly this
+        # in the business-use-cases mini-quiz and the prompt-engineering
+        # AWS example).
+        use_cases_section = _section(
+            self.text, r"\n## 4\. Business use cases for generative AI"
+        )
+        self.assertNotIn("Titan Image Generator", use_cases_section)
+        self.assertIn("Amazon Nova Canvas", use_cases_section)
+
+        prompting_section = _section(
+            self.text, r"\n## 6\. Prompt engineering fundamentals"
+        )
+        self.assertNotIn("Titan Image Generator", prompting_section)
+        self.assertIn("Amazon Nova Canvas", prompting_section)
+
 
 class TestDomain2PracticeQuestions(unittest.TestCase):
     @classmethod
@@ -270,6 +460,30 @@ class TestDomain2PracticeQuestions(unittest.TestCase):
                     r"\*\*[A-E](?:\s*(?:,|and)\s*[A-E])*\s*[—-]",
                     f"answer {anum} should clearly state the correct option letter(s)",
                 )
+
+    def test_every_question_is_tagged_with_a_difficulty_level(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.questions_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        levels_seen = set()
+        for block in blocks:
+            qnum = block.split(".", 1)[0]
+            with self.subTest(question=qnum):
+                match = re.match(
+                    r"^\d+\.\s\*\*\[(Beginner|Intermediate|Advanced)\]\*\*\s",
+                    block,
+                )
+                self.assertTrue(
+                    match,
+                    f"question {qnum} should start with a "
+                    f"**[Beginner|Intermediate|Advanced]** difficulty tag",
+                )
+                if match:
+                    levels_seen.add(match.group(1))
+        self.assertEqual(
+            levels_seen,
+            {"Beginner", "Intermediate", "Advanced"},
+            "practice questions should include all three difficulty levels",
+        )
 
 
 if __name__ == "__main__":

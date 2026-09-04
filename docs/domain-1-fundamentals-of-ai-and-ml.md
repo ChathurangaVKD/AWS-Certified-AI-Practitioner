@@ -1,5 +1,29 @@
 # Domain 1: Fundamentals of AI and ML
 
+[← README](../README.md) · **Domain 1 of 5** · [Domain 2: Fundamentals of Generative AI →](domain-2-fundamentals-of-generative-ai.md)
+
+**Last verified:** 2026-09-02
+
+## Table of contents
+
+- [1. Basic AI/ML/DL terminology and concepts](#1-basic-aimldl-terminology-and-concepts)
+- [2. The ML development lifecycle](#2-the-ml-development-lifecycle)
+  - [Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand](#worked-example-estimating-training-cost-for-the-loan-default-predictor-sagemaker-managed-spot-training-vs-on-demand)
+  - [Production deployment strategies and model versioning](#production-deployment-strategies-and-model-versioning)
+    - [Worked example: promoting a new model version with canary deployment via SageMaker Model Registry](#worked-example-promoting-a-new-model-version-with-canary-deployment-via-sagemaker-model-registry)
+- [3. Types of learning](#3-types-of-learning)
+- [4. Common use cases for AI/ML](#4-common-use-cases-for-aiml)
+- [5. AWS managed AI/ML services (conceptual overview)](#5-aws-managed-aiml-services-conceptual-overview)
+- [6. Model evaluation basics](#6-model-evaluation-basics)
+- [7. Overfitting, underfitting, and the bias–variance trade-off](#7-overfitting-underfitting-and-the-biasvariance-trade-off)
+  - [Ensemble methods: bagging, boosting, and voting](#ensemble-methods-bagging-boosting-and-voting)
+- [Worked example: end-to-end ML lifecycle for a loan-default predictor](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
+- [Comparison table: AWS managed AI/ML services at a glance](#comparison-table-aws-managed-aiml-services-at-a-glance)
+- [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key and explanations](#answer-key-and-explanations)
+
 ## Domain overview
 
 Domain 1 is the largest single knowledge domain on the AWS Certified AI
@@ -10,8 +34,11 @@ paradigms, where AI/ML solves real business problems, which AWS managed
 service maps to which problem, and how to tell — using basic metrics — whether
 a model is any good.
 
-This domain matters because every later domain (generative AI, foundation
-model applications, responsible AI, and security/governance) assumes you
+This domain matters because every later domain
+([generative AI](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts),
+[foundation model applications](domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications),
+[responsible AI](domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai), and
+[security/governance](domain-5-security-compliance-governance.md#1-securing-ai-systems)) assumes you
 already have this vocabulary and mental model. Questions here are rarely
 about memorizing an API call; they are scenario-based ("a company wants to
 do X — which AWS service and which technique fit?") and reward being able to
@@ -42,12 +69,27 @@ unstructured data like images, audio, and text.
 **Generative AI (GenAI)** is a further subset of DL that focuses on models
 (often foundation models built on the transformer architecture) that
 *generate* new content — text, images, code, audio — rather than only
-predicting a label or a number. Generative AI is covered in depth in Domain
-2, but you should know it nests inside DL, which nests inside ML, which
+predicting a label or a number. Generative AI is covered in depth in
+[Domain 2](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts), but you should know it nests inside DL, which nests inside ML, which
 nests inside AI:
 
 ```
 AI  ⊃  ML  ⊃  DL  ⊃  Generative AI
+```
+
+**Visual hierarchy:** the diagram below renders the same relationship as
+literal nested boxes — each field is drawn *inside* its parent field — so
+the containment (not a sequence or a pipeline) is unmistakable:
+
+```mermaid
+flowchart TD
+    subgraph AI["Artificial Intelligence (AI)<br/>Broadest field — any system that performs<br/>tasks normally requiring human intelligence"]
+        subgraph ML["Machine Learning (ML)<br/>Learns patterns from data<br/>instead of hand-written rules"]
+            subgraph DL["Deep Learning (DL)<br/>Multi-layer neural networks that<br/>learn features automatically"]
+                GENAI["Generative AI<br/>Foundation models that generate<br/>new text, images, code, or audio"]
+            end
+        end
+    end
 ```
 
 Other core vocabulary you must know cold:
@@ -69,6 +111,11 @@ Other core vocabulary you must know cold:
   endpoint), **batch inference** (large offline jobs), **asynchronous
   inference** (large payloads, minutes-long processing, queued), and
   **serverless inference** (intermittent traffic, auto-scales to zero).
+  See the [cross-domain concept map's inference deployment pattern
+  comparison](cross-domain-concept-map.md#inference-deployment-pattern-comparison)
+  for how real-time, batch, serverless, and Domain 3's provisioned
+  throughput compare side by side on latency, cost model, scaling, and
+  use case.
 
 **AWS example:** Amazon SageMaker is AWS's umbrella ML platform — it doesn't
 force you to pick AI vs. ML vs. DL; it gives you the tooling (notebooks,
@@ -81,6 +128,48 @@ simple linear regression to a deep neural network.
 > a type of deep learning"). Also expect a question that asks you to
 > distinguish a **parameter** from a **hyperparameter** — parameters are
 > *learned*, hyperparameters are *configured by a person before training*.
+
+#### Mini-quiz: Test your understanding of AI/ML/DL terminology
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which of the following correctly orders these fields from broadest to
+   narrowest?
+   A. ML, AI, DL, Generative AI
+   B. AI, ML, DL, Generative AI
+   C. DL, ML, AI, Generative AI
+   D. Generative AI, DL, ML, AI
+
+   **Answer: B** — AI is the broadest field, ML is a subset of AI, DL is a
+   subset of ML, and Generative AI is a subset of DL (AI ⊃ ML ⊃ DL ⊃
+   Generative AI).
+
+2. A data scientist sets the number of training epochs to 50 before
+   launching a training job. Is "number of epochs" a parameter or a
+   hyperparameter?
+   A. A parameter, because it affects the final model
+   B. A hyperparameter, because it is set by a human before training begins
+   C. A parameter, because it is learned automatically during training
+   D. Neither — it is not related to model training
+
+   **Answer: B** — Hyperparameters (learning rate, epochs, batch size,
+   number of trees) are configured by a person before training starts;
+   parameters (like neural network weights) are learned automatically.
+
+3. Which inference option best fits a workload with large payloads that can
+   tolerate minutes of processing time and should be queued rather than
+   served instantly?
+   A. Real-time inference
+   B. Batch inference
+   C. Asynchronous inference
+   D. Serverless inference
+
+   **Answer: C** — Asynchronous inference is designed for large payloads
+   and longer processing times via a queue. Real-time (A) needs low
+   latency; batch (B) is for large offline jobs run on a schedule, not a
+   queued single request; serverless (D) targets intermittent traffic, not
+   payload size.
 
 ---
 
@@ -126,7 +215,55 @@ AWS tool/SageMaker capability supports each stage:
 
 This is an **iterative loop**, not a strict waterfall: poor evaluation or
 monitoring results send you back to data collection, feature engineering,
-or retraining.
+or retraining. Step 6 in particular is a **decision point**, not just a
+measurement: if the model *passes* its target metrics it proceeds to
+deployment; if it *fails*, the loop sends it back to feature engineering
+(or earlier) to retrain rather than shipping a model that doesn't meet the
+success criteria defined in step 1.
+
+```mermaid
+flowchart TD
+    A["1. Business Goal Identification"] --> B["2. Data Collection<br/>S3 · Glue · Kinesis / MSK"]
+    B --> C["3. Exploratory Data Analysis<br/>SageMaker Data Wrangler · SageMaker Studio · Athena"]
+    C --> D["4. Data Preparation / Feature Engineering<br/>SageMaker Data Wrangler · SageMaker Feature Store"]
+    D --> E["5. Model Training<br/>SageMaker Training Jobs · JumpStart · Managed Spot Training"]
+    E --> F["6. Hyperparameter Tuning / Evaluation<br/>SageMaker Automatic Model Tuning · SageMaker Clarify"]
+    F --> DEC{"Meets target<br/>success metrics?"}
+    DEC -- "Pass" --> G["7. Deployment<br/>SageMaker Endpoints · Batch Transform · Serverless Inference"]
+    G --> H["8. Monitoring<br/>SageMaker Model Monitor · Amazon CloudWatch"]
+    DEC -. "Fail: poor evaluation results, retrain" .-> D
+    H -. "data / concept drift detected" .-> B
+    H -. "degraded accuracy: retrain" .-> E
+```
+
+The same lifecycle, shown as plain-text ASCII for readers without Mermaid
+rendering:
+
+```
+1. Business Goal Identification
+        ↓
+2. Data Collection
+        ↓
+3. Exploratory Data Analysis (EDA)
+        ↓
+4. Data Preparation / Feature Engineering
+        ↓
+5. Model Training
+        ↓
+6. Hyperparameter Tuning / Evaluation
+        ↓
+   ┌─── Meets target metrics? ───┐
+  PASS                          FAIL
+   ↓                             │
+7. Deployment                    │
+   ↓                             │
+8. Monitoring                    │
+   │                             │
+   └──── iterate: drift or degraded accuracy loops back to Data
+         Collection or Model Training ─────────────────────────▶
+         (back to step 2 / 5); a FAILed evaluation loops back
+         directly to Feature Engineering (step 4) to retrain ──▶
+```
 
 **AWS example:** A retailer builds a churn-prediction model. They land raw
 event data in S3, use SageMaker Data Wrangler for EDA and feature
@@ -142,6 +279,363 @@ when accuracy degrades.
 > evaluate/tune → deploy → monitor. Also know that **Feature Store** exists
 > specifically to prevent *training/serving skew* (features computed
 > differently at training time vs. inference time).
+
+### Worked example: estimating training cost for the loan-default predictor: SageMaker managed spot training vs. on-demand
+
+Step 5 above names **Managed Spot Training** as the AWS tool for cutting
+model-training compute cost, and the
+[end-to-end lifecycle worked example](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)
+later in this domain trains the loan-default XGBoost model with Managed
+Spot Training "since these are not time-critical, interactive jobs" — but
+neither stops to show the actual arithmetic. Domain 3 has several worked
+examples that turn a qualitative cost ranking into real dollar figures,
+such as the
+[monthly inference cost worked example](domain-3-applications-of-foundation-models.md#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers);
+this walkthrough applies that same "estimate first, then compare"
+discipline to **training** cost instead — picking a training instance
+type, understanding how spot interruptions are actually handled, and
+building a full monthly cost comparison — because AIF-C01 scenarios that
+say "reduce training cost without disrupting the retraining schedule"
+expect this arithmetic, not just recognition of the term "Managed Spot
+Training."
+
+**Scenario:** The same regional bank from the end-to-end worked example
+now has its loan-default XGBoost model in production. **SageMaker Model
+Monitor** and the monthly loan-performance data refresh both trigger
+retraining: a **routine monthly retrain** on the latest data (no fixed
+deadline — it can run overnight, over a weekend, or be interrupted and
+resumed), and an occasional **drift-triggered emergency retrain** when
+Model Monitor flags a data-drift alarm, which the bank's model-risk policy
+requires to complete and redeploy within a **24-hour compliance SLA**. The
+published Feature Store table now holds **2.4 million** historical
+applications across **42** engineered features, a roughly **4 GB**
+training file in S3. The MLOps team needs to pick a training instance type
+and decide, for each retrain trigger, whether Managed Spot Training or
+On-Demand training is the right call.
+
+**Step 1: Match the instance family to the algorithm, not the biggest
+instance available.** SageMaker's built-in XGBoost algorithm here runs in
+its default **single-instance, CPU** mode: it builds gradient-boosted
+trees over an in-memory data matrix, so the resources that actually limit
+training are **vCPU count and RAM to hold that matrix** — not GPU
+throughput. This is the key distinction from a deep-learning training job
+(large neural networks, which do need GPU instances): classical,
+tabular-data algorithms like XGBoost, Linear Learner, and k-NN are
+generally **CPU-appropriate**, and paying for an idle GPU instance buys
+nothing.
+
+| Instance type | vCPU | Memory | Illustrative on-demand rate* | Fit for this job |
+|---|---|---|---|---|
+| `ml.m5.xlarge` | 4 | 16 GiB | $0.230/hr | Too little headroom — XGBoost's in-memory DMatrix typically needs 3–4x the raw 4 GB file size, plus OS/runtime overhead; risks an out-of-memory failure mid-job |
+| `ml.c5.2xlarge` | 8 | 16 GiB | $0.408/hr | More vCPU than needed, but the **same** memory ceiling as `ml.m5.xlarge` — doesn't fix the actual constraint |
+| **`ml.m5.2xlarge`** | 8 | **32 GiB** | **$0.461/hr** | **Chosen** — comfortable memory headroom for the DMatrix plus OS overhead, at a moderate vCPU count XGBoost's tree-building can actually parallelize across |
+| `ml.p3.2xlarge` (GPU) | 8 | 61 GiB | $3.825/hr | GPU sits idle in single-instance CPU XGBoost — roughly 8x `ml.m5.2xlarge`'s hourly rate for zero training-time benefit |
+
+*Illustrative round numbers picked for this exercise, not a live quote —
+always check the current
+[SageMaker pricing page](https://aws.amazon.com/sagemaker/pricing/) for
+actual, region-specific rates.
+
+The lesson generalizes: **memory-to-data-size fit** drives instance choice
+for classical ML training far more than raw vCPU count or the presence of
+a GPU, which matters for deep learning but not for a single-instance
+gradient-boosted-tree job.
+
+**Step 2: Understand what Managed Spot Training actually changes.** Spot
+capacity is spare EC2 capacity AWS offers at a steep discount versus
+On-Demand — commonly **up to 90%** — but it can be reclaimed with a
+**2-minute interruption notice** if AWS needs that capacity back.
+**SageMaker Managed Spot Training** wraps this into a managed workflow
+instead of requiring you to handle EC2 spot interruptions yourself:
+
+- You set **`MaxRuntimeInSeconds`** (the compute-time budget the job
+  actually needs to finish) and **`MaxWaitTimeInSeconds`** (the wall-clock
+  ceiling, including any time spent waiting for replacement spot capacity
+  after an interruption), where `MaxWaitTimeInSeconds` must be **≥**
+  `MaxRuntimeInSeconds`.
+- To survive an interruption without losing progress, the training job
+  must **checkpoint** its state to S3 periodically (via a configured
+  `checkpoint_s3_uri`). On interruption, SageMaker automatically
+  provisions replacement spot capacity and **resumes training from the
+  last checkpoint** rather than restarting from scratch.
+- **Billing** only covers actual compute seconds consumed — not the time
+  spent waiting for replacement capacity after an interruption. So an
+  interrupted-and-resumed job's **wall-clock duration** can stretch past a
+  smooth run's, but its **billed compute time**, and therefore its cost,
+  stays close to the same job run without interruption.
+
+Skipping the checkpoint step is the trap: without a checkpoint to resume
+from, an interrupted job restarts training from **0% progress**, and a
+job that keeps getting interrupted before finishing can burn through the
+entire `MaxWaitTimeInSeconds` window without ever completing — turning an
+intended cost saving into a missed retrain.
+
+**Step 3: Price a single training run, on-demand vs. spot.** The chosen
+`ml.m5.2xlarge` job takes **90 minutes (1.5 hours)** of billed compute
+time to train on the 2.4-million-row dataset, whether run On-Demand or via
+Managed Spot Training (checkpointing adds negligible overhead).
+
+| | On-Demand | Managed Spot Training |
+|---|---|---|
+| Rate | $0.461/hr | $0.138/hr (≈70% discount, illustrative) |
+| Billed compute time | 1.5 hr | 1.5 hr |
+| **Cost per run** | 1.5 × $0.461 = **$0.69** | 1.5 × $0.138 = **$0.21** |
+
+A single run's saving ($0.48) looks small in isolation — the next step
+scales this up to the bank's actual monthly training workload, where the
+same ~70% ratio compounds into a figure worth acting on.
+
+**Step 4: Scale the per-run cost to a full month's training workload.**
+The monthly retrain doesn't run just once — **SageMaker automatic model
+tuning** ([Section 2](#2-the-ml-development-lifecycle), step 6) launches a
+hyperparameter-search job that trains **30 candidate models** (varying
+tree depth, learning rate, and number of rounds) before the team picks the
+best one, and every one of those 30 training jobs is exactly the same
+~90-minute, `ml.m5.2xlarge`, checkpointed job priced above.
+
+| Monthly workload | Billed compute hours | On-Demand cost | Managed Spot cost | Monthly saving |
+|---|---|---|---|---|
+| 30 tuning-job training runs × 1.5 hr | 45 hr | 45 × $0.461 = **$20.75** | 45 × $0.138 = **$6.21** | **$14.54 (≈70%)** |
+
+At **12 months**, that's roughly **$174.48/year** saved on the routine
+retrain cadence alone, purely by switching the tuning job's training
+instances from On-Demand to Managed Spot Training with checkpointing
+enabled — no change to the algorithm, the data, or the resulting model's
+accuracy. The absolute dollars here look modest because this example uses
+one mid-sized instance type and one team's monthly cadence; the **same
+~70% ratio** scales linearly with larger instances, bigger tuning-job
+fleets, or more frequent retraining, which is the number that matters when
+comparing Spot against On-Demand — not the dollar figure of any single toy
+example.
+
+**Step 5: Recognize when *not* to use Spot.** The drift-triggered
+emergency retrain from this scenario has a **24-hour compliance SLA** —
+and that changes the trade-off entirely. Managed Spot Training's savings
+come from tolerating interruption-and-resume delays that stretch
+wall-clock time in exchange for a lower bill; a job racing a fixed
+deadline can't safely absorb an unlucky string of interruptions eating
+into that 24-hour window. For this retrain, the team accepts On-Demand's
+higher per-run cost ($0.69 instead of $0.21) to buy **certainty of
+completion time**, since missing the SLA is a compliance failure that
+costs far more than the ~$0.48 saved by risking Spot on this one run.
+
+| Retrain trigger | Deadline pressure | Checkpointing feasible? | Spot appropriate? |
+|---|---|---|---|
+| Routine monthly retrain (scheduled) | None — can run overnight or over a weekend | Yes | **Yes** — Managed Spot Training |
+| Drift-triggered emergency retrain | Hard 24-hour compliance SLA | Yes, but doesn't help if capacity keeps getting reclaimed near the deadline | **No** — On-Demand |
+| Automatic model tuning's 30 exploratory training jobs | None — best candidate is picked after the whole tuning job finishes | Yes | **Yes** — Managed Spot Training |
+
+**AWS example:** The bank runs its monthly automatic-model-tuning job on
+`ml.m5.2xlarge` instances via **Managed Spot Training**, with checkpointing
+enabled so an interrupted candidate resumes instead of restarting,
+saving roughly **$14.54/month (≈$174/year)** at this job's current scale
+compared to On-Demand — a ratio, not just a dollar figure, that keeps
+paying off as the tuning fleet or instance size grows. When **Model
+Monitor** fires a drift alarm instead, the team's deployment pipeline
+routes that one retrain to **On-Demand** `ml.m5.2xlarge` instances, paying
+the higher per-run rate to guarantee the refreshed model redeploys inside
+the 24-hour compliance SLA regardless of spot capacity availability that
+day.
+
+> **Exam tip:** Managed Spot Training's advertised savings (up to 90%)
+> assume the training job **checkpoints to S3** so an interruption resumes
+> instead of restarting from zero — a scenario that mentions Managed Spot
+> Training without checkpointing is describing a setup that can burn
+> through `MaxWaitTimeInSeconds` without finishing. Choose **Managed Spot
+> Training** for routine, deadline-flexible training and tuning jobs;
+> choose **On-Demand** the moment a scenario mentions a fixed completion
+> deadline, a time-critical retrain, or a compliance SLA — cost savings
+> never outrank a hard deadline. And for instance-type selection on a
+> classical/tabular algorithm like XGBoost, match **memory to the
+> in-memory data size**, not vCPU count or GPU availability — GPU
+> instances add cost with no training-time benefit for a single-instance
+> CPU algorithm.
+
+### Production deployment strategies and model versioning
+
+Step 7 above ("Deployment") describes *how* to expose a trained model for
+inference, but production systems also need a controlled way to **roll
+out a new model version** without risking a bad release, and a reliable
+way to **track which version is running**. Cross-domain scenario
+questions about production rollouts and model governance draw on four
+staged-rollout patterns, plus the AWS service used to track and promote
+model versions.
+
+**Staged rollout patterns** — these trade off risk, cost, and how quickly
+you learn about a new model version's real-world quality:
+
+- **Canary deployment** — route a small percentage of live traffic (e.g.,
+  5%) to the new model version while the majority of traffic stays on the
+  current version, then gradually increase the new version's share as
+  confidence grows, monitoring for errors or quality regressions at each
+  step. SageMaker endpoints support this via traffic-shifting deployment
+  configurations.
+- **Blue/green deployment** — run the new model version ("green") on a
+  fully separate fleet alongside the current version ("blue"), then cut
+  traffic over all at once once confidence is high, with an instant
+  rollback by shifting traffic back to blue if problems appear. SageMaker
+  supports blue/green deployment guardrails for endpoints, with linear or
+  canary traffic-shifting strategies during the cutover.
+- **A/B testing** — deliberately split live traffic between two (or more)
+  model versions to statistically compare business or model-quality
+  metrics (e.g., conversion rate, click-through rate) side by side, not
+  just to safely roll one version out. Both versions keep running and
+  receiving real traffic for as long as needed to reach a statistically
+  meaningful result. SageMaker endpoints can host multiple **production
+  variants** with configurable weighted traffic splits for exactly this.
+- **Shadow deployment (shadow testing)** — send a copy of live production
+  traffic to the new model version in parallel, without its predictions
+  ever being returned to users or affecting any real decision, then
+  compare the shadow version's predictions against the live version's
+  offline. This validates that a new version behaves acceptably on real
+  traffic with zero user-facing risk, at the cost of running duplicate
+  inference capacity. SageMaker inference supports shadow variants for
+  this pattern.
+
+The shared theme: every pattern except an all-at-once cutover keeps the
+previous version live and serving traffic, so a bad new version can be
+rolled back or throttled instead of taking production down.
+
+**Model versioning and promotion: SageMaker Model Registry.** Choosing a
+rollout pattern only helps if you can reliably identify *which trained
+model artifact* a given version actually is. **Amazon SageMaker Model
+Registry** is the AWS service for this: it catalogs trained model
+versions grouped into **model package groups**, stores each version's
+metadata (evaluation metrics, lineage, approval status), and lets a
+reviewer **approve or reject** a version before it can be deployed. A
+typical flow: a training job registers a new candidate version as
+"Pending manual approval" → a reviewer inspects its evaluation metrics
+(and, per [Section 6](#6-model-evaluation-basics), any SageMaker Clarify
+bias metrics) → the reviewer sets the version's status to "Approved" → a
+deployment pipeline (e.g., built with SageMaker Pipelines) picks up the
+approved version and rolls it out using one of the staged-rollout
+patterns above. This gives governance reviewers (see
+[Domain 5](domain-5-security-compliance-governance.md#1-securing-ai-systems))
+an auditable record of exactly which approved version is serving
+production traffic, and a clear path to roll back to a previous approved
+version if the new one underperforms.
+
+**AWS example:** A ride-sharing company retrains its fare-estimation
+model weekly. Each new training run registers a candidate version in
+**SageMaker Model Registry**. A data scientist reviews the candidate's
+evaluation metrics against the currently deployed version and, if they
+clear the bar, approves it. The deployment pipeline then rolls the
+approved version out as a **canary**: 5% of estimation requests for one
+hour, then 25%, then 100%, automatically rolling back to the previously
+approved version if error rates spike at any stage.
+
+> **Exam tip:** Distinguish the four patterns by *intent*, not just
+> mechanics: canary and blue/green are both about **safely rolling out**
+> one new version (gradual traffic shift vs. instant cutover with
+> fallback); A/B testing is about **deliberately comparing two versions'**
+> real-world performance, with both kept running on purpose; shadow
+> deployment is about **validating a new version with zero user-facing
+> risk**, since its predictions never reach users. If a question asks
+> which service tracks model versions and lets a reviewer approve one
+> before deployment, the answer is **SageMaker Model Registry** — not
+> Model Monitor (which watches an already-deployed model for drift) and
+> not Model Cards (which document a model's intended use and limitations,
+> not its deployment version).
+
+#### Worked example: promoting a new model version with canary deployment via SageMaker Model Registry
+
+The callouts above describe the rollout patterns and SageMaker Model
+Registry in isolation. This walkthrough stitches both together into one
+concrete sequence, since cross-domain scenario questions describe exactly
+this end-to-end flow (register → approve → stage traffic → monitor →
+promote or roll back) rather than testing either half alone.
+
+**Scenario:** An online retailer's product-recommendation model is
+retrained every week on the latest purchase data. The MLOps team needs a
+repeatable way to promote each new version into production that (1)
+records exactly which approved artifact is serving live traffic, and (2)
+limits the blast radius of a bad version instead of cutting every shopper
+over to it at once.
+
+1. **Register the candidate version.** The weekly training job's output
+   model artifact is registered as a new version inside an existing
+   **SageMaker Model Registry** model package group (e.g.
+   `product-recommender`), with status **"Pending manual approval"** and
+   its evaluation metrics (offline precision@k against a held-out
+   validation set) attached as metadata.
+2. **Review and approve.** A data scientist compares the candidate's
+   metrics against the currently deployed version's. The candidate clears
+   the bar, so the reviewer flips its Model Registry status to
+   **"Approved"** — the single auditable action that says "this specific
+   artifact is cleared for production," satisfying the governance record
+   [Domain 5](domain-5-security-compliance-governance.md#1-securing-ai-systems)
+   expects.
+3. **Stage the canary rollout.** A SageMaker Pipelines deployment job
+   picks up the newly Approved version and shifts **10%** of live
+   recommendation traffic to it behind the same endpoint, leaving the
+   remaining 90% on the prior Approved version.
+4. **Monitor at each stage.** A CloudWatch alarm watches the canary
+   slice's error rate and latency for a fixed soak period (e.g. 30
+   minutes). If the alarm stays green, the pipeline widens the shift to
+   **50%**, then **100%** of traffic, soaking at each step before
+   advancing further.
+5. **Roll back automatically on regression.** If the CloudWatch alarm
+   trips at *any* stage — say, the canary slice's error rate spikes well
+   above the baseline version's — the pipeline shifts traffic straight
+   back to the prior Approved version instead of continuing the rollout,
+   with no manual intervention needed to stop the bleeding.
+6. **Record the outcome.** Whichever version ends up serving 100% of
+   traffic, its Model Registry entry remains the auditable record of what
+   is live; a rolled-back candidate's status can be set to **"Rejected"**
+   so the next deployment attempt doesn't accidentally pick it up again.
+
+A **blue/green** rollout of the same Approved version looks almost
+identical through step 2, then diverges at step 3: instead of a gradual
+traffic shift, the new version ("green") is stood up on a fully separate
+fleet, validated against a small smoke-test slice, and then cut over all
+at once — with the old fleet ("blue") kept warm so a regression triggers
+an instant full cutback rather than a staged retreat.
+
+> **Exam tip:** A scenario that says a company must know *which exact
+> model artifact* is serving production and needs a **reviewer approval
+> step** before anything deploys is describing **SageMaker Model
+> Registry**, regardless of which rollout pattern it pairs with. A
+> scenario that emphasizes *gradually increasing traffic while watching
+> for errors, with automatic rollback* is describing **canary**; one that
+> emphasizes *an instant, all-at-once cutover with an instant fallback* is
+> describing **blue/green** — the registry-and-approval step is the same
+> either way, only the traffic-shifting mechanics differ.
+
+#### Mini-quiz: Test your understanding of the ML lifecycle
+
+1. Which step comes immediately before model training in the standard ML
+   lifecycle?
+   A. Deployment
+   B. Data preparation / feature engineering
+   C. Monitoring
+   D. Business goal identification
+
+   **Answer: B** — The order is collect → explore (EDA) → prepare/feature
+   engineer → **train** → evaluate/tune → deploy → monitor, so feature
+   engineering is the step immediately before training.
+
+2. What is the primary purpose of SageMaker Feature Store in the
+   lifecycle?
+   A. To visually explore data distributions
+   B. To store and reuse curated features consistently between training and
+      inference
+   C. To tune hyperparameters automatically
+   D. To monitor deployed models for drift
+
+   **Answer: B** — Feature Store exists specifically to prevent
+   training/serving skew by giving training and inference the same curated
+   feature definitions.
+
+3. A model fails its evaluation gate (step 6 in the lifecycle diagram).
+   Where does the loop send the team back to?
+   A. Directly to deployment anyway
+   B. Feature engineering, to retrain
+   C. Business goal identification only
+   D. Nowhere — a failed model is discarded permanently
+
+   **Answer: B** — A failed evaluation loops back to data
+   preparation/feature engineering (step 4) to retrain, rather than
+   shipping a model that misses its target metrics.
 
 ---
 
@@ -183,6 +677,66 @@ reward signal for success, is **reinforcement learning**.
 > sounds like "prediction." Also: RL is defined by *agent + environment +
 > reward*, not simply "learning without labels" — don't confuse it with
 > unsupervised learning.
+
+**Decision tree:** work an exam scenario by following the branch that
+matches what the question tells you about the data and the feedback
+signal:
+
+```mermaid
+flowchart TD
+    START(["Which learning type fits\nthis scenario?"])
+    START --> Q1{"Do you have LABELED data --\ninputs paired with known\ncorrect outputs?"}
+    Q1 -->|"NO"| Q2{"Is feedback immediate and\nreward-based -- does an agent\ntake actions in an environment\nand receive a reward signal?"}
+    Q2 -->|"YES"| RL["REINFORCEMENT LEARNING\n(agent maximizes cumulative\nreward through trial and error)"]
+    Q2 -->|"NO"| Q3{"Are you discovering patterns\nor structure WITHOUT labels\n(clustering, dimensionality\nreduction)?"}
+    Q3 -->|"YES"| UNS["UNSUPERVISED LEARNING\n(clustering or dimensionality\nreduction on unlabeled data)"]
+    Q1 -->|"YES"| Q4{"Is it mostly UNLABELED data\nwith only a small amount of\nlabeled data mixed in?"}
+    Q4 -->|"YES"| SEMI["SEMI-SUPERVISED LEARNING\n(small labeled set + large\nunlabeled set)"]
+    Q4 -->|"NO"| SUP["SUPERVISED LEARNING\n(classification or regression\nfrom labeled examples)"]
+```
+
+**Quick reference (if–then):** the same branches as one-line lookups:
+
+- No labels, and the goal is trial-and-error actions that earn a reward
+  from an environment → **reinforcement learning**
+- No labels, and the goal is finding structure/groupings on your own →
+  **unsupervised learning**
+- Labeled data, but only a small amount alongside a much larger unlabeled
+  pool → **semi-supervised learning**
+- Labeled data covering the whole training set → **supervised learning**
+
+#### Mini-quiz: Test your understanding of types of learning
+
+1. A retailer has purchase histories with no predefined customer
+   categories and wants to find natural groupings. Which learning type
+   applies?
+   A. Supervised learning
+   B. Unsupervised learning
+   C. Reinforcement learning
+   D. Semi-supervised learning
+
+   **Answer: B** — With no labels/target column, the algorithm must find
+   structure on its own, which is unsupervised clustering.
+
+2. What three elements define reinforcement learning?
+   A. Labels, features, and a loss function
+   B. Clusters, centroids, and distance metrics
+   C. An agent, an environment, and a reward signal
+   D. Training data, validation data, and test data
+
+   **Answer: C** — RL is defined by an agent taking actions in an
+   environment to maximize cumulative reward, not simply "no labels."
+
+3. Which AWS SageMaker built-in algorithm is an example of a supervised
+   learning algorithm?
+   A. k-means
+   B. Random Cut Forest
+   C. PCA
+   D. XGBoost
+
+   **Answer: D** — XGBoost is a supervised algorithm (classification/
+   regression on labeled data). k-means (A) and PCA (C) are unsupervised;
+   Random Cut Forest (B) is used for unsupervised anomaly detection.
 
 ---
 
@@ -231,6 +785,67 @@ different managed services for four different problem categories.
 > demand" → Forecast; "read this scanned form" → Textract (not
 > Comprehend — Textract handles the *layout/extraction*, Comprehend
 > analyzes *plain text meaning*).
+
+**Decision tree:** work an exam scenario by matching the verb in the
+question to the branch below, top to bottom — stop at the first branch
+that fits:
+
+```mermaid
+flowchart TD
+    START(["What does the scenario\nask you to do?"])
+    START --> Q1{"Flag transactions, accounts,\nor claims as fraudulent?"}
+    Q1 -->|"YES"| FD["Amazon Fraud Detector\n(or custom SageMaker model\nfor bespoke fraud logic)"]
+    Q1 -->|"NO"| Q2{"Predict what a user wants\nnext (products, content)?"}
+    Q2 -->|"YES"| PER["Amazon Personalize"]
+    Q2 -->|"NO"| Q3{"Predict future values of a\ntime series (demand,\ninventory, staffing)?"}
+    Q3 -->|"YES"| FC["Amazon Forecast"]
+    Q3 -->|"NO"| Q4{"Extract information from\nimages or video?"}
+    Q4 -->|"YES"| REK["Amazon Rekognition"]
+    Q4 -->|"NO"| Q5{"Understand or extract\nmeaning from plain text\n(sentiment, entities, PII)?"}
+    Q5 -->|"YES"| COMP["Amazon Comprehend"]
+    Q5 -->|"NO"| Q6{"Convert speech to text,\nor text to speech?"}
+    Q6 -->|"Speech to text"| TRANS["Amazon Transcribe"]
+    Q6 -->|"Text to speech"| POLLY["Amazon Polly"]
+    Q6 -->|"NO"| Q7{"Pull text, forms, or tables\nout of scanned documents?"}
+    Q7 -->|"YES"| TEXT["Amazon Textract"]
+    Q7 -->|"NO"| Q8{"Build a voice or text\nchatbot?"}
+    Q8 -->|"YES"| LEX["Amazon Lex"]
+    Q8 -->|"NO"| TRANSL["Translate between\nlanguages: Amazon Translate"]
+```
+
+#### Mini-quiz: Test your understanding of common AI/ML use cases
+
+1. Which AWS service best fits "extract structured data such as tables and
+   key-value pairs from scanned forms"?
+   A. Amazon Comprehend
+   B. Amazon Textract
+   C. Amazon Rekognition
+   D. Amazon Translate
+
+   **Answer: B** — Textract handles layout/structure extraction from
+   scanned documents; Comprehend (A) analyzes plain text meaning, not
+   document layout.
+
+2. A company wants to predict next quarter's inventory needs from
+   historical time-series data. Which service fits best?
+   A. Amazon Personalize
+   B. Amazon Forecast
+   C. Amazon Fraud Detector
+   D. Amazon Lex
+
+   **Answer: B** — Forecast is purpose-built for time-series forecasting.
+   Personalize (A) is for recommendations, not forecasting.
+
+3. Which service is purpose-built for detecting sentiment and extracting
+   entities from plain text?
+   A. Amazon Textract
+   B. Amazon Comprehend
+   C. Amazon Transcribe
+   D. Amazon Polly
+
+   **Answer: B** — Comprehend performs NLP tasks like sentiment, entities,
+   and key phrases on plain text. Transcribe (C) converts speech to text
+   but doesn't analyze meaning; Polly (D) is text-to-speech.
 
 ---
 
@@ -281,6 +896,49 @@ images, (2) transcribe uploaded video for closed captions, and (3) build a
 support chatbot — three different problems solved by three different
 purpose-built services (Rekognition, Transcribe, and Lex) with no custom
 model training required for any of them.
+
+**Decision tree: purpose-built service or SageMaker?** the same "no ML
+expertise" exam pattern above, as a flowchart:
+
+```mermaid
+flowchart TD
+    START(["Which AWS AI/ML service\nfits this scenario?"])
+    START --> Q1{"Does a purpose-built managed AI\nservice already cover this exact\nuse case (vision, speech, text,\nforecasting, recommendations,\ndocuments, chat, translation)?"}
+    Q1 -->|"YES"| PB["Use the purpose-built service --\nRekognition, Transcribe, Comprehend,\nPolly, Translate, Lex, Personalize,\nForecast, or Textract\n(no ML expertise required)"]
+    Q1 -->|"NO"| SM["Amazon SageMaker --\nbuild, train, tune, deploy, and\nmonitor a CUSTOM model"]
+```
+
+#### Mini-quiz: Test your understanding of AWS managed AI/ML services
+
+1. A company has no in-house ML expertise and wants to add facial analysis
+   to its app. Which service should it use?
+   A. Amazon SageMaker
+   B. Amazon Rekognition
+   C. Amazon Forecast
+   D. Amazon Lex
+
+   **Answer: B** — Rekognition is the purpose-built computer vision
+   service; SageMaker (A) would require building a custom model.
+
+2. When is Amazon SageMaker the better exam answer over a purpose-built AI
+   service?
+   A. Whenever cost matters
+   B. When the use case needs a custom model or algorithm not covered by a
+      purpose-built service
+   C. Whenever the workload involves text
+   D. Never — purpose-built services always win
+
+   **Answer: B** — SageMaker is the answer only when no purpose-built
+   service fits, or full customization/control is required.
+
+3. Which AWS service converts text into lifelike spoken audio?
+   A. Amazon Transcribe
+   B. Amazon Polly
+   C. Amazon Translate
+   D. Amazon Lex
+
+   **Answer: B** — Polly is text-to-speech; Transcribe (A) does the
+   reverse (speech-to-text).
 
 ---
 
@@ -341,6 +999,99 @@ metrics in production over time to detect quality drift.
 > the classification threshold typically **increases precision and
 > decreases recall**, and vice versa.
 
+**Decision tree: which metric should I use?** Work an exam scenario by
+following the branch that matches what the question tells you about the
+problem type and the class balance:
+
+```mermaid
+flowchart TD
+    START(["Which evaluation metric\nfits this scenario?"])
+    START --> Q1{"Regression or classification --\nis the target a continuous\nnumber or a category?"}
+    Q1 -->|"Regression"| REG["MAE / RMSE\n(lower is better;\nregression analogue of\nprecision/recall)"]
+    Q1 -->|"Classification"| Q2{"Is the dataset imbalanced\n(e.g. rare fraud/disease\npositive class)?"}
+    Q2 -->|"YES: imbalanced"| Q3{"Do false positives and false\nnegatives have different,\nspecific costs?"}
+    Q3 -->|"YES"| PR["Precision (costly false\npositives) or Recall (costly\nfalse negatives)"]
+    Q3 -->|"NO: need one balanced\nranking metric"| F1["F1 score or AUC-ROC\n(not plain accuracy)"]
+    Q2 -->|"NO: roughly balanced\nclasses"| ACC["Accuracy is safe to use"]
+```
+
+**Quick reference (if–then):** the same branches as one-line lookups:
+
+- Target is a continuous number, not a category → **MAE / RMSE**
+  (regression)
+- Classification on an **imbalanced** dataset, no single asymmetric cost →
+  **F1 score or AUC-ROC**, not accuracy
+- Classification where false positives and false negatives have different
+  costs → **Precision** (false positives costly) or **Recall** (false
+  negatives costly)
+- Classification on a **roughly balanced** dataset → **Accuracy** is a
+  reasonable summary metric
+
+**Choosing the right evaluation metric for your use case:** the decision
+tree above sorts by problem shape; this table sorts by the concrete,
+named scenarios exam questions tend to describe:
+
+| Use case | Class balance | What's most costly | Recommended metric |
+|----------|---------------|---------------------|---------------------|
+| Fraud detection | Highly imbalanced (rare fraud) | Missing real fraud (FN) — a false alarm just means a manual review | **Recall** (track overall quality with F1/AUC-ROC) |
+| Spam email filtering | Imbalanced (most email is legitimate) | Flagging a legitimate email as spam (FP) — a missed spam is a minor annoyance | **Precision** |
+| Medical disease screening | Imbalanced (rare disease) | Missing an actual case (FN) can be life-threatening | **Recall** |
+| Loan-default prediction | Imbalanced (most loans repaid) | Both directions matter: false declines (FP) reject good customers, missed defaults (FN) fund bad loans | **F1** (balances precision and recall; see the [end-to-end loan-default worked example](#worked-example-end-to-end-ml-lifecycle-for-a-loan-default-predictor)) |
+| General product-quality classifier | Roughly balanced classes | No single asymmetric cost called out | **Accuracy** |
+| House-price prediction | N/A — regression, not classification | N/A | **RMSE / MAE** |
+
+**Worked interpretation check:** a classifier evaluated on 1,000 held-out
+loan applications produces TP = 32, FP = 18, FN = 8, TN = 942. Precision =
+32 / (32 + 18) = **64%**. Recall = 32 / (32 + 8) = **80%**. F1 = 2 ×
+(0.64 × 0.80) / (0.64 + 0.80) ≈ **0.71**. Notice recall is higher than
+precision here — this model misses fewer actual defaulters (low FN) than
+it wrongly flags good applicants (higher FP), which is exactly the kind
+of arithmetic an exam scenario question expects you to work through
+rather than just quoting a definition.
+
+#### Mini-quiz: Test your understanding of model evaluation
+
+1. On a dataset that is 98% negative and 2% positive, a model that always
+   predicts "negative" scores 98% accuracy. What does this illustrate?
+   A. The model is excellent
+   B. Accuracy is misleading on imbalanced data
+   C. Precision is always misleading
+   D. AUC-ROC cannot be computed
+
+   **Answer: B** — This is the accuracy paradox: on imbalanced data, a
+   useless model can still post a high accuracy score.
+
+2. Which metric should be prioritized when false positives are especially
+   costly (e.g., blocking a legitimate customer transaction)?
+   A. Recall
+   B. Precision
+   C. RMSE
+   D. MAE
+
+   **Answer: B** — High precision means few false alarms, which is what
+   you want when false positives are expensive.
+
+3. What does raising the classification threshold typically do to
+   precision and recall?
+   A. Increases both
+   B. Decreases both
+   C. Increases precision, decreases recall
+   D. Increases recall, decreases precision
+
+   **Answer: C** — Raising the threshold makes the model more selective
+   about what it flags positive, typically raising precision while
+   lowering recall.
+
+4. Using the worked interpretation check above (TP = 32, FP = 18, FN = 8),
+   what is the model's recall?
+   A. 64%
+   B. 71%
+   C. 80%
+   D. 94%
+
+   **Answer: C** — Recall = TP / (TP + FN) = 32 / (32 + 8) = 80%, the
+   fraction of actual positives the model successfully caught.
+
 ---
 
 ## 7. Overfitting, underfitting, and the bias–variance trade-off
@@ -362,6 +1113,24 @@ metrics in production over time to detect quality drift.
   typically increases the other; the goal is the sweet spot that
   minimizes total error on unseen data.
 
+The diagram below plots this trade-off with **model complexity on the
+x-axis** and **error on the y-axis**, spanning the underfitting → optimal →
+overfitting spectrum:
+
+```mermaid
+flowchart LR
+    subgraph SPECTRUM["Model complexity (x-axis) increasing -->"]
+        direction LR
+        A["Low complexity<br/>UNDERFITTING<br/>High bias, low variance<br/>High error on training AND validation data"]
+        B["Sweet spot<br/>OPTIMAL FIT<br/>Bias and variance balanced<br/>Lowest error on validation data"]
+        C["High complexity<br/>OVERFITTING<br/>Low bias, high variance<br/>Low training error, high validation error"]
+        A -- "add complexity:<br/>more features, deeper model,<br/>less regularization" --> B
+        B -- "add more complexity:<br/>overtrain, remove regularization" --> C
+    end
+    ERR["Total error (y-axis) = Bias&sup2; + Variance + irreducible error<br/>curve is U-shaped and bottoms out at the sweet spot"]
+    B -.-> ERR
+```
+
 **AWS example:** A team training an image classifier with SageMaker
 notices 99% training accuracy but only 65% validation accuracy — classic
 **overfitting**. They use **SageMaker automatic model tuning** to search
@@ -374,6 +1143,211 @@ before deploying to a SageMaker endpoint.
 > If it says "bad score on *both* training and test data," the answer is
 > **underfitting / high bias**. Regularization and more data are the two
 > most commonly tested overfitting remedies.
+
+#### Mini-quiz: Test your understanding of overfitting, underfitting, and bias-variance
+
+1. A model performs poorly on both training and test data. What is this
+   called?
+   A. Overfitting
+   B. Underfitting
+   C. High variance
+   D. Data leakage
+
+   **Answer: B** — Poor performance on *both* sets is the textbook symptom
+   of underfitting (high bias), not overfitting.
+
+2. Which technique is a standard remedy for overfitting?
+   A. Increasing model complexity
+   B. Removing regularization
+   C. Adding regularization (e.g., L2 penalty)
+   D. Training on less data
+
+   **Answer: C** — Regularization discourages overly complex models and is
+   a standard overfitting remedy, along with more data, cross-validation,
+   and early stopping.
+
+3. In the bias-variance trade-off, high variance is most closely
+   associated with which condition?
+   A. Underfitting
+   B. Overfitting
+   C. Balanced generalization
+   D. Missing data
+
+   **Answer: B** — High variance means the model is overly sensitive to
+   training-data noise, which is the definition of overfitting.
+
+### Ensemble methods: bagging, boosting, and voting
+
+The bias–variance discussion above framed two remedies for high variance
+(overfitting): get more data, or regularize. A third, distinct remedy is
+architectural rather than data- or hyperparameter-based: instead of tuning
+a single model, combine multiple models into an **ensemble**. For
+structured/tabular data — the same data shape XGBoost and SageMaker
+Autopilot target elsewhere in this domain — ensembles are frequently the
+strongest, most exam-relevant fix for high variance, and can also address
+high bias.
+
+- **Bagging (bootstrap aggregating)** — train many instances of the *same*
+  base model (typically decision trees) independently and in parallel,
+  each on a different random bootstrap sample (sampled with replacement)
+  of the training data, then combine their predictions by averaging
+  (regression) or majority vote (classification). Because each tree sees a
+  slightly different slice of the data and their individual errors are
+  largely uncorrelated, averaging cancels out much of that error — this
+  directly **reduces variance** without materially increasing bias.
+  **Random Forest** is the canonical bagging algorithm: many decision
+  trees, each also restricted to a random subset of features at each
+  split, to decorrelate the trees further.
+- **Boosting** — train many instances of the *same* base model
+  **sequentially**, where each new model focuses on correcting the errors
+  (residuals or misclassifications) of the ensemble built so far, and
+  predictions are combined as a weighted sum. Because each stage is
+  trained specifically to fix what came before, boosting primarily
+  **reduces bias** (it can turn a collection of weak learners — models
+  barely better than random guessing — into a strong one), though it is
+  more prone to overfitting than bagging if left unchecked (fixes: fewer
+  boosting rounds/early stopping, shallower trees, a lower learning rate).
+  **Gradient Boosting** (and SageMaker's built-in **XGBoost** algorithm) is
+  the most commonly tested boosting method.
+- **Voting** — train several *different* model types (e.g., logistic
+  regression, a decision tree, and a k-NN classifier) independently on the
+  same full training set, then combine their predictions by majority vote
+  (hard voting) or by averaging predicted class probabilities (soft
+  voting). Unlike bagging and boosting, voting's diversity comes from
+  using different algorithms rather than different data samples or
+  sequential correction, so it helps most when the individual models make
+  **different kinds of errors**.
+
+The shared theme across all three: a single model's prediction is noisy or
+biased in ways an ensemble of models is not, because the ensemble's errors
+partially cancel out — the "wisdom of crowds" argument for combining weak
+or diverse learners into one stronger prediction.
+
+**AWS example:** A logistics company's on-time-delivery classifier,
+trained as a single decision tree on SageMaker, shows the classic
+overfitting symptom from this section: 97% training accuracy but only 71%
+validation accuracy. Instead of only adding regularization, the team
+switches to a **Random Forest-style bagging** model (many decorrelated
+trees averaged together) and separately benchmarks a **gradient-boosted**
+model via the **SageMaker XGBoost** built-in algorithm; both close most of
+the training/validation accuracy gap the single tree could not, because
+the ensemble's averaged or corrected predictions generalize better than
+any one tree.
+
+**Worked example: when bagging helps vs. when the problem needs a
+different architecture.** Two structured-data teams both see 96%+
+training accuracy with poor validation accuracy on tabular data (loan
+applications, delivery records) — this is squarely the overfitting
+problem bagging (Random Forest) or boosting (Gradient Boosting/XGBoost)
+is built to fix, and both close most of the gap by switching from one
+deep, unconstrained tree to an ensemble of many shallower ones. A third
+team sees the same symptom on a *raw image* classification task (photos
+of delivery packages, flagging damaged vs. intact) and reaches for a
+Random Forest expecting the same fix — but bagging a collection of
+decision trees over raw pixel values doesn't help, because decision trees
+split on individual features one at a time and cannot learn the spatial
+patterns (edges, textures, shapes) that distinguish a damaged box from an
+intact one, no matter how many trees are averaged together. The fix here
+isn't a different ensemble strategy at all — it's a different **model
+architecture**: a **convolutional neural network** (or a purpose-built
+service like **Amazon Rekognition** for a standard damage-detection use
+case) that can actually learn spatially structured features from image
+data. The exam-relevant lesson: ensembles reduce variance or bias
+*within* a model family well-suited to the data's shape (structured/
+tabular → tree-based ensembles); they are not a substitute for choosing
+an architecture that fits the data type in the first place.
+
+> **Exam tip:** If a scenario describes **structured/tabular data**, high
+> variance (overfitting), and asks for a technique beyond "get more data"
+> or "add regularization," the answer is almost always an **ensemble
+> method** — **bagging/Random Forest** to reduce variance from a single
+> unstable model, or **boosting/Gradient Boosting/XGBoost** to reduce bias
+> from a collection of weak learners. If the same overfitting symptom
+> shows up on **image, audio, or text** data instead, an ensemble of trees
+> is a distractor — the exam wants a **deep learning architecture** (CNN,
+> transformer) or the matching purpose-built AWS AI service, not more
+> trees.
+
+---
+
+## Worked example: end-to-end ML lifecycle for a loan-default predictor
+
+The callouts above show *isolated* AWS-service decisions. This walkthrough
+strings all eight lifecycle stages from [Section 2](#2-the-ml-development-lifecycle)
+together into one continuous scenario, so you can see how the decisions at
+each stage constrain the next one — which is exactly how AIF-C01 scenario
+questions are written (a paragraph describing several stages at once, then
+asking what happens next or what was done wrong).
+
+**Scenario:** A regional bank wants to predict, at the time a loan
+application is submitted, whether the applicant is likely to default. The
+bank has five years of historical loan applications with outcomes (repaid
+vs. defaulted) in an on-premises database, and a compliance requirement to
+explain any adverse decision to a rejected applicant.
+
+1. **Business goal identification.** The team defines the success metric
+   *before* touching data: reduce defaults funded by 15% while keeping the
+   false-decline rate (good applicants wrongly rejected) under 5%, because
+   over-rejecting creditworthy customers has its own business cost. This
+   framing already tells you it is a **binary classification** problem
+   with an explicit precision/recall trade-off ([Section 6](#6-model-evaluation-basics)) — not a
+   regression or clustering problem.
+2. **Data collection.** The historical loan records are exported and
+   landed in **Amazon S3** as the durable, central data lake. A nightly
+   **AWS Glue** ETL job incrementally pulls new applications from the
+   on-premises database into the same S3 bucket so the training data stays
+   current.
+3. **Exploratory data analysis (EDA).** In **SageMaker Studio**, the team
+   profiles the data and discovers two problems: 3% of rows are missing
+   income values, and only 4% of historical applications actually
+   defaulted (severe **class imbalance** — see [Section 6](#6-model-evaluation-basics)). They also
+   run ad hoc SQL over the raw S3 data with **Amazon Athena** to check for
+   duplicate applicant records before committing to a feature design.
+4. **Data preparation / feature engineering.** Using **SageMaker Data
+   Wrangler**, the team imputes missing income with a median-by-region
+   value, one-hot encodes categorical fields (loan purpose, employment
+   type), and engineers a debt-to-income ratio feature. Because this same
+   debt-to-income calculation must be reproduced identically at inference
+   time on live applications, the finished features are published to
+   **SageMaker Feature Store** — this is precisely the training/serving
+   skew problem Feature Store exists to prevent.
+5. **Model training.** The team trains a **SageMaker XGBoost** built-in
+   algorithm job (a strong default for structured/tabular data), and
+   additionally launches a **SageMaker Autopilot** run as a fast baseline
+   to sanity-check that a hand-built model is worth the extra effort.
+   Training jobs use **Managed Spot Training** to cut compute cost, since
+   these are not time-critical, interactive jobs.
+6. **Hyperparameter tuning / evaluation.** **SageMaker automatic model
+   tuning** searches XGBoost's hyperparameters (tree depth, learning rate,
+   number of rounds) against a held-out validation split. Because of the
+   4% default rate identified in EDA, the team evaluates with **precision,
+   recall, and F1** rather than plain accuracy (a model that always
+   predicts "no default" would score 96% accuracy while being useless),
+   and reviews **SageMaker Clarify** bias metrics across protected
+   attributes (age, ZIP code as a proxy for race) to satisfy the
+   compliance requirement for explainable, non-discriminatory decisions.
+7. **Deployment.** The chosen model is deployed to a **SageMaker
+   real-time endpoint** so a yes/no decision (with a Clarify-generated
+   feature-importance explanation attached for compliance) can be returned
+   synchronously while a loan officer has the applicant on the phone. A
+   separate nightly **SageMaker batch transform** job re-scores the entire
+   existing loan portfolio for early-warning risk monitoring, since that
+   workload has no latency requirement.
+8. **Monitoring.** **SageMaker Model Monitor** watches the live endpoint
+   for data drift (e.g., applicant income distributions shifting after a
+   local factory closes) and prediction-quality drift once true default
+   outcomes become known months later. A monitor alarm — say, drift
+   detected in the income feature — triggers exactly the loop-back shown
+   in the [Section 2 lifecycle diagram](#2-the-ml-development-lifecycle):
+   back to data collection to refresh the training set and retrain, not a
+   one-off manual patch.
+
+> **Exam tip:** When a question walks through several lifecycle stages in
+> one paragraph, identify what's *missing* or *out of order* rather than
+> what's present. A classic distractor scenario trains a model, deploys it,
+> and never mentions monitoring — the correct answer is almost always "add
+> monitoring for data/concept drift," because a static model silently
+> degrades as real-world data shifts.
 
 ---
 
@@ -402,7 +1376,96 @@ before deploying to a SageMaker endpoint.
 
 ---
 
+## Quick-reference cheat sheet
+
+A condensed, one-to-two-page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam. It
+restates material covered in full in [Section 2](#2-the-ml-development-lifecycle),
+[Section 3](#3-types-of-learning), and
+[Section 5](#5-aws-managed-aiml-services-conceptual-overview) — it is not a
+substitute for reading those sections, only a fast recall aid once you
+already have.
+
+**The 8-stage ML development lifecycle — memorize the order:**
+
+| # | Stage | Key AWS tools |
+|---|---|---|
+| 1 | Business goal identification | (no tooling — define the problem/success metric first) |
+| 2 | Data collection | S3, AWS Glue, Kinesis / MSK |
+| 3 | Exploratory data analysis (EDA) | SageMaker Data Wrangler, SageMaker Studio, Athena |
+| 4 | Data preparation / feature engineering | SageMaker Data Wrangler, SageMaker Feature Store |
+| 5 | Model training | SageMaker Training Jobs, JumpStart, Managed Spot Training |
+| 6 | Hyperparameter tuning / evaluation | SageMaker automatic model tuning, SageMaker Clarify |
+| 7 | Deployment | SageMaker endpoints (real-time), batch transform, serverless inference |
+| 8 | Monitoring | SageMaker Model Monitor, Amazon CloudWatch |
+
+Collect → explore (EDA) → prepare/feature-engineer → train → evaluate/tune
+→ deploy → monitor. It's an **iterative loop**: a **failed** evaluation
+(step 6) loops back to feature engineering (step 4) to retrain; drift or
+degraded accuracy detected during monitoring (step 8) loops back to data
+collection (step 2) or retraining (step 5). **Feature Store** exists to
+prevent *training/serving skew*.
+
+**Three learning types — one-line distinguishers:**
+
+| Type | Data | Distinguisher | AWS SageMaker examples |
+|---|---|---|---|
+| **Supervised** | Labeled | Predicts a known target (classification/regression) | Linear Learner, XGBoost, k-NN |
+| **Unsupervised** | Unlabeled | Finds structure with no target column (clustering/dimensionality reduction) | k-means, PCA, Random Cut Forest |
+| **Reinforcement (RL)** | None (trial-and-error) | An **agent** takes **actions** in an **environment** to maximize cumulative **reward** | SageMaker RL, AWS DeepRacer |
+
+> No labels/target column → **unsupervised**, even if the goal sounds like
+> "prediction." RL is defined by *agent + environment + reward*, not
+> merely "no labels" — don't conflate it with unsupervised learning.
+
+**AWS managed AI/ML service decision table — match the scenario keyword to the service:**
+
+| If the scenario says... | The service is... |
+|---|---|
+| "no ML expertise, needs a custom model or algorithm not covered below" | Amazon SageMaker |
+| "images/video: objects, faces, moderation" | Amazon Rekognition |
+| "convert speech/audio to text" | Amazon Transcribe |
+| "analyze text: sentiment, entities, key phrases, PII" | Amazon Comprehend |
+| "convert text to lifelike speech" | Amazon Polly |
+| "translate between languages" | Amazon Translate |
+| "build a chatbot or voice bot" | Amazon Lex |
+| "personalized product/content recommendations" | Amazon Personalize |
+| "forecast demand, inventory, or other time-series values" | Amazon Forecast |
+| "extract text, forms, and tables from scanned documents" | Amazon Textract |
+| "real-time fraud-risk scoring" | Amazon Fraud Detector |
+
+**Decision tree for choosing a service:**
+
+```
+Does a purpose-built managed AI service match the described input/task?
+├── Yes → use that purpose-built service (Rekognition, Transcribe,
+│         Comprehend, Polly, Translate, Lex, Personalize, Forecast,
+│         Textract, Fraud Detector) — no ML expertise required.
+└── No → does the use case need a custom model/algorithm, or full
+          control over training and deployment?
+          ├── Yes → Amazon SageMaker
+          └── No  → re-check the table above; a purpose-built service
+                    almost always exists for AIF-C01 scenarios.
+```
+
+**Common exam traps:**
+
+- "No ML expertise + standard task (vision/speech/text/forecast/rec)" →
+  the **purpose-built service**, not SageMaker. SageMaker wins only when
+  the use case needs a **custom** model.
+- A scenario with **no labels/target column** → **unsupervised**, not
+  supervised — even if it sounds like a prediction task.
+- **Accuracy is misleading on imbalanced data** (e.g., fraud, disease
+  detection) — look for precision, recall, F1, or AUC-ROC instead.
+- A **failed** evaluation gate loops back to **feature engineering**
+  (step 4), not straight back to business goal identification or straight
+  to deployment.
+
+---
+
 ## Key terms glossary
+
+> Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.
 
 - **AI (Artificial Intelligence)** — broad field of systems performing
   tasks that normally require human intelligence.
@@ -449,7 +1512,7 @@ before deploying to a SageMaker endpoint.
 
 ## Practice questions
 
-1. A company wants to group its customers into segments based on purchasing
+1. **[Intermediate]** A company wants to group its customers into segments based on purchasing
    behavior, but it has no predefined categories or labels. Which type of
    machine learning should it use?
    A. Supervised learning
@@ -457,28 +1520,28 @@ before deploying to a SageMaker endpoint.
    C. Reinforcement learning
    D. Semi-supervised learning
 
-2. Which of the following best describes the relationship between AI, ML,
+2. **[Beginner]** Which of the following best describes the relationship between AI, ML,
    and deep learning?
    A. Deep learning is a broader field that contains machine learning, which contains AI
    B. AI, ML, and deep learning are unrelated, independently developed fields
    C. AI is the broadest field; ML is a subset of AI; deep learning is a subset of ML
    D. ML and deep learning are the same technique with different names
 
-3. A data scientist notices a model achieves 98% accuracy on training data
+3. **[Intermediate]** A data scientist notices a model achieves 98% accuracy on training data
    but only 61% accuracy on the test data. What is the most likely problem?
    A. Underfitting
    B. Overfitting
    C. Data leakage prevention
    D. Insufficient hyperparameters
 
-4. Which AWS service should a company with no in-house ML expertise use to
+4. **[Beginner]** Which AWS service should a company with no in-house ML expertise use to
    add real-time, individualized product recommendations to its e-commerce site?
    A. Amazon SageMaker
    B. Amazon Personalize
    C. Amazon Forecast
    D. Amazon Comprehend
 
-5. A hospital is building a diagnostic model to detect a rare disease that
+5. **[Advanced]** A hospital is building a diagnostic model to detect a rare disease that
    occurs in 1% of patients. Which evaluation metric is LEAST appropriate
    on its own for this use case?
    A. Recall
@@ -486,21 +1549,21 @@ before deploying to a SageMaker endpoint.
    C. Accuracy
    D. F1 score
 
-6. In the standard ML development lifecycle, which step comes immediately
+6. **[Beginner]** In the standard ML development lifecycle, which step comes immediately
    after model training and before deployment?
    A. Data collection
    B. Exploratory data analysis
    C. Evaluation and hyperparameter tuning
    D. Monitoring
 
-7. Which AWS service is purpose-built to extract text, key-value pairs, and
+7. **[Beginner]** Which AWS service is purpose-built to extract text, key-value pairs, and
    tables (preserving structure) from scanned documents?
    A. Amazon Comprehend
    B. Amazon Rekognition
    C. Amazon Textract
    D. Amazon Transcribe
 
-8. A robotics team is training a warehouse robot to learn the optimal path
+8. **[Intermediate]** A robotics team is training a warehouse robot to learn the optimal path
    for picking items, where the robot receives a numeric reward after each
    action and has no fixed labeled dataset. Which learning type is this?
    A. Supervised learning
@@ -508,13 +1571,13 @@ before deploying to a SageMaker endpoint.
    C. Reinforcement learning
    D. Batch learning
 
-9. Which of the following is a hyperparameter rather than a parameter?
+9. **[Beginner]** Which of the following is a hyperparameter rather than a parameter?
    A. A neural network's learned weight values
    B. The learning rate used during training
    C. The bias term learned by a linear regression model
    D. The coefficients learned by a regression model
 
-10. A company wants to convert customer service call recordings into text
+10. **[Intermediate]** A company wants to convert customer service call recordings into text
     transcripts, including identifying which speaker said what. Which AWS
     service best fits this need?
     A. Amazon Polly
@@ -522,7 +1585,7 @@ before deploying to a SageMaker endpoint.
     C. Amazon Transcribe
     D. Amazon Lex
 
-11. Which SageMaker capability is specifically designed to store and share
+11. **[Beginner]** Which SageMaker capability is specifically designed to store and share
     curated features consistently between model training and real-time
     inference to avoid training/serving skew?
     A. SageMaker Data Wrangler
@@ -530,7 +1593,7 @@ before deploying to a SageMaker endpoint.
     C. SageMaker Clarify
     D. SageMaker Model Monitor
 
-12. A model classifying loan applications as "approve" or "reject" has the
+12. **[Advanced]** A model classifying loan applications as "approve" or "reject" has the
     following confusion matrix on test data: TP = 180, FP = 20, FN = 60,
     TN = 740. What is the recall of the model (rounded)?
     A. 90%
@@ -538,7 +1601,7 @@ before deploying to a SageMaker endpoint.
     C. 25%
     D. 96%
 
-13. Which two AWS services would BEST fit a company that wants to (1)
+13. **[Advanced]** Which two AWS services would BEST fit a company that wants to (1)
     forecast next quarter's product demand and (2) automatically translate
     its product listings into five languages? (Select TWO.)
     A. Amazon Forecast
@@ -547,13 +1610,13 @@ before deploying to a SageMaker endpoint.
     D. Amazon Comprehend
     E. Amazon Textract
 
-14. Which technique is generally the LEAST effective way to reduce overfitting?
+14. **[Intermediate]** Which technique is generally the LEAST effective way to reduce overfitting?
     A. Adding regularization (e.g., L2 penalty)
     B. Collecting more diverse training data
     C. Increasing model complexity further
     D. Using cross-validation and early stopping
 
-15. A company wants to build a text-based chatbot that can hold a
+15. **[Beginner]** A company wants to build a text-based chatbot that can hold a
     conversation with customers and integrate speech recognition. Which
     AWS service is purpose-built for this?
     A. Amazon Comprehend
@@ -561,14 +1624,14 @@ before deploying to a SageMaker endpoint.
     C. Amazon Translate
     D. Amazon Polly
 
-16. Which metric summarizes a binary classifier's ability to rank positive
+16. **[Intermediate]** Which metric summarizes a binary classifier's ability to rank positive
     cases above negative cases across all possible decision thresholds?
     A. Accuracy
     B. Precision
     C. AUC-ROC
     D. Mean Absolute Error (MAE)
 
-17. A team is building a completely custom fraud model using a proprietary
+17. **[Intermediate]** A team is building a completely custom fraud model using a proprietary
     algorithm and unique internal features that no managed AWS AI service
     supports out of the box. Which AWS service should they use?
     A. Amazon Fraud Detector
@@ -576,13 +1639,13 @@ before deploying to a SageMaker endpoint.
     C. Amazon Comprehend
     D. Amazon Personalize
 
-18. Which of the following statements about the bias–variance trade-off is correct?
+18. **[Intermediate]** Which of the following statements about the bias–variance trade-off is correct?
     A. High bias and high variance always increase or decrease together
     B. High bias is associated with overfitting, and high variance with underfitting
     C. High bias is associated with underfitting, and high variance with overfitting
     D. Bias and variance are unrelated to model generalization error
 
-19. During exploratory data analysis, a data scientist discovers a dataset
+19. **[Intermediate]** During exploratory data analysis, a data scientist discovers a dataset
     is missing 40% of values in one column and contains several extreme
     outliers in another. In the ML lifecycle, which stage should address
     these issues before training begins?
@@ -591,13 +1654,67 @@ before deploying to a SageMaker endpoint.
     C. Model deployment
     D. Hyperparameter tuning
 
-20. A retail company wants to detect potentially fraudulent returns in
+20. **[Beginner]** A retail company wants to detect potentially fraudulent returns in
     real time without building or training its own ML model. Which AWS
     service is the best fit?
     A. Amazon SageMaker
     B. Amazon Fraud Detector
     C. Amazon Rekognition
     D. Amazon Forecast
+
+21. **[Intermediate]** A company receives scanned customer feedback forms that contain
+    both structured fields (name, order number) and a handwritten
+    open-ended comments section. It wants to (1) extract the structured
+    field values, preserving the form's layout, and (2) determine whether
+    the sentiment of the open-ended comments is positive or negative.
+    Walking the Section 4 decision tree for each sub-task in turn, which
+    two AWS services should it use, in order?
+    A. Amazon Comprehend, then Amazon Textract
+    B. Amazon Textract, then Amazon Comprehend
+    C. Amazon Rekognition, then Amazon Translate
+    D. Amazon Textract, then Amazon Rekognition
+    E. Amazon Comprehend, then Amazon Lex
+
+22. **[Advanced]** A subscription-box company wants a single program covering two
+    needs this quarter: (1) automatically decline orders that look like
+    stolen-card fraud in real time, and (2) recommend which add-on
+    products a loyal subscriber is likely to want next. A colleague
+    proposes using Amazon Personalize for both, arguing that fraud
+    flagging and recommending are both just "predicting user behavior."
+    Which option correctly applies the Section 4 decision tree?
+    A. Amazon Personalize is correct for both, since both tasks predict
+       behavior from data
+    B. Use Amazon Fraud Detector for the fraud check (the tree's
+       fraud-flagging branch) and Amazon Personalize for the
+       recommendation (a separate, later branch) — the two tasks map to
+       different branches even though both involve predicting behavior
+    C. Use Amazon Forecast for the fraud check and Amazon Comprehend for
+       the recommendation
+    D. Use Amazon SageMaker for both, since a purpose-built service can
+       never cover two related tasks in the same product
+
+23. **[Advanced]** An HR software vendor wants to add two features this quarter: (1)
+    let users dictate meeting notes that get converted into text
+    automatically, and (2) have the app read a written summary aloud to
+    users with visual impairments. Applying the decision tree's speech
+    branch, which two AWS services fit these needs, respectively?
+    A. Amazon Translate and Amazon Lex
+    B. Amazon Transcribe and Amazon Polly
+    C. Amazon Polly and Amazon Transcribe
+    D. Amazon Comprehend and Amazon Translate
+    E. Amazon Lex and Amazon Comprehend
+
+24. **[Intermediate]** A travel-booking startup wants a single assistant that (1) holds
+    a multi-turn typed conversation with users to book a flight, and (2)
+    translates the assistant's final confirmation message into the
+    user's preferred language for non-English-speaking users. Walking
+    the decision tree from the top for each requirement, which two
+    services are the correct fits, respectively?
+    A. Amazon Comprehend and Amazon Polly
+    B. Amazon Lex and Amazon Translate
+    C. Amazon Translate and Amazon Lex
+    D. Amazon Rekognition and Amazon Textract
+    E. Amazon Forecast and Amazon Personalize
 
 ---
 
@@ -719,3 +1836,50 @@ before deploying to a SageMaker endpoint.
     development. SageMaker (A) would require building and training a
     custom model; Rekognition (C) analyzes images/video, not transaction
     data; Forecast (D) predicts time-series values, not fraud risk.
+
+21. **B — Amazon Textract, then Amazon Comprehend.** The decision tree's
+    document-processing branch fires first for extracting structured
+    field values from a scanned form's layout (Textract), and its
+    NLP branch fires separately for judging the sentiment of the
+    freeform comments text (Comprehend). Option A reverses the order and
+    therefore the roles; Rekognition (C) analyzes image content, not
+    document layout, and Comprehend does sentiment, not Translate;
+    Rekognition (D) doesn't extract form structure; Lex (E) builds
+    chatbots, not sentiment analysis.
+
+22. **B — Use Amazon Fraud Detector for the fraud check and Amazon
+    Personalize for the recommendation.** The Section 4 decision tree
+    evaluates each requirement independently against its own branch:
+    "flag as fraudulent" stops at the Fraud Detector branch regardless of
+    how the task is framed, and "predict what a user wants next" stops at
+    the Personalize branch. Option A collapses two distinct branches into
+    one service just because both involve prediction, which is exactly
+    the reasoning error the tree is designed to prevent; C swaps in
+    Forecast (time-series prediction) and Comprehend (text meaning),
+    neither of which matches either branch; D ignores that purpose-built
+    services are routinely combined side by side for different sub-tasks
+    within one product.
+
+23. **B — Amazon Transcribe and Amazon Polly.** The decision tree's
+    speech branch splits on direction: "speech to text" (dictating notes
+    into text) routes to Transcribe, and "text to speech" (reading a
+    summary aloud) routes to Polly. Option C reverses the two services
+    against their sub-tasks; A and D substitute Translate/Comprehend,
+    which handle language translation and text meaning, not audio
+    conversion; E substitutes Lex/Comprehend, which build chatbots and
+    analyze text, neither of which converts between speech and text.
+
+24. **B — Amazon Lex and Amazon Translate.** Holding a multi-turn typed
+    conversation to complete a booking matches the tree's chatbot branch
+    (Lex) before falling through to any other branch; translating the
+    final message into another language then matches the tree's
+    catch-all translation branch (Translate). Option C reverses the two
+    services against their requirements; A substitutes Comprehend (text
+    analytics) and Polly (text-to-speech), neither of which builds a
+    conversational flow or translates languages; D and E substitute
+    document/image and forecasting/recommendation services that fit
+    neither requirement in this scenario.
+
+---
+
+[← README](../README.md) · **Domain 1 of 5** · [Domain 2: Fundamentals of Generative AI →](domain-2-fundamentals-of-generative-ai.md)

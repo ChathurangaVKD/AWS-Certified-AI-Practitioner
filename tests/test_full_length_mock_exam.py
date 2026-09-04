@@ -1,0 +1,497 @@
+"""Structural validation for docs/full-length-mock-exam.md.
+
+This repository is a documentation series, not an application, so there is
+no application code to unit test. The gap this document fills: the series
+had ~85 domain-siloed practice questions but nothing simulating the real
+exam's length (65 questions), domain-weight distribution
+(~20%/24%/28%/14%/14%), or time constraint (90 minutes). These tests assert
+that the mock exam actually has 65 sequentially numbered questions, that
+those questions are drawn from all five domains in proportions matching the
+real exam's weights, that every question has a full answer key entry with a
+substantive explanation, and that the document is reachable from README.md
+and cross-linked with the exam preparation guide.
+
+Mirrors the conventions established in tests/test_domain_1_study_guide.py
+(question/answer structural checks) and
+tests/test_exam_preparation_strategy.py (existence/discoverability/link
+resolution checks).
+
+Run with:
+    python3 -m unittest tests/test_full_length_mock_exam.py -v
+"""
+
+import re
+import unittest
+from collections import Counter
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DOCS_DIR = REPO_ROOT / "docs"
+DOC_PATH = DOCS_DIR / "full-length-mock-exam.md"
+README_PATH = REPO_ROOT / "README.md"
+EXAM_PREP_PATH = DOCS_DIR / "exam-preparation-strategy.md"
+
+TOTAL_QUESTIONS = 65
+
+# Expected question count per domain, derived from the real exam's domain
+# weights (~20%/24%/28%/14%/14%) applied to 65 total questions.
+EXPECTED_DOMAIN_COUNTS = {
+    1: 13,
+    2: 16,
+    3: 18,
+    4: 9,
+    5: 9,
+}
+
+REQUIRED_LINKED_DOMAINS = [
+    "domain-1-fundamentals-of-ai-and-ml.md",
+    "domain-2-fundamentals-of-generative-ai.md",
+    "domain-3-applications-of-foundation-models.md",
+    "domain-4-guidelines-for-responsible-ai.md",
+    "domain-5-security-compliance-governance.md",
+]
+
+MD_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)\s]+)\)")
+
+
+def _read(path):
+    return path.read_text(encoding="utf-8")
+
+
+def _slugify(heading_text):
+    """Approximate the GitHub markdown heading-anchor algorithm: lowercase,
+    strip characters that aren't word characters/spaces/hyphens, then turn
+    runs of whitespace into single hyphens."""
+    s = heading_text.strip().lower()
+    s = re.sub(r"[^\w\s-]", "", s)
+    s = re.sub(r"\s+", "-", s.strip())
+    return s
+
+
+def _heading_anchors(doc_text):
+    headings = re.findall(r"^#{1,6}\s+(.*)$", doc_text, re.M)
+    return {_slugify(h) for h in headings}
+
+
+def _section(text, start_heading_regex, end_heading_regex=r"\n## "):
+    start = re.search(start_heading_regex, text)
+    assert start, f"heading not found: {start_heading_regex}"
+    rest = text[start.end():]
+    end = re.search(end_heading_regex, rest)
+    return rest[: end.start()] if end else rest
+
+
+def _numbered_items(section_text):
+    return re.findall(r"^(\d+)\.\s", section_text, re.M)
+
+
+class TestMockExamExists(unittest.TestCase):
+    def test_file_exists(self):
+        self.assertTrue(
+            DOC_PATH.is_file(), f"expected full-length mock exam at {DOC_PATH}"
+        )
+
+    def test_linked_from_readme(self):
+        readme_text = _read(README_PATH)
+        self.assertIn(
+            "docs/full-length-mock-exam.md",
+            readme_text,
+            "README.md must link to the full-length mock exam so learners "
+            "can discover it",
+        )
+
+    def test_linked_from_exam_preparation_strategy(self):
+        exam_prep_text = _read(EXAM_PREP_PATH)
+        self.assertIn(
+            "full-length-mock-exam.md",
+            exam_prep_text,
+            "exam-preparation-strategy.md's study plans reference a mock "
+            "exam but did not link to the actual mock exam document",
+        )
+
+
+class TestMockExamOverview(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+
+    def test_has_title(self):
+        self.assertRegex(self.text, r"^# Full-Length Mock Exam \(AIF-C01\)")
+
+    def test_mentions_exam_format(self):
+        for fact in ["65 questions", "90 minutes", "65", "90-minute"]:
+            with self.subTest(fact=fact):
+                self.assertIn(fact, self.text)
+
+    def test_no_penalty_for_guessing_guidance_present(self):
+        self.assertRegex(
+            self.text,
+            re.compile(r"no penalty for guessing|answer every question", re.IGNORECASE),
+            "expected timing/strategy guidance telling learners to answer "
+            "every question since there's no penalty for guessing",
+        )
+
+    def test_domain_distribution_table_matches_expected_counts(self):
+        table_section = _section(
+            self.text,
+            r"\n## 2\. Domain-weighted question distribution",
+            r"\n---",
+        )
+        # Every domain's weight and its question count in this mock exam
+        # must both appear in the distribution table.
+        weights = {1: "20%", 2: "24%", 3: "28%", 4: "14%", 5: "14%"}
+        for domain, weight in weights.items():
+            with self.subTest(domain=domain):
+                self.assertIn(weight, table_section)
+        for domain, count in EXPECTED_DOMAIN_COUNTS.items():
+            with self.subTest(domain=domain, count=count):
+                self.assertIn(
+                    f"| {count} |",
+                    table_section,
+                    f"distribution table missing a row with {count} "
+                    f"questions for Domain {domain}",
+                )
+        self.assertIn(
+            str(TOTAL_QUESTIONS),
+            table_section,
+            "distribution table should state the total of 65 questions",
+        )
+        self.assertEqual(sum(EXPECTED_DOMAIN_COUNTS.values()), TOTAL_QUESTIONS)
+
+
+class TestMockExamQuestions(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.questions_section = _section(
+            cls.text,
+            r"\n## Mock exam questions",
+            r"\n## 3\. Scoring your mock exam",
+        )
+        cls.answers_section = _section(
+            cls.text, r"\n## 4\. Answer key and explanations"
+        )
+
+    def test_exactly_65_sequentially_numbered_questions(self):
+        numbers = _numbered_items(self.questions_section)
+        self.assertEqual(
+            [int(n) for n in numbers],
+            list(range(1, TOTAL_QUESTIONS + 1)),
+            "mock exam must have exactly 65 sequentially numbered questions "
+            "starting at 1",
+        )
+
+    def test_questions_are_not_grouped_by_domain(self):
+        # The whole point of a mock exam (vs. the domain guides' siloed
+        # question sets) is that questions are mixed, not grouped in five
+        # contiguous domain blocks. Detect accidental domain-siloing by
+        # checking the answer key's domain tags aren't just five long runs.
+        tags = re.findall(r"\*\(Domain (\d)\)\*", self.answers_section)
+        self.assertEqual(len(tags), TOTAL_QUESTIONS)
+        # Count the number of "runs" of consecutive identical domain tags.
+        runs = 1
+        for prev, cur in zip(tags, tags[1:]):
+            if cur != prev:
+                runs += 1
+        # If every question were grouped by domain, there would be exactly
+        # 5 runs (one per domain). A well-mixed exam should have far more
+        # run transitions than that.
+        self.assertGreater(
+            runs,
+            10,
+            "questions appear to be grouped by domain rather than mixed "
+            "in exam-like order",
+        )
+
+    def test_every_question_has_at_least_four_options(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.questions_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        self.assertEqual(len(blocks), TOTAL_QUESTIONS)
+        for block in blocks:
+            qnum = block.split(".", 1)[0]
+            with self.subTest(question=qnum):
+                options = re.findall(r"^\s*[A-E]\.\s", block, re.M)
+                self.assertGreaterEqual(
+                    len(options),
+                    4,
+                    f"question {qnum} should have at least 4 answer options",
+                )
+
+    def test_select_two_questions_offer_five_options(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.questions_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        select_two_blocks = [b for b in blocks if "Select TWO" in b]
+        self.assertGreaterEqual(
+            len(select_two_blocks),
+            1,
+            "expected at least one multiple-response (Select TWO) question, "
+            "matching the real exam's mix of question formats",
+        )
+        for block in select_two_blocks:
+            qnum = block.split(".", 1)[0]
+            with self.subTest(question=qnum):
+                options = re.findall(r"^\s*[A-E]\.\s", block, re.M)
+                self.assertGreaterEqual(len(options), 5)
+
+
+class TestMockExamAnswerKey(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.questions_section = _section(
+            cls.text,
+            r"\n## Mock exam questions",
+            r"\n## 3\. Scoring your mock exam",
+        )
+        cls.answers_section = _section(
+            cls.text, r"\n## 4\. Answer key and explanations"
+        )
+
+    def test_answer_key_covers_every_question(self):
+        q_numbers = [int(n) for n in _numbered_items(self.questions_section)]
+        a_numbers = [int(n) for n in _numbered_items(self.answers_section)]
+        self.assertEqual(
+            q_numbers,
+            a_numbers,
+            "answer key must have exactly one entry per mock exam question, "
+            "in order",
+        )
+
+    def test_every_answer_has_substantive_explanation_and_bolded_choice(self):
+        blocks = re.split(r"\n(?=\d+\.\s)", self.answers_section.strip())
+        blocks = [b for b in blocks if re.match(r"^\d+\.\s", b)]
+        self.assertEqual(len(blocks), TOTAL_QUESTIONS)
+        for block in blocks:
+            anum = block.split(".", 1)[0]
+            with self.subTest(answer=anum):
+                self.assertGreater(
+                    len(block.strip()),
+                    120,
+                    f"answer {anum} explanation looks too short to justify "
+                    f"the correct choice and rule out the distractors",
+                )
+                self.assertRegex(
+                    block,
+                    r"\*\*[A-E](?:\s*(?:,|and)\s*[A-E])*\s*[—-]",
+                    f"answer {anum} should clearly state the correct "
+                    f"option letter(s)",
+                )
+                self.assertRegex(
+                    block,
+                    r"\*\(Domain [1-5]\)\*",
+                    f"answer {anum} should be tagged with its source "
+                    f"domain so learners can self-score by domain",
+                )
+
+    def test_domain_tag_counts_match_expected_weighted_distribution(self):
+        tags = re.findall(r"\*\(Domain (\d)\)\*", self.answers_section)
+        counts = Counter(int(t) for t in tags)
+        self.assertEqual(
+            dict(counts),
+            EXPECTED_DOMAIN_COUNTS,
+            "the number of questions tagged per domain in the answer key "
+            "should match the real exam's domain-weight distribution",
+        )
+
+
+class TestScoreBandRemediation(unittest.TestCase):
+    """Section 3 used to tell every learner to "re-read that domain's guide
+    in full" regardless of how badly (or narrowly) they missed it. It now
+    carries a "Score-band remediation by domain" table that maps specific
+    score ranges within each domain to the specific high-yield section(s)
+    of that domain's guide, instead of prescribing a full re-read of a
+    1,300-2,400 line document. These tests assert that replacement is
+    actually present, covers every domain with multiple score bands, and
+    that every section it points to is a real, specific section (not just
+    a bare link back to the top of the guide)."""
+
+    DOMAIN_GUIDES = {
+        1: "domain-1-fundamentals-of-ai-and-ml.md",
+        2: "domain-2-fundamentals-of-generative-ai.md",
+        3: "domain-3-applications-of-foundation-models.md",
+        4: "domain-4-guidelines-for-responsible-ai.md",
+        5: "domain-5-security-compliance-governance.md",
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.scoring_section = _section(
+            cls.text, r"\n## 3\. Scoring your mock exam", r"\n## 4\. "
+        )
+        cls.remediation_section = _section(
+            cls.text, r"\n### Score-band remediation by domain", r"\n## 4\. "
+        )
+
+    def test_generic_full_reread_instruction_is_gone(self):
+        # The old text told every learner, regardless of score, to
+        # "re-read that domain's guide in full". That blanket instruction
+        # must no longer be the guidance Section 3 gives.
+        self.assertNotIn("Re-read that domain's guide in full", self.text)
+        self.assertNotRegex(
+            self.text.lower(),
+            r"re-read (that|the) domain'?s guide in full",
+        )
+
+    def test_scoring_section_points_to_score_band_table(self):
+        self.assertIn("score-band-remediation-by-domain", self.scoring_section)
+
+    def test_score_band_section_covers_every_domain_with_three_bands(self):
+        for domain, guide_file in self.DOMAIN_GUIDES.items():
+            with self.subTest(domain=domain):
+                domain_heading = re.search(
+                    rf"\*\*Domain {domain} — [^*]+\*\*", self.remediation_section
+                )
+                self.assertIsNotNone(
+                    domain_heading,
+                    f"expected a 'Domain {domain}' subsection in the "
+                    f"score-band remediation table",
+                )
+                # Grab this domain's block, up to the next "**Domain" bolded
+                # heading (or end of the remediation section).
+                start = domain_heading.end()
+                next_domain = re.search(
+                    r"\*\*Domain \d — ", self.remediation_section[start:]
+                )
+                block = (
+                    self.remediation_section[start : start + next_domain.start()]
+                    if next_domain
+                    else self.remediation_section[start:]
+                )
+                rows = re.findall(r"^\|[^\n]+\|\s*$", block, re.M)
+                # Header separator + at least 3 score-band data rows.
+                data_rows = [
+                    r for r in rows if not re.match(r"^\|[\s:|-]+\|$", r)
+                ]
+                self.assertGreaterEqual(
+                    len(data_rows),
+                    4,  # header row + at least 3 score bands
+                    f"Domain {domain} should have at least 3 distinct "
+                    f"score-band rows",
+                )
+                # Every row must link into that domain's own guide, not a
+                # different domain's guide.
+                self.assertIn(guide_file, block)
+                other_guides = [
+                    f
+                    for d, f in self.DOMAIN_GUIDES.items()
+                    if d != domain
+                ]
+                for other in other_guides:
+                    self.assertNotIn(
+                        other,
+                        block,
+                        f"Domain {domain}'s score-band row links to "
+                        f"{other}, which belongs to a different domain",
+                    )
+
+    def test_score_band_links_target_specific_sections_not_bare_guide_links(self):
+        # Every link into a domain guide from this table must carry an
+        # anchor into a specific section -- a bare "domain-N-....md" link
+        # with no "#section" would just be the old "read the whole guide"
+        # advice again, dressed up as a table.
+        links = MD_LINK_RE.findall(self.remediation_section)
+        guide_links = [
+            link
+            for link in links
+            if any(link.startswith(g) for g in self.DOMAIN_GUIDES.values())
+        ]
+        self.assertGreater(len(guide_links), 0)
+        for link in guide_links:
+            with self.subTest(link=link):
+                self.assertIn(
+                    "#",
+                    link,
+                    f"remediation link {link!r} must target a specific "
+                    f"section anchor, not the whole guide",
+                )
+                anchor = link.split("#", 1)[1]
+                self.assertNotEqual(
+                    anchor,
+                    "",
+                    f"remediation link {link!r} has an empty anchor",
+                )
+
+    def test_score_bands_within_each_domain_are_non_overlapping_and_ordered(self):
+        # Sanity-check the numeric score-band ranges themselves: for each
+        # domain, the low/mid/high bands should be increasing and shouldn't
+        # skip or double-count a possible raw score.
+        expected_max = {1: 13, 2: 16, 3: 18, 4: 9, 5: 9}
+        for domain, guide_file in self.DOMAIN_GUIDES.items():
+            with self.subTest(domain=domain):
+                domain_heading = re.search(
+                    rf"\*\*Domain {domain} — [^*]+\*\* \((\d+) questions",
+                    self.remediation_section,
+                )
+                self.assertIsNotNone(domain_heading)
+                self.assertEqual(int(domain_heading.group(1)), expected_max[domain])
+
+
+class TestMockExamLinksResolve(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.links = MD_LINK_RE.findall(cls.text)
+        cls.internal_links = [
+            link
+            for link in cls.links
+            if not link.startswith(("http://", "https://", "#"))
+        ]
+
+    def test_links_into_every_domain_guide(self):
+        for domain_file in REQUIRED_LINKED_DOMAINS:
+            with self.subTest(domain=domain_file):
+                self.assertIn(domain_file, self.text)
+
+    def test_links_into_exam_preparation_strategy(self):
+        self.assertIn("exam-preparation-strategy.md", self.text)
+
+    def test_every_internal_link_target_file_exists(self):
+        for link in self.internal_links:
+            file_part = link.split("#", 1)[0]
+            if not file_part:
+                # Pure same-document anchor link (e.g. "#section").
+                continue
+            with self.subTest(link=link):
+                target_path = (DOCS_DIR / file_part).resolve()
+                self.assertTrue(
+                    target_path.is_file(),
+                    f"linked file does not exist: {file_part!r} "
+                    f"(resolved to {target_path})",
+                )
+
+    def test_every_cross_document_anchor_matches_a_real_heading(self):
+        anchor_cache = {}
+        for link in self.internal_links:
+            if "#" not in link:
+                continue
+            file_part, anchor = link.split("#", 1)
+            if not file_part:
+                # Same-document anchor, checked separately below.
+                continue
+            with self.subTest(link=link):
+                if file_part not in anchor_cache:
+                    target_path = (DOCS_DIR / file_part).resolve()
+                    anchor_cache[file_part] = _heading_anchors(_read(target_path))
+                self.assertIn(
+                    anchor,
+                    anchor_cache[file_part],
+                    f"anchor #{anchor} does not match any heading slug in "
+                    f"{file_part} -- the mock exam link is stale",
+                )
+
+    def test_every_same_document_anchor_matches_a_real_heading(self):
+        own_anchors = _heading_anchors(self.text)
+        same_doc_anchors = [
+            link.split("#", 1)[1] for link in self.links if link.startswith("#")
+        ]
+        self.assertGreater(
+            len(same_doc_anchors), 0, "expected at least one same-document anchor link"
+        )
+        for anchor in same_doc_anchors:
+            with self.subTest(anchor=anchor):
+                self.assertIn(anchor, own_anchors)
+
+
+if __name__ == "__main__":
+    unittest.main()

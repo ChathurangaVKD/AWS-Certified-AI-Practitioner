@@ -1,5 +1,28 @@
 # Domain 4: Guidelines for Responsible AI
 
+[← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)
+
+**Last verified:** 2026-09-02
+
+## Table of contents
+
+- [1. Core dimensions of responsible AI](#1-core-dimensions-of-responsible-ai)
+- [2. Identifying bias and fairness issues in training data and model outputs](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+- [3. AWS tools for responsible AI](#3-aws-tools-for-responsible-ai)
+- [4. Legal and ethical considerations](#4-legal-and-ethical-considerations)
+- [5. Balancing model performance and interpretability](#5-balancing-model-performance-and-interpretability)
+- [Worked example: auditing and documenting a responsible e-commerce recommendation engine](#worked-example-auditing-and-documenting-a-responsible-e-commerce-recommendation-engine)
+- [Worked example: auditing a classical ML small-business loan-approval classifier for bias](#worked-example-auditing-a-classical-ml-small-business-loan-approval-classifier-for-bias)
+- [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant)
+- [Worked example: deciding whether to trade accuracy for interpretability to meet a regulatory explainability requirement](#worked-example-deciding-whether-to-trade-accuracy-for-interpretability-to-meet-a-regulatory-explainability-requirement)
+- [Worked example: pairing a classical ML ranker scored by SageMaker Clarify with a Bedrock FM protected by Guardrails](#worked-example-pairing-a-classical-ml-ranker-scored-by-sagemaker-clarify-with-a-bedrock-fm-protected-by-guardrails)
+- [Comparison table: AWS responsible AI tools at a glance](#comparison-table-aws-responsible-ai-tools-at-a-glance)
+- [Decision framework: choosing a bias metric and layering tools for high-stakes AI](#decision-framework-choosing-a-bias-metric-and-layering-tools-for-high-stakes-ai)
+- [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
+- [Key terms glossary](#key-terms-glossary)
+- [Practice questions](#practice-questions)
+- [Answer key and explanations](#answer-key-and-explanations)
+
 ## Domain overview
 
 Domain 4 makes up roughly **14% of scored questions** on the AWS Certified
@@ -17,14 +40,14 @@ between a model's raw performance and how explainable/interpretable it is
 for a given use case.
 
 This domain matters because responsible AI is not an afterthought bolted
-onto Domains 1–3 — it's tested as a first-class concern the exam expects
+onto [Domain 1](domain-1-fundamentals-of-ai-and-ml.md)–[Domain 3](domain-3-applications-of-foundation-models.md) — it's tested as a first-class concern the exam expects
 you to weigh in almost any scenario involving real users, regulated
 industries, or generated content. Questions here are rarely about writing
 code; they are scenario-based ("a company is concerned about X — which
 practice, metric, or AWS tool addresses it?") and frequently hinge on
 precise terminology (e.g., distinguishing *bias* from *variance*, or a
 **Model Card** from an **AI Service Card**). This domain also sets up
-Domain 5 (security, compliance, and governance for AI solutions), which
+[Domain 5](domain-5-security-compliance-governance.md) (security, compliance, and governance for AI solutions), which
 goes deeper on the organizational and regulatory side of many of the same
 themes.
 
@@ -40,7 +63,7 @@ roughly which AWS capability supports it:
   equitably, without producing outcomes that systematically disadvantage
   people based on protected characteristics (e.g., race, gender, age).
   Fairness problems most often originate from **bias** in training data or
-  model behavior (Section 2).
+  model behavior ([Section 2](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)).
 - **Explainability** — the ability to describe, in human-understandable
   terms, *why* a model produced a particular prediction or output.
   Explainability is closely related to but distinct from **transparency**
@@ -58,7 +81,7 @@ roughly which AWS capability supports it:
   and its known risks, so that users and stakeholders can make informed
   decisions about whether and how to rely on it. AWS: **SageMaker Model
   Cards** and **AI Service Cards** are the primary documentation
-  mechanisms (Section 3).
+  mechanisms ([Section 3](#3-aws-tools-for-responsible-ai)).
 - **Veracity and robustness** — the system produces **correct, reliable
   outputs** and continues to perform well when faced with unexpected,
   noisy, or adversarial inputs, rather than degrading unpredictably or
@@ -70,7 +93,7 @@ roughly which AWS capability supports it:
   an organization puts in place to control how AI systems are built,
   reviewed, approved, deployed, and monitored over their lifecycle. AWS:
   SageMaker Model Cards and ML lineage tracking support governance by
-  creating an auditable record; covered in more depth in Domain 5.
+  creating an auditable record; covered in more depth in [Domain 5](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance).
 - **Safety** — preventing the AI system from causing harm — physical,
   psychological, financial, or societal — including preventing it from
   generating harmful, hateful, or dangerous content. AWS: **Guardrails
@@ -88,6 +111,53 @@ These dimensions overlap in practice: a **Guardrails for Amazon Bedrock**
 configuration that redacts PII touches privacy, a content filter touches
 safety, and a denied-topics list touches controllability — all from one
 feature.
+
+**Visual summary — how the 8 dimensions relate to each other:** none of
+these dimensions exists in isolation; they form a wheel around one hub
+concept (a system trustworthy enough to deploy), and several dimensions
+directly reinforce each other (dashed lines below) — explainability feeds
+transparency, privacy and safety overlap on data leakage, safety and
+controllability overlap on stopping harmful behavior, governance
+formalizes transparency into policy, and fairness problems are frequently
+also veracity problems (a model that is unfair to a group is also
+producing unreliable output for that group):
+
+```mermaid
+graph TD
+    RAI((Responsible AI))
+    RAI --- FAIR[Fairness]
+    RAI --- EXPL[Explainability]
+    RAI --- PRIV["Privacy & Security"]
+    RAI --- TRAN[Transparency]
+    RAI --- VERA["Veracity & Robustness"]
+    RAI --- GOV[Governance]
+    RAI --- SAFE[Safety]
+    RAI --- CTRL[Controllability]
+
+    EXPL -. overlaps .-> TRAN
+    PRIV -. overlaps .-> SAFE
+    SAFE -. overlaps .-> CTRL
+    GOV -. overlaps .-> TRAN
+    FAIR -. overlaps .-> VERA
+```
+
+**Visual summary — how each dimension maps to an AWS tool:** the exam
+frequently asks "which AWS capability addresses dimension X," so it helps
+to see the dimension-to-tool mapping as one graph instead of eight
+separate facts:
+
+```mermaid
+graph LR
+    FAIR[Fairness] --> CLARIFY["Amazon SageMaker Clarify\n(bias metrics)"]
+    EXPL[Explainability] --> CLARIFY2["Amazon SageMaker Clarify\n(SHAP explanations)"]
+    PRIV["Privacy & Security"] --> GUARD1["Guardrails for Amazon Bedrock\n(PII redaction)"]
+    TRAN[Transparency] --> CARDS["SageMaker Model Cards /\nAI Service Cards"]
+    VERA["Veracity & Robustness"] --> GUARD2["Guardrails for Amazon Bedrock\n(contextual grounding)"]
+    GOV[Governance] --> CARDS
+    SAFE[Safety] --> GUARD3["Guardrails for Amazon Bedrock\n(content filters)"]
+    CTRL[Controllability] --> GUARD4["Guardrails for Amazon Bedrock\n(denied topics)"]
+    CTRL --> A2I["Amazon A2I\n(human review)"]
+```
 
 **AWS example:** A healthcare company deploying a generative AI assistant
 needs: **fairness** (the assistant must not give worse guidance to some
@@ -109,14 +179,106 @@ off the assistant at any time).
 > human step in and stop it?" → **controllability**; "is the output
 > trustworthy/accurate under stress?" → **veracity and robustness**.
 
+#### Mini-quiz: Test your understanding of the core dimensions of responsible AI
+
+Quick self-check before moving on — try to answer before reading the
+explanation.
+
+1. Which responsible AI dimension is most directly supported by Amazon
+   SageMaker Clarify's SHAP-based feature attribution explanations?
+   A. Governance
+   B. Explainability
+   C. Environmental impact
+   D. Data residency
+
+   **Answer: B** — Explainability is about describing, in
+   human-understandable terms, why a model produced a specific prediction;
+   SageMaker Clarify generates SHAP-based per-prediction explanations
+   specifically for this purpose.
+
+2. A hospital wants clinicians to be able to override or shut down a
+   generative AI assistant at any time. Which dimension does this
+   capability most directly address?
+   A. Controllability
+   B. Fairness
+   C. Transparency
+   D. Veracity and robustness
+
+   **Answer: A** — Controllability is the ability of a human operator to
+   monitor, override, adjust, or stop an AI system's behavior; letting
+   clinicians shut off the assistant is a direct expression of that
+   dimension.
+
+3. Which AWS capability primarily supports the "transparency" dimension by
+   documenting how a model was built, its training data, and its known
+   limitations?
+   A. Guardrails for Amazon Bedrock content filters
+   B. Amazon SageMaker Model Cards
+   C. Amazon Macie
+   D. AWS Customer Carbon Footprint Tool
+
+   **Answer: B** — SageMaker Model Cards are the primary mechanism for
+   documenting a model's build details, intended use, and limitations,
+   which is exactly what the transparency dimension requires. Guardrails
+   (A) filters live inference content rather than documenting the model;
+   Macie (C) discovers sensitive data at rest; the Carbon Footprint Tool
+   (D) reports emissions, unrelated to transparency.
+
 ---
 
 ## 2. Identifying bias and fairness issues in training data and model outputs
 
+### Bias ≠ Variance: Terminology Clarification
+
+Before going further, pause on a terminology trap that trips up readers who
+jump straight into this section: the word **bias** means two unrelated
+things depending on which domain of the exam you're in.
+
+- **Statistical bias ([Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off))**
+  — a property of how well a model *fits* the data, paired with variance in
+  the bias-variance trade-off. High bias means the model is too simple and
+  systematically misses the underlying pattern (**underfitting**) — e.g., a
+  straight-line (linear regression) model forced to fit a clearly curved
+  relationship will systematically mispredict across the range, no matter
+  how much training data you add. The fix is a more complex model, more
+  features, or less regularization.
+- **Fairness bias (this section, Domain 4)** — a property of a model's
+  *outcomes* across groups of people, with nothing to do with underfitting
+  or overfitting. It means the system systematically disadvantages one
+  group relative to another — e.g., a résumé-screening model trained mostly
+  on résumés from one gender that, as a result, scores equally-qualified
+  candidates of another gender lower. The fix is rebalanced data, fairness
+  constraints, or output calibration across groups (the mitigation
+  techniques covered later in this section) — not a bigger or more complex
+  model.
+
+These two meanings are not interchangeable, and a fix for one will not
+resolve the other: a model can be statistically low-bias/low-variance (it
+fits the training distribution well) and still be badly unfair to a
+demographic group, because "fits the data well" says nothing about whether
+the data itself, or the outcomes across groups, are equitable. The rest of
+this section uses **bias** exclusively in the fairness sense unless a
+sentence explicitly says "statistical bias" or references the Domain 1
+bias-variance trade-off.
+
+Keep this distinction in mind as this section introduces
+**Amazon SageMaker Clarify** (covered in full in
+[AWS tools for responsible AI](#3-aws-tools-for-responsible-ai) below):
+every metric Clarify computes — class imbalance and difference in
+proportions of labels (DPL) pre-training, disparate impact and
+accuracy/recall difference post-training — measures **fairness bias**
+across groups of people. Clarify plays no role in diagnosing statistical
+bias or variance; a model Clarify flags as unfair can simultaneously have
+low statistical bias and low variance (a good numerical fit), and a model
+with high statistical bias (underfitting) can still pass every one of
+Clarify's fairness checks. If an exam question pairs "SageMaker Clarify"
+with "bias," read it as the fairness sense from this section, not the
+Domain 1 bias-variance trade-off.
+
 **Bias** in ML is a systematic skew in a model's predictions caused by
 problems in the training data or the training process — as distinct from
 **variance**, which is a model's sensitivity to small fluctuations in the
-training data (recall from Domain 1: high bias underfits, high variance
+training data (recall from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off): high bias underfits, high variance
 overfits). Responsible AI bias is about *unfair skew*, most visibly along
 demographic or protected-characteristic lines, and it can be introduced at
 multiple points:
@@ -164,6 +326,40 @@ while performing far worse for a minority subgroup. Common signals:
   group or recalibrate outputs after training completes, without
   retraining the model.
 
+**Visual summary — bias detection and mitigation workflow:** given a
+scenario, first identify which of the six bias types it describes, then
+detect it with the appropriate SageMaker Clarify metric depending on
+whether the model has been trained yet, then select an AWS tool to
+mitigate or govern it:
+
+```mermaid
+flowchart TD
+    A["Scenario describes a possible bias or fairness problem"] --> B{"Identify the bias type"}
+    B --> B1["Sampling bias\n(unrepresentative data)"]
+    B --> B2["Measurement bias\n(proxy variable skew)"]
+    B --> B3["Label / human bias\n(annotator skew)"]
+    B --> B4["Historical bias\n(inequitable past outcomes)"]
+    B --> B5["Exclusion bias\n(removed signal)"]
+    B --> B6["Aggregation bias\n(one model, distinct subgroups)"]
+
+    B1 --> C{"Has the model been trained yet?"}
+    B2 --> C
+    B3 --> C
+    B4 --> C
+    B5 --> C
+    B6 --> C
+
+    C -->|"No - check the dataset"| D["Pre-training detection\nSageMaker Clarify: class imbalance,\ndifference in proportions of labels (DPL)"]
+    C -->|"Yes - check the predictions"| E["Post-training detection\nSageMaker Clarify: disparate impact,\naccuracy/recall difference"]
+
+    D --> F{"Select a mitigation tool"}
+    E --> F
+
+    F --> G["Guardrails for Amazon Bedrock\n(runtime output controls)"]
+    F --> H["SageMaker Model Cards\n(document bias risk and limitations)"]
+    F --> I["Amazon A2I\n(human review of flagged predictions)"]
+```
+
 **AWS example:** A bank builds a credit-approval model. Before training,
 they run **Amazon SageMaker Clarify** on the training dataset and discover
 a large **difference in proportions of labels** between two demographic
@@ -177,12 +373,171 @@ monitoring bias drift over time with **Amazon SageMaker Model Monitor**.
 > **Exam tip:** Know the difference between **bias** (systematic,
 > unfair skew — a responsible-AI/fairness problem) and **variance**
 > (sensitivity to training data fluctuations — an underfitting/overfitting
-> problem from Domain 1); the exam tests both terms and expects you not to
+> problem from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)); the exam tests both terms and expects you not to
 > conflate them. Also remember that **SageMaker Clarify measures bias both
 > before training (on the dataset) and after training (on model
 > predictions)** — a scenario that mentions checking a *dataset* for bias
 > before a model is even built is still a Clarify pre-training bias
 > metric, not a post-training one.
+
+**Visual summary — pre-training vs. post-training bias detection:** the
+diagram above folds this choice into a larger workflow; isolated on its
+own, the entire decision turns on a single question — **do you have a
+trained model yet?**
+
+```mermaid
+flowchart TD
+    A["Need to detect bias\n(dataset or model)"] --> B{"Do you have a\ntrained model yet?"}
+    B -->|"No"| C["Apply pre-training metrics\nto the dataset:\nclass imbalance,\ndifference in proportions\nof labels (DPL)"]
+    B -->|"Yes"| D["Apply post-training metrics\nto the predictions:\ndisparate impact,\naccuracy/recall difference\nper group"]
+    C --> E["SageMaker Clarify\n(dataset job)"]
+    D --> F["SageMaker Clarify\n(model/endpoint job)"]
+```
+
+This is the exact branch [cross-domain scenario questions 2, 13, and
+19](cross-domain-scenario-questions.md#practice-questions) test: if the
+scenario describes checking a *dataset* before training, the answer is a
+pre-training metric (class imbalance or DPL) even if the question never
+says the word "pre-training"; if it describes checking *predictions* from
+an already-trained model or deployed endpoint, the answer is a
+post-training metric (disparate impact or accuracy/recall difference),
+even if the question never says "post-training" either.
+
+### Worked example: representativeness vs. demographic fairness bias
+
+Everything above in this section — disparate impact, DPL, class
+imbalance — measures **fairness bias**: whether a model's outcomes differ
+across *demographic groups it already has data for*. There is a distinct
+failure mode that those same metrics can miss entirely: **representativeness
+bias**, where a whole *segment of the deployment population* is thin or
+absent from the training data in the first place, so the model
+underperforms for that segment regardless of whether any protected
+demographic attribute is unfairly treated. The two are easy to conflate
+because both are called "bias" and both trace back to unrepresentative
+data — but they're detected differently, and a model can pass one check
+while badly failing the other.
+
+**Scenario:** A retailer trains a classical SageMaker image classifier to
+tag product photos, using a training set scraped almost entirely from
+sellers and warehouses in the continental United States. The model ships
+well in US-based QA testing. Three months after a push into rural US
+markets and an international expansion into Southeast Asia, support
+tickets spike: the classifier misfires constantly on product photos from
+those regions — different packaging conventions, lighting, backgrounds,
+and product mixes the US-heavy training set never saw.
+
+1. **Notice which check this evades.** The team already ran SageMaker
+   Clarify before and after training. Clarify's **pre-training** metrics
+   (class imbalance, DPL) and **post-training** metrics (disparate impact,
+   accuracy/recall difference) all came back clean — because those
+   metrics compare outcomes *across demographic groups present in the
+   labeled data*. They say nothing about a geography that barely appears
+   in the data at all: there's no demographic group label for "rural US"
+   or "Southeast Asia" to compute a disparity against, so Clarify has
+   nothing to flag. This is the same trap as [cross-domain scenario
+   question 20](cross-domain-scenario-questions.md#practice-questions): a
+   held-out test split drawn from the *same* non-representative
+   collection pool will also score well, because the split doesn't fix a
+   coverage gap baked in before the split ever happened.
+2. **Detect representativeness with a different check.** Fairness bias
+   metrics answer "are groups *in the data* treated equitably?"
+   Representativeness has to be checked separately, by comparing the
+   *training data's coverage* against the *deployment population* — for
+   example, auditing what fraction of training images come from each
+   target region/market versus that region's expected share of
+   production traffic, and directly measuring held-out accuracy
+   **broken out by region** rather than trusting one aggregate score.
+   Only once region-level segments exist as labeled slices does a tool
+   like SageMaker Clarify become useful again — computed *on the region
+   label* the same way it would be computed on any other group.
+3. **Mitigate the coverage gap, not a demographic disparity.** Because the
+   root cause is missing coverage rather than an unfair split of an
+   existing population, the fix is **pre-processing** aimed at coverage:
+   collect or license additional product photos from rural US sellers and
+   the new Southeast Asia market, augment the underrepresented segments,
+   and re-scrape with quotas per target region instead of an
+   unconstrained crawl. Rebalancing classes or adding a fairness
+   constraint (the usual fairness-bias mitigations) would not help here —
+   there's no unfair treatment of a group that's already in the data to
+   correct; the data for that group barely exists yet.
+4. **Recheck both dimensions after retraining.** The team re-trains on the
+   expanded dataset and confirms two separate things, not one: per-region
+   accuracy now meets the bar for rural US and Southeast Asian segments
+   (closing the representativeness gap), *and* SageMaker Clarify's
+   post-training metrics still show no disparate impact across whatever
+   demographic groups apply within each region (confirming fairness
+   wasn't traded away while fixing coverage). They document both checks,
+   and the target regional coverage mix, in a **SageMaker Model Card**.
+5. **Govern coverage on an ongoing basis.** As the retailer expands into
+   further markets, **SageMaker Model Monitor** watches for both data
+   drift (new regions appearing in production traffic that aren't yet
+   represented in training) and bias drift within already-covered
+   regions, so a coverage gap is caught before it becomes months of
+   misfires like the one that started this example.
+
+| | Demographic fairness bias | Representativeness bias |
+|---|---|---|
+| **Question it answers** | Are outcomes equitable *across groups present in the data*? | Does the training data *cover* the population the model will serve? |
+| **Typical detection** | SageMaker Clarify: class imbalance, DPL (pre-training); disparate impact, accuracy/recall difference (post-training) | Compare training-data coverage per segment against expected deployment-population share; accuracy broken out per segment (not one aggregate score) |
+| **Why a clean Clarify report can still miss it** | Clarify compares groups that already have labels/rows in the dataset | A missing or thin segment has no meaningful group to compare against — there isn't enough data to compute a stable metric on |
+| **Typical mitigation** | Rebalance classes, fairness constraints, threshold calibration per group | Collect/augment data for the underrepresented segment; sampling quotas per target segment |
+
+> **Exam tip:** A scenario where a model "scores well on its held-out test
+> set" but "performs far worse" for a specific **region, market, or
+> deployment context** that was thin in the training data — rather than
+> for a demographic group that's well-represented but treated unfairly —
+> is testing **representativeness/transferability**, not a standard
+> SageMaker Clarify fairness metric. The held-out test score looking fine
+> is a clue, not a reassurance: a test split drawn from the same
+> non-representative pool inherits the same gap. The fix is auditing and
+> expanding data coverage for the missing segment, not rebalancing
+> classes or adding a fairness constraint.
+
+#### Mini-quiz: Test your understanding of identifying bias and fairness issues
+
+1. A facial recognition dataset contains mostly images of one demographic
+   group, causing the trained model to perform far worse on
+   underrepresented groups. Which type of bias does this describe?
+   A. Historical bias
+   B. Sampling bias
+   C. Aggregation bias
+   D. Measurement bias
+
+   **Answer: B** — Sampling bias occurs when the training data does not
+   represent the real-world population the model will be used on, exactly
+   as described here. Historical bias (A) is about accurately-collected
+   data reflecting pre-existing societal inequities; aggregation bias (C)
+   is about applying one model where subgroups need distinct treatment;
+   measurement bias (D) is about how data is collected or labeled
+   differing systematically across groups.
+
+2. Which SageMaker Clarify metric would you use, *before* a model is even
+   trained, to check whether a positive outcome label appears at a
+   different rate across demographic groups in the dataset?
+   A. Disparate impact
+   B. Difference in proportions of labels (DPL)
+   C. SHAP value
+   D. Accuracy difference
+
+   **Answer: B** — DPL is a pre-training metric measuring how differently
+   a positive label appears across groups in the dataset. Disparate impact
+   (A) and accuracy difference (D) are post-training metrics computed on
+   model predictions; a SHAP value (C) explains a specific prediction, it
+   isn't a bias metric.
+
+3. A team adds a fairness constraint to the training objective so the
+   model is penalized during training for producing unfair outcomes
+   across groups. Which stage of bias mitigation does this describe?
+   A. Pre-processing
+   B. Post-processing
+   C. In-processing
+   D. Data collection
+
+   **Answer: C** — In-processing mitigation adds fairness constraints or
+   regularization terms to the training objective itself. Pre-processing
+   (A) adjusts the data before training starts; post-processing (B)
+   adjusts outputs/thresholds after training without retraining; "data
+   collection" (D) is not one of the three defined mitigation stages.
 
 ---
 
@@ -251,6 +606,355 @@ its documented limitations before deciding.
 > content/safety/privacy filtering** — they solve different problems at
 > different stages (dataset/model evaluation vs. live inference).
 
+### Worked example: routing low-confidence predictions to human review with Amazon A2I
+
+The bullet list above introduces **Amazon A2I** in one sentence — "route
+low-confidence or high-stakes predictions to a human reviewer." This
+worked example makes that concrete end to end: selecting a confidence
+threshold using the [Domain 1, Section 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics)
+evaluation metrics, wiring routing logic around that threshold, and
+configuring an A2I human review workflow so a person, not the model,
+makes the final call on anything the model isn't confident about.
+
+**Scenario:** Meridian Regional Hospital deploys a classical SageMaker
+gradient-boosted classifier that scores each newly admitted patient's
+predicted probability of needing urgent escalation, so nurses can
+triage the queue faster. The hospital's clinical governance board sets a
+hard rule before allowing the model anywhere near production: the model
+must never trigger a clinical action autonomously, and **any prediction
+below a set confidence threshold must be routed to a human clinician for
+full manual review** rather than being auto-flagged — precisely the
+requirement this domain's [controllability dimension](#1-core-dimensions-of-responsible-ai)
+describes.
+
+1. **Train and evaluate the model.** The team trains the classifier on
+   structured admission data (vitals, labs, prior history) and evaluates
+   it with the [Domain 1, Section 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics)
+   metrics before ever picking a threshold: **AUC-ROC of 0.91** confirms
+   the model ranks genuinely urgent patients above non-urgent ones well
+   across *all* possible thresholds, and a recall-heavy read of the
+   confusion matrix matters most here because a missed urgent case is far
+   costlier than an unnecessary review.
+2. **Select a confidence threshold with explicit reasoning, not the
+   default 0.5.** The team sweeps candidate thresholds on held-out data:
+   at 0.50, the model reaches 91% recall / 62% precision; at 0.70, recall
+   drops to 78% (too many genuinely urgent patients would fall below the
+   cutoff and get treated as routine); at 0.35, recall rises to 97% but
+   precision falls to 44% (too many low-value cases would flood the
+   automated path). Because a false negative here can mean a delayed
+   escalation, the board accepts the lower precision and sets the
+   **confidence threshold at 0.35** — any prediction with a predicted
+   probability **at or above 0.35** is confident enough to auto-populate
+   the nurse's priority queue as a flagged case; anything **below 0.35**
+   isn't confident enough to flag automatically at all, and must go to a
+   human instead of being silently treated as "not urgent."
+3. **Implement the prediction-routing logic.** At inference time, the
+   application layer in front of the SageMaker endpoint compares each
+   prediction's confidence score against the 0.35 threshold: scores
+   **≥ 0.35** write a flagged, prioritized entry to the nurse queue (still
+   reviewed by a nurse before any care decision, per the "never
+   autonomous" rule); scores **< 0.35** skip the automated queue entirely
+   and instead invoke Amazon A2I's `StartHumanLoop` API, since the model
+   itself has signaled it doesn't have enough confidence to even suggest
+   a priority level.
+4. **Configure the Amazon A2I human review workflow.** The team builds
+   the human-in-the-loop pipeline in three pieces: a **worker task
+   template** (the reviewer-facing UI showing the patient's vitals, labs,
+   and the model's low-confidence probability, with fields for the
+   clinician's own priority assessment); a **human review workflow (flow
+   definition)** that ties that template to an activation condition — any
+   prediction confidence below the same **0.35 threshold** from step 2 —
+   so the routing threshold and the A2I trigger stay in lockstep instead
+   of drifting apart as two separately maintained numbers; and a
+   **private workforce** of credentialed clinicians (managed through
+   Amazon Cognito), not the public Mechanical Turk workforce, because the
+   task exposes protected health information (PHI) that only authorized
+   reviewers may see.
+5. **Close the loop before any action is taken.** A human loop only
+   completes, and only then does the case re-enter the nurse queue, once
+   a credentialed reviewer submits a priority assessment through A2I —
+   the low-confidence prediction never reaches a clinician's queue
+   unreviewed, satisfying the "no autonomous action" rule for the exact
+   cases the model is least sure about.
+6. **Document and monitor.** The team records the threshold, the
+   precision/recall tradeoff behind it, and the A2I configuration in a
+   **SageMaker Model Card**, and attaches **SageMaker Model Monitor** to
+   watch the *share* of predictions falling below 0.35 over time — a
+   rising share can signal the patient population is drifting away from
+   what the model was trained on, prompting a threshold review.
+
+> **Exam tip:** A scenario that says predictions "below a confidence
+> threshold" must go to a human, with no autonomous final action, is
+> describing **Amazon A2I** built on top of a **classification
+> threshold** — the same concept from [Domain 1, Section
+> 6](domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics),
+> applied to *routing* instead of a pass/fail decision. Watch for two
+> common wrong answers: confusing this with **temperature**, a
+> generative-model sampling parameter with no meaning for a classical
+> classifier's predicted probability, and assuming "route to a human"
+> means the model has no notion of confidence at all — every classical
+> probabilistic classifier already outputs a predicted probability that's
+> a natural, ready-made signal to threshold on.
+
+### Worked example: layering SageMaker Clarify and Guardrails for Amazon Bedrock to audit a generative recommendation engine
+
+The bullet list above and the [comparison table](#comparison-table-aws-responsible-ai-tools-at-a-glance)
+describe **Amazon SageMaker Clarify** and **Guardrails for Amazon
+Bedrock** as two separate tools that solve bias at two separate stages —
+Clarify on training data and trained-model predictions, Guardrails on
+live foundation-model input/output. What neither the bullet list nor the
+exam tip above spells out is what happens when *both* tools are needed on
+the *same* generative AI application, because a single-stage bias review
+only ever catches half the problem. This worked example follows one
+company through building that two-stage pipeline end to end: a
+pre-generation, training-data bias audit with Clarify, and a runtime,
+inference-time content audit with Guardrails, wired together so neither
+stage has to do the other's job.
+
+**Scenario:** Northwind Outfitters, an outdoor-gear retailer, is
+replacing its collaborative-filtering "customers also bought" carousel
+with a generative recommendation assistant: a foundation model,
+fine-tuned on Bedrock using two years of customer profiles, purchase
+history, and support-chat transcripts, that writes a short personalized
+recommendation paragraph for each shopper instead of just listing
+products. The responsible-AI review board raises a specific concern
+neither tool alone resolves: if the fine-tuning data quietly under-serves
+a demographic segment, the model can learn to recommend a narrower slice
+of the catalog to that segment — a **fairness** and **historical bias**
+problem baked into the model itself, which a runtime content filter
+can't retroactively fix — but the board also knows that even a perfectly
+rebalanced model can still generate an inappropriate or stereotyped
+sentence at inference time on some prompt it never saw during evaluation,
+which a one-time training-data audit can't catch either. The board
+requires **both** a pre-generation bias audit of the training data *and*
+the fine-tuned model, **and** runtime Guardrails on the deployed
+endpoint, before the assistant can launch.
+
+**Stage 1 — Pre-generation: auditing the training data and the
+fine-tuned model with SageMaker Clarify**
+
+1. **Assemble the fine-tuning dataset.** The data science team compiles
+   examples pairing a customer profile (age range, past purchases,
+   support-chat excerpts) with a target recommendation paragraph written
+   by a merchandising copywriter, to fine-tune the foundation model on
+   Bedrock to produce Northwind's house style and product knowledge.
+2. **Run SageMaker Clarify's pre-training bias metrics on that dataset,
+   before any fine-tuning happens.** Mirroring the [pre-training vs.
+   post-training decision](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+   from Section 2 — *do you have a trained model yet? No, so check the
+   dataset* — Clarify flags a **class imbalance** and a large
+   **difference in proportions of labels (DPL)**: customers in the
+   55-and-older age bracket have far fewer "adventure/backcountry gear"
+   labeled examples, not because older customers buy less outdoor gear,
+   but because Northwind's own merchandising copywriters historically
+   wrote adventure-gear recommendations mostly for younger customer
+   profiles — a **historical bias**, the data accurately reflects what
+   was written in the past, but what was written in the past was itself
+   skewed.
+3. **Mitigate at the data stage, before fine-tuning.** Because the root
+   cause is the training examples themselves rather than the model's
+   objective function, the team applies a **pre-processing** mitigation:
+   augmenting the fine-tuning set with additional adventure-gear
+   recommendation examples written for older customer profiles, and
+   rebalancing so no age segment is proportionally under-represented in
+   any product category.
+4. **Fine-tune the foundation model on Bedrock** using the rebalanced
+   dataset.
+5. **Run SageMaker Clarify's post-training bias metrics against the
+   fine-tuned model**, not just the dataset. The team scores the
+   fine-tuned model against a held-out set of customer profiles spanning
+   every age segment and category, and computes **disparate impact**:
+   the share of "adventure/backcountry gear" recommendations the model
+   generates for the 55-and-older segment versus every other segment.
+   The first post-training run still shows a residual gap — smaller than
+   before the data rebalancing, but still outside the acceptable range
+   the review board set.
+6. **Close the residual gap.** Rather than a full retrain, the team
+   applies a lightweight **post-processing** adjustment to the
+   recommendation-generation prompt template — explicitly instructing the
+   model to draw candidate categories from the customer's actual
+   purchase and browsing signals rather than any age-correlated default —
+   and reruns Clarify's post-training metrics to confirm disparate impact
+   now falls within the board's threshold.
+
+At the end of Stage 1, Clarify has done everything it can do: it has
+measured and helped close a **structural, statistical** bias baked into
+the training data and the fine-tuned model. But Clarify's job stops at
+model evaluation — it has no visibility into what the model actually
+generates once real customers start typing free-form profile updates and
+support messages into the live application.
+
+**Stage 2 — Runtime: layering Guardrails for Amazon Bedrock on the
+deployed endpoint**
+
+7. **Attach Guardrails for Amazon Bedrock to the production endpoint**
+   before launch, configuring the layers most relevant to a
+   recommendation assistant: **content filters** (block outputs that
+   veer into harassment or insults if a customer's chat excerpt is
+   provocative), **denied topics** (block the model from ever
+   discussing a customer's protected characteristics as a stated reason
+   for a recommendation), **word filters** (block generated phrases that
+   name an age bracket, gender, or similar attribute as a recommendation
+   rationale), **sensitive information filters** (redact any PII the
+   model might otherwise echo back from a customer's own profile text
+   into the generated paragraph), and **contextual grounding checks**
+   (verify each generated recommendation is actually grounded in that
+   customer's real purchase/browsing signals, not a fabricated or
+   stereotyped assumption about what "someone like them" would want).
+8. **A runtime edge case slips through anyway.** Months after launch, a
+   customer's profile update includes the word "retired" in a support
+   chat excerpt used as personalization context. The fine-tuned model —
+   despite passing every pre-launch Clarify check — generates a
+   recommendation paragraph that narrows its suggestions to a
+   low-activity product category and explicitly cites the customer being
+   "retired" as the reason, something no amount of pre-launch dataset
+   rebalancing could have anticipated because that exact prompt pattern
+   never appeared in the fine-tuning or evaluation data.
+9. **Guardrails, not Clarify, catches it live.** The configured **word
+   filter** and **denied topics** checks match on the generated text
+   before it reaches the customer, block the response, and log the
+   blocked interaction — Guardrails cannot explain *why* the model
+   produced that text or fix the underlying tendency, but it stops the
+   harmful output from ever being shown, which is exactly the runtime
+   safety net a one-time, pre-launch Clarify audit cannot provide by
+   itself.
+10. **Close the loop back into Stage 1.** The team doesn't treat the
+    blocked interaction as resolved once Guardrails suppresses it. They
+    add the blocked prompt-and-response pair, and its underlying pattern
+    (age-related language in the support-chat context field), to the
+    fine-tuning dataset as a labeled negative example, and schedule it
+    for the next fine-tuning cycle — re-running Stage 1's Clarify
+    pre-training and post-training metrics on the updated dataset and
+    model, so the runtime finding actually reduces how often Guardrails
+    has to intervene going forward, instead of the two tools running in
+    parallel forever without ever informing each other.
+11. **Document and govern both stages together.** The team records the
+    Stage 1 Clarify metrics (before and after rebalancing), the Stage 2
+    Guardrails configuration, and the Stage 1↔Stage 2 feedback loop from
+    step 10 in a single **SageMaker Model Card**, and attaches
+    **SageMaker Model Monitor** to the endpoint to track bias drift over
+    time and **Guardrails' own blocked/intervened request logs** as a
+    second, independent signal — a rising Guardrails intervention rate
+    for a particular customer segment is itself evidence that Stage 1's
+    training-data mitigation needs another pass, even before Model
+    Monitor's own bias-drift metric moves.
+
+**Why one stage alone was never enough:** Stage 1 (Clarify) is
+*retrospective and structural* — it measures bias that already exists in
+a fixed dataset or a fixed, already-trained model, computed once (or on a
+schedule) before or shortly after deployment. Stage 2 (Guardrails) is
+*prospective and behavioral* — it inspects each individual generation as
+it happens, with no memory of *why* the model behaves that way and no
+ability to change the model's underlying tendencies. Neither can
+substitute for the other: shipping Guardrails alone, with no Clarify
+audit, means the review board would be relying entirely on catching bad
+outputs one at a time at runtime, forever, instead of shrinking how often
+they occur in the first place; shipping Clarify alone, with no
+Guardrails, means the review board would have no defense against the
+prompt patterns that never showed up in the evaluation data used for the
+Clarify audit.
+
+**Visual summary — the two-stage bias-mitigation pipeline:**
+
+```mermaid
+flowchart TD
+    A["Fine-tuning dataset\n(customer profiles + purchase history\n+ support-chat transcripts)"] --> B["SageMaker Clarify\npre-training metrics:\nclass imbalance, DPL"]
+    B --> C{"Bias found?"}
+    C -->|"Yes"| D["Pre-processing mitigation\n(rebalance / augment dataset)"]
+    D --> B
+    C -->|"No / acceptable"| E["Fine-tune foundation model\non Amazon Bedrock"]
+    E --> F["SageMaker Clarify\npost-training metrics:\ndisparate impact"]
+    F --> G{"Disparate impact\nwithin threshold?"}
+    G -->|"No"| H["Post-processing mitigation\n(prompt template adjustment)"]
+    H --> F
+    G -->|"Yes"| I["Deploy fine-tuned model\nbehind a Bedrock endpoint"]
+    I --> J["Guardrails for Amazon Bedrock\n(content filters, denied topics,\nword filters, sensitive info filters,\ncontextual grounding checks)"]
+    J --> K{"Live generation violates\na configured Guardrail?"}
+    K -->|"Yes"| L["Block / redact response\nlog the blocked interaction"]
+    K -->|"No"| M["Return recommendation\nto the customer"]
+    L --> N["Feed blocked interaction back\ninto the fine-tuning dataset"]
+    N --> A
+```
+
+**Comparison — what each stage catches, and what it can't:**
+
+| | Stage 1: SageMaker Clarify (pre-generation) | Stage 2: Guardrails for Amazon Bedrock (runtime) |
+|---|---|---|
+| **When it runs** | Before fine-tuning (on the dataset) and after fine-tuning (on the model), on a schedule or before each release | On every individual inference call, continuously, after deployment |
+| **What it inspects** | The training dataset's label distribution, and the trained/fine-tuned model's aggregate behavior on an evaluation set | Each generated response (and each prompt) in isolation, in real time |
+| **What it catches** | Structural, statistical bias: class imbalance, DPL, disparate impact across demographic segments | Individual harmful, off-policy, or ungrounded outputs: denied topics, PII leakage, toxic content, unfaithful/hallucinated claims |
+| **What it can't catch** | A single bad generation from a prompt pattern that never appeared in the training or evaluation data | *Why* the model behaves a certain way, or any systemic skew across the whole customer base — it only ever sees one request at a time |
+| **Typical mitigation** | Pre-processing (rebalance data), in-processing (fairness constraints), or post-processing (recalibrate/adjust) | Block, redact, or rephrase the individual response before it reaches the user |
+| **Output artifact** | Bias metric values feeding a **SageMaker Model Card** | Blocked/intervened request logs feeding **SageMaker Model Monitor** and the next Stage 1 audit |
+
+> **Exam tip:** A scenario describing a **generative AI** application that
+> needs bias addressed **both** before launch **and** on an ongoing basis
+> once it's serving live traffic is testing whether you'll layer
+> **SageMaker Clarify** (pre-generation: dataset and fine-tuned-model bias
+> metrics) *with* **Guardrails for Amazon Bedrock** (runtime: content and
+> safety filtering on each generation) rather than picking just one. A
+> common wrong answer swaps them: choosing Guardrails alone for a
+> question that's actually about a skewed *training dataset*, or choosing
+> Clarify alone for a question that's actually about filtering *live*
+> model output. Watch for the same tell used throughout this domain — if
+> the scenario is about a *dataset* or an *already-trained model's
+> aggregate predictions*, that's Clarify; if it's about *each individual
+> response as it's generated*, that's Guardrails; a scenario combining
+> both signals is asking about **both tools layered together**, not a
+> choice between them.
+
+#### Mini-quiz: Test your understanding of AWS tools for responsible AI
+
+1. Which AWS capability would you use to redact personally identifiable
+   information (PII) from a live generative AI application's prompts and
+   responses?
+   A. Amazon SageMaker Clarify
+   B. Guardrails for Amazon Bedrock sensitive information filters
+   C. Amazon SageMaker Model Cards
+   D. AI Service Cards
+
+   **Answer: B** — Guardrails' sensitive information filters detect and
+   redact or block PII in prompts and responses at inference time.
+   SageMaker Clarify (A) detects bias and generates explanations, not PII
+   redaction; Model Cards (C) and AI Service Cards (D) are documentation
+   artifacts, not runtime controls.
+
+2. A fraud-detection team wants low-confidence predictions automatically
+   routed to a human reviewer before any action is taken. Which AWS
+   service is purpose-built for this?
+   A. Amazon Augmented AI (Amazon A2I)
+   B. Amazon SageMaker Clarify
+   C. Guardrails for Amazon Bedrock
+   D. AI Service Cards
+
+   **Answer: A** — Amazon A2I is designed specifically for
+   human-in-the-loop review workflows for low-confidence or high-stakes
+   predictions. Clarify (B) measures bias/explainability; Guardrails (C)
+   filters generative AI content at inference time; AI Service Cards (D)
+   are documentation, not a review workflow tool.
+
+3. Which statement correctly distinguishes a SageMaker Model Card from an
+   AI Service Card?
+   A. Both document AWS-managed services only
+   B. A Model Card documents a model the customer built; an AI Service
+      Card is AWS-published documentation for an AWS-managed AI service
+   C. A Model Card is a runtime content filter; an AI Service Card is a
+      training data quality report
+   D. They are interchangeable terms for the same artifact
+
+   **Answer: B** — A Model Card is filled in by the organization that
+   built the model (typically in SageMaker), while an AI Service Card is
+   authored and published by AWS for one of its own managed AI services.
+   A reverses this; C mischaracterizes both artifacts as technical
+   controls rather than documentation; D is false since they serve
+   distinct, non-interchangeable purposes.
+
+> **See also:** This section frames Guardrails for Amazon Bedrock as a
+> responsible-AI tool. For the implementation detail of Guardrails as a
+> runtime feature — denied topics, content filters, PII filters, and
+> contextual grounding checks — see [Domain 3 §5, Amazon Bedrock
+> features](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features).
+
 ---
 
 ## 4. Legal and ethical considerations
@@ -282,7 +986,7 @@ its documented limitations before deciding.
 - **Environmental impact** — training and running large foundation
   models consumes substantial energy and compute resources, with a real
   carbon and resource footprint. Considerations: choosing smaller/more
-  efficient models when they meet the accuracy bar (see Section 5),
+  efficient models when they meet the accuracy bar (see [Section 5](#5-balancing-model-performance-and-interpretability)),
   reusing pretrained foundation models via prompting/RAG/fine-tuning
   instead of pretraining from scratch, and consulting AWS sustainability
   guidance. AWS: the **AWS Customer Carbon Footprint Tool** reports the
@@ -313,6 +1017,52 @@ peak load, aligning with the **Well-Architected Sustainability Pillar**.
 > owns/may be liable for content) — the exam tests these as separate,
 > non-overlapping legal/ethical categories.
 
+#### Mini-quiz: Test your understanding of legal and ethical considerations
+
+1. A company is concerned that its generative AI model on Amazon Bedrock
+   could infringe copyright by reproducing training content too closely.
+   Which consideration most directly helps mitigate this specific legal
+   risk?
+   A. Choosing a Bedrock model whose provider offers IP indemnification
+   B. Enabling Guardrails content filters for violence
+   C. Reducing the model's context window
+   D. Enabling Amazon SageMaker Model Monitor
+
+   **Answer: A** — IP indemnification is a contractual protection some
+   Bedrock model providers offer that shifts legal risk of IP
+   infringement claims on generated content away from the customer.
+   Content filters (B) address harmful content categories, not copyright;
+   context window size (C) and Model Monitor (D) are unrelated to legal
+   IP exposure.
+
+2. Which AWS tool helps an organization estimate the carbon emissions
+   associated with its AWS usage, supporting environmental-impact
+   considerations?
+   A. AWS Customer Carbon Footprint Tool
+   B. Amazon SageMaker Clarify
+   C. Guardrails for Amazon Bedrock
+   D. Amazon A2I
+
+   **Answer: A** — The AWS Customer Carbon Footprint Tool reports the
+   estimated carbon emissions associated with a customer's AWS usage.
+   Clarify (B) measures bias, Guardrails (C) filters live content, and
+   A2I (D) routes predictions for human review — none report emissions.
+
+3. A generative AI chatbot must avoid producing hateful or harassing
+   output. Which category of legal/ethical consideration does this
+   concern fall under?
+   A. Intellectual property
+   B. Toxicity
+   C. Data residency
+   D. Environmental impact
+
+   **Answer: B** — Toxicity refers to hateful, harassing, obscene, or
+   otherwise harmful generated content. Intellectual property (A)
+   concerns ownership/infringement of content; data residency (C)
+   concerns where data is geographically stored/processed; environmental
+   impact (D) concerns the energy/resource footprint of training and
+   running models.
+
 ---
 
 ## 5. Balancing model performance and interpretability
@@ -328,7 +1078,7 @@ outputs. There is a well-known general tradeoff:
 - **Complex models** (deep neural networks, large foundation models)
   frequently achieve **higher accuracy** on complex tasks (image
   recognition, language generation) but are much harder to interpret —
-  the "black box" problem from Domain 2 — because their reasoning is
+  the "black box" problem from [Domain 2](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) — because their reasoning is
   distributed across millions or billions of parameters rather than
   explicit, human-readable rules.
 
@@ -372,6 +1122,518 @@ require the same level of per-prediction explainability.
 > way to add *some* transparency to an otherwise complex model rather
 > than a substitute for choosing a simpler one.
 
+#### Mini-quiz: Test your understanding of balancing performance and interpretability
+
+1. A bank must be able to explain individual loan-denial decisions to
+   regulators and rejected applicants. Which type of model should it
+   favor, all else equal?
+   A. A complex deep learning model, for maximum accuracy
+   B. A simpler, more interpretable model, even at some cost to accuracy
+   C. Any model, since interpretability doesn't matter for regulated
+      decisions
+   D. The model with the largest possible number of parameters
+
+   **Answer: B** — High-stakes, regulated decisions like loan denials
+   usually require higher interpretability, even at some accuracy cost,
+   because decisions must be explainable to regulators and affected
+   individuals. A and D optimize for accuracy/scale at the expense of
+   explainability; C ignores the regulatory requirement entirely.
+
+2. Which technique lets a team partially recover interpretability from a
+   complex, high-accuracy model without switching to a simpler model
+   architecture?
+   A. Lowering the model's temperature parameter
+   B. SHAP-based feature attribution via Amazon SageMaker Clarify
+   C. Enabling Guardrails denied topics
+   D. Increasing the size of the training dataset
+
+   **Answer: B** — Post-hoc explainability techniques like SHAP, computed
+   by SageMaker Clarify, show which input features drove a specific
+   prediction without requiring the underlying model to be simple.
+   Temperature (A) affects output randomness, not interpretability;
+   denied topics (C) is a Guardrails content control; a larger dataset
+   (D) can improve accuracy but doesn't add interpretability.
+
+3. For a low-stakes image-tagging task where misclassifications are easily
+   corrected, which side of the performance/interpretability tradeoff
+   should a team typically prioritize?
+   A. Maximum interpretability, even at a significant accuracy cost
+   B. Maximum performance/accuracy, since individual mistakes are
+      low-stakes
+   C. Neither — the team should avoid deploying any model
+   D. Legal compliance requirements dictate the choice regardless of
+      stakes
+
+   **Answer: B** — Lower-stakes, purely performance-driven tasks can
+   usually prioritize maximum accuracy even from a less interpretable
+   model, since the cost of an unexplained individual mistake is low. A
+   sacrifices accuracy unnecessarily; C is not a realistic option; D
+   misapplies a consideration relevant to high-stakes, regulated
+   scenarios, not this one.
+
+---
+
+## Worked example: auditing and documenting a responsible e-commerce recommendation engine
+
+Sections 1–5 introduced the responsible AI dimensions, bias detection and
+mitigation, the AWS tools that support them, legal/ethical considerations,
+and the performance/interpretability tradeoff as separate topics. This
+walkthrough follows one company through building a single system that has
+to address all of them together, the way AIF-C01 scenario questions
+combine them.
+
+**Scenario:** ShopSmart, an online marketplace, is replacing its generic
+"most popular items" carousel with a personalized recommendation engine
+trained on two years of customer browsing, purchase, and return history.
+Before launch, the company's responsible-AI review board requires the
+team to address fairness, explainability, transparency, and governance —
+the four [core dimensions](#1-core-dimensions-of-responsible-ai) it flags
+as highest-risk for a system that directly shapes what products different
+customers see.
+
+1. **Audit the training data for bias before training.** Following the
+   pre-training half of the [bias detection and mitigation
+   workflow](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs),
+   the data science team runs **Amazon SageMaker Clarify** on the
+   two-year browsing/purchase dataset. It surfaces a **class imbalance**
+   and a large **difference in proportions of labels (DPL)**: customers
+   in one age bracket have far fewer recorded "purchased" labels, not
+   because they buy less, but because ShopSmart's catalog historically
+   under-stocked items relevant to that group — a textbook case of
+   **historical bias** (the data was collected accurately, but reflects a
+   pre-existing inequity in the catalog itself).
+2. **Mitigate what was found.** The team applies a **pre-processing**
+   fix — rebalancing and augmenting the underrepresented segment of the
+   training data — rather than an in-processing fairness constraint,
+   since the root problem is the data, not the training objective.
+3. **Recheck after training.** Once trained, they rerun **SageMaker
+   Clarify's** post-training metrics and confirm **disparate impact**
+   across those age groups has dropped to an acceptable range; a residual
+   gap is closed with a **post-processing** score adjustment rather than
+   a full retrain.
+4. **Choose a point on the performance/interpretability tradeoff.** Per
+   [Section 5](#5-balancing-model-performance-and-interpretability), an
+   individual recommendation is low-stakes — a bad suggestion costs a
+   lost click, not a denied loan — so the team favors a complex,
+   higher-accuracy deep learning ranking model and plans to recover
+   explainability with **post-hoc SHAP** instead of sacrificing accuracy.
+5. **Add explainability.** They enable **SageMaker Clarify** feature
+   attribution on the deployed model so that, for any individual
+   recommendation, a support agent or auditor can see which signals
+   (recent views, past category purchases, items frequently bought
+   together) drove that specific suggestion — turning the "black box"
+   ranking model into something a human can inspect on demand.
+6. **Document with a Model Card.** The team fills in a **SageMaker Model
+   Card** capturing the model's intended use (personalized product
+   ranking, not eligibility or pricing decisions), a description of the
+   training data and its two-year window, the pre- and post-training bias
+   metrics from steps 1–3 and the mitigations applied, evaluation
+   results, a risk rating, and known limitations — including a
+   **cold-start** limitation for brand-new customers with no browsing
+   history, who fall back to the old "most popular" ranking.
+7. **Close the legal/ethical gaps.** Per [Section
+   4](#4-legal-and-ethical-considerations), browsing and purchase history is personal data, so the
+   team pseudonymizes customer identifiers before they reach the training
+   pipeline and confirms **Amazon Macie** finds no raw PII sitting
+   unencrypted in the S3 training bucket. Because the model will be
+   retrained on a recurring schedule rather than continuously, they also
+   check the **AWS Customer Carbon Footprint Tool** and settle on a
+   monthly retraining cadence instead of daily, balancing freshness
+   against unnecessary compute and environmental cost.
+8. **Establish governance and ongoing monitoring.** The review board signs
+   off on launch only after the Model Card is complete, and the team
+   attaches **Amazon SageMaker Model Monitor** to the production endpoint
+   to watch for bias drift as customer behavior evolves after launch.
+   They schedule a recurring quarterly review where the board re-reads
+   the Model Card against the latest Clarify metrics, and route any
+   recommendation flagged as high-risk (for example, a sudden spike in
+   disparate impact for one segment) through **Amazon A2I** for human
+   review before the ranking logic ships to all customers — closing the
+   loop from one-time bias mitigation into continuous **governance**.
+
+> **Exam tip:** Notice that fairness, explainability, transparency, and
+> governance aren't solved by one tool each in isolation — **SageMaker
+> Clarify** shows up twice (bias metrics *and* SHAP explanations), and the
+> **Model Card** created in step 6 becomes the artifact the governance
+> process in step 8 keeps re-checking. When a scenario describes an
+> ongoing review cadence *referencing* a model's documented bias metrics
+> and limitations, that's **governance built on top of transparency** —
+> not a new, separate tool.
+
+---
+
+## Worked example: auditing a classical ML small-business loan-approval classifier for bias
+
+This second worked example applies the same [bias detection and
+mitigation workflow](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs)
+to a **classical ML** model — a gradient-boosted tree, not a deep
+learning model — and surfaces a bias pattern the recommendation-engine
+example above doesn't: **bias introduced by a proxy variable**, plus a
+case where the performance/interpretability tradeoff comes out the
+*opposite* way.
+
+**Scenario:** Meridian Community Bank trains a gradient-boosted tree
+classifier on five years of small-business loan applications (revenue,
+credit history, years in operation, requested amount, and ZIP code) to
+speed up its approval decisions. Because credit decisions are a
+regulated, high-stakes use case, the compliance team requires a full
+bias and fair-lending review before the model can influence any
+decision.
+
+1. **Audit the training data before training.** The team runs
+   **Amazon SageMaker Clarify** pre-training metrics and finds a large
+   **difference in proportions of labels (DPL)**: applicants from
+   certain ZIP codes are approved at a much lower rate historically.
+   Clarify's feature correlation analysis shows ZIP code is highly
+   correlated with race and income — a classic **measurement bias**: a
+   facially neutral feature (ZIP code) acts as a proxy for a protected
+   characteristic.
+2. **Mitigate the proxy variable.** Rather than rebalancing classes
+   (there is no shortage of data, just an unfair signal in it), the team
+   applies a **pre-processing** fix: they drop ZIP code from the feature
+   set and replace it with less-correlated, more directly relevant
+   features (verified time-in-business, cash-flow trend) that predict
+   repayment without smuggling in the protected characteristic.
+3. **Recheck after training.** SageMaker Clarify's post-training metrics
+   confirm **disparate impact** between groups has dropped to an
+   acceptable range without a material drop in overall accuracy.
+4. **Choose the opposite point on the performance/interpretability
+   tradeoff.** Unlike the low-stakes recommendation ranking in the first
+   worked example, a denied loan is high-stakes and legally
+   consequential. Per [Section
+   5](#5-balancing-model-performance-and-interpretability), the team
+   accepts a small accuracy cost and keeps a simpler, natively
+   interpretable gradient-boosted tree (limited depth) rather than a
+   black-box model that would need SHAP bolted on after the fact — the
+   explanation has to be defensible in a regulatory dispute, not just
+   informative.
+5. **Add explainability and document it.** They still enable
+   **SageMaker Clarify** SHAP feature attribution so a loan officer can see which
+   factors (cash-flow trend, credit history) drove a specific denial,
+   and they complete a **SageMaker Model Card** recording the training
+   data, the removed ZIP-code proxy feature, the pre/post-training bias
+   metrics, and the model's intended use (decision support, not an
+   automatic denial).
+6. **Close the legal gap.** Per [Section
+   4](#4-legal-and-ethical-considerations), the team confirms every
+   denial is accompanied by an adverse-action notice citing the specific
+   factors from the SHAP explanation, satisfying fair-lending disclosure
+   requirements, and every automated denial routes through
+   **Amazon A2I** for a human loan officer's sign-off before the
+   applicant is notified.
+7. **Govern on an ongoing basis.** **SageMaker Model Monitor** watches
+   for bias drift as the applicant population shifts, and the compliance
+   board re-reviews the Model Card each quarter against fresh Clarify
+   metrics — the same governance loop as the first worked example, just
+   applied to a regulated lending decision instead of a product ranking.
+
+> **Exam tip:** When a scenario names specific tabular features (ZIP
+> code, marital status, a "membership number" that correlates with age)
+> rather than describing pre-existing demographic labels, that's usually
+> testing whether you recognize a **proxy variable** and **measurement
+> bias** — the fix is removing or transforming the feature, not just
+> rebalancing classes. Also notice the tradeoff decision reverses here
+> versus the recommendation-engine example: **high-stakes, regulated
+> decisions favor a simpler, natively interpretable model; low-stakes
+> decisions can favor a complex model with post-hoc explanations.** The
+> exam expects you to pick the right side of that tradeoff based on the
+> stakes described in the scenario, not to default to "always choose the
+> most accurate model."
+
+---
+
+## Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant
+
+The first two worked examples audited models trained on structured,
+labeled data. **Foundation model** applications built with **Retrieval
+Augmented Generation (RAG)** (see [Domain 3, Section
+3](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases))
+introduce a different bias pattern: there is no labeled training set to
+run **SageMaker Clarify** against, so unfairness instead comes from an
+unrepresentative **retrieval corpus** and from the FM **hallucinating**
+an answer when retrieval doesn't return good context.
+
+**Scenario:** NorthStar Corp builds an internal HR assistant on **Amazon
+Bedrock**, using a **Knowledge Base** built from ten years of internal
+promotion-committee notes and career-ladder documentation, so employees
+can ask questions like "what does it take to be promoted to senior
+engineer?" Employee complaints surface that the assistant gives
+confident, detailed promotion guidance for some career paths and vague
+or fabricated guidance for others.
+
+1. **Diagnose the pattern.** Because this isn't a labeled training set,
+   the team can't run Clarify's DPL or disparate-impact metrics.
+   Instead they audit the Knowledge Base's document metadata directly
+   and find a **sampling-bias analog in the retrieval corpus**: 90% of
+   the indexed promotion notes come from one large engineering division,
+   so queries about that division's career path retrieve rich, specific
+   source chunks, while queries about smaller divisions or
+   non-traditional paths (e.g., transitioning from a part-time role)
+   retrieve thin or no relevant chunks.
+2. **Identify the second failure mode: hallucination filling the gap.**
+   When retrieval returns weak matches, the FM doesn't say "I don't have
+   enough information" — it generates a fluent, generic-sounding answer
+   anyway, presented with the same confidence as a well-grounded one.
+   Because this happens disproportionately for underrepresented career
+   paths, the **hallucination itself becomes a fairness issue**, not
+   just an accuracy issue.
+3. **Mitigate the corpus imbalance.** The team curates and augments the
+   Knowledge Base so every division and career path has comparable
+   document coverage — the RAG equivalent of the pre-processing
+   rebalancing used in the first two worked examples, applied to
+   unstructured source documents instead of labeled training rows.
+4. **Reduce hallucination with runtime controls.** They enable
+   **Guardrails for Amazon Bedrock contextual grounding checks**, which
+   compare a generated response against the retrieved source chunks and
+   suppress or flag responses that aren't actually grounded in them,
+   instead of letting a low-confidence retrieval silently become a
+   confident-sounding fabrication.
+5. **Add transparency the RAG-specific way.** Since there's no trained
+   model for **SageMaker Clarify** to explain, the assistant is changed
+   to cite its retrieved source documents inline with every answer, so
+   an employee can see (and a reviewer can check) exactly which policy
+   document a piece of guidance came from — RAG's version of
+   explainability.
+6. **Route low-confidence answers to a human.** Queries where retrieval
+   similarity scores fall below a threshold are routed through
+   **Amazon A2I** to an HR generalist for a human-authored answer,
+   rather than letting the assistant guess.
+7. **Document and govern.** The team completes a **SageMaker Model
+   Card** for the overall system describing the Knowledge Base
+   composition, the known coverage gaps, and the grounding/routing
+   controls in place, and schedules a recurring corpus-representativeness
+   review — since automated guidance that shapes employees' promotion
+   decisions falls under the same [legal and
+   ethical](#4-legal-and-ethical-considerations) scrutiny as other
+   employment-related automated decisions.
+
+> **Exam tip:** If a scenario describes a **RAG or foundation-model
+> application** giving unfair or inconsistent answers across groups,
+> don't reach for **SageMaker Clarify** — Clarify measures bias in
+> *labeled training data and trained model predictions*, and there
+> usually isn't one here. Instead, look for **retrieval corpus
+> curation** (fixing what's indexed), **Guardrails for Amazon Bedrock
+> contextual grounding checks** (catching hallucinated, ungrounded
+> output), and **citing sources** (RAG-native transparency). A
+> confident-sounding but fabricated answer that happens to skew
+> unfavorably for one group is a **hallucination-driven fairness
+> issue**, distinct from — but just as testable as — the dataset-driven
+> bias types in Section 2.
+
+---
+
+## Worked example: deciding whether to trade accuracy for interpretability to meet a regulatory explainability requirement
+
+The three worked examples above each folded a performance/interpretability
+call into a broader bias-audit walkthrough. This example isolates
+[Section 5](#5-balancing-model-performance-and-interpretability)'s
+tradeoff as the central decision, walking through the concrete metrics and
+AWS tooling a team uses to make — and defend — the call once a regulation
+forces the question.
+
+**Scenario:** Meridian Health Plan builds a prior-authorization triage
+model that flags which claims need closer nurse review before initial
+approval. Mid-pilot, a new state insurance regulation takes effect
+requiring that any AI-assisted claim denial come with a specific,
+individualized explanation of the factors that drove it, on request from
+the member or their provider — not just a generic notice that a model was
+involved.
+
+1. **Baseline both candidate models with concrete metrics.** The data
+   science team trains two versions: a gradient-boosted ensemble (deep,
+   unconstrained trees) that reaches **0.93 AUC-ROC and 88% recall** on
+   held-out claims, and a depth-limited, monotonically-constrained
+   decision tree that reaches **0.89 AUC-ROC and 82% recall** — a
+   **4-point AUC / 6-point recall gap** the team must justify closing or
+   accepting.
+2. **Try the cheaper fix first: post-hoc explanations on the accurate
+   model.** Per [Section
+   5](#5-balancing-model-performance-and-interpretability), the team's
+   first instinct is to keep the higher-accuracy ensemble and recover
+   explainability with **Amazon SageMaker Clarify** SHAP attributions,
+   rather than give up the 4-point AUC advantage.
+3. **Legal review rejects the post-hoc approach.** Compliance flags that
+   the new regulation requires the explanation to reflect the *actual*
+   decision logic, and SHAP values are an **additive approximation** of a
+   black-box model's behavior around one prediction, not an exact trace of
+   the path the model took — a distinction the ensemble can't satisfy no
+   matter how good the SHAP attribution looks.
+4. **Re-run the tradeoff with the regulatory constraint made explicit.**
+   Because this is now a high-stakes, individually-explainable, regulated
+   decision, [Section 5](#5-balancing-model-performance-and-interpretability)
+   points the team toward the **natively interpretable** model instead:
+   they adopt the depth-limited, monotonically-constrained tree, accepting
+   the 4-point AUC / 6-point recall cost, because each denial can be
+   traced to an exact, reproducible split path rather than an
+   approximation.
+5. **Quantify what the accuracy cost means operationally.** Before
+   finalizing, the team translates the metric gap into business terms: at
+   current claim volume, the drop from 88% to 82% recall means roughly 6
+   more percentage points of claims that should have been flagged for
+   review are missed. They weigh that against the size of the regulatory
+   and litigation exposure from an indefensible denial explanation, and
+   the review board accepts the tradeoff.
+6. **Layer SHAP back on top for member-facing plain language.** With the
+   interpretable model now the model of record, the team still enables
+   **SageMaker Clarify** SHAP on it — not to substitute for the model's
+   own logic, but to translate the tree's exact split path into a
+   plain-language explanation letter a member without a data science
+   background can read, satisfying both the "actual decision logic" and
+   "understandable to the affected person" halves of the regulation.
+7. **Document and set a re-review trigger.** The decision, the 4-point /
+   6-point metric gap, and the legal rationale for rejecting the post-hoc
+   route are recorded in a **SageMaker Model Card**, and the team sets an
+   explicit re-review trigger: if a future model refresh could close the
+   accuracy gap to within 1 point, the board will re-open the
+   interpretability-versus-performance decision rather than assuming the
+   original call holds forever.
+8. **Monitor going forward.** **SageMaker Model Monitor** watches the
+   deployed model for both performance drift and any widening of the
+   accuracy gap versus the ensemble baseline the team keeps offline as a
+   benchmark, so the tradeoff decision stays visible and auditable instead
+   of becoming a one-time, unrevisited choice.
+
+> **Exam tip:** When a scenario says an explanation must reflect the
+> model's **actual decision logic** rather than just a plausible-sounding
+> approximation, that's the exam signaling that **post-hoc SHAP on a
+> black-box model isn't enough** — you need a **natively interpretable
+> model**, even at an accuracy cost. Contrast that with a scenario that
+> only requires showing *which factors mattered* for a prediction, without
+> demanding exact traceability: that weaker requirement **can** be
+> satisfied by SHAP/Clarify on a complex model, as in the
+> recommendation-engine example earlier in this domain. The exam is
+> testing whether you can tell those two flavors of "explainability
+> requirement" apart, not just whether you remember that Clarify computes
+> SHAP values.
+
+---
+
+## Worked example: pairing a classical ML ranker scored by SageMaker Clarify with a Bedrock FM protected by Guardrails
+
+The [Section 3 worked example above](#worked-example-layering-sagemaker-clarify-and-guardrails-for-amazon-bedrock-to-audit-a-generative-recommendation-engine)
+layers Clarify and Guardrails on the *same* model: one fine-tuned
+foundation model, audited by Clarify before launch and filtered by
+Guardrails at runtime. That pattern is real, but on its own it can leave
+the impression that Clarify and Guardrails are just two checkpoints in
+one model's lifecycle. Just as often, a production system pairs a
+**classical ML model** and a **foundation model** as two distinct
+components doing two distinct jobs — and each tool applies to exactly
+one of those components, never the other. This worked example follows
+one company through that architecture, to make the boundary between the
+two tools explicit instead of implied.
+
+**Scenario:** Cascade Outdoors, an outdoor-gear retailer, builds a
+two-component product recommendation system. **Component 1** is a
+classical ML ranking model — a gradient-boosted tree trained on
+structured data (past purchases, category views, return rates) — that
+scores and ranks the full catalog down to a shopper's top 12 candidate
+items. **Component 2** is a foundation model on **Amazon Bedrock** that
+takes those 12 ranked candidates plus the shopper's profile and writes a
+short, personalized paragraph explaining why each item was picked,
+displayed on the shopper's homepage. The responsible-AI review board asks
+a pointed question before launch: which tool audits which half of this
+system, and can a single tool cover both?
+
+1. **Match each tool to what it's built to inspect.** Per the [comparison
+   table](#comparison-table-aws-responsible-ai-tools-at-a-glance),
+   **SageMaker Clarify** measures bias in **datasets and trained model
+   predictions** — it needs structured, labeled data and a model that
+   produces a scorable prediction against a defined evaluation set.
+   **Guardrails for Amazon Bedrock** filters **foundation model inputs
+   and outputs at inference time** — it needs live generated text to
+   inspect, not a training dataset. Component 1 (the gradient-boosted
+   ranker) fits Clarify's requirements exactly; Component 2 (the FM
+   writing free-form paragraphs) fits Guardrails' requirements exactly.
+   Neither tool's requirements fit the *other* component.
+2. **Audit Component 1 with SageMaker Clarify — and only Component 1.**
+   The team runs Clarify's pre-training metrics (class imbalance, DPL) on
+   the ranking model's structured training data, then post-training
+   **disparate impact** on its held-out evaluation set, and finds that
+   shoppers in a lower-purchase-frequency segment are systematically
+   ranked lower for an entire product category — a bias in *which 12
+   items get selected at all*. They mitigate with a pre-processing
+   rebalance of the training data and confirm disparate impact falls back
+   within threshold. This is a structural, statistical audit of a
+   scoring model against labeled outcomes — exactly Clarify's job, and a
+   job Guardrails cannot do, because Guardrails has no visibility into a
+   ranking model's training data or its aggregate scoring behavior across
+   the shopper base; it only ever inspects one piece of generated text at
+   a time.
+3. **Attach Guardrails to Component 2 — and only Component 2.**
+   Separately, the team configures **Guardrails for Amazon Bedrock** on
+   the FM endpoint that writes the personalized paragraphs: **denied
+   topics** (never cite a shopper's protected characteristics as a reason
+   for a pick), **content filters** and **word filters** (block
+   stereotyped or inappropriate phrasing), **sensitive information
+   filters** (redact any PII echoed back from the shopper's profile
+   text), and **contextual grounding checks** (verify the generated
+   paragraph only describes the 12 candidates Component 1 actually
+   selected, not a fabricated product). This is a real-time, per-
+   generation check on free-form text — exactly Guardrails' job, and a
+   job Clarify cannot do, because there is no fixed, labeled evaluation
+   set for open-ended generated prose for Clarify to score it against.
+4. **Reject the shortcut of collapsing both audits into one metric.** A
+   junior engineer proposes running Clarify just once against the *whole
+   pipeline's* final output (impressions per demographic segment),
+   reasoning that one aggregate bias metric could cover both components.
+   The review board rejects this: a single end-to-end metric could show
+   the *combined* system looks balanced in aggregate while still hiding a
+   real problem in either half — a ranking model that quietly
+   under-selects one segment's preferred category could be masked by an
+   FM that happens to write enthusiastically for whoever it *is* shown
+   to, and a live prompt-injection attempt against the FM would never
+   show up in a periodic aggregate metric at all. The board requires both
+   audits to stay separate and run on their own cadence, not blended into
+   one combined score.
+5. **Recognize what grounding checks do and don't cover at the
+   boundary.** Component 1 hands Component 2 a fixed candidate list;
+   Guardrails' contextual grounding check on Component 2 is only
+   meaningful because Component 1's list is the ground truth it checks
+   against. If Component 1's ranking were itself biased, Guardrails would
+   faithfully write grounded, well-filtered copy for a biased set of
+   products — a grounding check confirms the paragraph matches the
+   candidates, it says nothing about whether the candidates themselves
+   were fairly chosen. That is precisely why step 2's Clarify audit has
+   to run upstream and independently, rather than being assumed
+   unnecessary because Guardrails is running downstream.
+6. **Document and govern both components in one system-level record.**
+   The team completes a **SageMaker Model Card** for Component 1
+   (training data, pre/post-training Clarify metrics, the mitigation
+   applied, and its intended use as a candidate ranker only) and
+   references Component 2's Guardrails configuration and blocked-request
+   logs alongside it, so a reviewer auditing "the recommendation system"
+   sees one record covering both components instead of two disconnected
+   artifacts. **SageMaker Model Monitor** watches Component 1 for
+   ranking-bias drift; Guardrails' own intervention logs are the
+   equivalent ongoing signal for Component 2 — two independent monitoring
+   streams for two independent components, reviewed together on the same
+   quarterly governance cadence.
+
+**Why this differs from the Section 3 worked example:** the [earlier
+Clarify/Guardrails worked
+example](#worked-example-layering-sagemaker-clarify-and-guardrails-for-amazon-bedrock-to-audit-a-generative-recommendation-engine)
+layers both tools on **one** model across two points in its lifecycle
+(pre-launch and runtime). This example layers both tools on **two
+separate models** that never swap roles: Clarify never touches the FM's
+live generations, and Guardrails never touches the ranking model's
+training data. Both patterns are real and both are testable — the signal
+to watch for is whether a scenario describes *one generative model
+audited at two stages* or *two different model types, each needing its
+own tool*.
+
+> **Exam tip:** If a scenario names two components — a "ranking model,"
+> "scoring model," or any model trained on structured/tabular data,
+> **plus** a separate foundation model that generates text — that's
+> telling you to reach for **SageMaker Clarify on the structured model**
+> and **Guardrails for Amazon Bedrock on the FM**, not one tool for the
+> whole pipeline. A distractor answer that proposes running Clarify
+> against the FM's generated output, or running Guardrails against the
+> ranking model's training data, is testing whether you remember that
+> **Clarify needs labeled structured data and a scorable prediction, and
+> Guardrails needs live FM input/output** — neither tool substitutes for
+> the other, no matter how tightly the two components are wired together
+> downstream.
+
 ---
 
 ## Comparison table: AWS responsible AI tools at a glance
@@ -391,9 +1653,176 @@ require the same level of per-prediction explainability.
 > answers "what should this live application never say or leak?", and
 > **A2I** answers "who double-checks this before it's used?"
 
+**Decision flowchart — bias metric selection and tool layering:** the
+table above lists what each tool *is*; the flowchart below walks the same
+decisions the [decision framework](#decision-framework-choosing-a-bias-metric-and-layering-tools-for-high-stakes-ai)
+below spells out in prose — which bias metric to run, when to layer SHAP
+on top, and when a human needs to sign off — as a single path you can
+trace for a given scenario.
+
+```mermaid
+flowchart TD
+    A["Auditing training data\nor model predictions?"] -->|"Training data\n(no model yet)"| B["Run DPL\n(difference in proportions\nof labels - pre-training)"]
+    A -->|"Model predictions\n(already trained/deployed)"| C["Run disparate impact\n(post-training)"]
+
+    B --> D{"Is this a\nhigh-stakes use case?"}
+    C --> D
+
+    D -->|"Yes"| E["Favor an interpretable model\n+ SHAP (via SageMaker Clarify)\nfor per-decision explanations"]
+    D -->|"No"| F["Complex/black-box model\nwith Clarify bias checks\nis acceptable"]
+
+    E --> G{"Is human review\nof individual decisions required?"}
+    F --> G
+
+    G -->|"Yes"| H["Add Amazon A2I\n(route to a human reviewer\nbefore action is taken)"]
+    G -->|"No"| I["Document metrics, mitigations,\nand (if used) SHAP methodology\nin a SageMaker Model Card"]
+    H --> I
+```
+
+---
+
+## Decision framework: choosing a bias metric and layering tools for high-stakes AI
+
+The comparison table above lists what each tool *is*; it doesn't say which
+bias metric to reach for in a given moment, or how to combine tools when
+getting it wrong carries real consequences. Two SageMaker Clarify bias
+metrics get confused often because both compare outcomes across groups,
+but they answer different questions at different lifecycle stages.
+
+**DPL vs. disparate impact — same tool, different question.** Difference
+in Positive Proportions in Labels (DPL) is a **pre-training** metric: it
+audits the training dataset itself, before a model exists, by comparing
+how often the positive outcome label (e.g., "approved," "hired") appears
+for one group versus another in the historical data. Reach for DPL when
+the question is "does our training data already encode an imbalance?" —
+the answer tells you whether to rebalance or augment data *before* you
+ever train. **Disparate impact** is a **post-training** metric: it audits
+the trained model's predictions on new inputs, comparing the rate at
+which each group receives a favorable prediction. Reach for disparate
+impact when the question is "does the model I've already built produce
+disparate outcomes in practice?" A quick shortcut: if a scenario mentions
+a dataset or labels and no trained model yet, it's DPL; if it mentions
+predictions, an endpoint, or a deployed model, it's disparate impact. A
+dataset can pass DPL and still produce disparate impact after training if
+the model amplifies a small data imbalance — which is exactly why Clarify
+checks both stages instead of just one.
+
+**Layering tools for high-stakes scenarios.** No single tool covers
+fairness, explainability, documentation, and human oversight at once, so
+high-stakes use cases should layer several together: run Clarify's DPL
+and disparate impact checks at their respective stages; add **SHAP**
+(also via Clarify) so any individual adverse decision can be explained to
+the affected person or a regulator; capture all of it — the metrics, the
+mitigations applied, and the SHAP methodology — in a **Model Card** so the
+decision is auditable after the fact; and route borderline or high-stakes
+individual predictions through **Amazon A2I** for human sign-off before
+any action is taken.
+
+**Worked example.** A healthcare staffing company builds a model that
+screens job applicants for clinical roles, using historical
+**HIPAA**-covered health-screening data as a feature alongside standard
+hiring data. Before training, the team runs **DPL** and finds candidates
+over age 50 have a markedly lower "hired" label rate in the historical
+data — a red flag for historical bias, addressed with pre-processing
+rebalancing of the training set. After retraining, **disparate impact**
+confirms the model no longer produces a materially different favorable-
+outcome rate across age groups. Because a hiring decision is high-stakes,
+legally sensitive, and touches regulated health data, the team also
+enables **SHAP** explanations for every rejection so a candidate's
+adverse decision can be justified on request, documents the full DPL/
+disparate-impact audit and mitigation history in a **Model Card**, and
+routes any borderline score through **Amazon A2I** for human review
+before an offer is withdrawn — the same layered pattern applies just as
+directly to a HIPAA-adjacent lending scenario, where DPL would flag label
+imbalance in historical loan approvals and disparate impact would confirm
+whether the trained underwriting model still treats protected groups
+unequally.
+
+---
+
+## Quick-reference cheat sheet
+
+A condensed, one-to-two page (print-friendly) recap of this domain's
+highest-yield material for last-minute review right before the exam. It
+restates material covered in full in [Section 1](#1-core-dimensions-of-responsible-ai), [Section 2](#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs), and [Section 3](#3-aws-tools-for-responsible-ai) —
+it is not a substitute for reading those sections, only a fast recall
+aid once you already have.
+
+**The 8 dimensions of responsible AI (Section 1) — recognize the keyword, know the AWS tool:**
+
+| Dimension | Key question it answers | Primary AWS tool |
+|---|---|---|
+| Fairness | Does it treat individuals/groups equitably, without disadvantaging protected characteristics? | Amazon SageMaker Clarify (bias metrics) |
+| Explainability | Why did the model produce *this specific* prediction? | Amazon SageMaker Clarify (SHAP explanations) |
+| Privacy and security | Is personal data protected, and is the model protected from misuse/leakage? | Guardrails for Amazon Bedrock (PII redaction); Amazon Macie |
+| Transparency | Is how the system was built, trained, and limited openly documented? | SageMaker Model Cards / AI Service Cards |
+| Veracity and robustness | Is the output correct and reliable, even under noisy/adversarial input? | Guardrails for Amazon Bedrock (contextual grounding) |
+| Governance | Are there policies/processes controlling the AI lifecycle and accountability? | SageMaker Model Cards; ML lineage tracking |
+| Safety | Does the system avoid causing harm or generating dangerous content? | Guardrails for Amazon Bedrock (content filters) |
+| Controllability | Can a human monitor, override, adjust, or stop the system? | Guardrails (denied topics); Amazon A2I (human review) |
+
+**Fast disambiguation:** "why did it say that?" → **explainability**
+(one prediction) vs. "is it documented/disclosed?" → **transparency**
+(whole system). "does it work fairly across groups?" → **fairness**
+vs. "is the output accurate/trustworthy under stress?" → **veracity and
+robustness**. "can a human step in?" → **controllability**.
+
+**The 6 bias categories in training data (Section 2) — match the scenario to the category:**
+
+| Bias type | One-line definition | Scenario clue |
+|---|---|---|
+| Sampling bias | Training data doesn't represent the real-world population | Dataset overrepresents one demographic group |
+| Measurement bias | Data collection/labeling systematically differs across groups | A proxy variable correlates with a protected characteristic more than the real outcome |
+| Label bias / human bias | Human annotators inject conscious/unconscious bias while labeling | Annotators rate similar content differently depending on subject group |
+| Historical bias | Data accurately reflects a real world that is itself inequitable | Past lending/hiring decisions reflected discriminatory practices |
+| Exclusion bias | Relevant data/features are removed, dropping signal a group needs | A feature important for fair treatment of a subgroup was dropped during cleaning |
+| Aggregation bias | One model is applied uniformly to groups that need distinct treatment | A single model hides subgroup differences that actually matter |
+
+**Bias mitigation stages — one-line-per-stage recall:**
+
+- **Pre-processing** → before training → rebalance/augment data, remove/transform biased features.
+- **In-processing** → during training → add fairness constraints/regularization to the training objective.
+- **Post-processing** → after training, no retraining → adjust prediction thresholds or recalibrate outputs per group.
+
+**Bias detection metrics — pick by lifecycle stage:**
+
+| Question | Metric | Stage |
+|---|---|---|
+| "Does a positive label appear at a different rate across groups in the dataset?" | Difference in proportions of labels (DPL) | Pre-training (dataset) |
+| "Is one class/group significantly underrepresented in the dataset?" | Class imbalance | Pre-training (dataset) |
+| "Does a facially-neutral model produce different outcome rates across groups?" | Disparate impact | Post-training (predictions) |
+
+**Key definitions to have cold:** bias (systematic, unfair skew from
+training data/process — a fairness problem) vs. variance (sensitivity to
+training-data fluctuations — an underfitting/overfitting problem, not a
+responsible-AI concept) · SHAP (feature-attribution values explaining a
+single prediction) · PII (data that can identify a specific individual)
+· disparate impact (post-training group-outcome gap) · DPL (pre-training
+label-rate gap across groups).
+
+**Common exam traps:**
+
+- **Bias vs. variance** — bias is a fairness/training-data problem;
+  variance is a model-sensitivity/overfitting problem from [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off).
+  Don't conflate them.
+- **SageMaker Clarify measures bias both before *and* after training** —
+  a scenario checking a *dataset* for bias pre-model is still a Clarify
+  pre-training metric (DPL, class imbalance), not disparate impact.
+- **Guardrails filters live inference content**; it does not detect bias
+  in training data or generate explanations — that's Clarify's job, not
+  Guardrails'.
+- **Explainability ≠ transparency** — explainability is per-prediction
+  ("why this output?"); transparency is system-wide documentation ("what
+  is this model, and what are its limits?").
+- A model can have **high overall accuracy while still being unfair to a
+  minority subgroup** — always compare behavior across groups, not just
+  aggregate accuracy.
+
 ---
 
 ## Key terms glossary
+
+> Looking for a term from another domain? [`docs/master-glossary.md`](master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back here.
 
 - **Responsible AI** — the practice of designing, building, and operating
   AI systems that are fair, explainable, private and secure, transparent,
@@ -417,9 +1846,14 @@ require the same level of per-prediction explainability.
   predictions caused by problems in training data or the training
   process.
 - **Variance** — a model's sensitivity to fluctuations in the training
-  data (distinct from bias; see Domain 1).
+  data (distinct from bias; see [Domain 1](domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)).
 - **Sampling bias** — training data does not represent the real-world
   population the model will serve.
+- **Representativeness bias** — a whole segment of the deployment
+  population (e.g., a geographic region or market) is thin or absent
+  from the training data, causing poor performance for that segment;
+  distinct from demographic fairness bias because there's no group
+  present in the data to compute a disparity metric against.
 - **Historical bias** — training data accurately reflects a real world
   that itself contains pre-existing societal inequities.
 - **Label bias / human bias** — bias introduced by human annotators when
@@ -482,7 +1916,7 @@ require the same level of per-prediction explainability.
 
 ## Practice questions
 
-1. A hiring-decision model performs well overall but is later found to
+1. **[Beginner]** A hiring-decision model performs well overall but is later found to
    reject qualified candidates from one demographic group at a
    significantly higher rate than others. Which responsible AI dimension
    does this problem most directly violate?
@@ -491,7 +1925,7 @@ require the same level of per-prediction explainability.
    C. Controllability
    D. Environmental sustainability
 
-2. Which AWS service should a data science team use to measure whether a
+2. **[Intermediate]** Which AWS service should a data science team use to measure whether a
    training dataset shows a significant difference in the proportion of
    positive labels across two demographic groups, before a model is even
    trained?
@@ -500,7 +1934,7 @@ require the same level of per-prediction explainability.
    C. Amazon A2I
    D. AI Service Cards
 
-3. A company wants to document, for internal governance purposes, the
+3. **[Beginner]** A company wants to document, for internal governance purposes, the
    intended use, training data description, evaluation metrics, and known
    limitations of a custom model it trained on Amazon SageMaker. Which
    AWS capability is designed for exactly this?
@@ -509,7 +1943,7 @@ require the same level of per-prediction explainability.
    C. Amazon SageMaker Model Cards
    D. Amazon Macie
 
-4. A team is evaluating whether to adopt Amazon Rekognition for a new
+4. **[Intermediate]** A team is evaluating whether to adopt Amazon Rekognition for a new
    facial analysis use case and wants to understand AWS's own documented
    limitations and design considerations for the service before deciding.
    Where should they look?
@@ -518,7 +1952,7 @@ require the same level of per-prediction explainability.
    C. Amazon SageMaker Clarify reports
    D. AWS Customer Carbon Footprint Tool
 
-5. A generative AI chatbot occasionally generates confident but
+5. **[Intermediate]** A generative AI chatbot occasionally generates confident but
    fabricated answers not supported by the source documents it was given.
    Which Guardrails for Amazon Bedrock capability most directly addresses
    this?
@@ -527,14 +1961,14 @@ require the same level of per-prediction explainability.
    C. Contextual grounding checks
    D. Content filters for violence
 
-6. Which of the following best distinguishes bias from variance in a
+6. **[Beginner]** Which of the following best distinguishes bias from variance in a
    machine learning model?
    A. Bias is a model's sensitivity to small fluctuations in training data; variance is a systematic unfair skew
    B. Bias is a systematic, often unfair skew from data or training issues; variance is a model's sensitivity to fluctuations in the training data
    C. Bias and variance both refer exclusively to fairness across demographic groups
    D. Bias and variance are two names for the same concept
 
-7. A bank discovers that its loan approval model reflects discriminatory
+7. **[Intermediate]** A bank discovers that its loan approval model reflects discriminatory
    patterns present in decades of past lending decisions, even though the
    data was collected accurately. Which type of bias does this describe?
    A. Sampling bias
@@ -542,7 +1976,7 @@ require the same level of per-prediction explainability.
    C. Measurement bias
    D. Aggregation bias
 
-8. A company wants a low-confidence or high-stakes model prediction to be
+8. **[Beginner]** A company wants a low-confidence or high-stakes model prediction to be
    automatically routed to a human reviewer before any action is taken.
    Which AWS service is designed for this?
    A. Amazon A2I
@@ -550,7 +1984,7 @@ require the same level of per-prediction explainability.
    C. Guardrails for Amazon Bedrock
    D. AI Service Cards
 
-9. A media company is concerned that images generated by a foundation
+9. **[Intermediate]** A media company is concerned that images generated by a foundation
    model on Amazon Bedrock could expose it to copyright infringement
    claims. Which consideration would most directly reduce this specific
    legal risk?
@@ -559,14 +1993,14 @@ require the same level of per-prediction explainability.
    C. Lowering the model's temperature parameter
    D. Adding a SageMaker Model Card
 
-10. Which of the following is an example of protecting data privacy in a
+10. **[Beginner]** Which of the following is an example of protecting data privacy in a
     generative AI application built on Amazon Bedrock?
     A. Using Guardrails sensitive information filters to redact PII from prompts and responses
     B. Using chain-of-thought prompting to improve reasoning accuracy
     C. Using SageMaker JumpStart to fine-tune a model
     D. Increasing the model's context window
 
-11. A financial institution is choosing between a simple, interpretable
+11. **[Intermediate]** A financial institution is choosing between a simple, interpretable
     scoring model and a complex deep learning model for a credit
     underwriting decision that must be explained to regulators and
     rejected applicants. Which factor should weigh most heavily in favor
@@ -576,7 +2010,7 @@ require the same level of per-prediction explainability.
     C. The simpler model is easier to interpret and explain to regulators and affected individuals, which is required for this high-stakes, regulated decision
     D. The simpler model has no risk of bias
 
-12. Which AWS tool would a data scientist use to generate a SHAP-based
+12. **[Intermediate]** Which AWS tool would a data scientist use to generate a SHAP-based
     explanation showing which input features most influenced a specific
     model prediction?
     A. Amazon SageMaker Clarify
@@ -584,7 +2018,7 @@ require the same level of per-prediction explainability.
     C. Guardrails for Amazon Bedrock
     D. AWS Customer Carbon Footprint Tool
 
-13. A company is concerned about the environmental impact of continuously
+13. **[Intermediate]** A company is concerned about the environmental impact of continuously
     training large foundation models from scratch. Which practice would
     most directly reduce this concern while still meeting business needs?
     A. Always choosing the largest available foundation model regardless of task
@@ -592,7 +2026,7 @@ require the same level of per-prediction explainability.
     C. Disabling all model evaluation to save compute
     D. Running all training jobs at peak demand hours
 
-14. Which combination of concerns falls under "legal and ethical
+14. **[Advanced]** Which combination of concerns falls under "legal and ethical
     considerations" for generative AI on the AIF-C01 exam? (Select TWO.)
     A. Intellectual property risk from training on or generating content similar to copyrighted material
     B. Data privacy obligations around personal data used in training or prompts
@@ -600,7 +2034,7 @@ require the same level of per-prediction explainability.
     D. Selecting the AWS Region with the lowest network latency
     E. Configuring a VPC subnet's CIDR block
 
-15. A toy-recommendation model has low individual stakes per prediction —
+15. **[Advanced]** A toy-recommendation model has low individual stakes per prediction —
     a wrong recommendation just means a less-relevant suggestion — but
     the business wants the highest possible accuracy. Which approach best
     fits the performance/interpretability tradeoff here?
@@ -609,7 +2043,7 @@ require the same level of per-prediction explainability.
     C. Refuse to deploy any model until it is 100% interpretable
     D. Use SageMaker Clarify explanations as a substitute for building any model at all
 
-16. Which AWS capability is specifically designed to block a Bedrock
+16. **[Beginner]** Which AWS capability is specifically designed to block a Bedrock
     foundation model from engaging with a configured list of prohibited
     subject areas entirely, regardless of how the user phrases the
     request?
@@ -618,7 +2052,7 @@ require the same level of per-prediction explainability.
     C. Amazon SageMaker Clarify pre-training bias metrics
     D. AWS Customer Carbon Footprint Tool
 
-17. A model trained on resumes systematically down-ranks candidates whose
+17. **[Advanced]** A model trained on resumes systematically down-ranks candidates whose
     resumes were labeled by an annotator who, consciously or not, favored
     a particular educational background. Which type of bias does this
     best describe?
@@ -627,13 +2061,13 @@ require the same level of per-prediction explainability.
     C. Aggregation bias
     D. Environmental bias
 
-18. What is the primary purpose of an Amazon SageMaker Model Card?
+18. **[Beginner]** What is the primary purpose of an Amazon SageMaker Model Card?
     A. To block harmful content from reaching end users in real time
     B. To document a model's intended use, training data, evaluation results, and limitations for transparency and governance
     C. To measure the carbon footprint of a training job
     D. To redact personally identifiable information from model inputs
 
-19. A company's post-training bias analysis with Amazon SageMaker Clarify
+19. **[Advanced]** A company's post-training bias analysis with Amazon SageMaker Clarify
     reveals a significant disparate impact across two demographic groups
     in the model's predictions. Which stage of bias mitigation would
     involve adjusting the model's output thresholds per group without
@@ -643,7 +2077,7 @@ require the same level of per-prediction explainability.
     C. Post-processing
     D. Data collection
 
-20. Which statement correctly distinguishes a SageMaker Model Card from
+20. **[Intermediate]** Which statement correctly distinguishes a SageMaker Model Card from
     an AI Service Card?
     A. A Model Card is authored by AWS for its own AI services; an AI Service Card is authored by customers for their own models
     B. A Model Card documents a model an organization built (e.g., in SageMaker); an AI Service Card is AWS-published documentation for an AWS-managed AI service
@@ -757,7 +2191,7 @@ require the same level of per-prediction explainability.
     content similar to copyrighted material, and data privacy obligations
     around personal data used in training or prompts.** These are the
     legal/ethical considerations the exam associates with this domain.
-    Attention heads (C) is a model architecture detail from Domain 2;
+    Attention heads (C) is a model architecture detail from [Domain 2](domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts);
     Region selection for latency (D) and VPC subnet configuration (E) are
     infrastructure/networking concerns, not legal or ethical
     considerations.
@@ -808,3 +2242,7 @@ require the same level of per-prediction explainability.
     artifacts for distinct purposes; D is false — both concepts apply
     regardless of whether the underlying model is generative or
     traditional ML.
+
+---
+
+[← Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md) · **Domain 4 of 5** · [Domain 5: Security, Compliance, and Governance for AI Solutions →](domain-5-security-compliance-governance.md)

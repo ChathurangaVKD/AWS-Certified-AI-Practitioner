@@ -41,6 +41,18 @@ REQUIRED_DOWNSTREAM_DOMAINS = [
     "domain-5-security-compliance-governance.md",
 ]
 
+# The commonly-confused concept pairs the "quick reference" table must cover,
+# one substring per pair that is expected to appear verbatim in the table.
+REQUIRED_CONFUSED_PAIRS = [
+    "Statistical bias (bias–variance trade-off) vs. fairness bias",
+    "Precision vs. recall",
+    "Fine-tuning vs. continued pre-training",
+    "CloudTrail vs. Config vs. Audit Manager",
+    "Model Cards vs. AI Service Cards",
+    "On-demand vs. provisioned throughput",
+    "Real-time vs. batch vs. serverless inference",
+]
+
 MD_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)\s]+)\)")
 
 
@@ -118,6 +130,166 @@ class TestCrossDomainConceptMapCoverage(unittest.TestCase):
             len(REQUIRED_DOWNSTREAM_DOMAINS),
             "expected at least one concept-map table per downstream domain",
         )
+
+
+class TestVisualOverviewDiagram(unittest.TestCase):
+    """Regression coverage for the 'Visual overview' Mermaid flowchart: the
+    map's whole point is tracing how D1/D2 concepts flow into D3, and how
+    both D1/D2 and D3 flow into D4/D5, so this must exist as an actual
+    diagram (not just more prose) and must reference all five domains."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        heading_match = re.search(r"^## Visual overview.*?$", cls.text, re.M)
+        if heading_match is None:
+            raise AssertionError("expected a 'Visual overview' section")
+        start = heading_match.end()
+        next_heading = re.search(r"^## ", cls.text[start:], re.M)
+        end = start + next_heading.start() if next_heading else len(cls.text)
+        cls.section_text = cls.text[start:end]
+        cls.mermaid_blocks = re.findall(
+            r"```mermaid\n(.*?)```", cls.section_text, re.S
+        )
+
+    def test_section_exists(self):
+        self.assertIn("## Visual overview", self.text)
+
+    def test_section_has_a_mermaid_diagram(self):
+        self.assertGreaterEqual(
+            len(self.mermaid_blocks),
+            1,
+            "the visual overview section must contain an actual Mermaid "
+            "flowchart, not just prose",
+        )
+
+    def test_diagram_is_a_flowchart_or_graph(self):
+        combined = "\n".join(self.mermaid_blocks)
+        self.assertRegex(
+            combined,
+            r"^\s*(flowchart|graph)\s+(TD|LR|BT|RL)",
+            "expected the diagram to declare a flowchart/graph direction",
+        )
+
+    def test_diagram_references_every_domain(self):
+        combined = "\n".join(self.mermaid_blocks)
+        for domain_label in [
+            "Domain 1",
+            "Domain 2",
+            "Domain 3",
+            "Domain 4",
+            "Domain 5",
+        ]:
+            with self.subTest(domain=domain_label):
+                self.assertIn(
+                    domain_label,
+                    combined,
+                    f"visual overview diagram missing a node/subgraph for "
+                    f"{domain_label!r}",
+                )
+
+    def test_diagram_shows_d1_and_d2_flowing_into_d3_d4_d5(self):
+        combined = "\n".join(self.mermaid_blocks)
+        # Arrows into a D3-, D4-, or D5-prefixed node id demonstrate the
+        # flow this diagram exists to visualize.
+        for target_prefix in ["D3_", "D4_", "D5_"]:
+            with self.subTest(target=target_prefix):
+                self.assertRegex(
+                    combined,
+                    re.compile(r"-->\s*" + re.escape(target_prefix)),
+                    f"expected at least one arrow flowing into a "
+                    f"{target_prefix}* node",
+                )
+        # And at least one arrow must originate from a D1_ or D2_ node,
+        # confirming the fundamentals are the source of the flow.
+        self.assertRegex(
+            combined,
+            re.compile(r"(D1_|D2_)\w*\s*-->"),
+            "expected at least one arrow originating from a D1_ or D2_ node",
+        )
+
+    def test_diagram_shows_d3_flowing_into_d4_and_d5(self):
+        combined = "\n".join(self.mermaid_blocks)
+        self.assertRegex(
+            combined,
+            re.compile(r"D3_\w*\s*-->\s*D4_"),
+            "expected an arrow from a D3_ node into a D4_ node",
+        )
+        self.assertRegex(
+            combined,
+            re.compile(r"D3_\w*\s*-->\s*D5_"),
+            "expected an arrow from a D3_ node into a D5_ node",
+        )
+
+
+class TestCommonlyConfusedConceptPairsTable(unittest.TestCase):
+    """Regression coverage for the 'Commonly confused concept pairs' quick
+    reference table: every required pair must be present, in a real
+    markdown table, each with at least one source-section link."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        heading_match = re.search(
+            r"^## Commonly confused concept pairs.*?$", cls.text, re.M
+        )
+        if heading_match is None:
+            cls.section_text = ""
+        else:
+            # Slice from the heading to the next top-level (##) heading or
+            # end of file, so assertions below only look at this section.
+            start = heading_match.end()
+            next_heading = re.search(r"^## ", cls.text[start:], re.M)
+            end = start + next_heading.start() if next_heading else len(cls.text)
+            cls.section_text = cls.text[start:end]
+
+    def test_section_exists(self):
+        self.assertIn(
+            "## Commonly confused concept pairs",
+            self.text,
+            "expected a 'Commonly confused concept pairs' quick-reference "
+            "section in the cross-domain concept map",
+        )
+
+    def test_section_contains_a_markdown_table(self):
+        self.assertRegex(
+            self.section_text,
+            r"\|\s*-{2,}\s*\|",
+            "the commonly-confused-pairs section must contain a real "
+            "markdown table (header separator row)",
+        )
+
+    def test_covers_every_required_pair(self):
+        for pair in REQUIRED_CONFUSED_PAIRS:
+            with self.subTest(pair=pair):
+                self.assertIn(
+                    pair,
+                    self.section_text,
+                    f"commonly-confused-pairs table missing pair: {pair!r}",
+                )
+
+    def test_every_row_has_at_least_one_source_link(self):
+        # Data rows are lines starting with "|" that aren't the header or
+        # separator row.
+        rows = [
+            line
+            for line in self.section_text.splitlines()
+            if line.strip().startswith("|")
+            and not re.match(r"^\|\s*-{2,}", line.strip())
+            and "Term A vs. Term B" not in line
+        ]
+        self.assertEqual(
+            len(rows),
+            len(REQUIRED_CONFUSED_PAIRS),
+            "expected exactly one table row per required confused pair",
+        )
+        for row in rows:
+            with self.subTest(row=row[:60]):
+                self.assertRegex(
+                    row,
+                    MD_LINK_RE,
+                    f"table row has no source-section link: {row!r}",
+                )
 
 
 class TestCrossDomainConceptMapLinksResolve(unittest.TestCase):

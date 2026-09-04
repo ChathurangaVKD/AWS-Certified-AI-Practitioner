@@ -47,11 +47,11 @@ AWS-Certified-AI-Practitioner/
 ## Domain guides: per-domain coverage breakdown
 
 `docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,885–5,069 lines each, **13,867 lines total**:
+domain, currently 1,885–5,196 lines each, **13,994 lines total**:
 
 - Domain 1: 1,885 lines
 - Domain 2: 2,213 lines
-- Domain 3: 5,069 lines
+- Domain 3: 5,196 lines
 - Domain 4: 2,247 lines
 - Domain 5: 2,453 lines
 
@@ -96,7 +96,7 @@ failing RAG system, selecting a foundation model under multiple competing
 constraints, estimating a context-window token budget, estimating tokens
 for long-document summarization, comparing monthly inference costs across
 model tiers, comparing fine-tuning against prompt engineering, and a
-Bedrock Agent executing a multi-step task with tool calling), plus nine
+Bedrock Agent executing a multi-step task with tool calling), plus ten
 further worked examples that are subsections nested at the "###" or
 "####" level inside their enclosing numbered sections rather than
 standalone sections: whether a 2-point BLEU/ROUGE improvement is
@@ -108,10 +108,11 @@ Knowledge Base data source; retrieval patterns for a multimodal
 product-catalog RAG system combining text and images; when QLoRA's
 quality loss becomes unacceptable; when to use Cohere Rerank in a RAG
 pipeline; budgeting tokens for a multimodal financial-report RAG
-pipeline combining text, tables, and images; and picking evaluation
-metrics for a scenario. Counting standalone sections only, Domain 3 has
-eight worked examples; counting the nine nested subsections too, it has
-seventeen — more worked examples than any other domain guide.
+pipeline combining text, tables, and images; picking evaluation
+metrics for a scenario; and running a Bedrock Model Evaluation job to
+choose between candidate models. Counting standalone sections only,
+Domain 3 has eight worked examples; counting the ten nested subsections
+too, it has eighteen — more worked examples than any other domain guide.
 
 Domain 4 similarly grew beyond a single worked example: alongside the
 closing e-commerce recommendation-engine audit, it now has a second
@@ -304,8 +305,8 @@ multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image
 watermarking-provenance, differential-privacy healthcare-training,
 cost-optimization-SLA-tradeoffs, hallucination-rate-drift-monitoring, and
 indirect-prompt-injection-RAG-defense subsections), the five domain guides
-mark **44
-worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 17 in
+mark **45
+worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 18 in
 Domain 3, 8 in Domain 4, and 11 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 

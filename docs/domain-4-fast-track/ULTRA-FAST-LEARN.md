@@ -11,7 +11,7 @@ more time. Domain 4 is roughly **14%** of scored questions.
 
 - [1. Dimensions of responsible AI](#1-dimensions-of-responsible-ai)
 - [2. Common bias sources](#2-common-bias-sources)
-- [3. Fairness metrics by use case / stage](#3-fairness-metrics-by-use-case--stage)
+- [3. Fairness metrics by use case / stage](#3-fairness-metrics-by-use-case-stage)
 - [4. Key trade-offs](#4-key-trade-offs)
 - [5. Amazon SageMaker Clarify capabilities](#5-amazon-sagemaker-clarify-capabilities)
 - [6. Monitoring checklist](#6-monitoring-checklist)

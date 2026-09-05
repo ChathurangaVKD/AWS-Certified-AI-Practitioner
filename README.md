@@ -127,6 +127,16 @@ tagged by domain. Use it as your follow-up rehearsal after
 `full-length-mock-exam.md`, ideally after you've re-studied whatever
 domains you missed the first time.
 
+## Progress tracking
+
+With 259 total self-assessment items across the series (129 domain
+practice questions, 35 embedded mini-quizzes, 30 cross-domain scenario
+questions, and two 65-question mock exams), it's easy to lose track of
+which domains keep coming up weak across attempts. See
+[`docs/study-progress-tracker.md`](docs/study-progress-tracker.md) for a
+blank attempt-log template plus guidance on spotting recurring weak areas
+and reading score trends across retakes.
+
 ## Status
 
 This series is generated and kept current by gd-autopilot's own

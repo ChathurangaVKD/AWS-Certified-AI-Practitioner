@@ -39,6 +39,11 @@
   - [SageMaker endpoint auto-scaling: a parameter-tuning decision guide](#sagemaker-endpoint-auto-scaling-a-parameter-tuning-decision-guide)
     - [Worked example: configuring auto-scaling for a real-time customer-support chatbot endpoint](#worked-example-configuring-auto-scaling-for-a-real-time-customer-support-chatbot-endpoint)
 - [Inference failures and recovery strategies](#inference-failures-and-recovery-strategies)
+- [Inference error handling and resilience patterns](#inference-error-handling-and-resilience-patterns)
+  - [Retry strategies compared: immediate retry vs. exponential backoff vs. circuit breaker](#retry-strategies-compared-immediate-retry-vs-exponential-backoff-vs-circuit-breaker)
+  - [Decision flowchart: choosing a resilience strategy by error type](#decision-flowchart-choosing-a-resilience-strategy-by-error-type)
+  - [Worked example: retrying a throttled Bedrock `InvokeModel` call with exponential backoff and jitter](#worked-example-retrying-a-throttled-bedrock-invokemodel-call-with-exponential-backoff-and-jitter)
+  - [Pseudocode reference: immediate retry, exponential backoff, and circuit breaker](#pseudocode-reference-immediate-retry-exponential-backoff-and-circuit-breaker)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
 - [Worked example: selecting a foundation model under multiple competing constraints](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)
@@ -4591,6 +4596,241 @@ process rather than a launch-day, one-time estimate:
 > Read for that framing — "worked before, fails now that X changed" — and
 > match it to the scaling, batching, context, or budget knob that governs
 > X, rather than reaching for a generic "add more capacity" answer.
+
+---
+
+## Inference error handling and resilience patterns
+
+The [triage flowchart and four scenarios above](#inference-failures-and-recovery-strategies)
+diagnose *why* a real-time endpoint, batch job, or a direct model call
+fails. Diagnosis only gets you halfway there: the calling application
+still has to decide, in code, what happens the instant a call fails —
+retry it, give up immediately, or stop calling the dependency for a while
+so it can recover. Getting that decision wrong makes things worse in
+either direction: retrying a permanent error (a malformed request, a
+missing permission) burns calls and quota without ever succeeding, while
+retrying a struggling endpoint too aggressively is exactly the "runaway
+retry loop" that turns a brief blip into a self-inflicted traffic spike
+(see [Domain 5's coverage of an accidental spike from a runaway retry
+loop](domain-5-security-compliance-governance.md#1-securing-ai-systems)
+for the security/cost angle on that same failure mode). This section
+covers the three resilience patterns AIF-C01 expects you to recognize and
+choose between, a decision flowchart for picking the right one by error
+type, a worked example implementing the most common one against a real
+Bedrock API call, and pseudocode for all three.
+
+### Retry strategies compared: immediate retry vs. exponential backoff vs. circuit breaker
+
+| Strategy | How it behaves | Best fit | Risk if misapplied |
+|---|---|---|---|
+| **Immediate retry** | Re-sends the exact same request again right away, with no delay, usually a small fixed number of times | A truly transient, sub-second blip (a dropped connection, a single-packet network glitch) where the underlying condition is almost certainly gone by the next attempt | Applied to a *sustained* failure (an overloaded endpoint, a broad service outage), it adds load back onto the struggling dependency at the worst possible moment, making the outage worse instead of riding it out |
+| **Exponential backoff (with jitter)** | Retries a bounded number of times, waiting progressively longer between attempts (e.g., doubling the delay each time) with a randomized amount of jitter added to each wait | The common case: a `ThrottlingException`, a transient `ModelTimeoutException`, or a brief `InternalServerException`/`ServiceUnavailableException` where the dependency needs a little breathing room to recover | Without jitter, many clients that failed at the same moment (e.g., after a shared spike) retry in lockstep, arriving back at the dependency in synchronized waves that look like a new spike; without a retry cap, a genuinely permanent error just gets retried forever at ever-longer delays |
+| **Circuit breaker** | Tracks recent failure rate for a dependency; once failures cross a threshold, it "opens" and fails every subsequent call *immediately* (no request sent at all) for a cooldown period, then lets a small number of trial calls through ("half-open") to test whether the dependency has recovered before fully closing again | A dependency that's failing hard and consistently (not just intermittently) — protects the caller from wasting time/threads on calls very likely to fail, and protects the struggling dependency from a continued flood of retries while it recovers | Set the failure threshold or cooldown too aggressively and the breaker trips (or stays open) on ordinary transient noise, needlessly failing requests fast instead of letting a well-tuned retry-with-backoff ride out a brief blip |
+
+Retry-with-backoff and the circuit breaker are complementary, not
+either/or: backoff governs *how a single caller retries one request*;
+the circuit breaker governs *whether the caller attempts new requests to
+a dependency at all* once that dependency is clearly unhealthy. A
+production Bedrock or SageMaker client typically layers both — backoff
+inside each call, a circuit breaker wrapping the sequence of calls.
+
+### Decision flowchart: choosing a resilience strategy by error type
+
+Not every inference error deserves a retry. The exam pattern to recognize
+is the same distinction Scenario 3's context-window overflow made against
+Scenarios 1, 2, and 4 earlier in this domain: whether the error is
+**transient** (the same request would likely succeed a moment later) or
+**permanent** (the same request will fail identically no matter how many
+times it's resent). Retrying a permanent error wastes calls and, for a
+Bedrock `InvokeModel`/`Converse` call, common permanent errors include
+`ValidationException` (malformed input, oversized payload —
+see [Scenario 3](#scenario-3-a-request-that-overflows-the-models-context-window-mid-conversation)),
+`AccessDeniedException` (missing IAM permission or model access), and
+`ResourceNotFoundException` (a bad model ID or ARN) — none of which
+change outcome on a second attempt without a code or configuration fix
+first:
+
+```mermaid
+flowchart TD
+    START(["An inference call just\nfailed - how should the caller\nrespond?"])
+    START --> Q1{"Is the error a client-side/permanent\none - ValidationException,\nAccessDeniedException,\nResourceNotFoundException?"}
+    Q1 -->|"YES"| C1["Fail fast: surface the error\nimmediately, do not retry.\nFix the request, permissions, or\nconfiguration instead"]
+    Q1 -->|"NO"| Q2{"Is this a single, isolated\nThrottlingException/ModelTimeoutException/\nInternalServerException - and has this\ndependency been failing repeatedly over\nthe last N calls?"}
+    Q2 -->|"Isolated, first failure"| C2["Retry with exponential backoff\nand jitter, up to a small max-\nattempt cap"]
+    Q2 -->|"Repeated failures crossing\na threshold"| C3["Open the circuit breaker: stop\nsending new requests to this\ndependency for a cooldown period,\nthen probe with a half-open trial\ncall before resuming"]
+    C2 -->|"Retries exhausted without\nsuccess"| C3
+```
+
+> **Exam tip:** A scenario that describes retrying a `ValidationException`
+> (or another 4xx-style "the request itself is wrong" error) over and over
+> with no change in outcome is testing whether you know that **retries
+> only help transient errors** — the fix there is correcting the request,
+> not adding backoff. Conversely, a scenario describing a dependency that
+> keeps failing across many consecutive calls — not just one — points to a
+> **circuit breaker**, not a longer or larger retry budget, since more
+> retries against an already-overloaded dependency only prolongs the
+> outage.
+
+### Worked example: retrying a throttled Bedrock `InvokeModel` call with exponential backoff and jitter
+
+**Scenario:** A document-summarization service calls Bedrock's
+`InvokeModel` API directly (not through an SDK's built-in retry
+handling) and occasionally receives a `ThrottlingException` during
+short traffic bursts — the same underlying pattern as
+[Scenario 1](#scenario-1-a-sagemaker-real-time-endpoint-that-cant-scale-fast-enough-for-a-traffic-spike)
+and [Scenario 4](#scenario-4-a-production-workload-that-exceeds-its-provisioned-token-budget)
+earlier in this domain, just surfaced at the level of a single API call
+instead of the endpoint or account as a whole. The team implements
+**full jitter exponential backoff**: a base delay that doubles on every
+attempt, with the actual wait each time chosen randomly between zero and
+that doubled value, capped at a maximum delay and a maximum number of
+attempts.
+
+```python
+import random
+import time
+
+import boto3
+from botocore.exceptions import ClientError
+
+# Error codes worth retrying: transient/capacity-related. Everything else
+# (ValidationException, AccessDeniedException, ResourceNotFoundException,
+# ...) fails fast instead, per the decision flowchart above.
+RETRYABLE_ERROR_CODES = {
+    "ThrottlingException",
+    "ModelTimeoutException",
+    "InternalServerException",
+    "ServiceUnavailableException",
+    "ModelNotReadyException",
+}
+
+MAX_ATTEMPTS = 5
+BASE_DELAY_SECONDS = 0.5
+MAX_DELAY_SECONDS = 20.0
+
+
+def invoke_with_backoff(client, **invoke_kwargs):
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            return client.invoke_model(**invoke_kwargs)
+        except ClientError as err:
+            error_code = err.response["Error"]["Code"]
+            is_last_attempt = attempt == MAX_ATTEMPTS - 1
+            if error_code not in RETRYABLE_ERROR_CODES or is_last_attempt:
+                # Permanent error, or retries exhausted: fail fast and let
+                # the caller (or a wrapping circuit breaker) decide.
+                raise
+            # Full jitter: wait a random amount between 0 and the doubled
+            # delay, so many clients throttled at the same moment don't
+            # retry in lockstep.
+            capped_delay = min(MAX_DELAY_SECONDS, BASE_DELAY_SECONDS * (2 ** attempt))
+            time.sleep(random.uniform(0, capped_delay))
+    raise RuntimeError("unreachable: loop always returns or raises")
+
+
+bedrock_runtime = boto3.client("bedrock-runtime", region_name="us-east-1")
+response = invoke_with_backoff(
+    bedrock_runtime,
+    modelId="anthropic.claude-3-haiku-20240307-v1:0",
+    body=b'{"messages": [...], "max_tokens": 512}',
+)
+```
+
+The uncapped delay doubles every attempt (`0.5s, 1s, 2s, 4s, 8s`); the
+jitter then draws an actual wait uniformly between `0` and that value, so
+the table below shows the *range* each attempt draws from, not a single
+fixed number:
+
+| Attempt | Uncapped delay before jitter | Jittered wait (drawn uniformly from) |
+|---|---|---|
+| 1 (after 1st failure) | 0.5s | 0.0s – 0.5s |
+| 2 (after 2nd failure) | 1.0s | 0.0s – 1.0s |
+| 3 (after 3rd failure) | 2.0s | 0.0s – 2.0s |
+| 4 (after 4th failure) | 4.0s | 0.0s – 4.0s |
+| 5th failure | — | fails fast (max attempts reached); surfaces the error to the caller |
+
+In production, most Bedrock/AWS SDKs (boto3's `Config(retries={"mode":
+"adaptive"})`, for example) already implement a version of this pattern
+internally for the retryable error codes above — reach for that built-in
+retry configuration first, and only hand-roll a loop like the one above
+when the application needs custom behavior the SDK's retry mode doesn't
+cover (e.g., retrying a subset of error codes differently, or feeding
+retry outcomes into an application-level circuit breaker like the one
+below).
+
+### Pseudocode reference: immediate retry, exponential backoff, and circuit breaker
+
+**Immediate retry** — simplest, and the riskiest to apply broadly (no
+delay between attempts at all):
+
+```
+function call_with_immediate_retry(request, max_attempts):
+    for attempt in 1..max_attempts:
+        try:
+            return send(request)
+        catch error:
+            if not is_transient(error) or attempt == max_attempts:
+                raise error
+            # no delay - only appropriate for genuinely sub-second blips
+    raise error
+```
+
+**Exponential backoff with jitter** — the general-purpose default for
+transient errors:
+
+```
+function call_with_backoff(request, max_attempts, base_delay, max_delay):
+    for attempt in 1..max_attempts:
+        try:
+            return send(request)
+        catch error:
+            if not is_transient(error) or attempt == max_attempts:
+                raise error
+            uncapped = base_delay * 2^(attempt - 1)
+            delay = random_uniform(0, min(uncapped, max_delay))
+            sleep(delay)
+    raise error
+```
+
+**Circuit breaker** — a small state machine layered around every call to
+a dependency, independent of any single request's own retry loop:
+
+```
+state = CLOSED
+failure_count = 0
+opened_at = null
+
+function call_through_breaker(request):
+    if state == OPEN:
+        if now() - opened_at < cooldown_period:
+            raise CircuitOpenError()  # fail fast, no request sent at all
+        state = HALF_OPEN            # cooldown elapsed - allow one trial call
+
+    try:
+        response = send(request)          # optionally wrapped in
+                                           # call_with_backoff() above
+        if state == HALF_OPEN:
+            state = CLOSED
+            failure_count = 0             # dependency recovered
+        return response
+    catch error:
+        failure_count += 1
+        if state == HALF_OPEN or failure_count >= failure_threshold:
+            state = OPEN
+            opened_at = now()
+        raise error
+```
+
+> **Exam tip:** If a scenario describes a dependency call that keeps
+> failing and the fix is to **stop calling it for a while** rather than
+> retry harder, that's a **circuit breaker** — the distinguishing detail
+> is that failed calls after the breaker trips return an error
+> *immediately, without even attempting the request*. If the scenario
+> instead describes spacing out a bounded number of retries with
+> increasing delay for a single failing request, that's **exponential
+> backoff**, not a circuit breaker — backoff governs one request's own
+> retries; a circuit breaker governs whether *any* new request is
+> attempted at all.
 
 ---
 

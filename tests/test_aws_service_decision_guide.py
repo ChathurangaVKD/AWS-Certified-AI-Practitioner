@@ -350,7 +350,7 @@ class TestAwsServiceDecisionGuideCoverage(unittest.TestCase):
         # The re-verification note must reference the same catalog source
         # the original "Last verified" pass used, so a future contributor
         # knows exactly where to look.
-        catalog_url = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md"
+        catalog_url = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html"
         self.assertGreaterEqual(
             section_text.count(catalog_url),
             2,
@@ -433,7 +433,7 @@ class TestAwsServiceDecisionGuideMaintenanceProcessSubsection(unittest.TestCase)
 
     def test_documents_where_to_source_the_catalog(self):
         self.assertIn(
-            "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md",
+            "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html",
             self.subsection_text,
             "expected the maintenance process to point at the official "
             "Bedrock model catalog as the source of truth",
@@ -1343,6 +1343,52 @@ class TestAwsServiceDecisionGuideLinksResolve(unittest.TestCase):
                     f"anchor #{anchor} does not match any heading slug in "
                     f"{file_part} -- the decision guide link is stale",
                 )
+
+
+class TestAwsServiceDecisionGuideBedrockModelCardsUrl(unittest.TestCase):
+    """The Bedrock model reference section links out to the official AWS
+    Bedrock model catalog three times (staleness warning, verified-against
+    note, and maintenance-process sourcing note). AWS documentation pages
+    are served as .html, never .md -- a .md extension 404s for any reader
+    who clicks through. Guard against that regression recurring."""
+
+    CATALOG_URL = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.links = MD_LINK_RE.findall(cls.text)
+
+    def test_no_bedrock_documentation_link_ends_in_md_extension(self):
+        for link in self.links:
+            if link.startswith("https://docs.aws.amazon.com/"):
+                with self.subTest(link=link):
+                    self.assertFalse(
+                        link.rstrip(")").endswith(".md"),
+                        f"AWS documentation link {link!r} incorrectly uses "
+                        f"a .md extension -- AWS docs are served as .html "
+                        f"and this link will 404",
+                    )
+
+    def test_bedrock_model_catalog_url_uses_html_extension(self):
+        self.assertIn(
+            self.CATALOG_URL,
+            self.text,
+            "expected the corrected (.html) Bedrock model catalog URL to "
+            "appear in the decision guide",
+        )
+
+    def test_bedrock_model_catalog_url_appears_at_all_three_known_sites(self):
+        # Historically this URL appeared at three call sites: the
+        # staleness warning, the "before relying on this table" note, and
+        # the maintenance-process sourcing note. All three must use the
+        # corrected URL.
+        self.assertGreaterEqual(
+            self.text.count(self.CATALOG_URL),
+            3,
+            "expected the corrected Bedrock model catalog URL to appear "
+            "at all three known call sites in the decision guide",
+        )
 
 
 if __name__ == "__main__":

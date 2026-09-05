@@ -367,7 +367,7 @@ exam-testable.
 > selection criteria** (context window trade-offs, which modality a
 > family supports, when multimodal beats text-only), not specific
 > version numbers. Always verify exact model names/versions against the
-> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
+> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
 > before relying on this table outside exam prep.
 >
 > **Last verified:** 2026-09-02, against the official Bedrock model
@@ -392,7 +392,7 @@ exam-testable.
 > re-verification once the **Last verified** date above is more than
 > ~60 days old — don't assume a table with no open issues is still
 > accurate. To re-verify: open the
-> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
+> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
 > linked in the staleness warning above, diff its current model list
 > against the rows below, update any changed/added/removed rows, and
 > then update both the **Last verified** date and the "changes found
@@ -423,7 +423,7 @@ provider or model family appeared in the catalog that isn't represented
 by any existing row (as happened with DeepSeek and OpenAI's gpt-oss)?
 
 **Where to source the current catalog.** Use the official [Bedrock model
-catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.md)
+catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
 linked in the staleness warning above as the source of truth — it's the
 same link a reader following this guide's own advice would open. Do not
 rely on memory, training data, or this table's own prior contents as the

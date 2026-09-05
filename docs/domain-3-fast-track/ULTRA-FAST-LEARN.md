@@ -195,15 +195,15 @@ section it's drawn from.
 - **Core auto-scaling trade-off:** shorter cooldown reacts faster but
   risks **flapping** (repeated scale-out/scale-in); longer cooldown
   avoids flapping but reacts slower.
-- **Traffic-shape → cooldown pattern:**
-  - Steady/predictable → short cooldown safe on **both** sides.
-  - Bursty/spiky → **short** scale-out cooldown (add capacity fast) +
-    **long** scale-in cooldown (don't remove it the moment the spike
-    dips) — asymmetric, not "longer on both sides."
-  - Periodic/scheduled (business hours, nightly batch) → layer a
-    **scheduled scaling action** on top of reactive target tracking.
-  - Spike too fast for any cooldown → raise MinCapacity as a standing
-    buffer, or pre-warm with provisioned concurrency/throughput.
+**Traffic-shape → cooldown pattern:**
+
+| Traffic shape | Scale-out cooldown | Scale-in cooldown |
+|---|---|---|
+| Steady/predictable | Short — safe on both sides | Short — safe on both sides |
+| Bursty/spiky | Short — add capacity fast | **Long** — don't remove it the moment the spike dips (prevents flapping) |
+| Periodic/scheduled (business hours, nightly batch) | Layer a **scheduled scaling action** on top of reactive target tracking | Same scheduled layering |
+| Spike too fast for any cooldown | Raise MinCapacity as a standing buffer, or pre-warm with provisioned concurrency/throughput | — |
+
 - **Flapping fix:** lengthen the scale-in cooldown, not the scale-out
   one. **Capacity never scales back down:** check for conflicting
   target-tracking policies on the same variant — Application Auto

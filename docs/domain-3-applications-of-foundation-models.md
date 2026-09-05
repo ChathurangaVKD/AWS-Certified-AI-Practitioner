@@ -21,6 +21,7 @@
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
     - [On-demand vs. provisioned throughput: a worked cost-comparison example](#on-demand-vs-provisioned-throughput-a-worked-cost-comparison-example)
+    - [Batch inference vs. real-time vs. provisioned throughput: a worked cost-and-latency example](#batch-inference-vs-real-time-vs-provisioned-throughput-a-worked-cost-and-latency-example)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
   - [Choosing an embedding model: domain-specific vs. general vs. fine-tuned](#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
@@ -2366,6 +2367,158 @@ capacity for any traffic above the committed unit's throughput ceiling.
 > weak case for committing if that volume is also spiky or unproven; a
 > volume well above it, sustained day over day, is the strong case the
 > exam is testing for.
+
+#### Batch inference vs. real-time vs. provisioned throughput: a worked cost-and-latency example
+
+[Section 8's real-time-vs-batch decision
+tree](#8-aws-infrastructure-for-generative-ai-workloads) says a
+latency-tolerant, no-one-waiting workload should use batch inference
+instead of real-time — without ever pricing out what "batch" actually
+saves, or how long it takes to come back. This example runs one workload
+through all three Bedrock capacity options — **on-demand real-time**,
+**Bedrock batch inference**, and **provisioned throughput** — side by
+side on both cost and latency, the same "estimate first, then compare"
+discipline the [on-demand vs. provisioned throughput
+example](#on-demand-vs-provisioned-throughput-a-worked-cost-comparison-example)
+above uses for just those two options.
+
+**Scenario:** An operations team wants a one-paragraph digest of every
+inbound customer-support email, generated overnight so the digests are
+ready for the next morning's stand-up — nobody is waiting on any single
+summary in real time. The team forecasts **20,000 emails/day**, or
+**600,000 requests/month** (30-day month), and estimates each request
+averages **600 input tokens** (email body plus a short summarization
+instruction) and **120 output tokens** (the digest). The overnight batch
+window runs from 11 p.m., when the day's emails are finalized, to 7 a.m.,
+when the stand-up digest is needed — an **8-hour deadline**.
+
+**Step 1: Price on-demand real-time inference.** Using the same
+**illustrative Claude Haiku on-demand rates** as the [monthly-cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+($0.00025/1,000 input tokens, $0.00125/1,000 output tokens):
+
+- Cost per request: (600 ÷ 1,000 × $0.00025) + (120 ÷ 1,000 × $0.00125) =
+  $0.00015 + $0.00015 = **$0.0003/request**
+- Monthly on-demand cost: 600,000 requests × $0.0003 = **$180/month**
+
+**Step 2: Price Bedrock batch inference.** Batch inference bills the
+**same per-token rate as on-demand, at an illustrative 50% discount**, in
+exchange for giving up any per-request latency guarantee — Bedrock
+processes a submitted job's records at its own pace on a best-effort
+basis (commonly well inside a 24-hour window, but with no fixed
+per-record SLA), rather than returning each response immediately:
+
+- Cost per request: $0.0003 × 0.5 = **$0.00015/request**
+- Monthly batch cost: 600,000 requests × $0.00015 = **$90/month** — half
+  of on-demand's $180/month, or **$90/month saved**
+
+**Step 3: Price provisioned throughput.** Using the same **illustrative**
+$3.00/hour one-model-unit rate as the on-demand vs. provisioned example
+above:
+
+- Monthly provisioned cost: $3.00/hour × 730 hours/month = **$2,190/month**
+- Break-even volume against on-demand: $2,190 ÷ $0.0003/request ≈
+  **7,300,000 requests/month** — roughly **12x** this workload's actual
+  600,000 requests/month
+
+**Step 4: Compare all three side by side.**
+
+| Option | Cost/request | Monthly cost (600,000 req) | Per-request latency | Completion guarantee |
+|---|---|---|---|---|
+| **Bedrock batch inference** | $0.00015 | **$90** | Not applicable (asynchronous job) | Best-effort, typically well under 24h; no fixed per-record SLA |
+| **On-demand real-time** | $0.0003 | $180 | Seconds | Immediate — no queueing for a submitted job |
+| **Provisioned throughput** (1 model unit) | Flat $3.00/hour | $2,190 | Seconds, guaranteed | Guaranteed dedicated capacity regardless of other tenants |
+
+Batch is the cheapest option by far ($90/month vs. $180 on-demand vs.
+$2,190 provisioned) precisely because nothing in this scenario is waiting
+on an individual response — the 8-hour overnight window has room to
+absorb batch's best-effort turnaround, so there is no latency cost to
+offset against the 50% discount. Provisioned throughput is the wrong
+tool here for the same reason [Step 5 above](#on-demand-vs-provisioned-throughput-a-worked-cost-comparison-example)
+flags: this workload's 600,000 requests/month sits far below its
+~7,300,000-request break-even point, so the flat $2,190/month commitment
+would cost roughly **24x** what the batch option costs for the same
+volume — a hard latency guarantee has no value when no request has a
+per-request deadline to guarantee against.
+
+**Step 5: A decision flowchart keyed on deadline and volume.** The
+scenario above picked batch because of two specific facts — no
+per-request deadline, and a completion window comfortably longer than
+batch's turnaround. Changing either fact changes the answer:
+
+```mermaid
+flowchart TD
+    START(["Workload has a request\nvolume and a deadline -\nwhich capacity option fits?"])
+    START --> Q1{"Does any single request need\na response within seconds\n(a person or system waiting live)?"}
+    Q1 -->|"YES"| Q2{"Is volume high, steady, and\npredictable month over month?"}
+    Q2 -->|"NO - low, spiky,\nor unpredictable volume"| OD["ON-DEMAND REAL-TIME\npay-per-token, sub-second\nresponse, no commitment"]
+    Q2 -->|"YES - sustained,\nforecastable volume"| PT["PROVISIONED THROUGHPUT\nflat committed rate,\nlatency guaranteed regardless\nof other tenants' load"]
+    Q1 -->|"NO - only a completion-\nwindow deadline, e.g.\n'ready by 7 a.m.'"| Q3{"Is the deadline >= a few\nhours away AND is volume >=\n100 requests (Bedrock batch's\nper-job minimum)?"}
+    Q3 -->|"YES"| BATCH["BEDROCK BATCH INFERENCE\n~50% cheaper than on-demand;\nsubmit early enough to clear\nthe best-effort turnaround\nbefore the deadline"]
+    Q3 -->|"NO - deadline under a\nfew hours away, or fewer\nthan 100 requests"| OD2["ON-DEMAND REAL-TIME\nbatch minimum not met, or\nturnaround risk too high\nfor the remaining time"]
+```
+
+In words: **if the deadline is a hard per-request SLA measured in
+seconds, volume decides between on-demand (low/spiky) and provisioned
+throughput (high/steady/predictable); if the deadline is instead a
+completion window of a few hours or more and volume clears batch's
+per-job minimum, batch inference wins on cost every time nothing is
+waiting on an individual response.** A workload that looks like this
+scenario but has only 40 emails to summarize, or must be ready in 90
+minutes rather than 8 hours, falls through to on-demand real-time instead
+— not because real-time is cheaper, but because it doesn't carry batch's
+turnaround risk.
+
+**Step 6: Implementation notes for batching request payloads and
+scheduling batch jobs.** Getting the cost above requires actually
+building the batch job, not just picking the pricing model:
+
+- **Batch the request payloads into one JSONL file.** Each line is a
+  single JSON record with a unique `recordId` and a `modelInput` field
+  holding that record's full request body in the target model's native
+  format (for example, Anthropic Claude's `messages` structure) — one
+  email's summarization request per line, not one giant combined prompt.
+- **Upload to S3 and submit a model invocation job.** The job references
+  an input S3 URI (the JSONL file), an output S3 URI (where per-record
+  results land, also as JSONL), the model ID, and an IAM role scoped to
+  read the input location and write the output one.
+- **Respect per-job sizing limits.** Bedrock batch inference jobs accept
+  a bounded number of records per job (illustrative limits — check
+  current service quotas, since these change over time); a workload that
+  exceeds one job's ceiling should be split across multiple jobs
+  submitted in parallel rather than queued as one oversized job.
+- **Schedule submission, don't rely on someone remembering to click
+  "run."** An **Amazon EventBridge Scheduler** rule invoking a Lambda
+  function every night — the Lambda assembles the day's records into the
+  JSONL file and calls the batch-inference create-job API — keeps the
+  8-hour window in Step 4's example from silently shrinking because the
+  job started late.
+- **Poll or subscribe for completion instead of assuming a fixed
+  runtime.** Because batch turnaround is best-effort, not a fixed
+  per-job SLA, the downstream stand-up-digest step should watch for the
+  job's completion event (or poll its status) and alert if it is still
+  running as the deadline approaches, rather than hard-coding "the job
+  always finishes in two hours."
+
+**AWS example:** The operations team submits the previous night's
+600,000-email-equivalent digest requests as a single Bedrock batch
+inference job at 11 p.m. via a scheduled Lambda function, projecting
+**$90/month** versus $180/month on-demand or $2,190/month provisioned —
+and builds an EventBridge alert that pages the on-call engineer if the
+job hasn't completed by 6 a.m., an hour of buffer before the 7 a.m.
+stand-up deadline.
+
+> **Exam tip:** When a scenario gives you a completion-window deadline
+> ("ready by morning," "processed overnight") instead of a per-request
+> latency requirement, that is the signal to reach for **Bedrock batch
+> inference** — not on-demand real-time and not provisioned throughput —
+> because nothing is waiting on an individual response to exploit the
+> discount against. A per-request latency requirement (even a generous
+> one, like "within a few seconds") rules batching out regardless of
+> volume, the same way [Domain 5's cost-optimization
+> comparison](domain-5-security-compliance-governance.md#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans)
+> rules batching out for a hard-SLA chat workload but in for an
+> overnight analytics pipeline.
 
 #### Mini-quiz: Test your understanding of Amazon Bedrock features
 

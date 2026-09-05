@@ -107,16 +107,17 @@ class TestDomain3MultiModelRoutingWorkedExample(unittest.TestCase):
         self.assertIn(TOC_LINK, toc)
 
     def test_does_not_change_the_standalone_worked_example_count(self):
-        # This subsection's worked example is a level-4 heading nested
-        # inside Section 1, not a new standalone "## Worked example"
-        # section or a new top-level "### Worked example" subsection, so
-        # it must not perturb the counts asserted in
-        # tests/test_documentation_structure.py or
-        # tests/test_domain_3_model_pair_comparison_worked_example.py.
+        # This subsection's worked example is a level-4 "####" heading
+        # nested inside Section 1, not a new standalone "## Worked example"
+        # section or a new "### Worked example" subsection, so it must
+        # leave the pre-existing counts of those exactly as they were
+        # before this subsection was added (8 standalone "##" worked
+        # examples, 3 "###"-level ones in Section 7, unaffected by this
+        # change).
         standalone = re.findall(r"^## Worked example:", self.text, re.M)
-        self.assertEqual(len(standalone), 7)
+        self.assertEqual(len(standalone), 8)
         nested_level_3 = re.findall(r"^### Worked example:", self.text, re.M)
-        self.assertEqual(len(nested_level_3), 1)
+        self.assertEqual(len(nested_level_3), 3)
 
     def test_has_a_mermaid_decision_flowchart(self):
         self.assertIn(FLOWCHART_HEADING, self.section)

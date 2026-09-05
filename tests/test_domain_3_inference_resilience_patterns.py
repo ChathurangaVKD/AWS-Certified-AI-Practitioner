@@ -188,7 +188,9 @@ class TestDomain3InferenceResiliencePatterns(unittest.TestCase):
         # numbered worked example and should use the standard heading
         # phrasing so it reads consistently with the rest of the domain
         # guide.
-        self.assertRegex(self.section, r"^#{2,4} Worked examples?:", re.M)
+        self.assertRegex(
+            self.section, re.compile(r"^#{2,4} Worked examples?:", re.M)
+        )
 
     def test_has_pseudocode_for_all_three_patterns(self):
         heading = (

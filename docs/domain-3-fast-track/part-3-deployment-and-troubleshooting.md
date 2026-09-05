@@ -48,6 +48,7 @@ complete scenario, remediation/prevention bullets, and exam tips.
 - [7. RAG symptom-to-root-cause decision tree](#7-rag-symptom-to-root-cause-decision-tree)
 - [8. Debugging method: isolating the broken RAG pipeline stage](#8-debugging-method-isolating-the-broken-rag-pipeline-stage)
 - [Pre-launch production checklist](#pre-launch-production-checklist)
+- [Error-code cheat sheet](#error-code-cheat-sheet)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
 - [Rapid self-check](#rapid-self-check)
 - [Common exam traps checklist](#common-exam-traps-checklist)
@@ -75,6 +76,14 @@ complete scenario, remediation/prevention bullets, and exam tips.
       managing infrastructure at all, is testing whether you can place
       **SageMaker JumpStart** in that third role (managed fine-tuning/hosting)
       rather than reaching for raw EC2 + Neuron SDK for every workload.
+
+**AWS example, condensed:** an AI startup pretrains a custom foundation
+model from scratch on **EC2 Trn1** (Trainium) to minimize training cost at
+scale, then deploys it for production inference on **EC2 Inf2**
+(Inferentia2) for low per-request latency and cost. A different team at
+the same company fine-tunes an openly available model via **SageMaker
+JumpStart** instead of managing that infrastructure directly — three
+distinct roles for three distinct tools, all in the same organization.
 
 Full explanation and AWS example: [full guide, Section
 8](../domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads).
@@ -641,6 +650,30 @@ grouped by the failure category it heads off:
 - [ ] A process exists for re-embedding the corpus whenever the embeddings
       model changes — embeddings from two different models are not
       comparable in the same vector index.
+
+---
+
+## Error-code cheat sheet
+
+A quick lookup for which exception maps to which failure mode covered
+above — the exam frequently names the exact exception rather than
+describing the symptom in plain English:
+
+| Error / exception | Where it shows up | What it means | Retry? |
+|---|---|---|---|
+| `ValidationException` | Any `InvokeModel`/`Converse` call | Malformed input, or (per Scenario 3) the payload exceeds the model's context window | **No** — fix the request/payload first |
+| `AccessDeniedException` | Any Bedrock/SageMaker call | Missing IAM permission or model access | **No** — fix permissions/model access |
+| `ResourceNotFoundException` | Any Bedrock/SageMaker call | Bad model ID or ARN | **No** — fix the identifier |
+| `ThrottlingException` | Real-time endpoint spike (Scenario 1); provisioned/on-demand budget exceeded (Scenario 4) | Request rate or throughput exceeds current capacity/quota | **Yes** — exponential backoff; open a circuit breaker if it's sustained |
+| `ServiceQuotaExceededException` | On-demand access, Scenario 4 | Account/model TPM or RPM quota exceeded | **Yes**, but request a quota increase if it recurs |
+| `ModelTimeoutException` / `InternalServerException` / `ServiceUnavailableException` | Any inference call | Transient server-side issue | **Yes** — exponential backoff with jitter |
+| `ModelNotReadyException` | Any inference call | Model still loading/warming | **Yes** — exponential backoff |
+| Per-record payload-size or timeout error | Batch Transform (Scenario 2) | `MaxPayloadInMB`/`InvocationsTimeoutInSeconds` too small for this record | N/A — resize the batch settings, not a per-request retry |
+
+- [ ] **The permanent-vs-transient split from Section 5's decision
+      flowchart is the same split this table sorts by column** — if you
+      can name the exception, you can look up whether it belongs on the
+      "fail fast" or "retry with backoff" side without re-deriving it.
 
 ---
 

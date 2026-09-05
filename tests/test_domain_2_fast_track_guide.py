@@ -211,7 +211,7 @@ class TestFastTrackGuideContent(unittest.TestCase):
         for term in [
             "Tokenization",
             "Embeddings",
-            "Positional encoding",
+            "positional encoding",
             "Self-attention",
             "Feed-forward",
         ]:

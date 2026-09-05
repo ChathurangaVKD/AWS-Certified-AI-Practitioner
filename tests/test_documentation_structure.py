@@ -1,21 +1,3 @@
-Looking at this test file, I can see there are two merge conflicts:
-
-1. The `EXPECTED_LINE_COUNTS` dictionary in `TestDocumentationStructure2026ContentMetricsRefresh`
-2. The total line count assertion in `test_structure_doc_states_13298_line_total`
-
-The HEAD version has:
-- Domain 3: 5196 lines
-- Total: 14296
-
-The upstream version has:
-- Domain 3: 5482 lines  
-- Total: 14407
-
-Let me verify the math: 1930 + 2213 + 5482 + 2247 + 2535 = 14407 ✓
-
-The upstream version is internally consistent with the previous resolution of DOCUMENTATION_STRUCTURE.md (which I resolved to use the upstream values with Domain 3 at 5482 and total 14407). The upstream commit "autopilot: Add concrete scenarios: AWS Artifact compliance agreements (BAA, DPA) use cases" represents the newer state after content was added to Domain 3.
-
-```python
 """Regression tests for docs/DOCUMENTATION_STRUCTURE.md staying in sync with
 the files it describes.
 
@@ -315,7 +297,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 18, 4: 8, 5: 12}
+    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 18, 4: 8, 5: 13}
 
     @classmethod
     def setUpClass(cls):
@@ -347,8 +329,8 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
         )
         self.assertEqual(
             actual_total,
-            46,
-            "sanity check: expected 46 total 'Worked example' headings "
+            47,
+            "sanity check: expected 47 total 'Worked example' headings "
             "across the five domain guides",
         )
 
@@ -363,9 +345,9 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
         )
         window = self.structure_text[max(0, idx - 50) : idx + 300]
         self.assertIn(
-            "46",
+            "47",
             window,
-            "DOCUMENTATION_STRUCTURE.md does not state the 46-worked-example "
+            "DOCUMENTATION_STRUCTURE.md does not state the 47-worked-example "
             "grand total",
         )
         for domain_number, count in self.EXPECTED_PER_DOMAIN.items():
@@ -1420,4 +1402,3 @@ class TestDocumentationStructureMockExamDistinctionAccuracy(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-```

@@ -1037,6 +1037,54 @@ and cheaper than having humans label every record by hand.
 > that calls for synthetic data generation rather than labeling more of
 > what you already have.
 
+**Decision table: Ground Truth vs. synthetic data generation vs. active
+learning vs. weak supervision**
+
+These four strategies overlap in vocabulary — Ground Truth itself *uses*
+active learning internally — but on the exam each answers a different
+question: how much labeled data do you need, how much of it can a
+machine produce or select on its own, and how much must a human still
+touch?
+
+| Strategy | What it actually does | Exam-correct when... | Weakness / watch-out |
+|---|---|---|---|
+| **SageMaker Ground Truth** | Managed, end-to-end human-in-the-loop labeling pipeline: built-in active learning auto-labels the confident majority, and human labelers (your own workforce, a vendor workforce, or Mechanical Turk) label the rest | The scenario has a large pool of **real, unlabeled** data and wants a managed AWS service that minimizes human labeling cost/time while still producing accurate ground-truth labels | Still needs a human labeling budget and workforce/workflow setup; overkill for small, one-off datasets |
+| **Active learning (standalone/custom loop)** | Train on a small labeled seed set, use the model's own prediction uncertainty to pick the *next* unlabeled examples most worth labeling, label just those, retrain, and repeat | The scenario emphasizes **minimizing the total number of labels** needed under a tight labeling budget, describing an iterative train → query → label → retrain loop rather than a one-shot labeling job | Needs a working baseline model and a retraining pipeline before it can even select examples; slower to bootstrap than handing a whole dataset to labelers at once |
+| **Weak supervision** | Combine multiple noisy, imprecise labeling sources — heuristics, rules, keyword/regex matchers, existing knowledge bases, third-party models — into probabilistic labels programmatically, with little or no manual per-example labeling | The scenario needs labels **fast and cheap at scale**, subject-matter experts can express the labeling logic as rules/heuristics, and the use case can tolerate noisier labels than a human would produce | Labels are noisier/lower-confidence than human-verified ones; a poorly designed rule set can bake systematic bias into everything a downstream model learns |
+| **Synthetic data generation** | Programmatically manufactures artificial labeled examples via simulation, data augmentation, or generative techniques | Real labeled data is scarce, sensitive/restricted (e.g., PII), or expensive/dangerous to collect, or the gap is a **rare class/edge case** rather than a general shortage of labels | Synthetic examples can miss real-world distribution quirks and edge cases; must be validated against real data before it's trusted for training |
+
+**Use-case scenarios (spot the deciding constraint):**
+
+- **A fraud-detection team has budget for only 2,000 human-reviewed
+  labels and already has a baseline model.** Standalone active learning
+  is the right call: the model flags the 2,000 unlabeled transactions it
+  is *least* confident about, and only those go to reviewers, squeezing
+  the most improvement out of a capped labeling budget.
+- **A support-ticket classifier needs labels for 500,000 tickets by
+  tomorrow, and subject-matter experts can express rules like "if the
+  ticket contains 'refund' and 'never arrived,' label it
+  Shipping_Issue."** Weak supervision wins: turning those heuristics into
+  labeling functions produces probabilistic labels at a speed and scale
+  no human review pass could match.
+- **An autonomous-vehicle team needs more training examples of a rare
+  hazard (a deer crossing the road at night) that real dashcam footage
+  barely captures.** Synthetic data generation is the right tool —
+  simulate the rare event instead of waiting to collect it naturally.
+- **100,000 unlabeled images need bounding-box labels, with no existing
+  model to seed active learning and no ready-made heuristics to encode.**
+  This is Ground Truth's core scenario: a large, genuinely unlabeled pool
+  with no shortcut yet available, so its managed human-in-the-loop
+  workflow (with active learning built in) is what closes the gap.
+
+> **Exam tip:** When Ground Truth, active learning, weak supervision, and
+> synthetic data all appear as answer options together, the deciding
+> detail is almost always the **constraint the scenario names**: a
+> *labeling-budget* constraint points to active learning, a
+> *speed/scale-with-expressible-rules* constraint points to weak
+> supervision, a *scarce/rare/sensitive-data* constraint points to
+> synthetic data generation, and a *large, genuinely unlabeled dataset
+> with no other shortcut available* points to Ground Truth.
+
 ---
 
 ## 6. Model evaluation basics

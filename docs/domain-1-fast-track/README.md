@@ -711,7 +711,7 @@ the exam frequently blends a Domain 1 concept with one of these:
 | [Domain 4, Section 2](../domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) | The word "bias" | Domain 4's fairness bias and this domain's statistical bias (bias–variance trade-off) share a name but mean unrelated things |
 | [Domain 4, Section 3](../domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) | SageMaker Clarify, Model Cards | This domain introduces Clarify for bias/evaluation metrics and Model Registry for versioning; Domain 4 layers Model Cards and Guardrails on top |
 | [Domain 5, Section 1](../domain-5-security-compliance-governance.md#1-securing-ai-systems) | Model Registry approval as a governance record | This domain's "approve before deploy" step is the artifact Domain 5's governance/audit processes build on |
-| [`cross-domain-concept-map.md`](../cross-domain-concept-map.md#domain-1--domain-3-applications-of-foundation-models) | Domain 1 → Domain 3 concept flow | Maps every Domain 1 concept (evaluation metrics, the ML lifecycle) forward into Domain 3's foundation-model application design |
+| [`cross-domain-concept-map.md`](../cross-domain-concept-map.md#domain-1-domain-3-applications-of-foundation-models) | Domain 1 → Domain 3 concept flow | Maps every Domain 1 concept (evaluation metrics, the ML lifecycle) forward into Domain 3's foundation-model application design |
 
 ---
 

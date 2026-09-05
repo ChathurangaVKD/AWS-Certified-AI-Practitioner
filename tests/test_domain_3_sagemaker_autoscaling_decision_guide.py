@@ -156,10 +156,11 @@ class TestDomain3SageMakerAutoscalingDecisionGuide(unittest.TestCase):
                 self.assertIn(node, self.section)
 
     def test_decision_tree_gives_bursty_traffic_a_longer_scale_in_cooldown(self):
-        self.assertRegex(
-            self.section,
-            r"(?i)BURSTY.{0,400}scale-in cooldown \(~600-900s\)",
-        )
+        bursty_pos = self.section.index("BURSTY")
+        long_cooldown_pos = self.section.index("LONG scale-in", bursty_pos)
+        value_pos = self.section.index("(~600-900s)", long_cooldown_pos)
+        self.assertLess(bursty_pos, long_cooldown_pos)
+        self.assertLess(long_cooldown_pos, value_pos)
 
     def test_has_an_exam_tip_on_the_asymmetric_cooldown_pattern(self):
         self.assertIn("Exam tip:", self.section)

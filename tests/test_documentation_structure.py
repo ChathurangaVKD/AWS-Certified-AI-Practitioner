@@ -297,7 +297,7 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
     them exactly, guarding against the doc drifting back to vague or
     stale language."""
 
-    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
+    EXPECTED_PER_DOMAIN = {1: 3, 2: 5, 3: 18, 4: 8, 5: 12}
 
     @classmethod
     def setUpClass(cls):
@@ -322,15 +322,15 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
                     f"'####' level), found {actual}",
                 )
 
-    def test_grand_total_worked_example_count_is_45(self):
+    def test_grand_total_worked_example_count_is_46(self):
         actual_total = sum(
             self._worked_example_heading_count(path.read_text(encoding="utf-8"))
             for path in DOMAIN_FILES.values()
         )
         self.assertEqual(
             actual_total,
-            45,
-            "sanity check: expected 45 total 'Worked example' headings "
+            46,
+            "sanity check: expected 46 total 'Worked example' headings "
             "across the five domain guides",
         )
 
@@ -345,9 +345,9 @@ class TestDocumentationStructureWorkedExampleGrandTotalAccuracy(unittest.TestCas
         )
         window = self.structure_text[max(0, idx - 50) : idx + 300]
         self.assertIn(
-            "45",
+            "46",
             window,
-            "DOCUMENTATION_STRUCTURE.md does not state the 45-worked-example "
+            "DOCUMENTATION_STRUCTURE.md does not state the 46-worked-example "
             "grand total",
         )
         for domain_number, count in self.EXPECTED_PER_DOMAIN.items():
@@ -1190,8 +1190,8 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
     drifting stale again."""
 
-    EXPECTED_LINE_COUNTS = {1: 1930, 2: 2213, 3: 5196, 4: 2247, 5: 2485}
-    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
+    EXPECTED_LINE_COUNTS = {1: 1930, 2: 2213, 3: 5289, 4: 2250, 5: 2614}
+    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 12}
     EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 6}
     EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 
@@ -1229,7 +1229,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_13298_line_total(self):
         total = sum(self.EXPECTED_LINE_COUNTS.values())
-        self.assertEqual(total, 14071)
+        self.assertEqual(total, 14296)
         self.assertIn(f"**{total:,} lines total**", self.structure_text)
 
     def test_actual_worked_example_counts_match_expected(self):
@@ -1248,12 +1248,12 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_45_worked_examples_with_domain_3_breakdown(self):
         total = sum(self.EXPECTED_WORKED_EXAMPLES.values())
-        self.assertEqual(total, 45)
+        self.assertEqual(total, 46)
         anchor = "worked-example sections in total"
         idx = self.structure_text.find(anchor)
         self.assertNotEqual(idx, -1)
         window = self.structure_text[max(0, idx - 50) : idx + 300]
-        self.assertIn("45", window)
+        self.assertIn("46", window)
         for domain_number, count in self.EXPECTED_WORKED_EXAMPLES.items():
             with self.subTest(domain=domain_number):
                 self.assertRegex(

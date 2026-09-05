@@ -1313,7 +1313,10 @@ decision.
    and they complete a **SageMaker Model Card** recording the training
    data, the removed ZIP-code proxy feature, the pre/post-training bias
    metrics, and the model's intended use (decision support, not an
-   automatic denial).
+   automatic denial). See [Domain 5's worked example](domain-5-security-compliance-governance.md#worked-example-filling-out-a-sagemaker-model-card-for-governance-sign-off)
+   for what that completed Model Card looks like section by section, and
+   how the compliance/risk committee uses it to sign off on the
+   deployment.
 6. **Close the legal gap.** Per [Section
    4](#4-legal-and-ethical-considerations), the team confirms every
    denial is accompanied by an adverse-action notice citing the specific

@@ -6,10 +6,13 @@
 
 Domain 3 (Applications of Foundation Models) is too long — 6,845 lines
 across 25 Mermaid diagrams and dozens of worked examples — for one
-condensed guide, so its Fast Track is split into three parts. **Part 1**
-and **Part 2** condense Sections 1-7 (design considerations, prompt
-engineering, RAG fundamentals, customization trade-offs, Bedrock
-features, vector databases/embeddings, and evaluation). **This part**
+condensed guide, so its Fast Track is split into three parts. **[Part
+1](part-1-application-design-and-customization.md)** and **[Part
+2](part-2-inference-and-multimodal.md)** condense Sections 1-7 (design
+considerations, prompt engineering, RAG fundamentals, customization
+trade-offs, Bedrock inference architecture, Guardrails and
+prompt-injection prevention, vector databases/embeddings, multi-modal
+application patterns, and evaluation). **This part**
 covers what happens *after* a foundation model application ships: the
 infrastructure choices behind production deployment (Section 8), how
 real-time endpoints and batch jobs fail once traffic outgrows their

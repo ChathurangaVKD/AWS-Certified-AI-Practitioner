@@ -36,6 +36,8 @@
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
   - [Worked example: running a Bedrock Model Evaluation job to choose between candidate models](#worked-example-running-a-bedrock-model-evaluation-job-to-choose-between-candidate-models)
 - [8. AWS infrastructure for generative AI workloads](#8-aws-infrastructure-for-generative-ai-workloads)
+  - [SageMaker endpoint auto-scaling: a parameter-tuning decision guide](#sagemaker-endpoint-auto-scaling-a-parameter-tuning-decision-guide)
+    - [Worked example: configuring auto-scaling for a real-time customer-support chatbot endpoint](#worked-example-configuring-auto-scaling-for-a-real-time-customer-support-chatbot-endpoint)
 - [Inference failures and recovery strategies](#inference-failures-and-recovery-strategies)
 - [Worked example: implementing RAG for an internal policy-lookup assistant](#worked-example-implementing-rag-for-an-internal-policy-lookup-assistant)
 - [Worked example: troubleshooting a failing RAG system](#worked-example-troubleshooting-a-failing-rag-system)
@@ -4012,6 +4014,115 @@ latency, cost model, scaling behavior, and typical use case — see the
 [cross-domain concept map's inference deployment pattern
 comparison](cross-domain-concept-map.md#inference-deployment-pattern-comparison).
 
+### SageMaker endpoint auto-scaling: a parameter-tuning decision guide
+
+[Scenario 1 below](#scenario-1-a-sagemaker-real-time-endpoint-that-cant-scale-fast-enough-for-a-traffic-spike)
+shows what happens when a SageMaker real-time endpoint's auto-scaling
+policy reacts too slowly for the traffic it actually receives. That
+scenario is a *diagnosis* exercise — reading symptoms after the fact. This
+guide is the matching *design* exercise: choosing an endpoint's
+target-tracking threshold, scale-out/scale-in cooldowns, and min/max
+instance counts up front, based on the shape of the workload's traffic,
+so the endpoint is less likely to land in that scenario in the first
+place.
+
+Every SageMaker real-time endpoint auto-scaling policy (configured
+through **Application Auto Scaling**) is built from the same five knobs:
+
+- **Target metric** — usually the predefined
+  `SageMakerVariantInvocationsPerInstance` metric (scale on request
+  volume per instance), or a `CPUUtilization`/`GPUUtilization`-based
+  custom metric when the workload is compute-bound rather than
+  request-count-bound.
+- **Target value** — the per-instance threshold that, once crossed,
+  triggers scaling (e.g., "450 invocations per instance per minute" or
+  "70% CPU utilization").
+- **Scale-out (scale-up) cooldown** — how long Application Auto Scaling
+  waits after adding capacity before it's allowed to add more again.
+- **Scale-in (scale-down) cooldown** — how long it waits after removing
+  capacity before it's allowed to remove more again.
+- **MinCapacity / MaxCapacity** — the floor and ceiling on instance
+  count the policy is allowed to scale within.
+
+**The core trade-off**, and the one the exam tests most directly: a
+**shorter cooldown reacts faster but risks flapping** (repeatedly
+scaling out and back in as a metric bounces around the threshold), while
+a **longer cooldown avoids flapping but reacts slower** to genuine demand
+changes. The right value for each cooldown depends on the workload's
+traffic shape, not on a single "best practice" number:
+
+```mermaid
+flowchart TD
+    START(["What is the workload's\ntraffic shape?"])
+    START -->|"Steady, predictable\nvolume (low variance\nhour to hour)"| STEADY["STEADY-TRAFFIC PROFILE\nResponsive scaling is safe on\nboth sides: lower target\nthreshold, short scale-out\ncooldown (~60s), moderate\nscale-in cooldown (~180-300s)"]
+    START -->|"Bursty / spiky --\nsudden, large,\nunpredictable spikes,\nthen quiet"| BURSTY["BURSTY-TRAFFIC PROFILE\nScale out fast, scale in slow:\nshort scale-out cooldown\n(~60s) so capacity is added\nquickly, but a LONG scale-in\ncooldown (~600-900s) so it\nisn't removed again the\nmoment the spike dips"]
+    START -->|"Periodic / scheduled --\nknown daily or weekly\npeaks (business hours,\nnightly batch windows)"| SCHEDULED["SCHEDULED-PEAK PROFILE\nDon't rely on reactive scaling\nalone: layer a scheduled\nscaling action that raises\nMinCapacity ahead of the\nknown window"]
+    BURSTY --> Q1{"Is the spike so large/fast\nthat even a short scale-out\ncooldown can't add capacity\nin time?"}
+    Q1 -->|"YES"| PROV["Raise MinCapacity as a\nstanding buffer, or pre-warm\ncapacity with provisioned\nconcurrency / provisioned\nthroughput -- see Scenario 1"]
+    Q1 -->|"NO -- a short\nscale-out cooldown\nkeeps up"| BURSTY
+```
+
+> **Exam tip:** The asymmetry is the tested idea, not just the
+> vocabulary. "Bursty traffic → longer scale-*in* cooldown" prevents
+> flapping; it does **not** mean a longer scale-*out* cooldown too — a
+> workload can (and usually should) scale out quickly while still
+> scaling in slowly. Steady, predictable traffic is the one profile
+> where a short cooldown on *both* sides is safe, because the metric
+> isn't expected to bounce around unpredictably near the threshold.
+
+#### Worked example: configuring auto-scaling for a real-time customer-support chatbot endpoint
+
+**Scenario:** A company hosts a fine-tuned foundation model behind a
+SageMaker real-time endpoint (`ml.g5.xlarge` instances) that powers a
+customer-support chatbot. Traffic is **bursty**: mostly quiet outside
+business hours, with sudden spikes whenever the company sends a
+promotional email or a service incident drives a wave of support
+requests. Load testing shows a single instance handles up to roughly 650
+invocations per minute before latency degrades.
+
+**Chosen configuration:**
+
+| Parameter | Value | Rationale |
+|---|---|---|
+| Target metric | `SageMakerVariantInvocationsPerInstance` | Traffic is request-count-driven, not CPU-bound, so the predefined invocations metric maps directly to load |
+| Target value | 450 invocations/instance/minute | ~70% of the measured 650/minute ceiling, leaving headroom to absorb load while new capacity launches |
+| Scale-out cooldown | 60 seconds | Bursty traffic needs capacity added quickly once the target is crossed |
+| Scale-in cooldown | 900 seconds (15 minutes) | Long enough that a brief lull mid-spike doesn't trigger a premature scale-in, which would just force another scale-out minutes later (flapping) |
+| MinCapacity | 2 | Covers quiet-period baseline traffic without paying for idle peak capacity |
+| MaxCapacity | 12 | Sized to the largest promotional spike observed in the last two quarters, with room to spare |
+
+**Working the numbers:** a promotional email drives traffic from a
+baseline of ~800 invocations/minute up to ~4,000 invocations/minute
+within a few minutes. At the 450-invocations-per-instance target, the
+policy needs `ceil(4000 / 450) = 9` instances to keep each instance
+under threshold — well within the MaxCapacity ceiling of 12, so the
+endpoint scales out to meet the spike without hitting its cap. Once the
+spike passes and traffic drops back toward baseline, the 900-second
+scale-in cooldown holds the fleet at its higher instance count for 15
+minutes after the last scale-in action before removing more capacity,
+so a second short-lived wave of clicks on the same promotional email
+doesn't force the endpoint to scale back out again immediately after
+scaling in.
+
+**Contrast with a steady-traffic workload:** if this same model instead
+served a steady, high-volume internal batch-adjacent workload with
+little minute-to-minute variance, a 900-second scale-in cooldown would
+be needlessly conservative — it would leave the endpoint over-provisioned
+(and over-billed) for 15 minutes after every genuine drop in demand. A
+steady workload can safely use a much shorter scale-in cooldown (e.g.,
+180-300 seconds) on both sides, because the metric isn't expected to
+bounce unpredictably near the threshold the way bursty traffic does.
+
+**Troubleshooting common SageMaker auto-scaling problems:**
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Endpoint scales out, then scales back in within a minute or two, then has to scale out again shortly after (flapping) | Scale-in cooldown too short — capacity is removed as soon as the metric dips briefly, before the drop is confirmed as sustained | Lengthen the scale-in (scale-down) cooldown so a brief dip doesn't trigger premature de-provisioning |
+| Endpoint keeps adding instances under load, but capacity rarely (or never) comes back down once traffic subsides | Two or more target-tracking policies are attached to the same variant (e.g., one on `CPUUtilization`, one on invocations) — Application Auto Scaling only scales *in* when every attached policy agrees capacity can be reduced | Reconcile or remove the conflicting policy so a single metric governs scale-in, and confirm elevated CPU isn't coming from background/health-check load rather than real traffic |
+| Endpoint throttles or times out during the first minute of a spike, then recovers once the fleet finally grows | Target-tracking threshold set too close to the instance's real ceiling, and/or scale-out cooldown too long | Lower the target-tracking threshold and shorten the scale-out cooldown so scaling starts earlier — see [Scenario 1](#scenario-1-a-sagemaker-real-time-endpoint-that-cant-scale-fast-enough-for-a-traffic-spike) |
+| Endpoint sits at MaxCapacity for long stretches during ordinary (non-peak) traffic, driving up cost | MinCapacity/MaxCapacity range was set from a single historical peak instead of typical steady-state load | Re-baseline Min/MaxCapacity against current traffic patterns rather than the highest spike ever observed |
+| Instance count visibly rises and falls on a predictable daily pattern (start of business hours, a nightly batch job) even though target tracking is configured correctly | A calendar-predictable event is being scaled for reactively, so the fleet always lags a few minutes behind the pattern | Layer a **scheduled scaling action** on top of target tracking to raise MinCapacity just ahead of the known window, instead of relying on reactive scaling alone |
+
 #### Mini-quiz: Test your understanding of AWS infrastructure for generative AI workloads
 
 Quick self-check before moving on — try to answer before reading the
@@ -4137,7 +4248,10 @@ needed:
   saturated) and shortening the scale-out cooldown so new capacity is
   requested sooner, while leaving the (typically longer) scale-*in*
   cooldown alone so the endpoint doesn't flap capacity down again the
-  moment the spike dips.
+  moment the spike dips. See the [SageMaker endpoint auto-scaling
+  parameter-tuning decision
+  guide](#sagemaker-endpoint-auto-scaling-a-parameter-tuning-decision-guide)
+  for concrete threshold and cooldown values by traffic shape.
 - **Raise the minimum instance count** — sizing the endpoint's floor for
   known peak patterns (e.g., an anticipated flash sale) rather than
   relying on reactive scaling to cover a predictable event; scheduled

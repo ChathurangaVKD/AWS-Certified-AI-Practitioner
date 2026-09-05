@@ -3357,6 +3357,44 @@ flowchart TD
 > *first*, which is why they're the metrics to reach for when a question
 > is specifically testing ranking quality, not just retrieval coverage.
 
+**Decision flowchart: which metric fits this RAG use case?** The
+flowchart above starts from the requirement's *phrasing* (binary vs.
+graded relevance, one correct answer vs. many). Exam scenarios and
+real system descriptions are just as often framed by *use-case name*
+instead — "a legal e-discovery tool," "a product-search ranking
+system," "an open-domain QA assistant" — so it helps to have the
+reverse lookup, routing common RAG/retrieval deployment types straight
+to the metric that's the default fit for each, complementing the [RAG
+troubleshooting decision
+tree](#decision-tree-diagnosing-rag-retrieval-failures) that diagnoses
+*why* retrieval is failing once a metric has already flagged a problem:
+
+```mermaid
+flowchart TD
+    START(["What kind of RAG /\nretrieval use case is this?"])
+    START --> Q1{"Legal e-discovery, compliance\nreview, or multi-source research\nretrieval - must find EVERY\nrelevant document, well-ranked?"}
+    Q1 -->|"YES"| MAP2["MAP (MEAN AVERAGE PRECISION)\ne.g., MAP >= 0.75 --\nexhaustive recall AND ranking\nboth matter, binary relevance"]
+    Q1 -->|"NO"| Q2{"E-commerce, general web, or\nenterprise search RANKING -\nresults shown with graded\nrelevance, order is the product?"}
+    Q2 -->|"YES"| NDCG2["NDCG@K\ne.g., NDCG@10 >= 0.85 --\nmost relevant results must\nrank highest, relevance is graded"]
+    Q2 -->|"NO"| Q3{"Open-domain QA, single-answer\nFAQ bot, or 'did you mean'\nsuggestion - one best answer\nper query?"}
+    Q3 -->|"YES"| MRR2["MRR (MEAN RECIPROCAL RANK)\ne.g., MRR >= 0.80 --\nthe one correct answer should\nrank near #1"]
+    Q3 -->|"NO"| Q4{"Support-ticket or knowledge-base\nlookup where ANY of the top k\nresults resolving the issue\ncounts as success?"}
+    Q4 -->|"YES"| RECALL2["RECALL@K\ne.g., Recall@5 >= 0.90 --\nonly coverage within the\ntop k window matters"]
+    Q4 -->|"NO"| GENERIC["Fall back to the requirement-phrasing\nflowchart above: match relevance\ngrading (binary vs. graded) and\nanswer count (one vs. many) to a metric"]
+```
+
+> **Exam tip:** A scenario that *names* the deployment ("a legal
+> discovery platform," "a product search ranking feature") is testing
+> the same mapping as one that *describes* the requirement in the
+> abstract — legal e-discovery and multi-source research retrieval
+> imply **MAP**; e-commerce/web/enterprise search ranking implies
+> **NDCG**; open-domain or single-answer QA implies **MRR**; a
+> support-ticket or KB lookup where any top-*k* hit counts implies
+> **Recall@k**. When a use case doesn't cleanly match one of these four
+> archetypes, fall back to reasoning from the requirement's phrasing
+> (binary vs. graded relevance, one answer vs. many) using the flowchart
+> above.
+
 #### Worked example: computing Recall@k, MRR, MAP, and NDCG on a sample retrieval result set
 
 A Bedrock Knowledge Base returns the following top-5 ranked results for

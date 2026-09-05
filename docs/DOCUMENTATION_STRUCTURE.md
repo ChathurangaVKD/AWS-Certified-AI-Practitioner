@@ -316,6 +316,22 @@ diagram), bringing the total to **45 Mermaid
 diagrams** (40 in the domain guides + 2 in
 cross-domain-concept-map.md + 3 in aws-service-decision-guide.md).
 
+**Quick-reference cheat sheets:** each of the five domain guides also
+closes with its own `## Quick-reference cheat sheet` section — a
+condensed, print-friendly recap of that guide's content for last-minute
+review, distinct from the closing `## Worked example`/`## Practice
+questions` sections that precede it: Domain 1: line 1524; Domain 2: line 1668;
+Domain 3: line 6147; Domain 4: line 1746; Domain 5: line 2496.
+Each one is validated by its own `tests/test_domain_N_quick_reference_cheat_sheet.py`
+file (heading present, linked from the table of contents, and positioned
+between the comparison table and the glossary link). These in-guide
+cheat sheets serve the same last-minute-cram purpose as the Ultra Fast
+Track cram sheets under `docs/domain-N-fast-track/ULTRA-FAST-LEARN.md` —
+the difference is scope: the in-guide cheat sheet condenses its own
+domain guide, while an Ultra Fast Track cram sheet is a separate,
+standalone file condensing either the full guide or (Domain 4) an
+intermediate Fast Track guide.
+
 ## Cross-domain support documents: aws-service-index.md
 
 **`aws-service-index.md`** indexes **83 services**, grouped under letter sections A, C, G, I, M, P, and S.

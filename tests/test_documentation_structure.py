@@ -1504,5 +1504,67 @@ class TestDocumentationStructureMockExamDistinctionAccuracy(unittest.TestCase):
         self.assertNotEqual(full_length_text, second_mock_exam_text)
 
 
+class TestDocumentationStructureQuickReferenceCheatSheetAccuracy(
+    unittest.TestCase
+):
+    """DOCUMENTATION_STRUCTURE.md's 'Repository layout' section previously
+    never mentioned that each of the five domain guides has its own
+    '## Quick-reference cheat sheet' section (a condensed, print-friendly
+    recap distinct from that domain's closing worked example / practice
+    questions), even though every domain guide has one and each is
+    independently tested by its own
+    tests/test_domain_N_quick_reference_cheat_sheet.py file. These tests
+    guard the bullet documenting that gap, and pin its stated per-domain
+    line numbers to each domain guide's actual current
+    '## Quick-reference cheat sheet' heading line so the numbers can't
+    silently drift stale as the guides grow (mirroring the pattern used
+    elsewhere in this file for line counts and other figures)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+
+    def _cheat_sheet_heading_line(self, path):
+        text = path.read_text(encoding="utf-8")
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            if line.strip() == "## Quick-reference cheat sheet":
+                return line_number
+        self.fail(f"{path.name} has no '## Quick-reference cheat sheet' heading")
+
+    def test_mentions_quick_reference_cheat_sheets_bullet(self):
+        self.assertIn(
+            "**Quick-reference cheat sheets:**",
+            self.structure_text,
+            "expected DOCUMENTATION_STRUCTURE.md to document the five "
+            "in-domain quick-reference cheat sheets",
+        )
+
+    def test_stated_cheat_sheet_line_numbers_match_actual_headings(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            actual_line = self._cheat_sheet_heading_line(path)
+            with self.subTest(domain=domain_number):
+                self.assertIn(
+                    f"Domain {domain_number}: line {actual_line}",
+                    self.structure_text,
+                    "DOCUMENTATION_STRUCTURE.md does not state the "
+                    f"current '## Quick-reference cheat sheet' heading "
+                    f"line ({actual_line}) for domain {domain_number}'s "
+                    f"guide ({path.name}) -- it has gone stale or the "
+                    "guide was edited without updating the recorded line",
+                )
+
+    def test_mentions_cheat_sheet_test_file_pattern(self):
+        self.assertIn(
+            "tests/test_domain_N_quick_reference_cheat_sheet.py",
+            self.structure_text,
+        )
+
+    def test_mentions_relationship_to_ultra_fast_track_cram_sheets(self):
+        self.assertIn("Ultra Fast Track", self.structure_text)
+        self.assertIn(
+            "docs/domain-N-fast-track/ULTRA-FAST-LEARN.md", self.structure_text
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

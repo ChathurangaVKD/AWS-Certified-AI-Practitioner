@@ -103,9 +103,27 @@ flowchart TD
 - [ ] **Custom/fine-tuned model almost always forces provisioned
       throughput** — that's the single fastest tell in a scenario.
 
-For the full four-way comparison (real-time, batch, serverless,
-provisioned throughput) side by side: [cross-domain concept map's
-inference deployment pattern
+**All four deployment patterns side by side** (the full picture behind the
+flowchart above — real-time/on-demand and provisioned throughput are the
+two Bedrock-specific branches; batch and serverless are the other two
+Domain 1 inference types applied to the same decision):
+
+| Pattern | Latency | Cost model | Scaling | Typical use case |
+|---|---|---|---|---|
+| **Batch** | Minutes to hours, no live request | Pay only for the job's compute duration | Fixed-size job, no persistent endpoint | Nightly scoring runs, large offline reports |
+| **Serverless** | Low, but a cold-start delay after idle periods | Pay-per-request, auto-scales to zero when idle | Fully automatic, no capacity to size | Bursty/low-volume traffic, dev/test endpoints |
+| **Real-time / on-demand** | Low, persistent endpoint, no cold start | Pay per request/token, no capacity commitment | Auto-scaling persistent endpoint | Live chat, interactive apps, variable production traffic |
+| **Provisioned throughput** | Lowest, guaranteed SLA regardless of other traffic | Flat-rate dedicated capacity, 1- or 6-month commit | Fixed capacity sized and paid for up front | Production traffic for a fine-tuned model, high-volume steady workloads |
+
+- [ ] The same three questions decide among all four, whichever vocabulary
+      a scenario uses: **does anything wait on the response** (batch vs.
+      everything else), **how predictable is the traffic** (serverless vs.
+      real-time/provisioned), and **does volume, a custom model, or an SLA
+      justify a capacity commitment** (real-time/on-demand vs. provisioned
+      throughput).
+
+Full four-way flowchart: [cross-domain concept map's inference deployment
+pattern
 comparison](../cross-domain-concept-map.md#inference-deployment-pattern-comparison).
 Full explanation: [full guide, Section
 8](../domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads).
@@ -141,6 +159,25 @@ flowchart TD
 > traffic is the *only* profile where short cooldowns on both sides are
 > safe.
 
+**Worked example, condensed:** a fine-tuned chatbot endpoint (`ml.g5.xlarge`,
+single instance ceiling ~650 invocations/minute) sees bursty traffic —
+quiet outside business hours, sudden spikes on a promotional email.
+
+| Parameter | Chosen value | Why |
+|---|---|---|
+| Target value | 450 invocations/instance/minute | ~70% of the measured ceiling, leaving headroom while new capacity launches |
+| Scale-out cooldown | 60 seconds | Bursty traffic needs capacity added quickly |
+| Scale-in cooldown | 900 seconds | Long enough that a brief lull mid-spike doesn't trigger a premature scale-in (flapping) |
+| MinCapacity / MaxCapacity | 2 / 12 | Covers quiet-period baseline without paying for idle peak capacity; sized to the largest observed spike |
+
+When a promotional email drives traffic from ~800 to ~4,000
+invocations/minute, the policy needs `ceil(4000 / 450) = 9` instances to
+keep each instance under threshold — inside the MaxCapacity ceiling of 12.
+**Contrast:** a steady-traffic workload with the same instance profile
+would use a much shorter scale-in cooldown (~180-300 seconds) on both
+sides — a 900-second cooldown there would just leave it over-provisioned
+(and over-billed) after every genuine drop in demand.
+
 **Common auto-scaling problems, condensed:**
 
 | Symptom | Likely cause | Fix |
@@ -175,6 +212,29 @@ flowchart TD
     Q3 -->|"YES"| C3["Scaling-speed mismatch\n(real-time endpoint auto scaling\nreacting too slowly)"]
     Q3 -->|"NO"| C4["Provisioned/on-demand budget\nexceeded (sustained usage grew\npast model units or TPM/RPM quota)"]
 ```
+
+**One line of diagnosis per scenario:**
+
+- **Scenario 1 (real-time endpoint, flash sale):** a tenfold spike in two
+  minutes overwhelms two `ml.g5.xlarge` instances before CloudWatch
+  aggregates enough data points, the scale-out cooldown elapses, and a new
+  instance finishes launching and loading the model — easily several
+  minutes of reaction chain a two-minute spike outruns.
+- **Scenario 2 (Batch Transform, mixed payload sizes):** default
+  `MaxPayloadInMB`/`InvocationsTimeoutInSeconds` are tuned for short
+  product descriptions; a manifest mixed with full articles changes both
+  sides of that budget at once, so some records exceed the payload size
+  and others exceed the timeout.
+- **Scenario 3 (chatbot, context window):** the `Converse`/`InvokeModel`
+  API is stateless, so the client resends the full transcript every turn;
+  a session that pastes in large logs adds thousands of tokens in one turn,
+  and the very next call fails once the running total crosses the model's
+  context-window ceiling.
+- **Scenario 4 (document-analysis service, gradual rollout):** Provisioned
+  Throughput model units (or an on-demand TPM/RPM quota) were sized once,
+  at launch, for the traffic the team expected then; steady month-over-month
+  adoption growth eventually pushes sustained demand above that fixed
+  ceiling, with no single spike to point to.
 
 **The four scenarios, condensed to symptom / root cause / fix:**
 
@@ -254,6 +314,19 @@ flowchart TD
 (`ValidationException`, `AccessDeniedException`, `ResourceNotFoundException`)
 fails fast instead.
 
+**Worked example, condensed:** a document-summarization service calling
+Bedrock `InvokeModel` directly implements **full jitter** — a base delay
+that doubles every attempt, with the actual wait drawn uniformly between
+zero and that doubled value, capped and bounded at 5 attempts:
+
+| Attempt | Uncapped delay before jitter | Jittered wait (drawn uniformly from) |
+|---|---|---|
+| 1 (after 1st failure) | 0.5s | 0.0s – 0.5s |
+| 2 (after 2nd failure) | 1.0s | 0.0s – 1.0s |
+| 3 (after 3rd failure) | 2.0s | 0.0s – 2.0s |
+| 4 (after 4th failure) | 4.0s | 0.0s – 4.0s |
+| 5th failure | — | fails fast (max attempts reached); surfaces the error to the caller |
+
 ```
 function call_with_backoff(request, max_attempts, base_delay, max_delay):
     for attempt in 1..max_attempts:
@@ -301,6 +374,30 @@ flowchart TD
     Q2 -->|"NO"| Q3{"Retrieval returning the right\npassages, but generation is\nstill poor?"}
     Q3 -->|"YES"| C5["Check generation: model\ncapability, temperature, and\nprompt engineering - the context\nis right, so the gap is in how\nthe FM uses it"]
 ```
+
+**One memorable vignette per failure mode** (same HR policy-lookup
+assistant throughout):
+
+- **Chunks too small:** "How many weeks of parental leave do I get and do
+  I need to use vacation days first?" gets answered ("12 weeks") while the
+  vacation-day interaction, one sentence later in the same handbook
+  paragraph, is dropped entirely — the chunk boundary fell mid-paragraph.
+- **Embedding model mismatch:** "Does PTO carry over across the FY
+  boundary?" retrieves passages about *performance reviews*, not paid time
+  off — the general-purpose embeddings model was never exposed to the
+  company's internal abbreviations, so it embeds "PTO"/"FY" near unrelated
+  general-English concepts instead of "vacation."
+- **Plausible but irrelevant (ranking):** "What's the process for
+  expensing a conference registration fee?" confidently answers using a
+  chunk about *travel* expenses — genuinely close in vector space, just
+  the wrong policy — because plain vector similarity can't distinguish
+  "close enough to retrieve" from "the one that actually answers this."
+- **Terminology mismatch:** "Can I get reimbursed for a client dinner?"
+  returns no useful chunks at all, even though a section titled "Business
+  Meal Expense Policy" answers exactly this — a short casual **question**
+  doesn't always land near a long formal **policy statement** in a
+  bi-encoder's vector space, even when embeddings otherwise handle the
+  domain's vocabulary fine.
 
 **The four failure modes, condensed to symptom / root cause / fix:**
 

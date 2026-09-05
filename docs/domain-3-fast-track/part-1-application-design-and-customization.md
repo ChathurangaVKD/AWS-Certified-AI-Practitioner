@@ -104,9 +104,15 @@ more capability and cost, but **not** a larger context window.
 > scale (e.g., AI21 Labs Jamba 2.0's efficient long-context positioning)
 > over a general-purpose model that merely also has a large window.
 
-Full explanation, three worked model-pair comparisons (Claude Sonnet vs.
-Nova Premier, Claude Haiku vs. Claude Opus, Jamba 2.0 vs. Claude Haiku),
-and the mini-quiz: [full guide, Section
+**Three worked model-pair comparisons, condensed to their resolution:**
+
+| Pair | Scenario | Deciding factor | Resolution |
+|---|---|---|---|
+| Claude Sonnet vs. Amazon Nova Premier | Contract-review assistant reading a 40-page vendor contract in one pass | Task is moderately complex document analysis, not multi-step multimodal reasoning; both fit the context window | **Claude Sonnet** — moderate cost without giving up needed accuracy; Nova Premier only wins if a requirement Sonnet can't meet is added |
+| Claude Haiku vs. Claude Opus | Same product needs a live chat widget (order status) and an overnight batch root-cause report | Chat is latency-sensitive; the batch job has no user waiting and needs deeper reasoning | **Haiku for chat, Opus for the batch job** — decide model tier per task, not per product |
+| AI21 Labs Jamba 2.0 vs. Claude Haiku | Thousands of long-form documents summarized daily on a tight budget | Both fit the document in context; only one is built for cheap long-context calls at high repeat volume | **Jamba 2.0** for the bulk pipeline; Haiku stays for separate, low-volume, higher-nuance questions |
+
+Full explanation and the mini-quiz: [full guide, Section
 1](../domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications).
 
 ---
@@ -154,6 +160,24 @@ trade-off is a cold-start penalty on a model's first invocation, so MMEs
 fit routing among many similarly-sized models rather than a strict
 low-latency/high-accuracy split.
 
+**Worked example, condensed — a three-candidate customer support fallback
+chain** (Claude Sonnet primary, Nova Lite as FM-2, Claude Haiku as FM-3),
+walking the same availability → rate-limits → cost checks on every
+incoming chat message:
+
+| Branch | Condition | Model called | Outcome |
+|---|---|---|---|
+| 1 | Sonnet healthy, not rate-limited, within cost ceiling | **Claude Sonnet (primary)** | Full-quality answer at normal cost — the common-path outcome |
+| 2 | Sonnet rate-limited (e.g., a regional traffic spike) | **Nova Lite (FM-2)** | Chat keeps responding, slightly less nuanced, at lower cost |
+| 3 | Sonnet down **and** Nova Lite also rate-limited/down | **Claude Haiku (FM-3)** | Assistant still responds, favoring availability over depth |
+| 4 | All three candidates fail availability, rate-limit, or cost checks | **None — chain exhausted** | Routes to a queued human agent rather than a degraded auto-response with no floor |
+
+> **Exam tip:** More fallback candidates doesn't change the check order —
+> each candidate is evaluated availability-then-rate-limits-then-cost in
+> priority order, and the chain only fails over to a human once *every*
+> candidate has failed at least one check, not after the first candidate
+> alone fails.
+
 > **Exam tip:** A fallback chain retries against a **different** model
 > after the preferred one fails — not a retry of the *same* model (that's
 > [resilience patterns](part-3-deployment-and-troubleshooting.md#5-resilience-patterns-retry-backoff-circuit-breaker),
@@ -162,10 +186,18 @@ low-latency/high-accuracy split.
 > rate limits, so an available answer always beats a cheaper one that's
 > never attempted.
 
-Full explanation, the decision flowchart, three worked examples (routing
-a dashboard-and-batch analytics feature, a three-candidate customer
-support fallback chain), and Bedrock/SageMaker implementation detail:
-[full guide, Multi-model routing and fallback
+**Worked example, condensed — routing a dashboard-and-batch analytics
+feature by latency sensitivity:** one application serves both a
+real-time dashboard query (a user watches a loading spinner) and an
+overnight batch narrative report (no user watching).
+
+| Request type | Latency sensitivity | Reasoning depth needed | Volume | Availability requirement | Resolution |
+|---|---|---|---|---|---|
+| Real-time dashboard query | High — interactive | Low — a narrow question against a known schema | High — thousands/day, cost compounds | Yes — must still respond if the model fails | **Claude Haiku**, strict-routed by API endpoint, with a **fallback chain** to Amazon Nova Micro |
+| Overnight batch report | None — no user waiting | High — synthesizes a full day into a narrative | Low — once per customer per night | No — can simply retry the job later | **Claude Opus**, strict-routed, no fallback (same-job retry on failure) |
+
+Full explanation, the decision flowchart, and Bedrock/SageMaker
+implementation detail: [full guide, Multi-model routing and fallback
 strategies](../domain-3-applications-of-foundation-models.md#multi-model-routing-and-fallback-strategies-routing-requests-to-the-right-model-at-request-time).
 
 ---
@@ -378,19 +410,36 @@ flowchart TD
 
 **QLoRA in production — two extra gaps the exam can test:**
 
-- **Inference latency depends on *how the adapter is served*, not on
-  which technique trained it.** A **merged** adapter (folded back into
-  base weights after training) serves at the same latency as full
-  fine-tuning — a QLoRA-merged model must first dequantize to fp16/bf16,
-  which discards its memory savings at serving time. An **unmerged**
-  adapter (kept separate so many task/customer adapters can share one
-  base model) adds a small latency tax for LoRA, and both that tax *and*
-  a repeated dequantization cost for QLoRA. **QLoRA can't be both
-  low-memory and low-latency at serving time** — pick one.
-- **Quality degradation generalizes across metrics**, not just one
-  worked example's ROUGE-L: LoRA typically costs ~1-2 points of
-  BLEU/ROUGE/F1 (~98-99% relative); QLoRA typically costs ~2-5 points
-  (~93-97% relative), as order-of-magnitude approximations.
+**1. Inference latency depends on *how the adapter is served*, not on
+which technique trained it.** A **merged** adapter (folded back into base
+weights after training) serves at the same latency as full fine-tuning —
+a QLoRA-merged model must first dequantize to fp16/bf16, which discards
+its memory savings at serving time. An **unmerged** adapter (kept
+separate so many task/customer adapters can share one base model) adds a
+small latency tax for LoRA, and both that tax *and* a repeated
+dequantization cost for QLoRA:
+
+| Serving strategy | Approx. latency (vs. full fine-tuning) | Memory footprint at serving | When it's used |
+|---|---|---|---|
+| Full fine-tuning (dense weights) | 1.0x (baseline) | Full model size | Single dedicated task |
+| LoRA, merged | ~1.0x | Full model size | Single task, zero runtime overhead wanted |
+| LoRA, unmerged | ~1.05-1.15x | Full model size + tiny adapter | Multiple task adapters sharing one base model |
+| QLoRA, merged (dequantized) | ~1.0x | Full model size (savings lost) | Trained cheaply, then served like a normal model |
+| QLoRA, unmerged (served quantized) | ~1.15-1.3x | Reduced (quantized base + adapter) | Memory-constrained serving, or many adapters on one quantized base |
+
+**QLoRA can't be both low-memory and low-latency at serving time** — pick
+one: dequantize/merge for baseline latency, or stay quantized for the
+memory saving and accept the latency tax.
+
+**2. Quality degradation generalizes across metrics**, not just one
+worked example's ROUGE-L (illustrative, order-of-magnitude figures
+relative to full fine-tuning as the 100% reference):
+
+| Technique | BLEU (translation/generation) | ROUGE-L (summarization) | F1 (classification/extraction) |
+|---|---|---|---|
+| Full fine-tuning | Reference (100%) | Reference (100%) | Reference (100%) |
+| LoRA | -0.5 to -2 points (~98-99% relative) | -1 to -2 points (~98-99% relative) | -0.5 to -1.5 points (~98-99% relative) |
+| QLoRA | -1.5 to -4 points (~93-97% relative) | -2 to -5 points (~93-97% relative) | -1 to -3 points (~93-97% relative) |
 
 **Decision guidance:** define the task's quality floor *first* (a metric
 threshold or a safety-error rate), never start from "QLoRA is cheaper."
@@ -530,10 +579,24 @@ same small set.
 > raise a flag: the model risks learning the generating model's errors
 > and biases rather than ground truth.
 
-Full explanation and the worked example (an insurance company curating
-600 claims-adjuster notes — fixing class imbalance, a 6% label-error
-rate, and thin diversity before training): [full guide, Curating a
-fine-tuning
+**Worked example, condensed — curating 600 claims-adjuster notes for an
+8-category classification fine-tune (LoRA on a ≤13B model):** 600
+examples clears the ~100-500 minimum, but the checklist catches four
+independent problems volume alone can't:
+
+| Checklist item | What the audit found | Fix applied |
+|---|---|---|
+| Class balance | "Approved" = 480 of 600 (80%); "requires manual review" = only 12 | **Oversample** minority classes; add a bounded number of reviewed **synthetic** notes for the rarest classes |
+| Diversity | Nearly all notes came from one regional office's writing style | Deliberately source additional real notes from other regional offices |
+| Label correctness | 6% label-error rate, concentrated at one category boundary | Relabel the audited errors using a clarified rubric |
+| Edge-case coverage | Almost no conflicting/incomplete-information claims | Deliberately add examples of exactly that boundary case |
+
+The team then holds out a stratified 15% validation split and trains with
+LoRA using early stopping — the fixes target the checklist failures
+directly, rather than just collecting more data of the same skewed,
+error-prone shape.
+
+Full explanation: [full guide, Curating a fine-tuning
 dataset](../domain-3-applications-of-foundation-models.md#curating-a-fine-tuning-dataset-size-thresholds-a-quality-checklist-and-synthetic-vs-real-data).
 
 ---

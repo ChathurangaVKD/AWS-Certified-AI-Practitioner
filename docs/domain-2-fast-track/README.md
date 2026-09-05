@@ -423,6 +423,15 @@ for the complete math.)
 > **few-shot**. Unwanted elements in generated images → **negative
 > prompting**.
 
+**AWS example:** a developer testing prompts in **PartyRock** or the
+**Amazon Bedrock** console starts with a **zero-shot** prompt to classify
+support tickets by urgency; accuracy is inconsistent, so they switch to
+**few-shot** prompting with five labeled examples. For a
+refund-eligibility task needing multi-step reasoning, they add
+**chain-of-thought** instructions. For an image-generation use case with
+**Amazon Nova Canvas**, they add **negative prompting** ("no logos, no
+people") and lower **temperature** for more predictable formatting.
+
 ## 7. Foundation model selection criteria
 
 | Factor | Ask yourself |
@@ -656,6 +665,8 @@ bare token-cost comparison leaves out entirely.
 
 ## Rapid-fire key terms
 
+> Looking for a term from another domain? [`docs/master-glossary.md`](../master-glossary.md) indexes every domain's key terms alphabetically with domain tags (e.g. `[D1, D3]`) and links back to the full guide.
+
 - **Generative AI** — subset of deep learning where models generate new
   content rather than only predicting a label or number.
 - **Foundation model (FM)** — large model pretrained on broad data,
@@ -768,6 +779,14 @@ guide's practice set.
 - [ ] Lowering temperature doesn't lower the per-token **price** — it
       lowers cost/latency *indirectly*, via fewer retries and shorter
       completions.
+- [ ] A **real-time, interruptible voice** requirement points to a
+      speech-to-speech model (**Nova Sonic**); an **asynchronous**
+      transcription/summarization task is fine with a
+      Transcribe-plus-text-FM-plus-Polly pipeline.
+- [ ] When a scenario states a page count, word count, or chunk count,
+      convert to tokens (**1 token ≈ ¾ word**) and add prompt/response
+      overhead *before* comparing against a model's context window — a
+      request over the limit is rejected, not silently trimmed.
 
 ---
 
@@ -784,6 +803,7 @@ architecture, responsible AI, and security:
 | [Domain 3, Section 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) | Embeddings and vector stores | Domain 2 defines tokens/embeddings; Domain 3 §6 makes the choice operational for a real RAG pipeline |
 | [Domain 4, Section 2](../domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) | Hallucination vs. fairness-driven skew | Domain 2 teaches hallucination as a generic limitation; Domain 4 §2 distinguishes it from a demographic output skew |
 | [Domain 5, security threats section](../domain-5-security-compliance-governance.md#common-security-threats-to-ai-systems-and-how-to-mitigate-them) | Prompt injection | Domain 2 teaches how to *build* a prompt; Domain 5 covers how an attacker manipulates that same construction |
+| [Domain 5, Section 4](../domain-5-security-compliance-governance.md#4-data-governance-strategies) | Data lineage for pretraining/fine-tuning data | The sourcing of the data behind an FM chosen in Domain 2 is exactly what Domain 5 §4 requires you to track for lineage, residency, and monitoring compliance |
 
 ---
 

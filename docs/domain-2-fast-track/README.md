@@ -55,6 +55,7 @@ prose, mini-quiz, and AWS example behind any condensed table below:
 - [6. Prompt engineering fundamentals](#6-prompt-engineering-fundamentals)
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
 - [RAG architecture at a glance](#rag-architecture-at-a-glance)
+- [AWS generative AI services comparison](#aws-generative-ai-services-comparison)
 - [AWS service → use case table](#aws-service-use-case-table)
 - [Worked-example distillations](#worked-example-distillations)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
@@ -286,6 +287,23 @@ output indicator**.
 | **Negative prompting** | Tell the model what **not** to include or do (common in image generation, e.g., "no text, no watermark") | No |
 | **Fine-tuning** *(contrast, not a prompting technique)* | Retrains the model's weights on labeled examples | **Yes** |
 
+**Picking a technique from a scenario** — match the reported symptom to
+the lightest-touch fix, and only reach for fine-tuning once prompting
+alone can't fix the *specific* problem described:
+
+```mermaid
+graph TD
+    START["What does the\nscenario report?"] --> Q1{"Task needs multi-step\nreasoning/arithmetic?"}
+    Q1 -->|"Yes"| COT["Chain-of-thought prompting"]
+    Q1 -->|"No"| Q2{"Output format/style\ninconsistent across calls?"}
+    Q2 -->|"Yes"| FEWSHOT["Few-shot prompting\n(example input/output pairs)"]
+    Q2 -->|"No"| Q3{"Unwanted elements in\ngenerated images/text?"}
+    Q3 -->|"Yes"| NEG["Negative prompting"]
+    Q3 -->|"No"| Q4{"Simple task a capable\nmodel already handles?"}
+    Q4 -->|"Yes"| ZERO["Zero-shot prompting"]
+    Q4 -->|"No — needs a\npermanent behavior/style\nchange to the model itself"| FT["Fine-tuning\n(retrains weights — not\na prompting technique)"]
+```
+
 Other tested concepts: **prompt template** (reusable prompt structure
 with placeholders for variable content) and **prompt injection**
 (malicious input tries to override a prompt's original instructions —
@@ -379,6 +397,19 @@ modality** first, then by capability tier:
 | **Nova Reel** | Text/image → video | Priced per second | Short-form video generation (async) |
 | **Nova Sonic** | Speech → speech | Priced per duration | Real-time speech-to-speech (voice assistants, IVR) |
 
+```mermaid
+graph TD
+    START["What output modality\ndoes the scenario need?"] --> Q1{"Output modality"}
+    Q1 -->|"Text"| TIER{"How complex is the\nreasoning task?"}
+    Q1 -->|"Image"| CANVAS["Nova Canvas"]
+    Q1 -->|"Video"| REEL["Nova Reel"]
+    Q1 -->|"Real-time speech"| SONIC["Nova Sonic"]
+    TIER -->|"Simple, high-volume,\ntext only"| MICRO["Nova Micro"]
+    TIER -->|"Lightweight, needs\nimage/video understanding"| LITE["Nova Lite"]
+    TIER -->|"Balanced multimodal\nRAG/agentic reasoning"| PRO["Nova Pro"]
+    TIER -->|"Most complex multi-step\nmultimodal reasoning"| PREMIER["Nova Premier"]
+```
+
 > **Exam tip:** Inside the **text** tiers, Micro/Lite/Pro/Premier climb
 > together in cost/latency/capability — pick the cheapest tier that meets
 > the accuracy bar. **Canvas**, **Reel**, and **Sonic** are *not* a
@@ -424,6 +455,29 @@ without retraining."
 > fine-tuning**, not RAG. RAG grounds answers in data — it does **not**
 > restore interpretability or guarantee correctness, and it does not by
 > itself reduce nondeterminism.
+
+## AWS generative AI services comparison
+
+The full guide's [comparison
+table](../domain-2-fundamentals-of-generative-ai.md#comparison-table-aws-generative-ai-services-at-a-glance)
+lines up every service from [Section 5](#5-aws-generative-ai-services-and-capabilities)
+against **customization level**, since that's the axis the exam actually
+tests — not just "what is it":
+
+| Service | What it is | Primary use case | Customization level | When to choose it |
+|---|---|---|---|---|
+| **Amazon Bedrock** | Fully managed access to multiple FMs via one API | Build custom generative AI applications (chat, RAG, agents, content generation) | High — prompt engineering, RAG, fine-tuning, agents, guardrails | Programmatic, production integration with a choice of FMs and fine-grained control |
+| **Knowledge Bases for Amazon Bedrock** | Managed RAG capability within Bedrock | Ground FM answers in your own data without retraining | Medium — configure data sources and retrieval | Up-to-date, proprietary-data-grounded answers without fine-tuning |
+| **Agents for Amazon Bedrock** | Managed orchestration for multi-step FM task execution | FM plans and calls your APIs/Lambda to complete tasks | Medium-High — define actions/APIs | The FM needs to take multi-step actions, not just answer questions |
+| **Amazon Q Business** | Pre-built enterprise assistant | Answer questions/summarize/act over company data and systems | Low — connect data sources, minimal setup | A ready-made assistant fast, with built-in access controls, no custom app logic needed |
+| **Amazon Q Developer** | Generative AI coding companion | Code suggestions, code explanation, security scans, AWS resource Q&A | Low — install/enable, no model management | Developer productivity and AWS troubleshooting, not a custom end-user app |
+| **Amazon SageMaker JumpStart** | Model hub inside SageMaker | Deploy/fine-tune pretrained FMs and ML solutions with deep infra control | High — full SageMaker MLOps control | Deep customization/infra control, or FMs alongside traditional SageMaker ML pipelines |
+| **PartyRock** | No-code Bedrock playground | Rapid, free, hands-on prompt/FM experimentation and prototyping | Low — no code, no infra | Learning prompt engineering or quickly prototyping an idea, not production workloads |
+
+> **Exam tip:** the more "out of the box" a scenario needs, the more the
+> answer shifts toward **Amazon Q** or **PartyRock**; the more custom,
+> production-grade integration and control it needs, the more it shifts
+> toward **Amazon Bedrock** or **SageMaker JumpStart**.
 
 ## AWS service → use case table
 
@@ -652,7 +706,7 @@ architecture, responsible AI, and security:
 ## Where to go deeper
 
 This fast track intentionally omits the full guide's step-by-step worked
-examples, AWS-example paragraphs, mini-quizzes, and 20-question practice
+examples, AWS-example paragraphs, mini-quizzes, and 24-question practice
 set. Go back to the full guide for:
 
 - [Domain overview and exam weighting](../domain-2-fundamentals-of-generative-ai.md#domain-overview)
@@ -664,6 +718,25 @@ set. Go back to the full guide for:
 - Mini-quizzes embedded after each numbered section
 - [Practice questions with a full answer
   key](../domain-2-fundamentals-of-generative-ai.md#practice-questions)
+
+**What the 24 full-guide practice questions cover, by topic**, so you can
+tell which of the tables above to re-check if you miss one:
+
+| Question(s) | Topic |
+|---|---|
+| 1 | Nondeterminism vs. hallucination |
+| 2, 7 | Amazon Bedrock; PartyRock |
+| 3, 13 | RAG; embeddings + vector database for semantic search (select two) |
+| 4 | Self-attention |
+| 5, 9 | Chain-of-thought prompting; negative prompting |
+| 6, 20 | Lack of interpretability ("black box"); hallucination |
+| 8 | Temperature |
+| 10, 14, 18 | Amazon Q Business; Amazon Q Developer; SageMaker JumpStart |
+| 11, 16 | Context window; latency as the binding selection criterion |
+| 12 | Few-shot prompting vs. fine-tuning |
+| 15, 17 | Foundation model definition; token definition |
+| 19, 21, 23, 24 | Business use cases: summarization, content creation with negative prompting, search + summarization pairing, multi-initiative mapping |
+| 22 | Amazon Q Business vs. custom Bedrock application, paired to the right requirement |
 
 For an even more condensed, bullets-only cram sheet, see
 [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) in this same directory. For

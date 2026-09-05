@@ -492,7 +492,7 @@ Combined, the ten cross-domain support documents listed above total
 581; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
 `master-glossary.md`: 238; `GLOSSARY.md`: 229), and all seventeen files
 together — `README.md`, the five domain guides, the ten cross-domain support
-documents, and this file — total **22,260 lines**.
+documents, and this file — total **22,269 lines**.
 
 ## Cross-linking architecture
 

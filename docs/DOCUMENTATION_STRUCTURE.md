@@ -485,6 +485,15 @@ the sixteen `docs/` files is reachable from `README.md`'s study plan within
 two clicks (either linked directly, or linked from a domain guide's
 breadcrumb or glossary that README.md itself links to).
 
+Combined, the ten cross-domain support documents listed above total
+**5,413 lines** (`aws-service-index.md`: 159; `aws-service-decision-guide.md`:
+793; `cross-domain-concept-map.md`: 281; `cross-domain-scenario-questions.md`:
+440; `case-study-ai-system-lifecycle.md`: 279; `exam-preparation-strategy.md`:
+581; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
+`master-glossary.md`: 238; `GLOSSARY.md`: 229), and all seventeen files
+together — `README.md`, the five domain guides, the ten cross-domain support
+documents, and this file — total **22,269 lines**.
+
 ## Cross-linking architecture
 
 The documents above are not independent files that happen to share a

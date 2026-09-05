@@ -102,6 +102,110 @@ class TestDocumentationStructureLineCounts(unittest.TestCase):
                 )
 
 
+class TestDocumentationStructureCrossDomainLineCounts(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's "Complete file inventory" section states
+    a combined line count for the ten cross-domain support documents and a
+    grand total across all seventeen tracked Markdown files. Both figures
+    must match the files' actual current line counts so they don't silently
+    drift stale as the cross-domain documents grow (as previously happened:
+    the section once stated 5,931 lines for the ten cross-domain documents
+    when they actually totaled 5,413)."""
+
+    CROSS_DOMAIN_LINE_COUNT_FILES = [
+        "aws-service-index.md",
+        "aws-service-decision-guide.md",
+        "cross-domain-concept-map.md",
+        "cross-domain-scenario-questions.md",
+        "case-study-ai-system-lifecycle.md",
+        "exam-preparation-strategy.md",
+        "full-length-mock-exam.md",
+        "mock-exam.md",
+        "master-glossary.md",
+        "GLOSSARY.md",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.normalized_text = re.sub(r"\s+", " ", cls.structure_text)
+
+    def test_stated_per_file_cross_domain_line_counts_match_actual(self):
+        for filename in self.CROSS_DOMAIN_LINE_COUNT_FILES:
+            actual = _line_count(DOCS_DIR / filename)
+            formatted = f"{actual:,}"
+            match = re.search(
+                r"`" + re.escape(filename) + r"`:\s*([\d,]+)",
+                self.normalized_text,
+            )
+            with self.subTest(filename=filename):
+                self.assertIsNotNone(
+                    match,
+                    "DOCUMENTATION_STRUCTURE.md does not state a per-file "
+                    f"line count for {filename} in the cross-domain support "
+                    "documents breakdown",
+                )
+                stated = int(match.group(1).replace(",", ""))
+                self.assertEqual(
+                    stated,
+                    actual,
+                    f"DOCUMENTATION_STRUCTURE.md states {stated} lines for "
+                    f"{filename}, but it actually has {actual} ({formatted}) "
+                    "lines",
+                )
+
+    def test_stated_cross_domain_support_total_matches_actual(self):
+        match = re.search(
+            r"ten cross-domain support documents listed above total "
+            r"\*\*([\d,]+) lines\*\*",
+            self.normalized_text,
+        )
+        self.assertIsNotNone(
+            match,
+            "expected DOCUMENTATION_STRUCTURE.md to state a combined line "
+            "count for the ten cross-domain support documents",
+        )
+        stated = int(match.group(1).replace(",", ""))
+        actual = sum(
+            _line_count(DOCS_DIR / name)
+            for name in self.CROSS_DOMAIN_LINE_COUNT_FILES
+        )
+        self.assertEqual(
+            stated,
+            actual,
+            f"DOCUMENTATION_STRUCTURE.md states the ten cross-domain "
+            f"support documents total {stated} lines, but they actually "
+            f"total {actual} lines",
+        )
+
+    def test_stated_grand_total_matches_actual_files(self):
+        totals_stated = re.findall(
+            r"total \*\*([\d,]+) lines\*\*", self.normalized_text
+        )
+        self.assertEqual(
+            len(totals_stated),
+            2,
+            "expected exactly two stated line-count totals in the "
+            "'Complete file inventory' section (the ten cross-domain "
+            f"documents, then the seventeen-file grand total), found "
+            f"{len(totals_stated)}",
+        )
+        grand_stated = int(totals_stated[-1].replace(",", ""))
+        all_files = (
+            [README_PATH]
+            + list(DOMAIN_FILES.values())
+            + [DOCS_DIR / name for name in self.CROSS_DOMAIN_LINE_COUNT_FILES]
+            + [STRUCTURE_DOC]
+        )
+        grand_actual = sum(_line_count(path) for path in all_files)
+        self.assertEqual(
+            grand_stated,
+            grand_actual,
+            "DOCUMENTATION_STRUCTURE.md states the seventeen tracked "
+            f"files total {grand_stated} lines, but they actually total "
+            f"{grand_actual} lines",
+        )
+
+
 class TestDocumentationStructureCrossDomainMaterials(unittest.TestCase):
     """cross-domain-scenario-questions.md must be documented alongside the
     repo's other cross-domain support materials."""

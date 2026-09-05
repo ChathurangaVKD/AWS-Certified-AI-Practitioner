@@ -35,7 +35,7 @@ prose, mini-quiz, and AWS example behind any condensed table below:
 | This fast track | Full guide section | Approx. full-guide lines |
 |---|---|---|
 | 1. Transformer architecture and core concepts | [Section 1](../domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) | 52–299 |
-| 2. Foundation model / LLM lifecycle | [Section 2](../domain-2-fundamentals-of-generative-ai.md#2-llm-lifecycle-basics) | 300–441 |
+| 2. Foundation model and LLM lifecycle | [Section 2](../domain-2-fundamentals-of-generative-ai.md#2-llm-lifecycle-basics) | 300–441 |
 | 3. Advantages and disadvantages of generative AI | [Section 3](../domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) | 442–540 |
 | 4. Business use cases | [Section 4](../domain-2-fundamentals-of-generative-ai.md#4-business-use-cases-for-generative-ai) | 541–625 |
 | 5. AWS generative AI services and capabilities | [Section 5](../domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) | 626–742 |
@@ -48,7 +48,7 @@ prose, mini-quiz, and AWS example behind any condensed table below:
 ## Table of contents
 
 - [1. Transformer architecture and core concepts](#1-transformer-architecture-and-core-concepts)
-- [2. Foundation model / LLM lifecycle](#2-foundation-model--llm-lifecycle)
+- [2. Foundation model and LLM lifecycle](#2-foundation-model-and-llm-lifecycle)
 - [3. Advantages and disadvantages of generative AI](#3-advantages-and-disadvantages-of-generative-ai)
 - [4. Business use cases](#4-business-use-cases)
 - [5. AWS generative AI services and capabilities](#5-aws-generative-ai-services-and-capabilities)
@@ -145,7 +145,7 @@ graph TD
     Q3 -->|"Yes — large labeled\ndataset, high-stakes accuracy"| FT["Fine-tune an embedding model\n(e.g., via SageMaker)\n$$$ · highest accuracy, needs retraining as data drifts"]
 ```
 
-## 2. Foundation model / LLM lifecycle
+## 2. Foundation model and LLM lifecycle
 
 The generative AI lifecycle mirrors [Domain 1's ML development
 lifecycle](../domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle),

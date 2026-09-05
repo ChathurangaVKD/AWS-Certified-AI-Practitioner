@@ -30,7 +30,8 @@ DOC_PATH = DOCS_DIR / "cross-domain-scenario-questions.md"
 README_PATH = REPO_ROOT / "README.md"
 
 MIN_QUESTIONS = 10
-MAX_QUESTIONS = 22
+MAX_QUESTIONS = 30
+MIN_THREE_PLUS_DOMAIN_QUESTIONS = 4
 
 DIFFICULTY_RE = re.compile(r"\*\*\[(Beginner|Intermediate|Advanced)\]\*\*")
 DOMAIN_TAG_RE = re.compile(r"\*\(Domains?\s+([0-9,\s]+)\)\*")
@@ -214,6 +215,56 @@ class TestCrossDomainScenarioQuestions(unittest.TestCase):
             "cross-domain questions collectively should span at least 4 "
             "distinct domains, not repeatedly pair the same two",
         )
+
+    def test_includes_multiple_three_or_more_domain_questions(self):
+        # The original 22-question set was entirely pairwise (exactly two
+        # domains per answer), which left no practice for the real exam's
+        # (and this repo's own case-study-ai-system-lifecycle.md's) habit
+        # of layering three or more domains into a single scenario. This
+        # asserts that gap is actually closed, not just documented.
+        blocks = _blocks(self.answers_section)
+        three_plus_count = 0
+        for block in blocks:
+            tag_match = DOMAIN_TAG_RE.search(block)
+            if not tag_match:
+                continue
+            domains = {int(d) for d in re.findall(r"[0-9]+", tag_match.group(1))}
+            if len(domains) >= 3:
+                three_plus_count += 1
+
+        self.assertGreaterEqual(
+            three_plus_count,
+            MIN_THREE_PLUS_DOMAIN_QUESTIONS,
+            "expected at least "
+            f"{MIN_THREE_PLUS_DOMAIN_QUESTIONS} scenario questions whose "
+            "answer is tagged with three or more distinct domains -- "
+            "genuine 3+ domain reasoning, not just pairwise combinations",
+        )
+
+    def test_three_or_more_domain_questions_are_advanced(self):
+        # Every current 3+ domain question is tagged Advanced; verify any
+        # question whose answer spans 3+ domains carries that difficulty
+        # tag, since layering that many concepts together is inherently
+        # harder than a pairwise question.
+        q_blocks = {
+            int(b.split(".", 1)[0]): b for b in _blocks(self.questions_section)
+        }
+        a_blocks = _blocks(self.answers_section)
+        for block in a_blocks:
+            anum = int(block.split(".", 1)[0])
+            tag_match = DOMAIN_TAG_RE.search(block)
+            if not tag_match:
+                continue
+            domains = {int(d) for d in re.findall(r"[0-9]+", tag_match.group(1))}
+            if len(domains) >= 3:
+                with self.subTest(question=anum):
+                    self.assertIn(
+                        "[Advanced]",
+                        q_blocks[anum],
+                        f"question {anum} draws on 3+ domains "
+                        f"({sorted(domains)}) and should be tagged "
+                        "[Advanced]",
+                    )
 
 
 if __name__ == "__main__":

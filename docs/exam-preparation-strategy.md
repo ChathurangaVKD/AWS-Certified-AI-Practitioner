@@ -26,6 +26,13 @@ This guide does not introduce new exam content — every fact and trap here is
 drawn from (and links back to) the five domain guides. Use it as the
 "how do I actually prepare" companion to their "what do I need to know."
 
+Once you start taking practice questions, mini-quizzes, scenario
+questions, and mock exams from a study plan below, log every attempt's
+score in [`study-progress-tracker.md`](study-progress-tracker.md) — it's a
+blank template for spotting which domains keep scoring low across
+multiple attempts, so retakes accumulate into a signal instead of getting
+forgotten between sessions.
+
 ---
 
 ## 1. Exam format and time management

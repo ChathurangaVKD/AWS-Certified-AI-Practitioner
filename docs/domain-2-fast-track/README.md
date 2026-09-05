@@ -118,6 +118,16 @@ back to "cat," six tokens earlier, correctly resolving the pronoun.
 > database** (where those arrays live). Also expect a **tokens ≠ words**
 > question — a single word can be multiple tokens.
 
+**AWS example:** a retailer wants a chatbot that answers questions using
+its internal product catalog. Catalog documents are converted into
+**embeddings** and stored as **vectors** in Amazon OpenSearch Service.
+When a customer asks a question, it's embedded the same way, and
+OpenSearch finds the closest catalog vectors — the retrieval step of
+**RAG**, orchestrated by **Knowledge Bases for Amazon Bedrock**, which
+passes the retrieved text plus the question as a prompt to an LLM (e.g.,
+Claude on Bedrock) to generate the answer. See [RAG architecture at a
+glance](#rag-architecture-at-a-glance) for the full six-step flow.
+
 **Choosing an embedding model** is a genuine cost/accuracy trade-off, not
 "always pick the best model." Work down the tree only as far as needed —
 jumping straight to fine-tuning "to be safe" usually just adds training
@@ -183,6 +193,14 @@ inference time* — it never touches model weights. **Fine-tuning** and
 **continued pre-training** both retrain weights, on labeled task data and
 unlabeled domain corpora respectively.
 
+**AWS example:** a software company scopes an internal support assistant,
+selects a mid-size text FM in **Amazon Bedrock**, first tries plain
+**prompt engineering**, finds answers aren't grounded in the actual
+runbooks, adds **Knowledge Bases for Amazon Bedrock** for RAG, evaluates
+output quality with **Amazon Bedrock Model Evaluation**, deploys through
+the Bedrock API, and monitors invocation metrics and feedback with
+CloudWatch — iterating on retrieval and prompt design as gaps surface.
+
 ## 3. Advantages and disadvantages of generative AI
 
 | Advantage | What it means |
@@ -199,6 +217,15 @@ unlabeled domain corpora respectively.
 | **Inaccuracy** | Output is simply wrong/outdated/low quality — distinct from confidently fabricating | Model evaluation, RAG, fine-tuning on better data |
 | **Nondeterminism** | Same prompt → **different outputs across runs** (sampling from a probability distribution) | Lower temperature/top-p/top-k (reduces, doesn't eliminate) |
 | **Cost and compute intensity** | Large FMs, long context windows, and retries can be expensive at scale | Right-size the model; cap max tokens; lower temperature to cut retries |
+
+**AWS example:** a legal team drafts contract summaries with an FM on
+Bedrock (**adaptability**, **responsiveness**), then finds it occasionally
+cites a clause number that doesn't exist (**hallucination**). They add
+**RAG** via **Knowledge Bases for Amazon Bedrock** to ground responses in
+the actual document, lower **temperature** to cut **nondeterminism**, and
+require human review before anything reaches a client — since full
+**interpretability** of *why* the model chose particular wording isn't
+available regardless of these mitigations.
 
 > **Exam tip:** **Hallucination** (confidently fabricating specifics) ≠
 > **inaccuracy** (just wrong/low quality) — the exam tests this
@@ -221,6 +248,25 @@ Other exam-relevant use cases: translation, personalization of generated
 content, **data augmentation** (synthetic training data for other ML
 models), and text-to-image/text-to-video generation for design and
 marketing.
+
+**One company, five initiatives at once** — a favorite scenario shape
+maps each stated initiative to exactly one use case and one AWS service,
+never more than one of each:
+
+```mermaid
+graph LR
+    RELEASE["Auto-generate release\nnotes from commits"] --> CC["Content creation"]
+    TICKETS["Condense long\nsupport tickets"] --> SUMM["Summarization"]
+    SELFSERVE["Customer\nself-service bot"] --> CHAT["Chatbot"]
+    DEVWORK["Help developers write\n/ refactor code"] --> CODEGEN["Code generation"]
+    DOCSEARCH["Find docs by meaning,\nnot exact keywords"] --> SEARCH["Search"]
+
+    CC -.-> BEDROCK["Amazon Bedrock /\nAmazon Nova Canvas"]
+    SUMM -.-> BEDROCK
+    CHAT -.-> QBIZ["Amazon Q Business"]
+    CODEGEN -.-> QDEV["Amazon Q Developer"]
+    SEARCH -.-> OSVEC["OpenSearch Service +\nBedrock Knowledge Bases"]
+```
 
 > **Exam tip:** "Assistant grounded in **their own enterprise data with
 > minimal setup**" → prefer the purpose-built **Amazon Q Business** over a
@@ -263,6 +309,15 @@ SageMaker's ecosystem.
 **PartyRock** — a free, no-code Amazon Bedrock **Playground** website for
 experimenting with FMs and prototyping simple generative AI apps quickly
 — for learning/rapid prototyping, not production workloads.
+
+**AWS example:** a company lets non-technical staff prototype a hackathon
+app in **PartyRock**, builds a production chatbot grounded in its own
+knowledge base with full API control in **Amazon Bedrock**, gives
+employees an out-of-the-box assistant over SharePoint/Salesforce with
+**Amazon Q Business**, speeds up code review with **Amazon Q Developer**,
+and fine-tunes an open-source FM inside its existing SageMaker MLOps
+pipelines with **Amazon SageMaker JumpStart** — five different needs, five
+different services, one account.
 
 > **Exam tip:** "No-code, quick experimentation" → **PartyRock**; "fully
 > managed, single API across multiple FMs, minimal infra" → **Amazon
@@ -378,6 +433,15 @@ for the complete math.)
 | **Context window** | Is the input (plus any retrieved context) small enough to fit without chunking? |
 | **Fine-tuning / customization support** | Can this model/provider be fine-tuned or continued-pre-trained if needed? |
 | **Model size, accuracy, licensing** | Parameter count as a rough capability/cost proxy; validate accuracy with **Amazon Bedrock Model Evaluation**; check compliance/licensing terms |
+
+**AWS example:** a real-time customer chatbot needs **low latency** and
+only **text** modality, so the team picks a smaller, fast text FM instead
+of a large multimodal one. A separate team summarizing lengthy legal
+contracts needs a **large context window** to avoid chunking, and isn't
+latency-sensitive since summaries run as an overnight batch job — a
+different FM optimized for long-context accuracy over speed. Both teams
+compare candidates with **Amazon Bedrock Model Evaluation** before
+committing.
 
 > **Exam tip:** Scenarios give **two or three constraints at once**
 > ("real-time," "very long documents," "fixed budget") and expect you to

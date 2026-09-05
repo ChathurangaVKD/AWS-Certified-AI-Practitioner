@@ -353,11 +353,11 @@ pairs" quick-reference table, and the two Mermaid diagrams already counted
 above (the "Visual overview" cross-domain flowchart and the "Inference
 deployment pattern comparison" decision tree).
 
-**`cross-domain-scenario-questions.md`** carries 22 scenario questions,
+**`cross-domain-scenario-questions.md`** carries 27 scenario questions,
 each requiring concepts from 2 or more domains at once to answer — the
 kind of blended scenario the actual exam favors over single-domain recall
 — plus a full `## Answer key` explaining which domain each part of the
-question draws on.
+question draws on. Five of the 27 (questions 23–27) require 3+ domains.
 
 **`case-study-ai-system-lifecycle.md`** follows one fictional company,
 Solstice Outdoors, and one system, Trailhead, through all five domains in
@@ -409,15 +409,16 @@ of self-testing:
   embedded as short "Mini-quiz" call-outs directly under the subsection
   they test, distinct from each domain's closing `## Practice questions`
   section.
-- **Cross-domain scenario questions:** 22 questions in
-  `cross-domain-scenario-questions.md`, each spanning 2 or more domains.
+- **Cross-domain scenario questions:** 27 questions in
+  `cross-domain-scenario-questions.md`, each spanning 2 or more domains
+  (5 of the 27 spanning 3 or more).
 - **Mock exams:** 65 questions each in `full-length-mock-exam.md` and
   `mock-exam.md` (130 combined), simulating the real AIF-C01 format and
   timing.
 
 **Total assessment:** 129 domain practice questions + 65 mock-exam questions +
-22 scenario questions + 35 embedded mini-quiz questions =
-251 total practice items across the repository (this excludes the second
+27 scenario questions + 35 embedded mini-quiz questions =
+256 total practice items across the repository (this excludes the second
 65-question `mock-exam.md`, which is a second, independent practice pool
 with a completely different set of questions—meant to be taken as a
 follow-up rehearsal after re-studying weak domains from the first exam).

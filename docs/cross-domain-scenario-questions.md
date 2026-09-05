@@ -13,17 +13,22 @@ Domain 3 customization method *and* checking that it satisfies a Domain 5
 security requirement in the same breath, or picking a Domain 1 learning
 type while weighing a Domain 4 fairness concern.
 
-This document collects 22 scenario questions that each require knowledge
+This document collects 27 scenario questions that each require knowledge
 from **two or more domains** to answer correctly — you cannot eliminate
-every wrong option using only one domain's vocabulary. See the
-[cross-domain concept map](cross-domain-concept-map.md) for the underlying
-concept-to-concept connections these questions draw on, and each domain
-guide linked above for the full depth on any single concept referenced
-here.
+every wrong option using only one domain's vocabulary. Most pair up two
+domains, but questions 23–27 go further and each require reasoning across
+**three or more domains at once** (one spans all five), mirroring how the
+[end-to-end case study](case-study-ai-system-lifecycle.md) traces a single
+AI system through every domain rather than isolating one at a time. See
+the [cross-domain concept map](cross-domain-concept-map.md) for the
+underlying concept-to-concept connections these questions draw on, and
+each domain guide linked above for the full depth on any single concept
+referenced here.
 
 Each question is tagged with a difficulty level
 (**[Beginner]**/**[Intermediate]**/**[Advanced]**) and each answer names
-the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
+the two or more domains it draws on, e.g. `*(Domains 3, 5)*` — or three or
+more for questions 23–27, e.g. `*(Domains 1, 3, 4, 5)*`.
 
 ---
 
@@ -281,6 +286,80 @@ the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
     C. Routing low-confidence cases to a human reviewer defeats the purpose of automation and should be avoided for the sake of consistency
     D. Raising the model's temperature parameter allows it to signal low-confidence predictions for human review
 
+23. **[Advanced]** A genomics research firm wants to build an internal
+    Amazon Bedrock-based assistant that answers scientists' questions using
+    proprietary, unpublished genomic sequence data stored in Amazon S3.
+    Auditors require (1) a verifiable record of exactly which raw dataset
+    version and processing job fed the data the assistant draws on, (2)
+    that the proprietary sequences never become extractable from the
+    model's own weights, and (3) that all storage and processing stay
+    within one required AWS Region, with cross-Region replication
+    disabled. Which combination of choices satisfies all three
+    requirements?
+    A. Fine-tune a foundation model directly on the full sequence dataset, and enable multi-Region replication for disaster recovery
+    B. Use Retrieval Augmented Generation (RAG) via Amazon Bedrock Knowledge Bases so sequences are retrieved rather than trained into the model's weights; use SageMaker ML Lineage Tracking to record which dataset version and processing job produced the indexed data; and restrict all storage/processing to the required Region with cross-Region replication disabled
+    C. Continue pre-training the foundation model on the sequence data, and rely on AWS CloudTrail alone to satisfy the Region-restriction requirement
+    D. Use prompt engineering only, with no retrieval or lineage tracking, since a smaller prompt reduces audit scope
+
+24. **[Advanced]** (Select THREE.) An insurance company is building a
+    Bedrock-based underwriting assistant that must (1) process both
+    scanned paper applications (images) and typed notes (text) in the same
+    conversation, (2) demonstrate to regulators that its recommendations
+    don't differ significantly by applicant race, and (3) supply auditors
+    with automatically compiled evidence that the bias check was actually
+    performed. Which three actions together satisfy all three
+    requirements?
+    A. Select a foundation model that supports multi-modal (text + image) input, so scanned applications and typed notes can be processed in the same request
+    B. Run Amazon SageMaker Clarify post-training bias metrics on the assistant's underwriting recommendations, broken out by race, to produce the required fairness evidence
+    C. Use AWS Audit Manager to automatically assemble that Clarify evidence, alongside CloudTrail logs, into an audit-ready compliance report for regulators
+    D. Raise the temperature parameter, since more randomness reduces the appearance of racial bias in outputs
+    E. Rely on Amazon Polly to read underwriting decisions aloud to applicants instead of running any bias check
+
+25. **[Advanced]** A credit union's classical SageMaker model approves or
+    denies personal loan applications. Its board now wants to layer in (1)
+    a check that the model's false-positive denial rate doesn't differ
+    significantly across age groups, (2) a decision to route any
+    prediction below a confidence threshold to a human underwriter rather
+    than auto-denying it, and (3) a written NIST AI RMF-aligned governance
+    record mapping both controls to the Measure and Govern functions ahead
+    of a regulatory exam. Which combination of actions covers all three
+    requirements?
+    A. Skip the subgroup breakdown, since the model's overall accuracy is high; keep auto-denial for every prediction; and treat the NIST AI RMF as an optional reference with no documentation required
+    B. Break the confusion matrix out by age group and run SageMaker Clarify post-training bias metrics for the false-positive-rate gap; threshold the model's predicted-probability output to route low-confidence cases to a human underwriter; and map both controls into a NIST AI RMF-aligned governance document covering the Measure and Govern functions
+    C. Replace the classical model with a foundation model, since foundation models never need a bias review or human oversight
+    D. Raise the overall classification threshold uniformly across all applicants, and skip both the bias breakdown and any written governance mapping, since a stricter threshold alone satisfies regulators
+
+26. **[Advanced]** A media company operating in the EU wants its
+    Bedrock-based content-moderation assistant to (1) guarantee
+    consistent, low-latency throughput during traffic spikes, (2) block
+    generated replies from ever including specific banned slurs or
+    competitor names via configurable rules, and (3) keep all inference
+    traffic and underlying data within EU AWS Regions to satisfy a
+    data-sovereignty requirement. Which combination of choices satisfies
+    all three requirements?
+    A. On-demand pricing with default public endpoints and no residency controls, since Bedrock inference is inherently Region-agnostic
+    B. Provisioned Throughput in an EU Region for guaranteed, low-latency capacity; Guardrails for Amazon Bedrock configured with denied topics/word filters for the banned terms; and an interface VPC endpoint (PrivateLink) restricted to the EU Region, with cross-Region replication disabled, to keep traffic and data in-Region
+    C. Fine-tuning the model on the banned-term list, and relying on Amazon Comprehend alone for both the throughput guarantee and residency enforcement
+    D. A NAT gateway in a public subnet, since NAT gateways alone satisfy both the throughput and data-sovereignty requirements
+
+27. **[Advanced]** A hospital network is pairing an existing classical
+    SageMaker triage-urgency model (trained on structured historical
+    patient data) with a new Bedrock-based assistant that explains each
+    urgency score to nurses in plain language, grounded in the hospital's
+    current clinical guidelines. Before launch, the review board requires:
+    (1) proof of exactly which dataset version and processing job produced
+    the deployed classical model, (2) that the guideline text be retrieved
+    at query time rather than baked into the assistant's weights, (3)
+    evidence that the classical model's urgency scores don't differ
+    significantly by patient demographic group, and (4) that all patient
+    data stay encrypted with a customer-managed key and never traverse the
+    public internet. Which combination of choices satisfies all four
+    requirements?
+    A. SageMaker ML Lineage Tracking for the model's provenance graph; Retrieval Augmented Generation (RAG) via Bedrock Knowledge Bases to ground explanations in the current guidelines instead of fine-tuning on them; SageMaker Clarify post-training bias metrics broken out by demographic group; and a customer-managed KMS key plus an interface VPC endpoint (PrivateLink) for data in transit and at rest
+    B. Skip lineage tracking since the model already passed a one-time accuracy check; fine-tune the assistant directly on the guideline text; skip the bias check since urgency scoring is "purely clinical"; and use default AWS-managed encryption over the public internet
+    C. Rely on AWS Trusted Advisor alone for provenance, bias, grounding, and encryption, since it provides a single unified dashboard for all four concerns
+    D. Replace the classical model with a foundation model to eliminate the need for lineage tracking, bias testing, and encryption entirely
+
 ---
 
 ## Answer key and explanations
@@ -307,6 +386,11 @@ the two or more domains it draws on, e.g. `*(Domains 3, 5)*`.
 20. **C — The test set shared the training data's non-representativeness; audit for representativeness earlier.** A held-out test split drawn from the same skewed collection pool (Domain 1's data collection/preparation stage of the ML lifecycle) will still look strong even when the underlying data underrepresents part of the real-world population, because the split doesn't fix a sampling bias baked in before the split ever happened; catching this requires auditing training data for representativeness across the population the model will actually serve, which is a fairness consideration (Domain 4), not something a stronger test score alone would reveal. A misdiagnoses this as a split-ratio problem; B ignores the data issue entirely; D assumes a different model family would fix a data-collection gap on its own, which it would not. *(Domains 1, 4)*
 21. **B — The interpretable model (or ensemble plus explainability tooling) better satisfies the legal requirement.** Classical model selection routinely trades interpretability for a small amount of raw accuracy (Domain 1), and that tradeoff is exactly what's in tension with the responsible-AI requirement for transparency and explainability (Domain 4) when denied applicants must receive an understandable reason; resolving it in favor of interpretability (directly, or via a feature-attribution tool like SageMaker Clarify on top of the ensemble) is what actually satisfies the regulation. A ignores a binding legal constraint; C simply doesn't meet the stated requirement; D swaps in a model family that doesn't even produce the classification decision needed, let alone an explanation for it. *(Domains 1, 4)*
 22. **A — Threshold the model's confidence output to route low-confidence cases to a human.** A classical supervised model's predicted-probability output (Domain 1) is a natural signal to threshold on, routing anything below the cutoff to a human reviewer instead of auto-actioning it — this is precisely how the human-in-the-loop oversight and controllability principle (Domain 4) is implemented for a high-stakes, no-autonomous-final-decision requirement. B is false — classical classifiers routinely expose a predicted probability that can serve as a confidence score; C rejects the explicit governance requirement in the scenario; D confuses temperature, a generative-model sampling parameter, with a classical model's confidence output. *(Domains 1, 4)*
+23. **B — RAG plus ML Lineage Tracking plus Region-restricted storage/processing.** RAG via Bedrock Knowledge Bases (Domain 3) keeps the proprietary sequences out of the model's weights by retrieving them at query time instead of training on them; SageMaker ML Lineage Tracking (Domain 1) supplies the dataset-version/processing-job provenance graph auditors need; and restricting all storage and processing to the required Region while disabling cross-Region replication (Domain 5) enforces the residency requirement even for backups. A and C both bake the sequences directly into the weights via fine-tuning or continued pre-training, which is exactly what's prohibited, and neither addresses lineage or residency; D provides no grounding, no provenance record, and no residency control at all. This is the same three-way tension the [end-to-end case study](case-study-ai-system-lifecycle.md) walks through when a system's lifecycle, customization, and security decisions all constrain each other at once. *(Domains 1, 3, 5)*
+24. **A, B and C — a multi-modal foundation model, Clarify bias metrics, and Audit Manager evidence.** Selecting a foundation model with multi-modal (text + image) support (Domain 2) is a prerequisite just to process scanned applications alongside typed notes; SageMaker Clarify's post-training bias metrics broken out by race (Domain 4) produce the fairness evidence regulators require; and AWS Audit Manager (Domain 5) automatically assembles that evidence, plus supporting logs, into an audit-ready compliance report. Raising temperature (D) only adds output randomness and does nothing to measure or reduce racial bias; using Polly to read decisions aloud instead of running a bias check (E) skips the requirement entirely rather than satisfying it. *(Domains 2, 4, 5)*
+25. **B — subgroup bias metrics, confidence-based human routing, and a NIST AI RMF-mapped governance record.** Breaking the confusion matrix out by age group and running SageMaker Clarify's post-training bias metrics (Domain 1 evaluation extended with a Domain 4 fairness lens) surfaces a false-positive-rate gap that overall accuracy would hide; thresholding the classical model's predicted-probability output to route low-confidence cases to a human underwriter (Domain 4's human-in-the-loop principle, applied to the Domain 1 model output) keeps a person accountable for borderline denials; and mapping both controls into a NIST AI RMF-aligned document covering the Measure and Govern functions (Domain 5) is what an examiner actually expects to see. A and D both skip the bias review and the written governance mapping the board explicitly asked for; C swaps in a different model family without addressing any of the three stated requirements. *(Domains 1, 4, 5)*
+26. **B — Provisioned Throughput in-Region, Guardrails for the banned terms, and an in-Region PrivateLink endpoint.** Provisioned Throughput deployed in an EU Region (Domain 2) is what guarantees consistent, low-latency capacity; Guardrails for Amazon Bedrock with denied topics/word filters (Domain 3) blocks the banned slurs and competitor names from ever appearing in generated replies; and an interface VPC endpoint via PrivateLink restricted to the EU Region, with cross-Region replication disabled (Domain 5), keeps both the traffic path and the underlying data inside the EU. A ignores the sovereignty requirement entirely; C's reliance on Comprehend alone addresses neither throughput guarantees nor residency; D's NAT gateway still routes over the public internet and does nothing for guaranteed throughput. *(Domains 2, 3, 5)*
+27. **A — Lineage Tracking, RAG grounding, Clarify bias metrics, and customer-managed KMS plus PrivateLink, together.** SageMaker ML Lineage Tracking (Domain 1) gives the review board the dataset-and-processing-job provenance the classical triage model needs; grounding the assistant's plain-language explanations in the current clinical guidelines via RAG (Domain 3) instead of fine-tuning keeps that guideline text out of the model's weights, so it can be updated without retraining; SageMaker Clarify post-training bias metrics broken out by demographic group (Domain 4) supply the fairness evidence for the urgency scores; and a customer-managed KMS key combined with an interface VPC endpoint (Domain 5) satisfies the encryption-at-rest and no-public-internet requirements for patient data. B skips every one of the four controls the board asked for; C substitutes a single dashboard tool that does not itself perform lineage tracking, bias testing, RAG grounding, or encryption; D discards the classical model that is actually in scope without addressing any of the four stated requirements. This question mirrors the [end-to-end case study](case-study-ai-system-lifecycle.md), where one system's lifecycle, customization, fairness, and security decisions all have to hold together simultaneously. *(Domains 1, 3, 4, 5)*
 
 ---
 

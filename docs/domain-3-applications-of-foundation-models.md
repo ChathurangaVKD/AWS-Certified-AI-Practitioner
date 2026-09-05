@@ -22,6 +22,7 @@
     - [Worked example: preventing brand-mention violations in product recommendations](#worked-example-preventing-brand-mention-violations-in-product-recommendations)
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
+    - [Choosing among on-demand, provisioned throughput, and batch inference: a decision guide](#choosing-among-on-demand-provisioned-throughput-and-batch-inference-a-decision-guide)
     - [On-demand vs. provisioned throughput: a worked cost-comparison example](#on-demand-vs-provisioned-throughput-a-worked-cost-comparison-example)
     - [Batch inference vs. real-time vs. provisioned throughput: a worked cost-and-latency example](#batch-inference-vs-real-time-vs-provisioned-throughput-a-worked-cost-and-latency-example)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
@@ -2431,6 +2432,81 @@ on-demand capacity only for occasional overflow.
 > concern is *how many requests total can hit the endpoint*, that's a
 > Domain 5 Service Quotas / API Gateway usage-plan question, not a Domain
 > 3 inference-parameter one.
+
+#### Choosing among on-demand, provisioned throughput, and batch inference: a decision guide
+
+The two worked examples below this one build up the full arithmetic
+behind an on-demand-vs-provisioned-throughput purchase decision and a
+batch-vs-real-time-vs-provisioned comparison. Before working through
+either, this guide is the scenario-first entry point: three business
+constraints — **per-request SLA (latency tolerance)**, **request
+volume**, and **completion-window deadline** — read directly off an exam
+question, mapped straight to the cost-optimal capacity option, without
+running a single calculation first.
+
+Every Bedrock capacity decision reduces to two questions asked in order:
+
+1. **Does any single request need a response while something is
+   waiting on it live** (a person watching a chat window, a synchronous
+   API caller)? If yes, the choice is between **on-demand real-time**
+   and **provisioned throughput**, decided by request volume. If no —
+   the workload only has a *completion-window* deadline like "ready by
+   morning" — the choice is between **Bedrock batch inference** and
+   **on-demand real-time**, decided by the size of that window and the
+   record count.
+2. Within whichever pair question 1 selects, is the **request volume**
+   high, steady, and predictable, or does the **window** comfortably
+   exceed batch's best-effort turnaround and clear its per-job minimum?
+
+| Per-request SLA (latency tolerance) | Request volume | Cost-optimal choice | Why |
+|---|---|---|---|
+| Hard — a response is needed within seconds | Low, spiky, or unpredictable | **On-demand real-time** | Pay-per-token with no commitment; a flat provisioned-throughput rate would be paid whether or not it's used, and volume never clears the break-even point |
+| Hard — a response is needed within seconds | High, steady, and predictable, sustained above the on-demand/provisioned break-even point | **Provisioned throughput** | A fixed hourly rate undercuts accumulating per-token on-demand cost once volume is consistently high enough, and it comes with a guaranteed latency ceiling on-demand can't promise under load |
+| None — only a completion-window deadline (e.g., "ready by 7 a.m.") | Any volume that clears batch's per-job minimum (illustrative: at least ~100 records), with the window at least a few hours long | **Bedrock batch inference** | Same per-token rate as on-demand at an illustrative 50% discount, because nothing is waiting on any individual response to exploit that discount against |
+| None — only a completion-window deadline | Below batch's per-job minimum, or the window is too short (under a few hours) to safely absorb batch's best-effort turnaround | **On-demand real-time** | Batch either isn't available at that record count or carries too much turnaround risk against the deadline — real-time costs more per request but removes that risk |
+
+**Reading a scenario against the table — four short examples:**
+
+- *"A live chat widget must reply within a couple of seconds; traffic
+  swings from near-zero overnight to a few thousand messages during a
+  product launch."* Hard per-request SLA, and volume is spiky rather
+  than steady → **on-demand real-time**.
+- *"An internal search-ranking API must respond in under a second and
+  consistently handles 6,000,000 requests/month, every month."* Hard
+  per-request SLA, and volume is high, steady, and predictable → **provisioned
+  throughput** (see the [worked comparison
+  below](#on-demand-vs-provisioned-throughput-a-worked-cost-comparison-example)
+  for the break-even math that confirms it).
+- *"A nightly job summarizes 20,000 customer-support emails; the
+  digests just need to be ready for a 7 a.m. stand-up."* No per-request
+  SLA, an 8-hour completion window, and volume far above the batch
+  minimum → **Bedrock batch inference** (see the [worked
+  cost-and-latency example
+  below](#batch-inference-vs-real-time-vs-provisioned-throughput-a-worked-cost-and-latency-example)).
+- *"A one-off script needs to summarize 40 legacy support tickets
+  within the next hour, for a meeting starting soon."* No per-request
+  SLA, but the window is too short and the record count is below
+  batch's per-job minimum → **on-demand real-time**, even though
+  nothing is waiting on any single response — batch simply doesn't fit
+  either constraint here.
+
+**AWS example:** A platform team fields three unrelated requests in the
+same sprint — add a live product-recommendation endpoint (hard SLA, spiky
+launch-day traffic → on-demand), commit capacity for a steady
+6,000,000-request/month support chatbot (hard SLA, high steady volume →
+provisioned throughput), and stand up an overnight ticket-digest pipeline
+(no SLA, 8-hour window → batch inference) — and prices all three
+correctly on the first pass by running each one through this table
+instead of defaulting to whichever option was used last.
+
+> **Exam tip:** Work the two questions in order, not the volume number
+> in isolation. A high volume number alone does not imply provisioned
+> throughput — it only does so paired with a **hard per-request SLA**;
+> the same high volume paired with **no per-request SLA and a
+> completion-window deadline** points to batch inference instead, at a
+> fraction of provisioned throughput's cost. Reaching for provisioned
+> throughput just because a scenario mentions "a lot of requests" is the
+> distractor the exam is testing for.
 
 #### On-demand vs. provisioned throughput: a worked cost-comparison example
 

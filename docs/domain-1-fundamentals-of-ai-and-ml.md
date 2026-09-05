@@ -15,6 +15,7 @@
 - [3. Types of learning](#3-types-of-learning)
 - [4. Common use cases for AI/ML](#4-common-use-cases-for-aiml)
 - [5. AWS managed AI/ML services (conceptual overview)](#5-aws-managed-aiml-services-conceptual-overview)
+  - [Amazon SageMaker Ground Truth: data labeling and when NOT to use it](#amazon-sagemaker-ground-truth-data-labeling-and-when-not-to-use-it)
 - [6. Model evaluation basics](#6-model-evaluation-basics)
 - [7. Overfitting, underfitting, and the bias–variance trade-off](#7-overfitting-underfitting-and-the-biasvariance-trade-off)
   - [Ensemble methods: bagging, boosting, and voting](#ensemble-methods-bagging-boosting-and-voting)
@@ -984,6 +985,57 @@ flowchart TD
 
    **Answer: B** — Polly is text-to-speech; Transcribe (A) does the
    reverse (speech-to-text).
+
+### Amazon SageMaker Ground Truth: data labeling and when NOT to use it
+
+SageMaker Ground Truth is easy to misfile as "just another managed AI
+service" from the list above, but it solves a different problem: it is a
+**human-in-the-loop data labeling** service, not a service that itself
+performs vision/speech/text inference. It produces the labeled training
+data a supervised model later learns from, combining **active learning**
+(a model pre-labels the examples it's already confident about) with human
+labelers — your own private workforce, a vendor workforce, or the public
+Amazon Mechanical Turk workforce — who review only the low-confidence,
+ambiguous examples. That mix is what lets it label large datasets faster
+and cheaper than having humans label every record by hand.
+
+**Comparison: Ground Truth vs. alternative ways to get labeled/prepped data**
+
+| Approach | What it actually does | Best for | Weakness |
+|---|---|---|---|
+| **SageMaker Ground Truth** | Human-in-the-loop labeling workflow with active learning auto-labeling the confident majority and routing only ambiguous items to human reviewers | Large unlabeled datasets (tens of thousands of records or more) that need accurate labels without paying humans to label every single item | Setup overhead (workforce, labeling UI, workflow); still needs human effort and doesn't fit small one-off datasets |
+| **Manual labeling** (in-house, no tooling) | People label every record by hand, with no ML assistance | Small datasets — tens to a few hundred examples — or a quick proof of concept | Cost and time scale linearly with dataset size; impractical past a few hundred records |
+| **SageMaker Data Wrangler** | Visual data preparation: cleaning, transforming, joining, and engineering features | Data that is **already labeled** but needs cleaning, transformation, or feature engineering before training | Does not create labels for unlabeled data — it solves a data-prep problem, not a labeling problem |
+| **Synthetic data generation** | Programmatically manufactures artificial labeled examples (e.g., simulation or generative techniques) | Augmenting rare classes/edge cases, or when real labeled data is scarce, sensitive, or expensive to collect | Synthetic data can miss real-world distribution quirks and edge cases; usually needs validation against real data |
+
+**Use-case scenarios (scale is the deciding factor):**
+
+- **100,000 unlabeled images need bounding-box labels for a custom
+  object-detection model.** Ground Truth is the right call: active
+  learning auto-labels the images the model is already confident about
+  and sends only the hard, ambiguous ones to human reviewers, which cuts
+  the labeling bill and turnaround time versus labeling all 100,000 by
+  hand.
+- **A 50-image dataset for a quick proof of concept.** Manual labeling
+  wins here — one engineer can label 50 images in an afternoon, and
+  standing up a Ground Truth labeling job (workforce, UI, workflow
+  configuration) costs more setup time than it saves at that scale.
+- **A tabular dataset that is already labeled but has missing values and
+  needs one-hot encoding and a join against a second table before
+  training.** This calls for SageMaker Data Wrangler, not Ground Truth —
+  the labels already exist; the outstanding problem is cleaning and
+  feature engineering, which is what Data Wrangler is for.
+
+> **Exam tip:** Ground Truth is the **correct** answer when the scenario
+> describes a **large volume of unlabeled data** that needs labels before
+> a model can be trained, especially when the question emphasizes
+> reducing labeling **cost or time** through automation. It is a
+> **distractor** when the scenario's data is already labeled (look for
+> Data Wrangler or straight to SageMaker training instead), when the
+> dataset is small enough for a person to label directly (manual labeling
+> is simpler and cheaper), or when the real gap is a scarce/rare class
+> that calls for synthetic data generation rather than labeling more of
+> what you already have.
 
 ---
 

@@ -20,11 +20,22 @@ point; there is nothing to pre-fill.
 
 ## 1. Attempt log template
 
-| Attempt # | Assessment / question set | Date | # Correct | # Total | % Score | Domain breakdown (if available) | Time spent | Weak-area notes |
-|---|---|---|---|---|---|---|---|---|
+| Attempt # | Assessment / question set | Date | Study Material (optional) | # Correct | # Total | % Score | Domain breakdown (if available) | Time spent | Weak-area notes |
+|---|---|---|---|---|---|---|---|---|---|
 
 *(Add one row per attempt below the header — the table intentionally ships
 with no rows yet.)*
+
+**Note on condensed materials:** this template isn't limited to full-guide
+study and mock exams — a Fast Track review session (e.g.
+[`domain-1-fast-track/README.md`](domain-1-fast-track/README.md)) or an
+Ultra Fast Learn cram session (e.g.
+[`domain-1-fast-track/ULTRA-FAST-LEARN.md`](domain-1-fast-track/ULTRA-FAST-LEARN.md))
+can be logged the same way. Use the optional **Study Material** column to
+record which content tier you studied from before that attempt, so you can
+correlate practice performance with study depth and decide whether
+condensed review is holding up for a domain or whether you need to loop
+back to the full-depth guide.
 
 **How to fill this in:**
 
@@ -37,6 +48,14 @@ with no rows yet.)*
   "Cross-domain scenario questions 1–25," or "`full-length-mock-exam.md`."
 - **Date** — when you took it, so you can see how scores change over time
   (see [Section 4](#4-interpreting-score-trends-across-attempts)).
+- **Study Material (optional)** — which content tier you studied from
+  before this attempt: `Full Guide`, `Fast Track`, `Ultra Fast Learn`, or
+  `Mock Exam` (for attempts logged against one of the two mock exams
+  themselves, rather than a domain guide). Leave it blank if you'd rather
+  not track this. Filling it in lets you spot patterns like "Fast Track
+  review is enough for Domain 1" versus "Domain 3 scores drop unless I
+  study the full guide" — see the [note on condensed
+  materials](#1-attempt-log-template) above.
 - **# Correct / # Total** — your raw count, e.g. `11 / 13` for a Domain 1
   practice-question pass.
 - **% Score** — `# Correct ÷ # Total`, so you can compare sets of

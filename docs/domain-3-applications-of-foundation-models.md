@@ -10,6 +10,7 @@
   - [Multi-model routing and fallback strategies: routing requests to the right model at request time](#multi-model-routing-and-fallback-strategies-routing-requests-to-the-right-model-at-request-time)
     - [Runtime decision tree: selecting a fallback model when the primary is unavailable, rate-limited, or too costly](#runtime-decision-tree-selecting-a-fallback-model-when-the-primary-is-unavailable-rate-limited-or-too-costly)
     - [Worked example: routing a dashboard-and-batch analytics feature by latency sensitivity](#worked-example-routing-a-dashboard-and-batch-analytics-feature-by-latency-sensitivity)
+    - [Worked example: fallback routing for a customer support assistant across three candidate models](#worked-example-fallback-routing-for-a-customer-support-assistant-across-three-candidate-models)
 - [2. Prompt engineering techniques](#2-prompt-engineering-techniques)
   - [Comparison table: prompt engineering techniques at a glance](#comparison-table-prompt-engineering-techniques-at-a-glance)
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
@@ -555,6 +556,80 @@ of an API call:
 > distinct pattern from Bedrock's provisioned throughput
 > ([Section 5](#5-amazon-bedrock-features)), which reserves capacity for a
 > *single* model rather than serving many from one endpoint.
+
+#### Worked example: fallback routing for a customer support assistant across three candidate models
+
+*Scenario:* A retail company's generative-AI customer support assistant
+handles live chat for shoppers asking about orders, returns, and product
+questions. The assistant must keep responding around the clock, even
+during a provider-side incident or a traffic spike that trips rate
+limits, without the team paying for a premium model on every single
+message. The team configures three candidate models behind the router,
+in priority order, following the same [runtime decision
+tree](#runtime-decision-tree-selecting-a-fallback-model-when-the-primary-is-unavailable-rate-limited-or-too-costly)
+covered above:
+
+- **Primary — Anthropic Claude Sonnet (Amazon Bedrock):** the default
+  model for every chat turn. It balances the reasoning depth needed to
+  follow a multi-turn conversation about an order history against a cost
+  the team can afford at full chat volume.
+- **Fallback candidate FM-2 — Amazon Nova Lite (Amazon Bedrock):** faster
+  and cheaper than Sonnet, with enough capability for routine, single-turn
+  questions ("where's my order," "what's your return window"). Kept warm
+  as the first fallback so a Sonnet throttling event doesn't take the chat
+  down.
+- **Fallback candidate FM-3 — Anthropic Claude Haiku (Amazon Bedrock):**
+  the cheapest and fastest of the three, held in reserve for the rare case
+  where *both* Sonnet and Nova Lite are unavailable at once. Lower
+  reasoning depth is an acceptable trade-off here because the goal shifts
+  from "answer well" to "keep the chat alive at all."
+
+*Decision factors:* the same three checks from the runtime decision tree
+run on every incoming chat message, in order:
+
+1. **Availability** — is the candidate model healthy and reachable right
+   now (no timeout, throttling, or 5xx on its last call)?
+2. **Rate limits** — is the candidate currently throttled for this
+   account (a `ThrottlingException` or an exhausted provisioned-throughput
+   quota)?
+3. **Cost** — does the candidate's per-message price fit the support
+   team's cost-governance ceiling at current chat volume?
+
+*Outcome for each branch:*
+
+| Branch | Condition | Model called | Outcome |
+|---|---|---|---|
+| 1 | Claude Sonnet is healthy, not rate-limited, and within the cost ceiling | **Claude Sonnet (primary)** | The shopper gets a full-quality, context-aware answer at the normal per-message cost — the common-path outcome for the large majority of chat volume. |
+| 2 | Claude Sonnet is rate-limited (e.g., a regional traffic spike exhausts its provisioned-throughput quota) | **Amazon Nova Lite (FM-2)** | The chat keeps responding with a slightly less nuanced answer at lower cost; the router logs the fallback so the team can see how often Sonnet's capacity is the bottleneck. |
+| 3 | Claude Sonnet is down (provider-side outage) **and** Nova Lite is also rate-limited or down | **Claude Haiku (FM-3)** | The assistant still responds, favoring availability over depth — for a complex, multi-step question, it answers what it can and offers to connect the shopper to a live agent rather than guess. |
+| 4 | All three candidates fail availability, rate-limit, or cost checks | **None — fallback chain exhausted** | The router does not silently degrade further; it routes the conversation to a queued human agent instead of returning a response from a model that's down, throttled, or over budget. |
+
+*Resolution:* the support assistant never hard-fails a chat message as
+long as at least one of the three candidates clears all three checks —
+availability, then rate limits, then cost, in that order, exactly as the
+runtime decision tree above prescribes. Cost is deliberately checked
+*last*: a scenario where the router calls the pricier Nova Lite over a
+cheaper option isn't a bug if Sonnet was unhealthy, because an available
+answer beats a cheaper one that never gets attempted. Only when every
+configured candidate is simultaneously unusable does the system fail over
+to a human, which is branch 4's `EXHAUSTED` outcome rather than a
+lower-quality auto-response with no floor.
+
+*AWS example:* the router is a Lambda function fronting Bedrock's
+`Converse` API. It calls `anthropic.claude-sonnet` first, catches
+`ThrottlingException` and `ServiceUnavailableException`, and retries
+`amazon.nova-lite` on either; a second catch block retries
+`anthropic.claude-haiku` if Nova Lite also fails its checks. Amazon
+CloudWatch alarms on the Lambda's fallback-branch metric so the team gets
+paged when branch 3 or 4 fires more than occasionally, since that signals
+a real capacity or outage problem rather than routine traffic variance.
+
+> **Exam tip:** A three-candidate fallback chain is scored the same way as
+> the two-candidate runtime decision tree above — don't assume more
+> candidates changes the check order. Each candidate is evaluated
+> availability-then-rate-limits-then-cost in priority order, and the
+> chain only fails over to a human or an error once *every* candidate has
+> failed at least one check, not after the first candidate alone fails.
 
 #### Mini-quiz: Test your understanding of FM application design considerations
 

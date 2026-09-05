@@ -3634,18 +3634,63 @@ as the building block.)
   = 3.000 + 1.262 + 0.500 = **4.762**
 - NDCG@5 = DCG@5 ÷ IDCG@5 = 4.387 ÷ 4.762 = **0.92**
 
-**Reading the four results together:** Recall@5 (0.75) says one relevant
-passage was missed entirely — a coverage problem. MRR (1.0) and NDCG@5
-(0.92) both say the *best* passage was ranked first, so a user reading
-only the top result already gets a correct answer. MAP (0.567) is the
-most pessimistic of the four because it penalizes the corpus's 4th
-relevant passage never appearing in the top 5 *and* averages in the
-weaker precision at ranks 3 and 5 — a reminder that no single metric
-tells the whole story, matching the "no single metric tells the whole
-story" principle from [Section
-7](#7-evaluating-foundation-model-performance): a system can rank its top
-result perfectly (high MRR/NDCG) while still leaving relevant content
-undiscovered (lower Recall@k/MAP).
+**Step 5 — a second query, to turn MRR and MAP into real means:** MRR and
+MAP are *defined* as an average over a query set, not a single query's
+score — the steps above computed one query's reciprocal rank and Average
+Precision as a stand-in. To show the actual averaging, run a second query
+against the same corpus: "What is the process for returning a damaged
+item?", where the corpus has **3 relevant passages in total** for this
+query:
+
+| Rank | Passage | Graded relevance (0-3) | Relevant? (binary) |
+| --- | --- | --- | --- |
+| 1 | "Damaged items may be returned within 14 days for a full refund." | 3 | Yes |
+| 2 | "Contact customer support within 48 hours of delivery to report damage." | 2 | Yes |
+| 3 | "Standard returns require the original packaging." | 1 | Yes |
+| 4 | "Warranty claims are handled by the manufacturer." | 0 | No |
+| 5 | "Loyalty points are non-transferable." | 0 | No |
+
+- **Recall@5** = 3 relevant found ÷ 3 relevant total = **1.00** — every
+  relevant passage made the top 5.
+- **Reciprocal rank** = 1 ÷ 1 = **1.00** — the first relevant passage is
+  at rank 1.
+- **Average Precision:** precision@1 = 1/1 = 1.000, precision@2 = 2/2 =
+  1.000, precision@3 = 3/3 = 1.000; AP = (1.000 + 1.000 + 1.000) ÷ 3 =
+  **1.00**.
+- **NDCG@5:** the graded relevances (3, 2, 1, 0, 0) are already in
+  descending order, so this ranking *is* the ideal ranking — DCG@5 =
+  IDCG@5 = 3/log2(2) + 2/log2(3) + 1/log2(4) = 3.000 + 1.262 + 0.500 =
+  4.762, giving NDCG@5 = 4.762 ÷ 4.762 = **1.00**.
+
+This second query is a clean sweep on every metric, unlike the first
+query's mixed result. Averaging the two queries together produces the
+metrics as they're actually reported over an evaluation set:
+
+| Metric | Query 1 | Query 2 | Mean across the 2-query set |
+| --- | --- | --- | --- |
+| Recall@5 | 0.75 | 1.00 | (0.75 + 1.00) ÷ 2 = **0.875** |
+| Reciprocal rank → **MRR** | 1.00 | 1.00 | (1.00 + 1.00) ÷ 2 = **1.00** |
+| Average Precision → **MAP** | 0.567 | 1.00 | (0.567 + 1.00) ÷ 2 = **0.783** |
+| NDCG@5 | 0.92 | 1.00 | (0.92 + 1.00) ÷ 2 = **0.96** |
+
+**Reading the results together:** Query 1's Recall@5 (0.75) says one
+relevant passage was missed entirely — a coverage problem. Query 1's MRR
+(1.0) and NDCG@5 (0.92) both say the *best* passage was ranked first, so
+a user reading only the top result already gets a correct answer. Query
+1's MAP (0.567) is the most pessimistic of the four because it penalizes
+the corpus's 4th relevant passage never appearing in the top 5 *and*
+averages in the weaker precision at ranks 3 and 5. Query 2 scores a
+perfect 1.00 on all four metrics because every relevant passage is both
+present in the top 5 *and* sorted in ideal order — showing why MAP still
+lands at 0.783 (not 1.00) even after averaging in a flawless query: one
+weak query with a missed document drags the mean down more than a strong
+query pulls it up, which is exactly why MAP is a demanding metric for a
+domain like legal e-discovery where missing *any* relevant document
+matters. This is a reminder that no single metric tells the whole story,
+matching the "no single metric tells the whole story" principle from
+[Section 7](#7-evaluating-foundation-model-performance): a system can
+rank its top result perfectly (high MRR/NDCG) while still leaving
+relevant content undiscovered (lower Recall@k/MAP).
 
 #### Mini-quiz: Test your understanding of vector databases and embeddings
 

@@ -39,6 +39,41 @@ MASTER_GLOSSARY_DOC = DOCS_DIR / "master-glossary.md"
 GLOSSARY_DOC = DOCS_DIR / "GLOSSARY.md"
 SERVICE_INDEX_DOC = DOCS_DIR / "aws-service-index.md"
 
+# The Fast Track condensed-guide layer: 13 files across five
+# domain-N-fast-track/ directories. Domains 1, 2, and 4 each pair a single
+# README.md with an ULTRA-FAST-LEARN.md cram sheet; Domains 3 and 5 split
+# their condensed guide into multiple numbered parts (plus their own
+# ULTRA-FAST-LEARN.md) instead of a single README.md.
+FAST_TRACK_FILES_BY_DOMAIN = {
+    1: [
+        DOCS_DIR / "domain-1-fast-track" / "README.md",
+        DOCS_DIR / "domain-1-fast-track" / "ULTRA-FAST-LEARN.md",
+    ],
+    2: [
+        DOCS_DIR / "domain-2-fast-track" / "README.md",
+        DOCS_DIR / "domain-2-fast-track" / "ULTRA-FAST-LEARN.md",
+    ],
+    3: [
+        DOCS_DIR
+        / "domain-3-fast-track"
+        / "part-1-application-design-and-customization.md",
+        DOCS_DIR / "domain-3-fast-track" / "part-2-inference-and-multimodal.md",
+        DOCS_DIR
+        / "domain-3-fast-track"
+        / "part-3-deployment-and-troubleshooting.md",
+        DOCS_DIR / "domain-3-fast-track" / "ULTRA-FAST-LEARN.md",
+    ],
+    4: [
+        DOCS_DIR / "domain-4-fast-track" / "README.md",
+        DOCS_DIR / "domain-4-fast-track" / "ULTRA-FAST-LEARN.md",
+    ],
+    5: [
+        DOCS_DIR / "domain-5-fast-track" / "part-1-security-and-compliance.md",
+        DOCS_DIR / "domain-5-fast-track" / "part-2-governance-and-monitoring.md",
+        DOCS_DIR / "domain-5-fast-track" / "ULTRA-FAST-LEARN.md",
+    ],
+}
+
 CROSS_DOMAIN_SUPPORT_FILES = [
     "cross-domain-scenario-questions.md",
     "cross-domain-concept-map.md",

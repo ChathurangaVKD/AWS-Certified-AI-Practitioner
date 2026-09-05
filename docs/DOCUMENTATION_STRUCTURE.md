@@ -29,6 +29,54 @@ domain, currently 2,030–5,482 lines each, **14,507 lines total**:
 - Domain 3: 5,482 lines
 - Domain 4: 2,247 lines
 - Domain 5: 2,535 lines
+
+## Fast Track condensed guides (13 files, 7,255 lines total)
+
+Beyond the five full domain guides, each domain also has a condensed
+"Fast Track" layer under its own `docs/domain-N-fast-track/` directory.
+Together with the full guide and the cram sheet nested inside that same
+directory, this forms a three-tier structure for exam prep:
+
+1. **Full guide** (`docs/domain-N-*.md`) — the complete domain guide, with
+   every worked example, diagram, and practice question.
+2. **Fast Track** (`docs/domain-N-fast-track/`) — a condensed rewrite of
+   the same domain's content.
+3. **Ultra Fast Learn** (`docs/domain-N-fast-track/ULTRA-FAST-LEARN.md`) —
+   a further-condensed cram sheet built from the Fast Track material,
+   meant for a final pass in the hours before the exam.
+
+Domains 1, 2, and 4 each organize their Fast Track as a single pair of
+files: `domain-N-fast-track/README.md` (the condensed guide itself) plus
+`domain-N-fast-track/ULTRA-FAST-LEARN.md` (the cram sheet). Domains 3 and
+5 are large enough that their condensed guides are split into multiple
+parts instead of one `README.md`: Domain 3 into
+`part-1-application-design-and-customization.md`,
+`part-2-inference-and-multimodal.md`, and
+`part-3-deployment-and-troubleshooting.md`; Domain 5 into
+`part-1-security-and-compliance.md` and
+`part-2-governance-and-monitoring.md` — each still paired with its own
+`ULTRA-FAST-LEARN.md`. Neither Domain 3 nor Domain 5 has a single
+`README.md` Fast Track file; that domain's parts together are its Fast
+Track layer.
+
+Per domain, the Fast Track layer (condensed guide/parts plus cram sheet
+combined) totals:
+
+- Domain 1: 935 lines (`README.md` 743 + `ULTRA-FAST-LEARN.md` 192)
+- Domain 2: 1,135 lines (`README.md` 851 + `ULTRA-FAST-LEARN.md` 284)
+- Domain 3: 2,821 lines (`part-1` 832 + `part-2` 784 + `part-3` 847 +
+  `ULTRA-FAST-LEARN.md` 358)
+- Domain 4: 954 lines (`README.md` 796 + `ULTRA-FAST-LEARN.md` 158)
+- Domain 5: 1,410 lines (`part-1` 698 + `part-2` 530 +
+  `ULTRA-FAST-LEARN.md` 182)
+
+That is 13 files (2 + 2 + 4 + 2 + 3) totaling **7,255 lines** across all
+five domains. Every Fast Track guide and Ultra Fast Learn cram sheet
+carries the same coverage guarantee: every testable concept the full
+domain guide covers is retained somewhere in the condensed layer — only
+narrative explanation, extra worked examples, and repetition are cut, not
+exam-relevant content.
+
   ruling out each wrong answer.
 
 **Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated
@@ -489,26 +537,30 @@ rather than relying on a point-in-time human check.
 
 ## Complete file inventory
 
-The repository's Markdown content is **17 files**: `README.md`; the five
+The repository's Markdown content is **30 files**: `README.md`; the five
 domain guides (`domain-1-fundamentals-of-ai-and-ml.md` through
-`domain-5-security-compliance-governance.md`); the ten cross-domain support
-documents (`aws-service-index.md`, `aws-service-decision-guide.md`,
+`domain-5-security-compliance-governance.md`); the 13 Fast Track condensed
+guides across the five `docs/domain-N-fast-track/` directories (see "Fast
+Track condensed guides" above); the ten cross-domain support documents
+(`aws-service-index.md`, `aws-service-decision-guide.md`,
 `cross-domain-concept-map.md`, `cross-domain-scenario-questions.md`,
 `case-study-ai-system-lifecycle.md`, `exam-preparation-strategy.md`,
 `full-length-mock-exam.md`, `mock-exam.md`, `master-glossary.md`, and
 `GLOSSARY.md`); and this file, `DOCUMENTATION_STRUCTURE.md`. Every one of
-the sixteen `docs/` files is reachable from `README.md`'s study plan within
-two clicks (either linked directly, or linked from a domain guide's
-breadcrumb or glossary that README.md itself links to).
+the sixteen non-Fast-Track `docs/` files is reachable from `README.md`'s
+study plan within two clicks (either linked directly, or linked from a
+domain guide's breadcrumb or glossary that README.md itself links to).
 
 Combined, the ten cross-domain support documents listed above total
-**5,413 lines** (`aws-service-index.md`: 159; `aws-service-decision-guide.md`:
+**5,420 lines** (`aws-service-index.md`: 159; `aws-service-decision-guide.md`:
 793; `cross-domain-concept-map.md`: 281; `cross-domain-scenario-questions.md`:
 440; `case-study-ai-system-lifecycle.md`: 279; `exam-preparation-strategy.md`:
-581; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
-`master-glossary.md`: 238; `GLOSSARY.md`: 229), and all seventeen files
-together — `README.md`, the five domain guides, the ten cross-domain support
-documents, and this file — total **22,269 lines**.
+588; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
+`master-glossary.md`: 238; `GLOSSARY.md`: 229). The 13 Fast Track condensed
+guides listed above (see "Fast Track condensed guides" section) add
+**7,255 lines**. All thirty files together — `README.md`, the five domain
+guides, the 13 Fast Track condensed guides, the ten cross-domain support
+documents, and this file — total **29,609 lines**.
 
 ## Cross-linking architecture
 

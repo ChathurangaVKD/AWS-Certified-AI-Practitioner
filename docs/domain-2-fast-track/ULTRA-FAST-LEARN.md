@@ -18,7 +18,7 @@ guide section it's drawn from.
 - [4. Inference parameters](#4-inference-parameters)
 - [5. RAG architecture](#5-rag-architecture)
 - [6. Common GenAI risks](#6-common-genai-risks)
-- [7. AWS service → use case table](#7-aws-service--use-case-table)
+- [7. AWS service → use case table](#7-aws-service-use-case-table)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
 - [Common exam traps checklist](#common-exam-traps-checklist)
 - [Where each row comes from](#where-each-row-comes-from)

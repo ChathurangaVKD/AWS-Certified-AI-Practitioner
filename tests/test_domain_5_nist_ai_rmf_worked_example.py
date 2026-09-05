@@ -113,7 +113,7 @@ class TestDomain5NistAiRmfWorkedExample(unittest.TestCase):
                 self.assertIn(expected, self.section)
 
     def test_covers_measure_evaluation_and_monitoring_content(self):
-        for expected in ["model evaluation", "Model Monitor", "drift"]:
+        for expected in ["model evaluation", "Model\n   Monitor", "drift"]:
             with self.subTest(expected=expected):
                 self.assertIn(expected, self.section)
 

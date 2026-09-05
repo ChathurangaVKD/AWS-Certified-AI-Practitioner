@@ -22,9 +22,9 @@ AWS-Certified-AI-Practitioner/
 │   ├── domain-4-guidelines-for-responsible-ai.md
 │   ├── domain-5-security-compliance-governance.md
 │   │
-domain, currently 1,930–5,482 lines each, **14,407 lines total**:
+domain, currently 1,982–5,482 lines each, **14,459 lines total**:
 
-- Domain 1: 1,930 lines
+- Domain 1: 1,982 lines
 - Domain 2: 2,213 lines
 - Domain 3: 5,482 lines
 - Domain 4: 2,247 lines

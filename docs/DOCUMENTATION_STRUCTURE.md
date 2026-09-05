@@ -62,12 +62,12 @@ Track layer.
 Per domain, the Fast Track layer (condensed guide/parts plus cram sheet
 combined) totals:
 
-- Domain 1: 935 lines (`README.md` 743 + `ULTRA-FAST-LEARN.md` 192)
-- Domain 2: 1,135 lines (`README.md` 851 + `ULTRA-FAST-LEARN.md` 284)
-- Domain 3: 2,821 lines (`part-1` 832 + `part-2` 784 + `part-3` 847 +
+- Domain 1 Fast Track: 935 lines (`README.md` 743 + `ULTRA-FAST-LEARN.md` 192)
+- Domain 2 Fast Track: 1,135 lines (`README.md` 851 + `ULTRA-FAST-LEARN.md` 284)
+- Domain 3 Fast Track: 2,821 lines (`part-1` 832 + `part-2` 784 + `part-3` 847 +
   `ULTRA-FAST-LEARN.md` 358)
-- Domain 4: 954 lines (`README.md` 796 + `ULTRA-FAST-LEARN.md` 158)
-- Domain 5: 1,410 lines (`part-1` 698 + `part-2` 530 +
+- Domain 4 Fast Track: 954 lines (`README.md` 796 + `ULTRA-FAST-LEARN.md` 158)
+- Domain 5 Fast Track: 1,410 lines (`part-1` 698 + `part-2` 530 +
   `ULTRA-FAST-LEARN.md` 182)
 
 That is 13 files (2 + 2 + 4 + 2 + 3) totaling **7,255 lines** across all

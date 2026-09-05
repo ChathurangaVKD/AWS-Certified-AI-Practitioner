@@ -221,24 +221,117 @@ class TestDocumentationStructureCrossDomainLineCounts(unittest.TestCase):
             2,
             "expected exactly two stated line-count totals in the "
             "'Complete file inventory' section (the ten cross-domain "
-            f"documents, then the seventeen-file grand total), found "
+            f"documents, then the thirty-file grand total), found "
             f"{len(totals_stated)}",
         )
         grand_stated = int(totals_stated[-1].replace(",", ""))
+        fast_track_files = [
+            path
+            for paths in FAST_TRACK_FILES_BY_DOMAIN.values()
+            for path in paths
+        ]
         all_files = (
             [README_PATH]
             + list(DOMAIN_FILES.values())
+            + fast_track_files
             + [DOCS_DIR / name for name in self.CROSS_DOMAIN_LINE_COUNT_FILES]
             + [STRUCTURE_DOC]
         )
+        self.assertEqual(len(all_files), 30, "expected exactly 30 tracked files")
         grand_actual = sum(_line_count(path) for path in all_files)
         self.assertEqual(
             grand_stated,
             grand_actual,
-            "DOCUMENTATION_STRUCTURE.md states the seventeen tracked "
+            "DOCUMENTATION_STRUCTURE.md states the thirty tracked "
             f"files total {grand_stated} lines, but they actually total "
             f"{grand_actual} lines",
         )
+
+
+class TestDocumentationStructureFastTrackSection(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md must document the Fast Track /
+    Ultra Fast Learn condensed-guide layer: 13 files across five
+    domain-N-fast-track/ directories, previously omitted entirely even
+    though the files exist in the repo (a content-completeness gap in the
+    structure doc itself)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.normalized_text = re.sub(r"\s+", " ", cls.structure_text)
+
+    def test_fast_track_files_all_exist(self):
+        # Sanity check the fixture list itself stays valid.
+        for domain_number, paths in FAST_TRACK_FILES_BY_DOMAIN.items():
+            for path in paths:
+                with self.subTest(domain=domain_number, path=path.name):
+                    self.assertTrue(path.is_file(), f"{path} does not exist")
+
+    def test_fast_track_section_heading_present(self):
+        self.assertIn(
+            "## Fast Track condensed guides (13 files, 7,255 lines total)",
+            self.structure_text,
+            "DOCUMENTATION_STRUCTURE.md is missing the 'Fast Track "
+            "condensed guides' section documenting the 13-file, "
+            "domain-N-fast-track/ condensed-guide layer",
+        )
+
+    def test_three_tier_structure_documented(self):
+        for term in ("Full guide", "Fast Track", "Ultra Fast Learn"):
+            with self.subTest(term=term):
+                self.assertIn(term, self.structure_text)
+
+    def test_domain_3_and_5_part_split_documented(self):
+        for fragment in (
+            "part-1-application-design-and-customization.md",
+            "part-2-inference-and-multimodal.md",
+            "part-3-deployment-and-troubleshooting.md",
+            "part-1-security-and-compliance.md",
+            "part-2-governance-and-monitoring.md",
+            "Neither Domain 3 nor Domain 5 has a single",
+        ):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, self.structure_text)
+
+    def test_coverage_guarantee_documented(self):
+        self.assertIn("coverage guarantee", self.structure_text)
+        self.assertIn("every testable concept", self.structure_text)
+
+    def test_stated_fast_track_per_domain_line_counts_match_actual(self):
+        expected = {1: 935, 2: 1135, 3: 2821, 4: 954, 5: 1410}
+        for domain_number, paths in FAST_TRACK_FILES_BY_DOMAIN.items():
+            actual = sum(_line_count(path) for path in paths)
+            with self.subTest(domain=domain_number):
+                self.assertEqual(
+                    actual,
+                    expected[domain_number],
+                    f"Domain {domain_number}'s Fast Track files actually "
+                    f"total {actual} lines, not the {expected[domain_number]} "
+                    "this test (and the structure doc) expect",
+                )
+                formatted = f"{actual:,}"
+                self.assertIn(
+                    f"Domain {domain_number} Fast Track: {formatted} lines",
+                    self.structure_text,
+                    "DOCUMENTATION_STRUCTURE.md does not state the "
+                    f"current Fast Track line count ({formatted}) for "
+                    f"domain {domain_number}",
+                )
+
+    def test_stated_fast_track_total_matches_actual(self):
+        fast_track_files = [
+            path
+            for paths in FAST_TRACK_FILES_BY_DOMAIN.values()
+            for path in paths
+        ]
+        actual_total = sum(_line_count(path) for path in fast_track_files)
+        formatted = f"{actual_total:,}"
+        self.assertEqual(len(fast_track_files), 13)
+        self.assertIn(
+            f"Fast Track condensed guides (13 files, {formatted} lines total)",
+            self.structure_text,
+        )
+        self.assertIn(f"**{formatted} lines**", self.structure_text)
 
 
 class TestDocumentationStructureCrossDomainMaterials(unittest.TestCase):

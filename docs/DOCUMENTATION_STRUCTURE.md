@@ -22,6 +22,31 @@ AWS-Certified-AI-Practitioner/
 │   ├── domain-4-guidelines-for-responsible-ai.md
 │   ├── domain-5-security-compliance-governance.md
 │   │
+│   │   Ten cross-domain support documents ─────────────────────────
+│   ├── aws-service-index.md                    every AWS service, indexed across all 5 guides
+│   ├── aws-service-decision-guide.md           "which service is the exam answer here?"
+│   ├── cross-domain-concept-map.md             how D1/D2 concepts flow into D3/D4/D5, D3 into D4/D5
+│   ├── cross-domain-scenario-questions.md      22 questions spanning 2+ domains
+│   ├── case-study-ai-system-lifecycle.md       one company, one system, all 5 domains
+│   ├── exam-preparation-strategy.md            reading order, schedules, mock-exam plan
+│   ├── full-length-mock-exam.md                65-question, 90-minute mock exam (take first)
+│   ├── mock-exam.md                            second, different 65-question mock exam (take second)
+│   ├── master-glossary.md                      alphabetical term index, `[D#, ...]` tags
+│   └── GLOSSARY.md                             the same term set as backlinked prose
+│
+└── tests/
+    ├── test_domain_N_study_guide.py            structural checks, one file per domain
+    ├── test_domain_N_quick_reference_cheat_sheet.py
+    ├── test_domain_N_subsection_mini_quizzes.py
+    ├── test_domain_footer_navigation.py        breadcrumb link checks, all 5 domains
+    ├── test_cross_reference_links.py           every internal link/anchor resolves
+    ├── test_documentation_structure.py         this file stays in sync with reality
+    └── ...                                      one test file per cross-domain doc above
+```
+
+## Domain guides: per-domain coverage breakdown
+
+`docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
 domain, currently 1,930–5,289 lines each, **14,296 lines total**:
 
 - Domain 1: 1,930 lines

@@ -22,6 +22,7 @@
   - [EU AI Act — conceptual level](#eu-ai-act-conceptual-level)
   - [ISO/IEC 42001 and the Algorithmic Accountability Act — conceptual level](#isoiec-42001-and-the-algorithmic-accountability-act-conceptual-level)
   - [Compliance framework decision matrix](#compliance-framework-decision-matrix)
+  - [Compliance framework requirements comparison matrix](#compliance-framework-requirements-comparison-matrix)
 - [3. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
 - [4. Data governance strategies](#4-data-governance-strategies)
   - [Data lifecycle](#data-lifecycle)
@@ -1449,6 +1450,34 @@ mentioning "risk tiers" for an AI system always means the EU AI Act, not
 GDPR. See the [worked example below](#worked-example-filling-out-a-sagemaker-model-card-for-governance-sign-off)
 for how a completed SageMaker Model Card is actually used to defend a
 deployment decision to a compliance/risk committee.
+
+### Compliance framework requirements comparison matrix
+
+The decision matrix above gets you from a scenario's clues to the *right*
+framework; a different, equally common scenario type already knows which
+framework applies and asks what it actually *requires*. The table below
+cross-cuts the five frameworks covered in this section — GDPR, HIPAA, the
+NIST AI RMF, the EU AI Act, and ISO/IEC 42001 — by four requirements that
+repeat constantly across scenario questions, so they can be compared side
+by side instead of re-reading five separate subsections:
+
+| Framework | Encryption mandate | Audit logging requirement | Data residency requirement | Human oversight requirement |
+|---|---|---|---|---|
+| GDPR | Not explicitly mandated — Article 32 requires "appropriate" technical measures, citing encryption only as an example, not a blanket requirement | No explicit logging clause, but the accountability principle (Article 5(2)) requires being able to demonstrate compliance — typically met with CloudTrail/Config trails | No blanket EU-only rule, but cross-border transfer restrictions make keeping personal data in EU/EEA AWS Regions the practical default | Article 22 grants a right to human review of solely-automated decisions with a legal or similarly significant effect |
+| HIPAA | "Addressable" implementation specification under the Security Rule — must be implemented, or a documented equivalent alternative adopted; not optional in practice | Required — the Security Rule mandates audit controls that record and examine PHI access activity (45 CFR §164.312(b)) | No geographic restriction — HIPAA governs access control and encryption of PHI, not where it is stored | Not mandated by statute; expected as an operational safeguard when PHI informs a clinical decision |
+| NIST AI RMF | Not prescribed — voluntary guidance defers to existing technical controls (e.g., AWS KMS) under the Manage function | Recommended under Govern/Measure to build an auditable risk-management trail — not a compliance requirement | Not addressed — a process framework, not a data-location rule | Recommended under Govern/Manage as part of a risk-based accountability culture — not mandatory |
+| EU AI Act | Not specified directly; addressed indirectly through the high-risk "accuracy, robustness, and cybersecurity" requirement (Article 15) | Required for high-risk systems — automatic event logging ("record-keeping") across the system's lifecycle (Article 12) | Not a general requirement; the Act focuses on training/validation data governance quality (Article 10), not geographic location | Required for high-risk systems — Article 14 mandates human oversight measures that let a human intervene in or halt the system |
+| ISO/IEC 42001 | Not prescribed directly — organizations select controls, including encryption, based on their own AI risk assessment under the AI management system (AIMS) | Required indirectly — a certifiable AIMS must include monitoring and internal-audit processes (Clause 9), with logging as supporting evidence | Not addressed — an organizational management-system standard, not a data-location rule | Addressed via Annex A controls on human oversight of AI system objectives and impacts, scoped to the organization's own risk assessment |
+
+**Exam tip:** Sort this table by binding vs. voluntary, not by topic:
+HIPAA and the EU AI Act impose specific, checkable requirements (HIPAA's
+audit-control mandate; the EU AI Act's logging and human-oversight
+mandates for high-risk systems), GDPR's requirements are principle-based
+("appropriate" measures, a right to human review) rather than
+prescriptive, and the NIST AI RMF and ISO/IEC 42001 recommend the same
+controls without ever mandating them. A scenario asking which framework
+*legally requires* audit logging for a high-risk AI system points to the
+EU AI Act, not the NIST AI RMF, even though both discuss logging.
 
 #### Worked example: filling out a SageMaker Model Card for governance sign-off
 

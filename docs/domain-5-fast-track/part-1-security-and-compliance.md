@@ -9,10 +9,10 @@ study guide, covering **Section 1 (Securing AI systems)** and **Section 2
 (AWS compliance standards)** — IAM, encryption, network isolation, the
 security-threat catalog, cost governance, MITRE ATLAS/OWASP, and all five
 compliance frameworks (GDPR, HIPAA, NIST AI RMF, EU AI Act, ISO/IEC 42001).
-**Part 2** (not yet published) will cover Section 3 (AWS Config/Audit
-Manager/CloudTrail), Section 4 (data governance), and Section 5 (shared
-responsibility model) — for those topics, read the [full
-guide](../domain-5-security-compliance-governance.md) directly for now.
+**[Part 2](../domain-5-fast-track/part-2-governance-and-monitoring.md)**
+covers Section 3 (AWS Config/Audit Manager/CloudTrail), Section 4 (data
+governance), and Section 5 (the shared responsibility model), plus the
+domain's two cross-cutting worked examples.
 
 This part keeps **every testable concept** from its scope — every IAM/
 encryption/network control, every named security threat and its
@@ -686,14 +686,13 @@ guide for:
   and 2
 - [Practice questions and answer key](../domain-5-security-compliance-governance.md#practice-questions)
 
-**Not yet covered by this fast track — reserved for Part 2** (governance
-and monitoring services, data governance strategies, and the shared
-responsibility model): read [full guide, Section
-3](../domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
-onward directly until Part 2 is published.
+**Continue to [Part 2](../domain-5-fast-track/part-2-governance-and-monitoring.md)**
+for governance and monitoring services (AWS Config, Audit Manager, and
+CloudTrail), data governance strategies, the shared responsibility model,
+and the domain's two cross-cutting worked examples.
 
 For material that spans multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).
 
-[← Back to the full Domain 5 guide](../domain-5-security-compliance-governance.md#1-securing-ai-systems) · [Domain 4 Fast Track ←](../domain-4-fast-track/README.md)
+[← Back to the full Domain 5 guide](../domain-5-security-compliance-governance.md#1-securing-ai-systems) · [Part 2 →](../domain-5-fast-track/part-2-governance-and-monitoring.md) · [Domain 4 Fast Track ←](../domain-4-fast-track/README.md)

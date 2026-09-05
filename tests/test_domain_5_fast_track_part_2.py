@@ -1,35 +1,30 @@
-"""Structural validation for the Domain 5 Fast Track (Part 1) condensed guide.
+"""Structural validation for the Domain 5 Fast Track (Part 2) condensed guide.
 
 The gap this covers: Domain 5 (Security, Compliance, and Governance for AI
 Solutions) is 2,853 lines -- too long for a last-minute, day-before-the-exam
-re-read, and unlike Domain 4 there was no fast-track condensed guide at all.
-A single ~1,100-1,150 line condensation of the whole domain would land in the
-size range that has previously caused single-document opportunities to be
-rejected as oversized, so Domain 5's fast track is split along its own topic
-boundary into two parts. Part 1 --
-`docs/domain-5-fast-track/part-1-security-and-compliance.md` -- covers
-Section 1 (Securing AI systems: IAM, encryption, PrivateLink/VPC endpoints,
-source citation/lineage, security threats, cost governance, MITRE
-ATLAS/OWASP) and Section 2 (the five compliance frameworks: GDPR, HIPAA,
-NIST AI RMF, EU AI Act, ISO/IEC 42001, plus the two compliance comparison
-matrices) -- roughly the first 1,600 of the full guide's 2,853 lines. Part 2
-(`docs/domain-5-fast-track/part-2-governance-and-monitoring.md`, covering
-Sections 3-5: governance/audit services, data governance, shared
-responsibility, plus the domain's two cross-cutting worked examples) is
-intentionally out of scope for this file and is validated separately by
-tests/test_domain_5_fast_track_part_2.py.
+re-read -- so its fast track is split along its own topic boundary into two
+parts (see tests/test_domain_5_fast_track_part_1.py for Part 1's rationale).
+Part 2 -- `docs/domain-5-fast-track/part-2-governance-and-monitoring.md` --
+covers Section 3 (AWS Config, AWS Audit Manager, and AWS CloudTrail for AI
+governance), Section 4 (data governance strategies: data lifecycle, data
+residency, data monitoring), Section 5 (the AWS shared responsibility model
+applied to AI/ML services), and condensed pointers into the domain's two
+cross-cutting worked examples (the HIPAA-regulated Bedrock lifecycle, and the
+multi-region GDPR/HIPAA/NIST AI RMF deployment) plus its shared
+quick-reference cheat sheet, glossary, and practice question set -- roughly
+the last 1,200 of the full guide's 2,853 lines.
 
-These tests assert that Part 1 exists, sits in a sane length band relative
-to both the full source guide and the ~1,600-line span it condenses, links
-back to the full guide with resolving anchors, and actually preserves the
-covered material's testable concepts (IAM/least privilege, the
-encryption-at-rest/in-transit/model-encryption distinction, PrivateLink,
-every named security threat and its mitigation, MITRE ATLAS/OWASP, and all
-five compliance frameworks with their binding-vs-voluntary status) as tables
-and diagrams rather than just asserting they exist in prose.
+These tests assert that Part 2 exists, sits in a sane length band relative
+to both the full source guide and the ~1,200-line span it condenses, links
+back to the full guide (and to Part 1) with resolving anchors, and actually
+preserves the covered material's testable concepts (the CloudTrail/Config/
+Audit Manager distinction, data lifecycle/residency/monitoring concepts and
+their services, and the shared responsibility model's Bedrock-vs-SageMaker
+split) as tables and diagrams rather than just asserting they exist in
+prose.
 
 Run with:
-    python3 -m unittest tests/test_domain_5_fast_track_part_1.py -v
+    python3 -m unittest tests/test_domain_5_fast_track_part_2.py -v
 """
 
 import re
@@ -38,13 +33,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_DIR = REPO_ROOT / "docs"
-FAST_TRACK_PATH = DOCS_DIR / "domain-5-fast-track" / "part-1-security-and-compliance.md"
+FAST_TRACK_PATH = DOCS_DIR / "domain-5-fast-track" / "part-2-governance-and-monitoring.md"
 SOURCE_PATH = DOCS_DIR / "domain-5-security-compliance-governance.md"
 
-# Approximate full-guide line span this part condenses (Section 1 + Section 2,
-# i.e. "1. Securing AI systems" through the end of the requirements
-# comparison matrix worked example, before "3. AWS Config, ...").
-COVERED_SOURCE_LINE_ESTIMATE = 1600
+# Approximate full-guide line span this part condenses (Section 3 through
+# the end of the two cross-cutting worked examples, i.e. "3. AWS Config,
+# AWS Audit Manager, and AWS CloudTrail ..." through the end of the
+# multi-region GDPR/HIPAA/NIST AI RMF worked example, before the shared
+# comparison tables / cheat sheet / glossary / practice questions).
+COVERED_SOURCE_LINE_ESTIMATE = 1200
 
 MD_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)\s]+)\)")
 
@@ -72,19 +69,19 @@ def _heading_anchors(doc_text):
     return {_slugify(h) for h in headings}
 
 
-class TestFastTrackPart1Exists(unittest.TestCase):
+class TestFastTrackPart2Exists(unittest.TestCase):
     def test_file_exists(self):
         self.assertTrue(
             FAST_TRACK_PATH.is_file(),
-            "expected docs/domain-5-fast-track/part-1-security-and-compliance.md to exist",
+            "expected docs/domain-5-fast-track/part-2-governance-and-monitoring.md to exist",
         )
 
     def test_source_guide_exists(self):
         self.assertTrue(SOURCE_PATH.is_file())
 
 
-class TestFastTrackPart1Length(unittest.TestCase):
-    """Part 1 condenses roughly the first 1,600 lines of the 2,853-line
+class TestFastTrackPart2Length(unittest.TestCase):
+    """Part 2 condenses roughly the last 1,200 lines of the 2,853-line
     source guide down to a fast-track summary. Assert it's a real, sizeable
     condensation of its covered scope -- not a stub, and not a near-copy of
     the whole domain guide (which would defeat the point of splitting it
@@ -102,15 +99,16 @@ class TestFastTrackPart1Length(unittest.TestCase):
         self.assertGreater(self.fast_track_lines, self.source_lines * 0.15)
 
     def test_fast_track_is_a_reasonable_condensation_of_its_covered_span(self):
-        # Relative to the ~1,600 lines of source material Part 1 actually
-        # condenses (Sections 1-2), it should land well under 100% (a real
-        # condensation) but comfortably above a token stub.
+        # Relative to the ~1,200 lines of source material Part 2 actually
+        # condenses (Sections 3-5 plus the two cross-cutting worked
+        # examples), it should land well under 100% (a real condensation)
+        # but comfortably above a token stub.
         ratio = self.fast_track_lines / COVERED_SOURCE_LINE_ESTIMATE
         self.assertGreater(ratio, 0.25)
         self.assertLess(ratio, 0.9)
 
 
-class TestFastTrackPart1Structure(unittest.TestCase):
+class TestFastTrackPart2Structure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.text = _read(FAST_TRACK_PATH)
@@ -118,12 +116,18 @@ class TestFastTrackPart1Structure(unittest.TestCase):
     def test_has_top_level_heading(self):
         self.assertTrue(self.text.startswith("# Domain 5 Fast Track"))
 
-    def test_heading_identifies_this_as_part_1(self):
-        self.assertIn("Part 1", self.text.splitlines()[0])
+    def test_heading_identifies_this_as_part_2(self):
+        self.assertIn("Part 2", self.text.splitlines()[0])
 
     def test_links_back_to_full_guide(self):
         self.assertIn(
             "(../domain-5-security-compliance-governance.md)",
+            self.text,
+        )
+
+    def test_links_back_to_part_1(self):
+        self.assertIn(
+            "(../domain-5-fast-track/part-1-security-and-compliance.md)",
             self.text,
         )
 
@@ -148,8 +152,8 @@ class TestFastTrackPart1Structure(unittest.TestCase):
             self.text.count("```mermaid"),
             2,
             "expected the fast track guide to carry Mermaid diagrams for "
-            "the KMS key lifecycle / architecture and the compliance "
-            "decision tree / NIST AI RMF mapping",
+            "the Config/Audit Manager/Artifact evidence chain and the "
+            "data-governance pipeline",
         )
 
     def test_contains_at_least_seven_markdown_tables(self):
@@ -157,17 +161,15 @@ class TestFastTrackPart1Structure(unittest.TestCase):
         self.assertGreaterEqual(
             len(table_separator_rows),
             7,
-            "expected multiple comparison/decision tables (security "
-            "threats, compliance frameworks, requirements matrix, etc.)",
+            "expected multiple comparison/decision tables (governance "
+            "services, data monitoring, shared responsibility, etc.)",
         )
 
 
-class TestFastTrackPart1CrossReferencesResolve(unittest.TestCase):
+class TestFastTrackPart2CrossReferencesResolve(unittest.TestCase):
     """Every internal link out of the fast track guide must resolve to a
     real file and, if anchored, a real heading in that file -- mirroring
-    tests/test_cross_reference_links.py's conventions for the five domain
-    guides and tests/test_domain_4_fast_track_guide.py's conventions for
-    the Domain 4 fast track."""
+    tests/test_domain_5_fast_track_part_1.py's conventions."""
 
     @classmethod
     def setUpClass(cls):
@@ -222,107 +224,70 @@ class TestFastTrackPart1CrossReferencesResolve(unittest.TestCase):
                 )
 
 
-class TestFastTrackPart1Content(unittest.TestCase):
-    """Part 1 must keep every testable concept named in its scope: IAM and
-    least privilege, the data-vs-model encryption distinction, PrivateLink,
-    every named security threat and its mitigation, both security
-    frameworks, and all five compliance frameworks with their
-    binding-vs-voluntary status."""
+class TestFastTrackPart2Content(unittest.TestCase):
+    """Part 2 must keep every testable concept named in its scope: the
+    CloudTrail/Config/Audit Manager distinction, data governance strategies
+    and their services, and the shared responsibility model."""
 
     @classmethod
     def setUpClass(cls):
         cls.text = _read(FAST_TRACK_PATH)
 
-    def test_covers_iam_concepts(self):
+    def test_covers_governance_and_audit_services(self):
         for term in [
-            "IAM roles",
-            "IAM policies",
-            "Least privilege",
-            "IAM Access Analyzer",
+            "AWS CloudTrail",
+            "AWS Config",
+            "AWS Audit Manager",
+            "Config rules",
+            "AWS Artifact",
         ]:
             with self.subTest(term=term):
                 self.assertIn(term, self.text)
 
-    def test_covers_encryption_concepts(self):
+    def test_covers_data_monitoring_services(self):
+        for term in ["Amazon Macie", "Amazon CloudWatch", "Amazon GuardDuty"]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_data_governance_concepts(self):
         for term in [
-            "Encryption at rest",
-            "customer managed key",
-            "Model encryption",
-            "AWS KMS",
+            "Data lifecycle",
+            "Data residency",
+            "Data sovereignty",
+            "Data monitoring",
+            "S3 Lifecycle",
         ]:
             with self.subTest(term=term):
                 self.assertIn(term, self.text)
 
-    def test_covers_privatelink_and_vpc_endpoints(self):
-        self.assertIn("AWS PrivateLink", self.text)
-        self.assertIn("interface VPC endpoint", self.text)
+    def test_covers_knowledge_base_drift_distinction(self):
+        self.assertIn("hallucination", self.text.lower())
+        self.assertIn("re-embed", self.text.lower())
 
-    def test_covers_source_citation_and_lineage(self):
-        self.assertIn("Source citation", self.text)
-        self.assertIn("Data lineage", self.text)
-        self.assertIn("SageMaker ML Lineage Tracking", self.text)
-
-    def test_covers_all_named_security_threats(self):
-        for threat in [
-            "Data poisoning",
-            "Prompt injection (direct)",
-            "Prompt injection (indirect)",
-            "Model inversion / extraction",
-            "Model drift",
-            "Insecure output handling",
-            "Model denial of service",
-            "Supply chain vulnerabilities",
-            "Sensitive information disclosure",
-            "Insecure plugin design",
-            "Excessive agency",
-            "Overreliance",
+    def test_covers_shared_responsibility_model(self):
+        for term in [
+            "Shared Responsibility Model",
+            'security "of" the cloud',
+            'security "in" the cloud',
+            "Amazon Bedrock",
+            "Amazon SageMaker",
         ]:
-            with self.subTest(threat=threat):
-                self.assertIn(threat, self.text)
-
-    def test_covers_differential_privacy(self):
-        self.assertIn("Differential privacy", self.text)
-        self.assertIn("privacy budget", self.text)
-
-    def test_covers_cost_governance_controls(self):
-        for term in ["Service Quotas", "usage plan"]:
             with self.subTest(term=term):
                 self.assertIn(term, self.text)
 
-    def test_covers_security_frameworks(self):
-        self.assertIn("MITRE ATLAS", self.text)
-        self.assertIn("OWASP Top 10 for LLM Applications", self.text)
+    def test_covers_worked_example_topics(self):
+        self.assertIn("MedNote", self.text)
+        self.assertIn("Northfield Genomics", self.text)
 
-    def test_covers_aws_artifact_reports_vs_agreements(self):
-        self.assertIn("Artifact Reports", self.text)
-        self.assertIn("Artifact Agreements", self.text)
-        self.assertIn("Business Associate Addendum", self.text)
-        self.assertIn("Data Processing Addendum", self.text)
-
-    def test_covers_all_five_compliance_frameworks(self):
-        for framework in [
-            "GDPR",
-            "HIPAA",
-            "NIST AI RMF",
-            "EU AI Act",
-            "ISO/IEC 42001",
-        ]:
-            with self.subTest(framework=framework):
-                self.assertIn(framework, self.text)
-
-    def test_covers_binding_vs_voluntary_distinction(self):
-        self.assertIn("Binding vs. voluntary", self.text)
-        self.assertIn("Algorithmic Accountability Act", self.text)
-
-    def test_covers_nist_ai_rmf_four_functions(self):
-        for function in ["GOVERN", "MAP", "MEASURE", "MANAGE"]:
-            with self.subTest(function=function):
-                self.assertIn(function, self.text)
-
-    def test_covers_eu_ai_act_risk_tiers(self):
-        for tier in ["unacceptable", "high", "limited", "minimal"]:
-            with self.subTest(tier=tier):
-                self.assertIn(tier, self.text)
+    def test_has_comparison_tables_from_full_guide(self):
+        self.assertIn(
+            "\n## Comparison table: governance and monitoring services\n",
+            self.text,
+        )
+        self.assertIn(
+            "\n## Comparison table: governance and compliance regulations at a glance\n",
+            self.text,
+        )
 
     def test_has_key_terms_section_with_bolded_terms(self):
         key_terms_match = re.search(
@@ -347,13 +312,15 @@ class TestFastTrackPart1Content(unittest.TestCase):
         bullet_count = traps_match.group(1).count("\n- [ ]")
         self.assertGreaterEqual(bullet_count, 8)
 
-    def test_links_forward_to_part_2(self):
-        # Part 2 now exists, so Part 1 should link to it by name rather than
-        # just mentioning it in prose.
-        self.assertIn("Part 2", self.text)
+    def test_links_forward_from_part_1(self):
+        # Part 1 must link forward to this file now that it exists.
+        part_1_path = (
+            FAST_TRACK_PATH.parent / "part-1-security-and-compliance.md"
+        )
+        part_1_text = _read(part_1_path)
         self.assertIn(
             "(../domain-5-fast-track/part-2-governance-and-monitoring.md)",
-            self.text,
+            part_1_text,
         )
 
 

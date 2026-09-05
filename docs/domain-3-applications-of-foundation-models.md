@@ -15,6 +15,8 @@
 - [4. Fine-tuning vs. continued pre-training vs. RAG vs. prompt engineering](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering)
   - [Fine-tuning efficiency techniques: full fine-tuning vs. LoRA vs. QLoRA vs. instruction tuning](#fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning)
   - [Reinforcement Learning from Human Feedback (RLHF): aligning fine-tuned models to human preferences](#reinforcement-learning-from-human-feedback-rlhf-aligning-fine-tuned-models-to-human-preferences)
+  - [Curating a fine-tuning dataset: size thresholds, a quality checklist, and synthetic vs. real data](#curating-a-fine-tuning-dataset-size-thresholds-a-quality-checklist-and-synthetic-vs-real-data)
+    - [Worked example: curating a dataset for a domain-specific fine-tuning task](#worked-example-curating-a-dataset-for-a-domain-specific-fine-tuning-task)
 - [5. Amazon Bedrock features](#5-amazon-bedrock-features)
   - [Guardrails rule-type decision tree: matching the use case to the right filter](#guardrails-rule-type-decision-tree-matching-the-use-case-to-the-right-filter)
     - [Worked example: preventing brand-mention violations in product recommendations](#worked-example-preventing-brand-mention-violations-in-product-recommendations)
@@ -1996,6 +1998,159 @@ needs to answer questions about the current product catalog and open
 support tickets, they keep a **RAG** layer over Amazon Bedrock Knowledge
 Bases in front of the whole pipeline — RLHF improves *how* the model
 responds, RAG ensures *what* it knows stays current.
+
+### Curating a fine-tuning dataset: size thresholds, a quality checklist, and synthetic vs. real data
+
+Everything above assumes a labeled dataset already exists. In practice,
+**building that dataset is usually the long pole** in a fine-tuning
+project, and it's where most avoidable failures happen: a model that
+underfits because there isn't enough data, or one that memorizes a small
+dataset instead of generalizing (**overfitting**), or one that learns the
+wrong thing because the labels are noisy or skewed toward one class. This
+subsection gives concrete, exam-relevant guidance on how much data you
+need, how to judge whether it's good enough, and when synthetic data is
+an acceptable substitute for real, human-produced examples.
+
+**Recommended minimum dataset size, by technique and model scale:** these
+are order-of-magnitude rules of thumb — the right number always depends
+on task difficulty and label quality — but the *relative* ordering below
+(larger model + narrower parameter update = fewer examples needed;
+full fine-tuning of a large model = the most data-hungry option) is what
+the exam expects you to reason about:
+
+| Technique / model scale | Recommended minimum labeled examples | Why |
+|---|---|---|
+| LoRA or QLoRA on a small-to-mid model (≤13B params), one narrow task | ~100–500 examples | Only a small set of low-rank adapter weights is trained, so the base model's existing knowledge carries most of the load; a few hundred well-chosen examples is often enough to shift behavior |
+| LoRA or QLoRA on a large model (34B+ params), one narrow task | ~500–1,000 examples | Larger models still need proportionally more examples to adapt reliably, even though the adapter itself stays small |
+| Instruction tuning (broad, multi-task), any model size | ~1,000–10,000+ examples spanning many task types | Breadth of coverage matters more than depth on any single task — thin coverage of a task type shows up as inconsistent behavior on that task |
+| Full fine-tuning of a small-to-mid model, one narrow task | ~1,000–10,000 examples | Every weight in the model is updated, so it needs more examples than LoRA/QLoRA to avoid overfitting to a small set |
+| Full fine-tuning of a large model (34B+ params), one narrow task | ~10,000–100,000+ examples | The most data-hungry combination — a large parameter count updated in full needs a correspondingly large dataset, or it overfits and can suffer **catastrophic forgetting** of general capabilities |
+| Continued pre-training (domain adaptation), any model size | Millions to billions of tokens of **unlabeled** domain text (measured in GB, not example counts) | Self-supervised training on raw text needs volume, not labels — see [Section 4's comparison above](#4-fine-tuning-vs-continued-pre-training-vs-rag-vs-prompt-engineering) |
+
+> **Exam tip:** If a scenario describes fewer than roughly 50–100
+> examples per class or task, that's usually a signal the exam wants you
+> to reach for **prompt engineering (few-shot examples in the prompt)**
+> or **RAG** instead of fine-tuning — a dataset that small is far more
+> likely to cause overfitting than to reliably teach a new behavior.
+
+**Avoiding overfitting on a small dataset:** when the labeled dataset is
+unavoidably small, several techniques reduce the risk of the model
+memorizing the training examples instead of generalizing:
+
+- **Hold out a validation set** (even a small one) that's never trained
+  on, and stop training when validation loss stops improving (**early
+  stopping**) rather than training for a fixed number of epochs.
+- **Prefer LoRA/QLoRA over full fine-tuning** on small datasets — training
+  far fewer parameters is itself a strong regularizer against
+  overfitting.
+- **Lower the LoRA rank** and/or add dropout if the model starts
+  reproducing training examples verbatim on validation prompts.
+- **Augment or synthesize additional examples** (see below) rather than
+  training many epochs over the same small set of real examples.
+
+#### Data-quality checklist
+
+Dataset **size** is necessary but not sufficient — a large dataset full
+of near-duplicate, mislabeled, or narrowly-scoped examples can perform
+worse than a much smaller, carefully curated one. Before starting a
+training run, check the dataset against each of these:
+
+- **Diversity** — does the dataset span the full range of inputs the
+  model will see in production (different phrasings, lengths, formats,
+  user personas, languages/locales), or does it only cover the most
+  common, "easy" cases?
+- **Edge-case coverage** — are boundary and rare-but-important cases
+  deliberately included (ambiguous inputs, adversarial/malformed inputs,
+  minority categories), not just the typical case? A model fine-tuned
+  only on typical examples tends to fail exactly where it matters most in
+  production.
+- **Label correctness** — were labels produced (or reviewed) by someone
+  with real subject-matter expertise, and is there a measured
+  **inter-annotator agreement** for cases with more than one labeler? A
+  small number of confidently wrong labels can teach the model the wrong
+  behavior more effectively than an equal number of missing examples.
+- **Class/category balance** — is the distribution across labels or task
+  types checked against the balance the model needs in production, and
+  is severe imbalance corrected (by oversampling the minority class,
+  undersampling the majority class, or weighting the loss function),
+  rather than left as-is? An imbalanced dataset teaches a model to
+  default to the majority class.
+
+#### Synthetic vs. real training data: trade-offs
+
+Synthetic data — examples generated by another (often larger or more
+capable) FM rather than collected from real users or hand-written by
+experts — is an increasingly common way to cheaply expand a small
+dataset. It's a useful supplement, not a universal substitute:
+
+| Dimension | Synthetic data | Real (human-produced) data |
+|---|---|---|
+| Cost and speed to acquire | Low cost, fast — can generate thousands of examples in hours | High cost, slow — requires collection and/or expert labeling |
+| Coverage of rare edge cases | Can be deliberately steered to cover specific edge cases on demand | Depends on what actually occurred in the wild; rare cases may be genuinely rare in the source data |
+| Label/ground-truth fidelity | Only as accurate as the generating model — silently propagates that model's own errors and blind spots | Reflects real-world ground truth, subject to human labeling error |
+| Risk of bias amplification | Higher — reproduces and can amplify the generating model's existing biases and stylistic quirks | Lower, but inherits whatever biases exist in the real-world source population |
+| Best use | Filling gaps in coverage (rare classes, adversarial cases) and bootstrapping an initial dataset before real data is available | The foundation of the dataset, especially for the task's core, highest-stakes behavior |
+
+> **Exam tip:** The safest exam-tested pattern is **real data as the
+> foundation, synthetic data to fill specific, identified gaps** —
+> never the reverse. A scenario describing a dataset that is *entirely*
+> synthetic, especially for a high-stakes task, should raise a flag: the
+> model risks learning the generating model's errors and biases rather
+> than ground truth. This connects directly to [Domain 4's coverage of
+> bias in training data](domain-4-guidelines-for-responsible-ai.md).
+
+#### Worked example: curating a dataset for a domain-specific fine-tuning task
+
+**Scenario:** An insurance company wants to fine-tune a small model
+(≤13B params, via LoRA) to classify incoming claims-adjuster notes into
+one of eight structured categories (e.g., "requires additional
+documentation," "approved," "requires manual review"). They start with
+600 real, historical adjuster notes pulled from their claims system.
+
+**Step 1 — check size against the decision table.** LoRA on a small
+model for one narrow classification task recommends roughly 100–500
+examples as a minimum; 600 examples clears that bar, so the *volume* is
+plausible — but volume alone isn't a green light yet.
+
+**Step 2 — run the data-quality checklist.**
+
+- *Class balance:* a count by category shows "approved" makes up 480 of
+  the 600 notes (80%), while "requires manual review" has only 12
+  examples. This imbalance would train a model that defaults to
+  predicting "approved" and rarely predicts the minority classes
+  correctly.
+- *Diversity:* nearly all 600 notes come from a single regional office's
+  writing style and terminology, which won't generalize to adjusters in
+  other regions.
+- *Label correctness:* a 50-example audit against a senior adjuster's
+  independent review finds a 6% label-error rate, concentrated in the
+  "requires additional documentation" vs. "requires manual review"
+  boundary — those two categories need clearer labeling guidelines.
+- *Edge-case coverage:* almost no examples of claims with conflicting or
+  incomplete information, which is exactly when the model's judgment
+  matters most.
+
+**Step 3 — fix what the checklist found.** The team: relabels the
+audited 6% using a clarified rubric distinguishing the two confused
+categories; **oversamples** the minority classes (and, where real
+examples are scarce, generates a bounded number of **synthetic** notes
+for the rarest classes, reviewed by an adjuster before inclusion, per
+the "real as the foundation, synthetic to fill gaps" pattern above);
+and deliberately sources additional real notes from other regional
+offices to widen the diversity of phrasing and terminology.
+
+**Step 4 — hold out a validation set and train.** They hold out 15% of
+the corrected, rebalanced dataset (stratified so every category is
+represented in the holdout) and train with LoRA, using early stopping on
+validation loss to guard against overfitting to the now-larger but still
+modest dataset.
+
+**Result:** the fixes target the checklist failures directly — balance
+and diversity fixes address the classes the model was previously
+guaranteed to mis-predict, and the label-correctness fix removes a
+systematic source of confusion at the exact category boundary the model
+needs to get right — rather than simply collecting more data of the same
+skewed, error-prone shape.
 
 ---
 

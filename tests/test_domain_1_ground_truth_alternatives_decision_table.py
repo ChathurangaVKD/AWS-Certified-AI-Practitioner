@@ -33,9 +33,11 @@ DOC_PATH = (
 HEADING = (
     "### Amazon SageMaker Ground Truth: data labeling and when NOT to use it"
 )
-TABLE_INTRO = (
-    "**Decision table: Ground Truth vs. synthetic data generation vs. "
-    "active learning vs. weak supervision**"
+# Markdown prose wraps at ~79 columns, so allow arbitrary whitespace
+# between words rather than matching one exact literal line-wrapped string.
+TABLE_INTRO_RE = re.compile(
+    r"\*\*Decision table:\s+Ground Truth vs\.\s+synthetic data generation "
+    r"vs\.\s+active\s+learning vs\.\s+weak supervision\*\*"
 )
 
 
@@ -62,14 +64,24 @@ class TestDomain1GroundTruthAlternativesDecisionTable(unittest.TestCase):
         )
 
     def test_decision_table_intro_present_inside_ground_truth_subsection(self):
-        self.assertIn(TABLE_INTRO, self.subsection)
+        intro_match = TABLE_INTRO_RE.search(self.subsection)
+        self.assertIsNotNone(
+            intro_match,
+            "expected a 'Decision table: Ground Truth vs. synthetic data "
+            "generation vs. active learning vs. weak supervision' intro "
+            "inside the Ground Truth subsection",
+        )
 
     def test_decision_table_is_an_actual_markdown_table(self):
-        table_text = self.subsection[self.subsection.index(TABLE_INTRO):]
+        intro_match = TABLE_INTRO_RE.search(self.subsection)
+        self.assertIsNotNone(intro_match)
+        table_text = self.subsection[intro_match.start():]
         self.assertRegex(table_text, r"\|---\|---\|---\|---\|")
 
     def test_decision_table_covers_all_four_strategies(self):
-        table_text = self.subsection[self.subsection.index(TABLE_INTRO):]
+        intro_match = TABLE_INTRO_RE.search(self.subsection)
+        self.assertIsNotNone(intro_match)
+        table_text = self.subsection[intro_match.start():]
         for term in [
             "SageMaker Ground Truth",
             "Active learning",
@@ -114,9 +126,11 @@ class TestDomain1GroundTruthAlternativesDecisionTable(unittest.TestCase):
         )
 
     def test_has_decision_table_exam_tip_naming_all_four_strategies(self):
+        # Blockquote continuation lines are prefixed with "> ", so allow
+        # "\n> " (in addition to plain whitespace) between wrapped words.
         tip_match = re.search(
             r"> \*\*Exam tip:\*\* When Ground Truth, active learning, "
-            r"weak\nsupervision, and\nsynthetic data.*",
+            r"weak[\s>]+supervision, and[\s>]+synthetic data.*",
             self.subsection,
         )
         self.assertIsNotNone(

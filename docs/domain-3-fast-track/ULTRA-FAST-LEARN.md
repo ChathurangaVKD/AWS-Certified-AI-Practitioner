@@ -14,8 +14,8 @@ it's drawn from.
 
 - [1. Customization trade-off table (the most-tested decision)](#1-customization-trade-off-table-the-most-tested-decision)
 - [2. Prompt engineering techniques at a glance](#2-prompt-engineering-techniques-at-a-glance)
-- [3. Bedrock features checklist (keyword → feature)](#3-bedrock-features-checklist-keyword--feature)
-- [4. Vector databases and embeddings — bullet summary](#4-vector-databases-and-embeddings--bullet-summary)
+- [3. Bedrock features checklist (keyword → feature)](#3-bedrock-features-checklist-keyword-feature)
+- [4. Vector databases and embeddings — bullet summary](#4-vector-databases-and-embeddings-bullet-summary)
 - [5. Evaluation-strategy table](#5-evaluation-strategy-table)
 - [6. Infrastructure-scaling bullets](#6-infrastructure-scaling-bullets)
 - [7. Prompt-injection prevention bullets](#7-prompt-injection-prevention-bullets)
@@ -281,8 +281,30 @@ it's drawn from.
   candidate set for relevance.
 - **Hybrid search** — vector (semantic) search combined with
   keyword/full-text search in one query.
-- **AWS Trainium / AWS Inferentia** — purpose-built chips for
-  cost-efficient training / inference, respectively.
+- **AWS Trainium** — purpose-built AWS chip for cost-efficient
+  **training** at scale (EC2 Trn1/Trn2).
+- **AWS Inferentia** — purpose-built AWS chip for cost-efficient
+  **inference** (EC2 Inf1/Inf2).
+- **Retrieval Augmented Generation (RAG)** — grounds FM answers in
+  retrieved external data at inference time, without retraining.
+- **Fine-tuning** — further training an FM's weights on labeled data
+  for a specific task, style, or format.
+- **Continued pre-training** — further training an FM on large volumes
+  of unlabeled domain-specific text for broad domain fluency.
+- **Amazon Bedrock Knowledge Bases** — Bedrock's fully managed RAG
+  feature: automatic ingestion, chunking, embedding, and retrieval.
+- **Denied topics (Guardrails)** — semantic block on an entire subject
+  area regardless of phrasing.
+- **Content filters (Guardrails)** — built-in ML classifiers per harm
+  category (hate, violence, sexual, prompt injection).
+- **Business metric** — outcome-oriented measure (CSAT, conversion
+  rate, cost per interaction) distinct from model-quality metrics.
+- **Human evaluation** — people scoring FM outputs on subjective
+  criteria (tone, creativity) that automatic metrics can't capture.
+- **Benchmark dataset** — standardized dataset used to objectively and
+  reproducibly score and compare model quality.
+- **Amazon SageMaker JumpStart** — hub of pretrained FMs and templates
+  deployable/fine-tunable with more hosting control than Bedrock's API.
 
 ## Common exam traps checklist
 

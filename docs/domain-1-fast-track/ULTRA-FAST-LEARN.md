@@ -1,12 +1,13 @@
 # Domain 1 Ultra Fast Track: Fundamentals of AI and ML
 
-**Ultra-condensed cram sheet** · full guide: [`docs/domain-1-fundamentals-of-ai-and-ml.md`](../domain-1-fundamentals-of-ai-and-ml.md) (2,030 lines) · **Last verified:** 2026-09-05
+**Ultra-condensed cram sheet** · fast track: [`docs/domain-1-fast-track/README.md`](README.md) (743 lines) · full guide: [`docs/domain-1-fundamentals-of-ai-and-ml.md`](../domain-1-fundamentals-of-ai-and-ml.md) (2,030 lines) · **Last verified:** 2026-09-05
 
 Bullets and tables only — no prose, no worked examples, no mini-quizzes.
-For the last 15-20 minutes before the exam, once the full guide's own
-[Quick-reference cheat sheet](../domain-1-fundamentals-of-ai-and-ml.md#quick-reference-cheat-sheet)
+For the last 15-20 minutes before the exam, once the [fast track
+guide](README.md) (or the full guide's own [Quick-reference cheat
+sheet](../domain-1-fundamentals-of-ai-and-ml.md#quick-reference-cheat-sheet))
 is already familiar and you just need the highest-yield tables refreshed
-one more time. Every row below links back to the full guide section it's
+one more time. Every row below links back to the fast track section it's
 drawn from.
 
 ## Table of contents
@@ -170,20 +171,22 @@ drawn from.
 
 ## Where each row comes from
 
-| This cram sheet | Full guide section |
+| This cram sheet | Fast track section |
 |---|---|
-| 1. The 8-stage lifecycle | [Section 2](../domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle) |
-| 2. The three learning types | [Section 3](../domain-1-fundamentals-of-ai-and-ml.md#3-types-of-learning) |
-| 3. AWS services decision table | [Section 5](../domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview) + [comparison table](../domain-1-fundamentals-of-ai-and-ml.md#comparison-table-aws-managed-aiml-services-at-a-glance) |
-| 4. Classification evaluation metrics | [Section 6](../domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) |
-| 5. Bias–variance trade-off | [Section 7](../domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off) |
-| 6. Ensemble methods | [Ensemble methods subsection](../domain-1-fundamentals-of-ai-and-ml.md#ensemble-methods-bagging-boosting-and-voting) |
-| Rapid-fire key terms | [Key terms glossary](../domain-1-fundamentals-of-ai-and-ml.md#key-terms-glossary) |
+| 1. The 8-stage lifecycle | [Section 2](README.md#2-the-ml-development-lifecycle) |
+| 2. The three learning types | [Section 3](README.md#3-three-learning-types) |
+| 3. AWS services decision table | [Section 5](README.md#5-aws-managed-aiml-services) |
+| 4. Classification evaluation metrics | [Section 6](README.md#6-model-evaluation-basics) |
+| 5. Bias–variance trade-off | [Section 7](README.md#7-biasvariance-trade-off-and-ensemble-methods) |
+| 6. Ensemble methods | [Section 7](README.md#7-biasvariance-trade-off-and-ensemble-methods) |
+| Rapid-fire key terms | [Rapid-fire key terms](README.md#rapid-fire-key-terms) |
 
-For the full explanations, worked examples, mini-quizzes, and 24 practice
-questions this cram sheet intentionally omits, go back to the
-[full Domain 1 guide](../domain-1-fundamentals-of-ai-and-ml.md). For
-material spanning multiple domains, see
+For the full tables, decision flowcharts, condensed worked example, and
+rapid self-check this cram sheet intentionally omits, go back to the
+[Domain 1 fast track](README.md) or the [full Domain 1
+guide](../domain-1-fundamentals-of-ai-and-ml.md) for the underlying
+explanations, worked examples, mini-quizzes, and 24 practice questions.
+For material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md).
 
-[← Back to the full Domain 1 guide](../domain-1-fundamentals-of-ai-and-ml.md)
+[← Back to the Domain 1 fast track](README.md) · [Full Domain 1 guide →](../domain-1-fundamentals-of-ai-and-ml.md)

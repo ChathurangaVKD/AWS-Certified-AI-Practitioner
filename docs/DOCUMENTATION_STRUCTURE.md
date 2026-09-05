@@ -329,8 +329,8 @@ cheat sheets serve the same last-minute-cram purpose as the Ultra Fast
 Track cram sheets under `docs/domain-N-fast-track/ULTRA-FAST-LEARN.md` —
 the difference is scope: the in-guide cheat sheet condenses its own
 domain guide, while an Ultra Fast Track cram sheet is a separate,
-standalone file condensing either the full guide or (Domain 4) an
-intermediate Fast Track guide.
+standalone file condensing either the full guide or (Domains 1 and 4) an
+intermediate Fast Track guide under `docs/domain-N-fast-track/README.md`.
 
 ## Cross-domain support documents: aws-service-index.md
 

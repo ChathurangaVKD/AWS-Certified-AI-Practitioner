@@ -27,6 +27,8 @@
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
   - [Worked example: when to use Cohere Rerank in a RAG pipeline](#worked-example-when-to-use-cohere-rerank-in-a-rag-pipeline)
   - [Worked example: budgeting tokens for a multimodal financial-report RAG pipeline (text + tables + images)](#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text--tables--images)
+  - [Retrieval quality metrics: NDCG, MAP, Recall@k, and MRR (a selection decision guide)](#retrieval-quality-metrics-ndcg-map-recallk-and-mrr-a-selection-decision-guide)
+    - [Worked example: computing Recall@k, MRR, MAP, and NDCG on a sample retrieval result set](#worked-example-computing-recallk-mrr-map-and-ndcg-on-a-sample-retrieval-result-set)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
   - [Worked example: is a 2-point BLEU/ROUGE improvement statistically significant?](#worked-example-is-a-2-point-bleurouge-improvement-statistically-significant)
   - [Worked example: picking evaluation metrics for a scenario](#worked-example-picking-evaluation-metrics-for-a-scenario)
@@ -3149,6 +3151,105 @@ report, most of which don't need it.
 > priced in token-equivalent units that typically run **5-20× the token
 > cost of the same content as extracted text**, and that gap compounds
 > fast across a batch of retrieved tables in a single request.
+
+### Retrieval quality metrics: NDCG, MAP, Recall@k, and MRR (a selection decision guide)
+
+The Cohere Rerank worked example above already measured **Precision@k**
+(of the results shown, how many are relevant) and **Recall@k** (of all
+relevant items, how many were found) — but those two metrics only tell
+you *whether* relevant content was retrieved, not whether it was **ranked
+well**. Four metrics recur on the exam and in retrieval-evaluation
+pipelines, and each answers a different question about ranking quality:
+
+| Metric | What it measures | How it's computed | When to use it | Example threshold |
+| --- | --- | --- | --- | --- |
+| **Recall@k** | Whether relevant items were retrieved *anywhere* in the top *k* results — ignores exact rank within that window | (# relevant items in top *k*) ÷ (total # relevant items for the query) | The requirement is "the right answer must be findable within the first *k* results," and it doesn't matter if it's ranked 1st or 5th inside that window — e.g., "surface the right knowledge-base article somewhere in the top 5" | **Recall@5 ≥ 0.90** for a support-ticket lookup where any of the top 5 KB articles resolving the issue counts as a win |
+| **MRR (Mean Reciprocal Rank)** | How early the *first* relevant result appears, averaged across queries | Mean, across queries, of 1 ÷ (rank of the first relevant result) | Each query has essentially **one** correct/best answer (a single-answer FAQ bot, a "did you mean" suggestion), and getting that one answer near the top matters more than finding every relevant document | **MRR ≥ 0.80** for a single-answer FAQ assistant |
+| **MAP (Mean Average Precision)** | Precision averaged across every relevant item's rank position, then averaged across queries | Mean, across queries, of Average Precision = (1 ÷ *R*) × Σ [P(k) × rel(k)], where *R* = total relevant items for the query and P(k) is precision at cutoff *k* | There are **multiple** relevant documents per query with binary relevant/not-relevant labels, and both finding *all* of them and ranking them near the top matter — e.g., legal e-discovery, multi-source research retrieval | **MAP ≥ 0.75** for a legal-document discovery search |
+| **NDCG@k (Normalized Discounted Cumulative Gain)** | Ranking quality when relevance is **graded** (not just relevant/irrelevant), rewarding highly-relevant items for appearing earlier | DCG@k = Σ [rel_i ÷ log2(i + 1)]; NDCG@k = DCG@k ÷ IDCG@k, where IDCG@k is the DCG of the ideal (perfectly sorted) ranking | Relevance comes in degrees (e.g., a 0–3 graded relevance scale) and the **order** of results — not just their presence — is the requirement, such as e-commerce or general web-style search ranking | **NDCG@10 ≥ 0.85** for a product-search ranking pipeline |
+
+**Decision flowchart: which retrieval metric fits this requirement?**
+Work an exam scenario by matching what it says about correct-answer count
+and relevance grading to one branch below:
+
+```mermaid
+flowchart TD
+    START(["Which retrieval metric\nfits this requirement?"])
+    START --> Q1{"Only care whether A relevant\nresult appears somewhere in\nthe top k (binary hit/miss,\nrank within k doesn't matter)?"}
+    Q1 -->|"YES"| RECALL["RECALL@K\ne.g., Recall@5 >= 0.90 --\n'the right answer must be\nin the top 5 results'"]
+    Q1 -->|"NO: ranking\norder matters"| Q2{"Is there usually exactly\nONE correct/best answer per\nquery, not multiple relevant docs?"}
+    Q2 -->|"YES"| MRR["MRR (MEAN RECIPROCAL RANK)\ne.g., MRR >= 0.80 --\n'the single best answer\nshould rank near #1'"]
+    Q2 -->|"NO: multiple relevant\nresults can exist"| Q3{"Is relevance GRADED (some\nresults MORE relevant than\nothers), not just a binary\nrelevant/irrelevant label?"}
+    Q3 -->|"YES"| NDCG["NDCG@K\ne.g., NDCG@10 >= 0.85 --\n'rank the MOST relevant\nresults highest'"]
+    Q3 -->|"NO: binary relevance,\nmultiple relevant docs\nmust all rank well"| MAP["MAP (MEAN AVERAGE PRECISION)\ne.g., MAP >= 0.75 --\n'find ALL relevant docs,\nranked as high as possible'"]
+```
+
+> **Exam tip:** Map the scenario's phrasing to the metric it implies: "the
+> right answer must appear **in the top *k***" → **Recall@k**; "there's
+> **one** correct answer and it should rank first" → **MRR**; "**ranking
+> order accuracy**" with **graded** relevance (some results better than
+> others) → **NDCG**; "find **all** the relevant documents and rank them
+> well" with plain relevant/not-relevant labels → **MAP**. Recall@k and
+> Precision@k (from the reranking worked example above) ignore rank order
+> entirely — MRR, MAP, and NDCG all reward putting the best content
+> *first*, which is why they're the metrics to reach for when a question
+> is specifically testing ranking quality, not just retrieval coverage.
+
+#### Worked example: computing Recall@k, MRR, MAP, and NDCG on a sample retrieval result set
+
+A Bedrock Knowledge Base returns the following top-5 ranked results for
+the query "What is the return policy for electronics?" against a policy
+document corpus that contains **4 relevant passages in total** (one of
+them didn't make the top 5):
+
+| Rank | Passage | Graded relevance (0-3) | Relevant? (binary) |
+| --- | --- | --- | --- |
+| 1 | "Electronics may be returned within 30 days with proof of purchase." | 3 | Yes |
+| 2 | "Store hours are 9am-9pm daily." | 0 | No |
+| 3 | "Opened electronics are subject to a 15% restocking fee." | 2 | Yes |
+| 4 | "Gift cards are non-refundable." | 0 | No |
+| 5 | "Refunds for electronics are issued to the original payment method." | 1 | Yes |
+
+**Step 1 — Recall@5:** 3 of the corpus's 4 relevant passages appear in the
+top 5 → Recall@5 = 3 ÷ 4 = **0.75**.
+
+**Step 2 — MRR (this query):** the first relevant passage is at rank 1 →
+reciprocal rank = 1 ÷ 1 = **1.0**. (Across a full evaluation set, MRR is
+the *mean* of this value over every query; a single query's reciprocal
+rank stands in for that mean here.)
+
+**Step 3 — MAP (this query's Average Precision):** compute precision at
+each rank where a relevant passage appears, then average over the total
+relevant count *R* = 4:
+- Rank 1 relevant → precision@1 = 1/1 = 1.000
+- Rank 3 relevant → precision@3 = 2/3 = 0.667
+- Rank 5 relevant → precision@5 = 3/5 = 0.600
+- Average Precision = (1.000 + 0.667 + 0.600) ÷ 4 = 2.267 ÷ 4 = **0.567**
+
+(A full MAP score averages this Average-Precision value across every
+query in the evaluation set — one query's Average Precision is shown here
+as the building block.)
+
+**Step 4 — NDCG@5:** using the graded relevance column (3, 0, 2, 0, 1):
+- DCG@5 = 3/log2(2) + 0/log2(3) + 2/log2(4) + 0/log2(5) + 1/log2(6)
+  = 3.000 + 0.000 + 1.000 + 0.000 + 0.387 = **4.387**
+- The ideal ranking sorts the same graded relevances descending
+  (3, 2, 1, 0, 0): IDCG@5 = 3/log2(2) + 2/log2(3) + 1/log2(4) + 0 + 0
+  = 3.000 + 1.262 + 0.500 = **4.762**
+- NDCG@5 = DCG@5 ÷ IDCG@5 = 4.387 ÷ 4.762 = **0.92**
+
+**Reading the four results together:** Recall@5 (0.75) says one relevant
+passage was missed entirely — a coverage problem. MRR (1.0) and NDCG@5
+(0.92) both say the *best* passage was ranked first, so a user reading
+only the top result already gets a correct answer. MAP (0.567) is the
+most pessimistic of the four because it penalizes the corpus's 4th
+relevant passage never appearing in the top 5 *and* averages in the
+weaker precision at ranks 3 and 5 — a reminder that no single metric
+tells the whole story, matching the "no single metric tells the whole
+story" principle from [Section
+7](#7-evaluating-foundation-model-performance): a system can rank its top
+result perfectly (high MRR/NDCG) while still leaving relevant content
+undiscovered (lower Recall@k/MAP).
 
 #### Mini-quiz: Test your understanding of vector databases and embeddings
 

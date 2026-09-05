@@ -23,6 +23,20 @@ before the exam, or any time you already know the material and just need
 the tables refreshed; read the [full guide](../domain-4-guidelines-for-responsible-ai.md)
 first if any of these terms are new to you.
 
+**Where each section comes from**, for jumping straight to the full
+prose, mini-quiz, and AWS example behind any condensed table below:
+
+| This fast track | Full guide section | Approx. full-guide lines |
+|---|---|---|
+| 1. Core dimensions | [Section 1](../domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai) | 56–227 |
+| 2. Bias and fairness | [Section 2](../domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) | 229–541 |
+| 3. AWS tools | [Section 3](../domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) + 5 worked examples | 544–959, 1176–1639 |
+| 4. Legal and ethical | [Section 4](../domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) | 960–1065 |
+| 5. Performance vs. interpretability | [Section 5](../domain-4-guidelines-for-responsible-ai.md#5-balancing-model-performance-and-interpretability) | 1068–1173 |
+| Monitoring | Scattered `SageMaker Model Monitor` mentions across Sections 2–3 and every worked example | — |
+| Decision framework | [Decision framework](../domain-4-guidelines-for-responsible-ai.md#decision-framework-choosing-a-bias-metric-and-layering-tools-for-high-stakes-ai) | 1687–1742 |
+| Rapid-fire key terms | [Key terms glossary](../domain-4-guidelines-for-responsible-ai.md#key-terms-glossary) (37 terms, condensed to the highest-yield ~30 here) | 1826–1916 |
+
 ## Table of contents
 
 - [1. Core dimensions of responsible AI](#1-core-dimensions-of-responsible-ai)
@@ -316,6 +330,16 @@ guide's five "## Worked example" sections):
 > Clarify against the FM's generated output, or Guardrails against the
 > ranking model's training data, is testing exactly this boundary.
 
+**Two layering patterns — don't conflate them:**
+
+| | One model, two lifecycle stages | Two components, two model types |
+|---|---|---|
+| **What's being audited** | The *same* fine-tuned foundation model | A classical/tabular model *and* a separate FM |
+| **Clarify's role** | Pre-launch, on the FM's training/fine-tuning data | Ongoing, on the tabular ranking/scoring model only |
+| **Guardrails' role** | Runtime, on the same FM's live input/output | Runtime, on the separate FM's live input/output only |
+| **Do the tools ever swap targets?** | No — Clarify never touches runtime generations; Guardrails never touches training data | No — Clarify never touches the FM; Guardrails never touches the tabular model's training data |
+| **Governance artifact** | One Model Card for the one model, referencing both audits | One system-level Model Card referencing both components' separate audits |
+
 **RAG/foundation-model bias has no labeled dataset to run Clarify
 against.** When a **RAG** application gives unfair or inconsistent
 answers across groups, the failure usually traces to an
@@ -439,6 +463,16 @@ three that revolve around tool selection):
   never blended: Clarify audits the structured ranking model only,
   Guardrails audits the FM's generated copy only, and both are documented
   in one system-level Model Card with two independent monitoring streams.
+
+**Concrete numbers worth remembering** — the exam sometimes gives actual
+metric values and asks you to reason about the tradeoff, not just name a
+concept:
+
+| Worked example | Numbers | What they mean |
+|---|---|---|
+| A2I confidence-threshold selection (hospital triage) | 0.50 → 91% recall / 62% precision; 0.70 → 78% recall; 0.35 → 97% recall / 44% precision; **chosen: 0.35** | A missed urgent case (false negative) is costlier than an unnecessary review, so the team accepts lower precision for higher recall |
+| Regulatory explainability tradeoff (prior-authorization) | Ensemble: 0.93 AUC-ROC / 88% recall; interpretable tree: 0.89 AUC-ROC / 82% recall — a **4-point AUC / 6-point recall gap** | The team accepts the gap because the regulation requires the *actual* decision logic, which only the natively interpretable model provides |
+| E-commerce recommendation engine | Class imbalance + large DPL pre-training → mitigated → disparate impact drops to an acceptable range post-training | Textbook pre-processing-then-recheck pattern: fix the data, retrain, confirm with the post-training metric |
 
 ---
 
@@ -669,6 +703,22 @@ guide's practice set.
       safety/privacy, not copyright liability).
 - [ ] **Model Card = self-authored** (a model you built); **AI Service
       Card = AWS-authored** (a service you're evaluating/adopting).
+
+---
+
+## Cross-domain connections
+
+Domain 4 leans on and feeds into every other domain guide — the exam
+frequently blends a Domain 4 concept with one of these:
+
+| Connects to | Shared concept | Why they're easy to conflate |
+|---|---|---|
+| [Domain 1, Section 7](../domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off) | Bias/variance trade-off | Same word "bias," completely different meaning (model fit vs. fairness) |
+| [Domain 1, Section 6](../domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) | AUC-ROC, precision/recall, confusion matrix | The Amazon A2I confidence-threshold worked example is built entirely on Domain 1 evaluation metrics |
+| [Domain 2, Section 3](../domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) | The "black box" problem | Domain 2 introduces why foundation models are hard to interpret; Domain 4 Section 5 builds the performance/interpretability decision on top of it |
+| [Domain 3, Section 3](../domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) | RAG and Knowledge Bases | The RAG-based HR assistant worked example applies Domain 4 fairness thinking to a Domain 3 architecture with no labeled training set |
+| [Domain 5, Section 3](../domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) | Governance, audit trails | Domain 4's Model Card creation is the artifact; Domain 5 covers the organizational/regulatory process built on top of it |
+| [`cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md#practice-questions) | Pre- vs. post-training bias metric selection | Scenario questions 2, 13, 19, and 20 specifically test whether "dataset" vs. "predictions" language in a scenario picks DPL/class imbalance vs. disparate impact/representativeness |
 
 ---
 

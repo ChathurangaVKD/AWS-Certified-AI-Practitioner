@@ -323,6 +323,14 @@ flowchart TD
 > documents in natural language" with no embeddings pipeline mentioned →
 > **Amazon Kendra**.
 
+**AWS example, condensed:** A healthcare vendor embeds medical documents
+with **Amazon Titan Text Embeddings** and stores them in **Amazon
+OpenSearch Service** for low-latency semantic + keyword hybrid search
+inside a Bedrock Knowledge Base. A separate internal team wanting quick
+natural-language search across existing SharePoint and S3 repositories,
+with no embeddings pipeline of its own to build, instead deploys **Amazon
+Kendra** directly against those repositories.
+
 Full explanation and the AWS example: [full guide, Section
 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval).
 
@@ -358,6 +366,16 @@ flowchart TD
 > scenario names **your own labeled query/passage examples** *and* a
 > narrow, stable domain — and remember it's typically a SageMaker
 > workflow, not a Bedrock-native fine-tuning job.
+
+**AWS example, condensed:** A legal-tech vendor's contract-analysis RAG
+assistant starts with **Amazon Titan Text Embeddings** for general
+correspondence. Once the product expands to dense litigation filings, the
+team evaluates a **domain-specific, legal-tuned third-party embedding
+model** and finds it separates clauses far better. A second team, with a
+single narrow contract template and hundreds of labeled query/clause
+pairs already on hand, instead **fine-tunes an embedding model on Amazon
+SageMaker**, since their corpus is narrow and their labeled data
+plentiful enough to justify it.
 
 Full explanation and the AWS example: [full guide, Choosing an embedding
 model](../domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned).
@@ -574,6 +592,15 @@ evaluation sample matters more than the raw point estimate.
 > **human evaluation**. "Did this actually help the business" → a
 > **business metric**. Keep the three distinct: a model can score well on
 > benchmarks yet fail to move the business metric it was built for.
+
+**AWS example, condensed:** A telecom company runs an **automatic model
+evaluation** job on a benchmark dataset to compare two candidate Bedrock
+models on accuracy and robustness. The top two then go through a **human
+evaluation** job where support agents score sample conversations for tone
+and helpfulness. After launch, the company tracks the **business metric**
+of call-deflection rate — which ultimately determines whether the project
+is judged successful, regardless of how well either candidate scored on
+benchmarks.
 
 Full explanation, the statistical-significance worked example, and the
 mini-quiz: [full guide, Section

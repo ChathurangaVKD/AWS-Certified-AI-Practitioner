@@ -11,11 +11,12 @@ part** covers **Sections 1-4**: the design considerations behind picking
 and routing foundation models, prompt engineering, Retrieval Augmented
 Generation (RAG) fundamentals, and all six customization methods a
 scenario can ask you to choose between — prompt engineering, RAG,
-fine-tuning, LoRA/QLoRA, RLHF, and continued pre-training. **Part 2**
-(not yet published) will cover Sections 5-7 (Bedrock features, vector
-databases/embeddings, and evaluation); **[Part
-3](part-3-deployment-and-troubleshooting.md)** covers Section 8 onward
-(production deployment and troubleshooting) and already exists.
+fine-tuning, LoRA/QLoRA, RLHF, and continued pre-training. **[Part
+2](part-2-inference-and-multimodal.md)** covers Sections 5-7 (Bedrock
+inference architecture, Guardrails and prompt-injection prevention,
+vector databases/embeddings, multi-modal application patterns, and
+evaluation); **[Part 3](part-3-deployment-and-troubleshooting.md)** covers
+Section 8 onward (production deployment and troubleshooting).
 
 It keeps **every testable decision point** from its scope — every design
 consideration, every routing/fallback rule, all eight prompt-engineering
@@ -814,13 +815,12 @@ full guide for:
   1-4
 - [Practice questions and answer key](../domain-3-applications-of-foundation-models.md#practice-questions)
 
-**Not yet covered by this fast track — reserved for Part 2** (Bedrock
-features, vector databases/embeddings, and evaluation): read [full guide,
-Section
-5](../domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features)
-onward directly until Part 2 is published. **[Part
+**Not covered by this part — see [Part
+2](part-2-inference-and-multimodal.md)** (Bedrock inference architecture,
+Guardrails and prompt-injection prevention, vector databases/embeddings,
+multi-modal application patterns, and evaluation). **[Part
 3](part-3-deployment-and-troubleshooting.md)** (production deployment and
-troubleshooting) already covers Section 8 onward.
+troubleshooting) covers Section 8 onward.
 
 For material that spans multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and

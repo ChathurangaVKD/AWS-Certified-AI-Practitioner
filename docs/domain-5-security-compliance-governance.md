@@ -1261,7 +1261,67 @@ accountability); Map, Measure, and Manage repeat throughout the AI
 system's lifecycle. A scenario naming a specific service — e.g., "which
 service documents intended use and limitations before deployment?" — is
 really asking which NIST function that service supports (Map, in that
-example).
+example). The [worked example
+below](#worked-example-applying-nist-ai-rmf-to-a-multi-region-bedrock-deployment)
+traces all four functions through one multi-region Bedrock deployment.
+
+#### Worked example: applying NIST AI RMF to a multi-region Bedrock deployment
+
+The Exam tip above frames Govern as the cross-cutting foundation and Map,
+Measure, and Manage as the functions that repeat throughout the lifecycle —
+but so far the four functions have only been discussed in the abstract. The
+walkthrough below traces one multi-region Bedrock deployment through all
+four, in the order a team actually implements them.
+
+**Scenario:** Solstice Mutual, an insurance company, runs a Bedrock-based
+claims-summarization assistant in `us-east-1` (serving US adjusters) and
+`eu-west-1` (serving EU adjusters). Before launch, Solstice Mutual's AI
+governance team adopts the NIST AI RMF to structure its risk-management
+program identically across both Regions.
+
+1. **Map — inventory the models and their risks.** For each Region's
+   deployment, the team creates a [SageMaker Model
+   Card](#worked-example-filling-out-a-sagemaker-model-card-for-governance-sign-off)
+   recording the specific Bedrock model ID in use, its intended use
+   ("summarizing adjuster notes, not making coverage decisions"), its
+   stakeholders, and a SageMaker Clarify pre-training bias report flagging
+   that historical claims data over-represents certain zip codes. This
+   produces one documented, risk-rated inventory entry per Region before any
+   measurement or control work begins — Map's job.
+2. **Measure — set up model evaluation and monitoring.** Before launch, the
+   team runs a Bedrock automatic model evaluation job comparing candidate
+   models on accuracy and toxicity for the claims-summarization task. After
+   launch, SageMaker Clarify post-training bias metrics and SageMaker Model
+   Monitor track data-quality and drift in production — configured
+   separately per Region, since `us-east-1` and `eu-west-1` adjuster inputs
+   drift independently. This is what turns Map's risk inventory into
+   ongoing, quantitative signal.
+3. **Manage — implement Guardrails and fine-tuning controls.** Each Region's
+   Bedrock endpoint gets its own **Guardrails for Amazon Bedrock**
+   configuration — denied topics blocking coverage-decision language, PII
+   filters for claimant data — and a change-controlled fine-tuning pipeline
+   gated by **SageMaker Model Registry** approval before any newly
+   fine-tuned version is promoted to either Region's endpoint. This is where
+   the risks Map identified and Measure quantified actually get prioritized
+   and acted on.
+4. **Govern — audit logging and compliance tracking across both
+   Regions.** [AWS
+   CloudTrail](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
+   logs every `bedrock:InvokeModel` call in both Regions for accountability,
+   **AWS Config** conformance packs continuously check that both Regions'
+   Guardrails configurations and encryption settings haven't drifted, and
+   **AWS Audit Manager** assembles evidence from both into one cross-Region
+   NIST AI RMF evidence package for the board's periodic risk review. Govern
+   is what ties the other three functions' outputs into accountable,
+   auditable proof that the program is actually running.
+
+**Exam tip:** A scenario describing pre-launch model comparison or
+production drift metrics is testing Measure; one describing Guardrails
+configuration or a fine-tuning approval gate is testing Manage; one
+describing CloudTrail/Config/Audit Manager evidence is testing Govern; one
+describing model documentation or risk inventory before deployment is
+testing Map. Recognizing which AWS service maps to which function — not
+memorizing the framework's name — is what the exam actually checks.
 
 #### Mini-quiz: Test your understanding of GDPR, HIPAA, and the NIST AI RMF
 

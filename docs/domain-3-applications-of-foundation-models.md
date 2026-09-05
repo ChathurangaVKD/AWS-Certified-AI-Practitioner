@@ -18,6 +18,7 @@
     - [Worked example: preventing brand-mention violations in product recommendations](#worked-example-preventing-brand-mention-violations-in-product-recommendations)
   - [Bedrock Agents vs. Prompt Flows vs. prompt chaining: choosing an orchestration approach](#bedrock-agents-vs-prompt-flows-vs-prompt-chaining-choosing-an-orchestration-approach)
   - [Cost governance: bounding per-request cost with max tokens and provisioned throughput](#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput)
+    - [On-demand vs. provisioned throughput: a worked cost-comparison example](#on-demand-vs-provisioned-throughput-a-worked-cost-comparison-example)
 - [6. Vector databases and embeddings for search and retrieval](#6-vector-databases-and-embeddings-for-search-and-retrieval)
   - [Choosing an embedding model: domain-specific vs. general vs. fine-tuned](#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
@@ -2101,6 +2102,106 @@ on-demand capacity only for occasional overflow.
 > concern is *how many requests total can hit the endpoint*, that's a
 > Domain 5 Service Quotas / API Gateway usage-plan question, not a Domain
 > 3 inference-parameter one.
+
+#### On-demand vs. provisioned throughput: a worked cost-comparison example
+
+The bullet above states the rule — provisioned throughput pays off for
+**high, steady, predictable** volume — without showing the arithmetic
+that turns "high and steady" into a yes/no purchase decision. This
+example works that arithmetic through for a single workload, the same
+"estimate first, then compare" discipline the [monthly-cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+uses to compare model tiers.
+
+**Scenario:** A product-support chatbot on **Amazon Bedrock** (Claude
+Haiku) handles **200,000 requests/day**, or **6,000,000 requests/month**
+(30-day month). Each request averages **1,000 input tokens** (system
+prompt + retrieved context) and **250 output tokens** — the same
+per-request profile the [context-window worked
+example](#worked-example-estimating-a-context-window-token-budget) builds
+up for a RAG-backed chat assistant.
+
+**Step 1: Price the on-demand option using per-token rates.** Using the
+same **illustrative Haiku on-demand rates** as the [monthly-cost worked
+example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+($0.00025/1,000 input tokens, $0.00125/1,000 output tokens — check the
+Bedrock pricing page for current, region-specific rates):
+
+- Cost per request: (1,000 ÷ 1,000 × $0.00025) + (250 ÷ 1,000 × $0.00125)
+  = $0.00025 + $0.0003125 = **$0.0005625/request**
+- Monthly on-demand cost: 6,000,000 requests × $0.0005625 =
+  **$3,375/month**
+
+**Step 2: Price the provisioned throughput option using a flat committed
+rate.** Provisioned throughput bills a **fixed hourly rate per model
+unit** for the length of the commitment, regardless of how many of the
+unit's tokens actually get used that hour — the opposite of on-demand's
+per-token, pay-for-what-you-use model. Using an **illustrative** rate of
+$3.00/hour for the one model unit this workload's peak throughput
+requires (again, check the Bedrock pricing page for a live, model- and
+region-specific quote):
+
+- Monthly provisioned cost: $3.00/hour × 730 hours/month (average hours
+  in a month) = **$2,190/month**
+
+**Step 3: Compare the two totals at this workload's actual volume.** At
+6,000,000 requests/month, on-demand costs $3,375/month and provisioned
+throughput costs $2,190/month — provisioned is **$1,185/month (about
+35%) cheaper**, provided one model unit's committed capacity is actually
+enough to cover the workload's peak requests-per-minute without
+overflowing onto on-demand.
+
+**Step 4: Solve for the break-even volume.** Because the provisioned
+cost is fixed and the on-demand cost scales linearly with volume, there
+is a single monthly request count where the two are equal:
+
+break-even requests/month = provisioned monthly cost ÷ on-demand cost per
+request = $2,190 ÷ $0.0005625 ≈ **3,893,333 requests/month** (about
+**129,778 requests/day**)
+
+Below roughly 129,778 requests/day, on-demand is cheaper because the flat
+$2,190/month is being paid whether or not it's fully used. Above roughly
+129,778 requests/day, provisioned throughput is cheaper because its cost
+stops climbing while on-demand's keeps scaling with every additional
+request. This workload's 200,000 requests/day sits comfortably above
+that break-even point (about 1.5x it), which is why Step 3 found
+provisioned throughput cheaper overall.
+
+**Step 5: Decide whether the commitment is actually worth it.** Clearing
+the break-even volume is necessary but not sufficient — the exam (and a
+real purchase decision) also weighs:
+- **Is the volume steady, not just high?** A monthly average above
+  break-even can still hide days or weeks far below it. Provisioned
+  throughput bills the same flat rate through the trough, so it only
+  wins if volume stays consistently near or above break-even rather than
+  averaging there across wide swings.
+- **Is one model unit's throughput ceiling enough for peak traffic?**
+  Provisioned throughput has a hard tokens-per-minute cap per model unit;
+  a spike above it still throttles unless on-demand overflow capacity or
+  additional model units are provisioned, which adds cost back on top of
+  the flat commitment.
+- **Which commitment term fits the forecast?** A 1-month commitment costs
+  more per hour than a 6-month commitment but caps the downside if
+  volume forecasts turn out to be wrong; committing 6 months on an
+  unproven or seasonal workload trades a lower rate for real exposure if
+  volume drops.
+
+**AWS example:** After running this comparison, the chatbot team commits
+to one model unit of provisioned throughput for their steady
+200,000-requests/day baseline, cutting projected monthly Bedrock spend
+from $3,375 to $2,190, while leaving room to burst onto on-demand
+capacity for any traffic above the committed unit's throughput ceiling.
+
+> **Exam tip:** When a scenario gives you a request volume, a token
+> profile, an on-demand rate, and a provisioned-throughput rate, the exam
+> expects the same two-sided calculation as above: monthly on-demand cost
+> (volume × per-request rate) vs. monthly provisioned cost (hourly rate ×
+> hours committed), then a comparison against the workload's actual
+> volume — not a rule-of-thumb answer based on "high volume sounds like
+> provisioned throughput." A volume just above the break-even point is a
+> weak case for committing if that volume is also spiky or unproven; a
+> volume well above it, sustained day over day, is the strong case the
+> exam is testing for.
 
 #### Mini-quiz: Test your understanding of Amazon Bedrock features
 

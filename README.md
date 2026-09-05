@@ -99,8 +99,9 @@ for 30 scenario questions that each require knowledge from two or more
 domains — for example, choosing a Domain 3 customization method that also
 satisfies a Domain 5 security requirement — tagged by difficulty
 (beginner/intermediate/advanced) like the domain guides' own questions.
-Five of them (26–30) go further and require reasoning across three or
-more domains at once.
+Questions 1–25 each pair exactly two domains; questions 26–30 go further
+and require reasoning across three or more domains at once — a harder
+tier best attempted after you're comfortable with the two-domain set.
 
 ## End-to-end case study
 

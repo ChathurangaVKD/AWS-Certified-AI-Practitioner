@@ -1,5 +1,9 @@
 # Cross-Domain Scenario Questions (AIF-C01)
 
+> **Difficulty tiers:** Questions 1–25 are 2-domain pairings; questions
+> 26–30 are the harder tier, each requiring reasoning across 3+ domains at
+> once. Master the 2-domain set before attempting 26–30.
+
 The five domain guides —
 [Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md),
 [Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md),
@@ -15,9 +19,10 @@ type while weighing a Domain 4 fairness concern.
 
 This document collects 30 scenario questions that each require knowledge
 from **two or more domains** to answer correctly — you cannot eliminate
-every wrong option using only one domain's vocabulary. Most pair up two
-domains, but questions 26–30 go further and each require reasoning across
-**three or more domains at once** (one spans all five), mirroring how the
+every wrong option using only one domain's vocabulary. Questions 1–25 each
+pair up exactly two domains, but questions 26–30 go further and each
+require reasoning across **three or more domains at once** (one spans all
+five), mirroring how the
 [end-to-end case study](case-study-ai-system-lifecycle.md) traces a single
 AI system through every domain rather than isolating one at a time. See
 the [cross-domain concept map](cross-domain-concept-map.md) for the

@@ -47,6 +47,7 @@ complete scenario, remediation/prevention bullets, and exam tips.
 - [6. RAG troubleshooting triage: four failure modes](#6-rag-troubleshooting-triage-four-failure-modes)
 - [7. RAG symptom-to-root-cause decision tree](#7-rag-symptom-to-root-cause-decision-tree)
 - [8. Debugging method: isolating the broken RAG pipeline stage](#8-debugging-method-isolating-the-broken-rag-pipeline-stage)
+- [Pre-launch production checklist](#pre-launch-production-checklist)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
 - [Rapid self-check](#rapid-self-check)
 - [Common exam traps checklist](#common-exam-traps-checklist)
@@ -260,6 +261,40 @@ flowchart TD
       constraint is aggregate throughput over time, so every retry
       competes for the same already-exhausted budget.
 
+**Remediation checklist, by scenario:**
+
+- **Scaling-speed mismatch (Scenario 1):** tighten the auto-scaling policy
+  (lower threshold, shorter scale-out cooldown, unchanged/longer scale-in
+  cooldown); raise the minimum instance count ahead of a known peak; use
+  provisioned concurrency to pre-warm capacity for bursty, predictable
+  spikes; add a request queue or graceful degradation so requests arriving
+  mid-scale-out don't hit a hard throttling error.
+- **Batch payload/timeout mismatch (Scenario 2):** lower `MaxPayloadInMB`
+  and switch `BatchStrategy` to `SingleRecord` for large records; raise
+  `InvocationsTimeoutInSeconds` (up to Batch Transform's 3,600-second max);
+  split the input by document size into separate jobs, each tuned to its
+  own payload profile; scale up instance type/count or lower
+  `MaxConcurrentTransforms` if timeouts trace to compute contention.
+- **Context window overflow (Scenario 3):** track input tokens client-side
+  before sending; truncate with a sliding window that preserves the system
+  prompt, not a fixed cut; summarize older turns instead of discarding
+  them; chunk-and-retrieve large pasted content instead of inlining it;
+  move to a larger-context-window model if truncation loses too much.
+- **Provisioned/on-demand budget exceeded (Scenario 4):** request a
+  Service Quota increase for on-demand TPM/RPM; purchase additional
+  Provisioned Throughput model units sized for the new sustained baseline;
+  add client-side rate limiting and request queuing with backoff; set
+  graduated CloudWatch budget alarms (e.g., 70/85/95% of the ceiling);
+  offload lower-priority volume to batch inference or a smaller model.
+
+**Prevention habits that apply across all four:** load-test scaling
+policies and batch jobs against realistic traffic/payload shapes before a
+known peak event; dashboard the relevant metric (invocations-per-instance,
+record-size distribution, running token count, budget-ceiling usage)
+*before* it crosses a threshold, not just after errors start; and tie
+capacity/quota review to a recurring calendar cadence or a rollout
+milestone rather than a one-time, launch-day estimate.
+
 Full four-scenario walkthroughs (diagnosis, remediation, prevention, exam
 tips) and the orientation flowchart: [full guide, Inference failures and
 recovery
@@ -425,6 +460,32 @@ assistant throughout):
       modes live in the retrieval half of the pipeline, before the FM
       ever sees a prompt.
 
+**Remediation checklist, by failure mode:**
+
+- **Chunks too small:** increase chunk size and add chunk overlap so
+  related sentences are less likely to split across a boundary; re-index
+  the Knowledge Base after the change; test whether a higher
+  `numberOfResults` on the `Retrieve` call recovers the missing half of an
+  answer.
+- **Embedding model mismatched to the domain:** swap to a Bedrock
+  embeddings model better suited to the domain and **re-embed the entire
+  corpus** — embeddings models aren't interchangeable after the fact, and
+  queries must be embedded with the same model going forward; where a
+  wholesale swap isn't practical, expand internal abbreviations in the
+  source documents before chunking as a lower-cost mitigation.
+- **Plausible but irrelevant results (ranking):** add reranking so a
+  relevance-scoring model re-orders vector-search candidates before
+  generation; add hybrid search (vector + keyword/lexical, via Amazon
+  OpenSearch) so an exact term match surfaces the right chunk even when
+  its embedding sits close to a different topic.
+- **Query/document terminology mismatch:** rerank a wider candidate set
+  (raise `numberOfResults` before narrowing) — cross-encoder rerankers
+  score query and chunk together, so they're far less sensitive to the
+  question-vs-statement asymmetry than pure vector similarity; rewrite the
+  query before embedding (HyDE — embed a generated hypothetical answer
+  instead of the raw question); index likely question phrasings alongside
+  each chunk at ingestion time.
+
 Full four-failure-mode walkthroughs (diagnosis and remediation detail for
 each, against the same HR policy-lookup assistant) and the orientation
 flowchart: [full guide, Worked example: troubleshooting a failing RAG
@@ -525,6 +586,64 @@ stage](../domain-3-applications-of-foundation-models.md#debugging-method-isolati
 
 ---
 
+## Pre-launch production checklist
+
+A consolidated checklist pulling together Sections 1-8 into what a team
+should have in place *before* a foundation model application goes live,
+grouped by the failure category it heads off:
+
+**Capacity and scaling**
+
+- [ ] Auto-scaling target metric matches how the workload actually
+      generates load (`SageMakerVariantInvocationsPerInstance` for
+      request-count-driven traffic; CPU/GPU utilization for compute-bound
+      workloads).
+- [ ] Scale-out and scale-in cooldowns are tuned to the workload's traffic
+      *shape* (steady, bursty, or scheduled/periodic), not a single
+      universal default.
+- [ ] MinCapacity/MaxCapacity are re-baselined against current traffic,
+      not the single highest historical spike.
+- [ ] Known peak events (promotions, launches) have a load test against
+      the tuned scaling policy, or a scheduled scaling action, ahead of
+      time.
+- [ ] Batch jobs have their `MaxPayloadInMB`/`InvocationsTimeoutInSeconds`
+      profiled against the actual record-size distribution of each input
+      source, not left at defaults tuned for a different content type.
+
+**Resilience**
+
+- [ ] Every Bedrock/SageMaker client call distinguishes retryable
+      (transient) error codes from permanent ones, and never retries a
+      `ValidationException`/`AccessDeniedException`/`ResourceNotFoundException`.
+- [ ] Retries use exponential backoff with jitter and a bounded max-attempt
+      count — never an unbounded or fixed-delay retry loop.
+- [ ] A circuit breaker (or the SDK's adaptive retry mode) protects a
+      dependency that's failing hard and consistently, so retries don't
+      compound an existing outage.
+- [ ] Conversation-carrying applications track token usage client-side and
+      trigger truncation/summarization at a soft threshold, well before
+      the model's hard context-window ceiling.
+- [ ] CloudWatch budget alarms are set at graduated thresholds (e.g., 70/
+      85/95%) on provisioned throughput or on-demand quota usage.
+
+**RAG retrieval quality**
+
+- [ ] A held-out set of real user questions is evaluated for retrieval
+      quality (right chunks returned) *separately* from generation quality
+      (right answer given the right chunks) — conflating the two makes a
+      regression impossible to localize.
+- [ ] Reranking and/or hybrid search is in place before launch for any
+      corpus with topically adjacent content (the ranking failure mode is
+      easy to miss until a real user asks a borderline question).
+- [ ] The application instructs the FM to answer only from retrieved
+      context and surfaces cited sources, so an ungrounded (hallucinated)
+      answer is visible rather than silently confident.
+- [ ] A process exists for re-embedding the corpus whenever the embeddings
+      model changes — embeddings from two different models are not
+      comparable in the same vector index.
+
+---
+
 ## Rapid-fire key terms
 
 - **AWS Trainium** — purpose-built chip for cost-efficient FM/deep-learning **training** (EC2 Trn1/Trn2).
@@ -562,7 +681,7 @@ For terms shared across domains: [`docs/master-glossary.md`](../master-glossary.
 
 ## Rapid self-check
 
-Fifteen quick recall questions — cover the answer column and try each one
+Twenty quick recall questions — cover the answer column and try each one
 before checking it. These are new questions, not a repeat of the full
 guide's practice set.
 
@@ -583,6 +702,11 @@ guide's practice set.
 | 13 | Retrieved chunks are topically close but still the wrong specific answer — which fix? | **Reranking** and/or **hybrid search** |
 | 14 | A clearly-worded answer exists in the corpus but retrieval returns nothing relevant, even at high `numberOfResults` — which failure mode? | **Query/document terminology mismatch** — fix with reranking a wider set, query rewriting (HyDE), or indexing likely question phrasings |
 | 15 | A RAG system states a fact that appears in none of the retrieved chunks — which symptom, and where's the fix? | **Hallucination** — retrieval returned no/thin relevant chunks; fix is retrieval coverage and prompt instructions, not fine-tuning |
+| 16 | A request fails or is cut off with a context-length/token-limit error in a RAG application — is this a chunking, embedding, or budgeting problem? | **Budgeting** — retrieve fewer/smaller chunks, lower `numberOfResults`, trim history, or use a larger-context model |
+| 17 | Which two SageMaker Batch Transform settings govern the per-invocation payload/timeout budget? | `MaxPayloadInMB` and `InvocationsTimeoutInSeconds` (plus `BatchStrategy`) |
+| 18 | A team wants dedicated capacity with a guaranteed latency SLA regardless of other Bedrock tenants' traffic — which throughput model? | **Provisioned throughput** |
+| 19 | What's the fastest way to tell failure mode 2 (embedding mismatch) from failure mode 3 (ranking) in a RAG scenario? | Off-topic entirely → **embedding model**; topically close but wrong → **ranking** (reranking/hybrid search) |
+| 20 | In the four-stage debugging method, which stage do you check *last*, and why? | **Generation** — every retrieval-side fix (chunking, embeddings, reranking, hybrid search, query rewriting) leaves this stage untouched, so it's only worth checking once the first three are confirmed innocent |
 
 ---
 
@@ -631,6 +755,17 @@ guide's practice set.
 - [ ] **Work the RAG pipeline in order — embedding, retrieval, ranking,
       generation** — confirming each stage is innocent before diagnosing
       the next, rather than guessing which of the four to fix first.
+- [ ] **Batch, serverless, real-time/on-demand, and provisioned throughput
+      are four points on one decision, not four unrelated services** —
+      whether something waits on the response, how predictable traffic is,
+      and whether volume/a custom model/an SLA justifies a capacity
+      commitment sorts all four every time.
+- [ ] **A held-out evaluation set must score retrieval and generation
+      separately** — a single end-to-end "does the answer look right"
+      score can't tell you whether to fix the retriever or the prompt.
+- [ ] **Embeddings from two different models are never comparable in the
+      same vector index** — swapping embeddings models always means a
+      full corpus re-embed and re-index, not an incremental patch.
 
 ---
 
@@ -643,6 +778,8 @@ guide's practice set.
 | Full guide, [Section 3](../domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) | RAG pipeline fundamentals (chunking, embedding, retrieval, generation) | This part assumes the happy-path pipeline from Section 3 and diagnoses it once it's already in production |
 | Full guide, [Section 7](../domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) | Separating retrieval quality from generation quality when evaluating a RAG system | The stage-isolation debugging method (Section 8 above) is the troubleshooting-time version of the same evaluation split |
 | Full guide, [Cost governance](../domain-3-applications-of-foundation-models.md#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput) | On-demand vs. provisioned throughput cost trade-offs | Scenario 4's provisioned/on-demand budget failure is the operational failure mode of the cost-governance decision made up front |
+| Full guide, [Context-window token-budget worked example](../domain-3-applications-of-foundation-models.md#worked-example-estimating-a-context-window-token-budget) | Estimating token budgets up front | Scenario 3's context-window overflow is what happens when that up-front budget is exceeded at runtime, not estimated wrong |
+| [Domain 1, Section 6](../domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) | Evaluating retrieval vs. generation separately | Both this part's RAG stage-isolation method and Domain 1's evaluation metrics rest on the same principle: never let one aggregate score hide which half of a pipeline actually failed |
 
 ---
 

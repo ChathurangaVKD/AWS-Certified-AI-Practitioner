@@ -7,6 +7,8 @@
 ## Table of contents
 
 - [1. Design considerations for foundation model applications](#1-design-considerations-for-foundation-model-applications)
+  - [Multi-model routing and fallback strategies: routing requests to the right model at request time](#multi-model-routing-and-fallback-strategies-routing-requests-to-the-right-model-at-request-time)
+    - [Worked example: routing a dashboard-and-batch analytics feature by latency sensitivity](#worked-example-routing-a-dashboard-and-batch-analytics-feature-by-latency-sensitivity)
 - [2. Prompt engineering techniques](#2-prompt-engineering-techniques)
   - [Comparison table: prompt engineering techniques at a glance](#comparison-table-prompt-engineering-techniques-at-a-glance)
 - [3. Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases)
@@ -333,6 +335,168 @@ shaving cost off a high-volume batch job.
 > right answer whenever the scenario states a capability or latency
 > requirement only that model meets, and the wrong answer whenever it
 > doesn't.
+
+### Multi-model routing and fallback strategies: routing requests to the right model at request time
+
+Everything above in this section picks **one** model per application. Real
+production systems are rarely that uniform: the same application often
+serves several distinct request types that don't share the same
+cost/accuracy/latency profile, and a single model choice forces every
+request through the same compromise. **Multi-model routing** sends
+different requests to different foundation models at invocation time based
+on a classification of the request itself, and a **fallback chain**
+defines what happens when the model a request was routed to times out,
+throttles, or errors — both are request-level decisions layered on top of
+the per-application model selection covered earlier in this section.
+
+#### Decision flowchart: is multi-model routing worth the added complexity?
+
+Routing adds an extra moving part — a classification step and more than
+one model to operate, monitor, and pay for — so it isn't free. The
+flowchart below starts from whether a single model is even a compromise
+for this workload, and if so, routes to the specific routing/fallback
+strategy that fits:
+
+```mermaid
+flowchart TD
+    START(["Does this workload need\nmulti-model routing or a\nfallback chain?"])
+    START --> Q1{"Do different request types in\nthis application vary\nmeaningfully in latency\nsensitivity, accuracy needs, or\ncost tolerance?"}
+    Q1 -->|"NO"| SINGLE["SINGLE MODEL\nPick one FM per this section's\ndesign considerations - routing\nadds operational cost with no\npayoff if every request has the\nsame profile"]
+    Q1 -->|"YES"| Q2{"Can each request be classified\ninto a request type cheaply and\nreliably before a model is\ninvoked (e.g., by API route,\na request-metadata tag, or a\nlightweight rules check)?"}
+    Q2 -->|"NO"| WAIT["DON'T ROUTE YET\nAn unreliable classifier\nmisroutes requests, which costs\nmore than the savings routing\nwas supposed to capture -\nbuild a trustworthy classifier\nfirst"]
+    Q2 -->|"YES"| Q3{"Must a lower-tier request class\nnever silently receive a wrong\nor degraded answer, even if that\nmeans occasionally paying for\nthe more expensive model?"}
+    Q3 -->|"YES"| STRICT["STRICT ROUTING\nA fixed rule maps each request\ntype to exactly one model, with\nno silent substitution - used\nwhen misrouting is unacceptable"]
+    Q3 -->|"NO"| Q4{"Does this request class need to\nkeep responding even if its\npreferred model times out,\nthrottles, or errors?"}
+    Q4 -->|"YES"| FALLBACK["FALLBACK CHAIN\nCall the preferred model first;\non failure or timeout, call the\nnext model in a pre-ordered\nlist instead of failing the\nrequest"]
+    Q4 -->|"NO"| BESTEFFORT["BEST-EFFORT ROUTING\nRoute by classification and\naccept occasional misroutes or\na failed request without a\nformal fallback - simplest\noption when neither correctness\nnor availability is critical"]
+```
+
+| Routing strategy | How it behaves | Behavior when the preferred model is unavailable | Latency impact | Cost impact | Best-fit use case |
+|---|---|---|---|---|---|
+| **Strict routing** | A fixed rule maps each request type to exactly one designated model; there is no substitution | The request fails or queues rather than silently falling back to a different model | Predictable — always the latency of the designated model | Predictable — always the cost of the designated model | Correctness-critical classes where an answer from the wrong model is worse than no answer (e.g., a compliance-sensitive lookup routed only to the model validated for it) |
+| **Best-effort routing** | Requests are classified and routed to the model judged best for that class, but occasional misclassification or a failed call is tolerated | The request may fail outright or return a degraded response; no automatic retry against another model | Usually low, since most requests hit the cheap/fast model for their class | Lowest of the three — no duplicate calls, no reserved capacity for a backup | Non-critical, high-volume classes where an occasional bad response is acceptable and simplicity matters more than resilience |
+| **Fallback chain** | Requests are routed as above, but a failure or timeout on the preferred model automatically retries against the next model in a pre-ordered list | The request still gets a response, from the next model in the chain, instead of failing | Adds the preferred model's failed-attempt time (or timeout) on top of the fallback model's latency for any request that falls back | Highest of the three on failed requests (pays for two calls), but no extra cost on the common path where the preferred model succeeds | Availability-critical classes where a slow or degraded answer from a fallback model beats no answer at all (e.g., a user-facing feature that must never hard-fail) |
+
+> **Exam tip:** Don't confuse "fallback chain" with simply retrying the
+> *same* model. A fallback chain retries against a **different** model
+> after the preferred one fails — the same pattern the [inference failures
+> and recovery strategies](#inference-failures-and-recovery-strategies)
+> section covers for a single model's timeouts and throttling, extended
+> across more than one model. If a scenario says "if the fast model is
+> unavailable, still return an answer using another model," that's a
+> fallback chain; if it says "block this request rather than let the wrong
+> model answer it," that's strict routing.
+
+#### Worked example: routing a dashboard-and-batch analytics feature by latency sensitivity
+
+*Scenario:* An analytics company's product has one generative-AI feature
+that serves two very different request types against the same underlying
+data: (1) **real-time dashboard queries** — a user types a natural-language
+question and expects a chart or short answer back in a second or two — and
+(2) an **overnight batch job** that reads a full day's data and writes a
+long narrative analysis report with no user watching. Both currently call
+the same mid-tier model, and the team is deciding whether to split them
+across models.
+
+*Decision factors:*
+
+- **Latency sensitivity:** the dashboard query is interactive — a user is
+  staring at a loading spinner — so it needs a fast, low-latency model
+  (e.g., **Claude Haiku** or **Amazon Nova Micro**, per the [context
+  window vs. cost and latency
+  table](#context-window-vs-cost-and-latency-comparing-model-tiers) and
+  [Domain 2's Nova comparison
+  table](domain-2-fundamentals-of-generative-ai.md#comparing-amazon-nova-model-variants)).
+  The batch report has no user waiting on it at all, so the extra seconds
+  a larger model takes cost nothing in perceived responsiveness.
+- **Accuracy/reasoning depth:** the dashboard query is typically a single,
+  narrow question against a known schema — well within a small model's
+  capability. The batch report synthesizes a full day of data into a
+  coherent narrative, closer to the "complex, multi-step reasoning"
+  profile a higher-tier model like **Claude Opus** or **Amazon Nova
+  Premier** is built for.
+- **Volume and cost:** dashboard queries run thousands of times a day
+  across users, so shaving cost per call compounds the way [the monthly
+  cost worked
+  example](#worked-example-estimating-and-comparing-monthly-inference-costs-across-three-model-tiers)
+  shows; the batch report runs once per customer per night, so paying more
+  per call for a higher-accuracy model barely moves the monthly bill.
+- **Availability requirement:** the dashboard is a live, user-facing
+  surface — if its model times out or throttles, the feature must still
+  respond, even with a slightly less capable answer, rather than show an
+  error. The batch job can simply retry later overnight if it fails; no
+  user is waiting on it in real time.
+
+*Resolution:* the team routes by request type — a **strict rule** keyed
+off which API endpoint the request came in on, not a guess — so dashboard
+requests always call **Claude Haiku** and batch requests always call
+**Claude Opus**. Because only the dashboard path has an availability
+requirement, the team adds a **fallback chain** on the dashboard path only:
+if Claude Haiku times out or is throttled, the request automatically
+retries against **Amazon Nova Micro** instead of failing, keeping the
+dashboard responsive even during a provider-side incident. The batch path
+gets no fallback to a different model — on failure it simply retries the
+same job later that night, since Opus's reasoning quality for the report
+isn't a corner the team wants a faster substitute cutting.
+
+*AWS example:* a small Lambda function sits in front of **Amazon
+Bedrock**'s `InvokeModel` API as the router: it reads the calling
+endpoint's tag, invokes `anthropic.claude-haiku` for dashboard requests
+with a catch block that retries `amazon.nova-micro` on a timeout or
+throttling exception, and invokes `anthropic.claude-opus` for batch
+requests with a plain same-model retry on failure. Because Bedrock exposes
+every provider's models behind one unified API, swapping the model ID in
+the fallback branch is a one-line config change, not a rewrite.
+
+> **Exam tip:** When a scenario names two request types from the *same*
+> application with different latency or volume profiles, don't stop at
+> picking one model for the whole feature — the [multi-constraint worked
+> example](#worked-example-selecting-a-foundation-model-under-multiple-competing-constraints)'s
+> discipline of confirming every constraint applies per request type here
+> too. A fallback chain only belongs on the request type that actually has
+> an availability requirement; adding one to a batch job that can simply
+> retry overnight is unneeded complexity.
+
+#### Implementation patterns: Bedrock Agents and SageMaker multi-model endpoints
+
+Two AWS building blocks show up when a scenario asks how to actually
+*implement* routing or a fallback chain, beyond a bespoke router in front
+of an API call:
+
+- **Amazon Bedrock Agents.** An agent's orchestration logic can act as a
+  router by delegating a task to the sub-agent or action group best suited
+  to it — Bedrock Agents' **multi-agent collaboration** feature lets a
+  supervisor agent hand off a sub-task to a specialized collaborator agent
+  backed by a different underlying foundation model, which is itself a
+  form of request-level routing. Because Bedrock's `InvokeModel` and
+  `Converse` APIs are uniform across providers, a Lambda-based router (as
+  in the worked example above) or a Bedrock Agent's own orchestration can
+  both catch a timeout or throttling exception from the preferred model
+  and re-invoke a different model ID as the fallback, without any
+  provider-specific rewrite.
+- **Amazon SageMaker multi-model endpoints (MMEs).** For self-hosted or
+  fine-tuned models rather than Bedrock-hosted FMs, a SageMaker
+  multi-model endpoint hosts many models behind a **single** endpoint,
+  dynamically loading each model from Amazon S3 into memory on demand and
+  evicting less-used ones when capacity is needed — so a fleet of similar
+  fine-tuned model variants doesn't require one provisioned endpoint per
+  model. A caller selects which model handles a given request with the
+  `TargetModel` header on the invocation, which is the natural place to
+  plug in a routing decision. The trade-off: the *first* invocation of a
+  model that isn't already loaded pays a cold-start latency penalty, so
+  MMEs fit best when routing among many similarly-sized models rather than
+  a strict low-latency/high-accuracy split where the cold-start penalty
+  would land on exactly the requests that can least afford it.
+
+> **Exam tip:** If a scenario is routing among **Bedrock-hosted foundation
+> models** (Anthropic, Amazon, Cohere, and similar), the answer lives in
+> Bedrock's unified API and, for agentic hand-offs, multi-agent
+> collaboration. If it's routing among **many self-hosted or fine-tuned
+> models** and asks how to avoid provisioning a separate endpoint for
+> each, that's the cue for **SageMaker multi-model endpoints** — a
+> distinct pattern from Bedrock's provisioned throughput
+> ([Section 5](#5-amazon-bedrock-features)), which reserves capacity for a
+> *single* model rather than serving many from one endpoint.
 
 #### Mini-quiz: Test your understanding of FM application design considerations
 

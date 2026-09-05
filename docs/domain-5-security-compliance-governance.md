@@ -1764,6 +1764,81 @@ explanation.
    CloudTrail and Config, among other sources) and maps it to prebuilt or
    custom frameworks to streamline audit preparation.
 
+#### Worked example: assembling a SOC 2 audit evidence chain with AWS Config, Audit Manager, and Artifact
+
+The visual summary above shows *that* Config, Audit Manager, and Artifact
+chain together; this walkthrough shows *how*, end to end, for one AI
+system going through a real audit.
+
+**Setup:** Meridian Lending runs an AI-based loan-fraud-scoring model on a
+SageMaker real-time endpoint. Once a year, an independent auditor performs
+a **SOC 2 Type II** examination of Meridian's controls, including the
+controls around this endpoint, and Meridian's compliance team must
+produce audit-ready evidence without hand-collecting it from scratch.
+
+1. **Config rules continuously capture the endpoint's configuration
+   state.** Months before the audit even starts, Meridian has AWS Config
+   rules running against the SageMaker endpoint's account: one flags
+   whether the endpoint's storage volume is encrypted, another flags
+   whether the endpoint sits inside a private VPC subnet with no public
+   IP, and a third flags whether the IAM execution role attached to it is
+   overly permissive. Config records every configuration change — and
+   every rule evaluation, compliant or not — as a timestamped history,
+   with no manual snapshotting required.
+2. **That configuration history becomes evidence the moment an assessment
+   is created in Audit Manager.** Meridian's compliance lead creates an
+   **AWS Audit Manager** assessment using the prebuilt **SOC 2** framework.
+   Audit Manager maps its framework's controls (e.g., "logical access to
+   systems is restricted," "changes to production systems are
+   authorized") to specific **data sources**, including the Config rules
+   from step 1 and the CloudTrail log of every `sagemaker:UpdateEndpoint`
+   and `sagemaker:InvokeEndpoint` call. From the moment the assessment is
+   active, Audit Manager pulls fresh evidence into the matching control
+   automatically, on an ongoing basis — Meridian's team never has to ask
+   "did anyone check the encryption setting this month?" because Config
+   already answered it and Audit Manager already filed the answer.
+3. **A control Config and CloudTrail can't see is added as manual
+   evidence.** Not every SOC 2 control maps to something AWS can observe
+   automatically — Meridian's quarterly access-review meeting, where two
+   engineers sign off on who still needs SageMaker endpoint access, only
+   exists as a set of meeting minutes. Meridian's compliance lead uploads
+   that document directly into the corresponding Audit Manager control as
+   **manual evidence**, sitting alongside the automatically collected
+   Config and CloudTrail evidence for that same control. Audit Manager
+   doesn't discover this evidence on its own; it only organizes what
+   Meridian's team feeds it, automated or manual.
+4. **Artifact supplies the one layer Meridian's own account can never
+   prove.** SOC 2 also expects assurance over the physical and
+   infrastructure layer the endpoint runs on — data center access
+   controls, hardware disposal, network segmentation between AWS
+   customers — none of which Config or CloudTrail can observe, because
+   none of it happens inside Meridian's account. Meridian's compliance
+   lead downloads AWS's own current **SOC 2 Type II report** from **AWS
+   Artifact** and attaches it as the evidence of AWS's inherited controls,
+   exactly the way the [shared responsibility
+   model](#5-aws-shared-responsibility-model-applied-to-aiml-services)
+   splits "security *of* the cloud" from "security *in* the cloud."
+5. **Audit Manager assembles everything into one assessment report for
+   the auditor.** With Config evidence, CloudTrail evidence, Meridian's
+   uploaded manual evidence, and AWS's Artifact report all attached to
+   their respective controls, Meridian's compliance lead exports Audit
+   Manager's **assessment report** — a single package organized by SOC 2
+   control, not by AWS service. The external auditor reviews that package
+   plus the attached Artifact report and issues Meridian's SOC 2 Type II
+   opinion without ever needing direct console access to Meridian's AWS
+   account.
+
+**Exam tip:** If a scenario asks which service continuously generates
+evidence *about a customer's own AI resource* over time, that's Config;
+which service organizes evidence (automated *and* manually uploaded) into
+a framework-mapped, audit-ready package, that's Audit Manager; which
+service supplies AWS's *own* third-party report to cover the
+infrastructure layer the customer's account can't observe, that's
+Artifact. A single audit almost always needs all three, but they never do
+each other's job — Audit Manager doesn't generate primary evidence any
+more than Config produces a framework-mapped report or Artifact reports
+on a customer's own resource configuration.
+
 ---
 
 ## 4. Data governance strategies

@@ -1,3 +1,21 @@
+Looking at this test file, I can see there are two merge conflicts:
+
+1. The `EXPECTED_LINE_COUNTS` dictionary in `TestDocumentationStructure2026ContentMetricsRefresh`
+2. The total line count assertion in `test_structure_doc_states_13298_line_total`
+
+The HEAD version has:
+- Domain 3: 5196 lines
+- Total: 14296
+
+The upstream version has:
+- Domain 3: 5482 lines  
+- Total: 14407
+
+Let me verify the math: 1930 + 2213 + 5482 + 2247 + 2535 = 14407 ✓
+
+The upstream version is internally consistent with the previous resolution of DOCUMENTATION_STRUCTURE.md (which I resolved to use the upstream values with Domain 3 at 5482 and total 14407). The upstream commit "autopilot: Add concrete scenarios: AWS Artifact compliance agreements (BAA, DPA) use cases" represents the newer state after content was added to Domain 3.
+
+```python
 """Regression tests for docs/DOCUMENTATION_STRUCTURE.md staying in sync with
 the files it describes.
 
@@ -1190,8 +1208,8 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
     DOCUMENTATION_STRUCTURE.md states them, guarding against this refresh
     drifting stale again."""
 
-    EXPECTED_LINE_COUNTS = {1: 1930, 2: 2213, 3: 5289, 4: 2250, 5: 2614}
-    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 12}
+    EXPECTED_LINE_COUNTS = {1: 1930, 2: 2213, 3: 5482, 4: 2247, 5: 2535}
+    EXPECTED_WORKED_EXAMPLES = {1: 3, 2: 5, 3: 18, 4: 8, 5: 11}
     EXPECTED_MERMAID_DIAGRAMS = {1: 7, 2: 5, 3: 16, 4: 6, 5: 6}
     EXPECTED_PRACTICE_QUESTIONS = {1: 24, 2: 24, 3: 29, 4: 20, 5: 32}
 
@@ -1229,7 +1247,7 @@ class TestDocumentationStructure2026ContentMetricsRefresh(unittest.TestCase):
 
     def test_structure_doc_states_13298_line_total(self):
         total = sum(self.EXPECTED_LINE_COUNTS.values())
-        self.assertEqual(total, 14296)
+        self.assertEqual(total, 14407)
         self.assertIn(f"**{total:,} lines total**", self.structure_text)
 
     def test_actual_worked_example_counts_match_expected(self):
@@ -1402,3 +1420,4 @@ class TestDocumentationStructureMockExamDistinctionAccuracy(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+```

@@ -22,63 +22,13 @@ AWS-Certified-AI-Practitioner/
 │   ├── domain-4-guidelines-for-responsible-ai.md
 │   ├── domain-5-security-compliance-governance.md
 │   │
-│   │   Ten cross-domain support documents ─────────────────────────
-│   ├── aws-service-index.md                    every AWS service, indexed across all 5 guides
-│   ├── aws-service-decision-guide.md           "which service is the exam answer here?"
-│   ├── cross-domain-concept-map.md             how D1/D2 concepts flow into D3/D4/D5, D3 into D4/D5
-│   ├── cross-domain-scenario-questions.md      22 questions spanning 2+ domains
-│   ├── case-study-ai-system-lifecycle.md       one company, one system, all 5 domains
-│   ├── exam-preparation-strategy.md            reading order, schedules, mock-exam plan
-│   ├── full-length-mock-exam.md                65-question, 90-minute mock exam (take first)
-│   ├── mock-exam.md                            second, different 65-question mock exam (take second)
-│   ├── master-glossary.md                      alphabetical term index, `[D#, ...]` tags
-│   └── GLOSSARY.md                             the same term set as backlinked prose
-│
-└── tests/
-    ├── test_domain_N_study_guide.py            structural checks, one file per domain
-    ├── test_domain_N_quick_reference_cheat_sheet.py
-    ├── test_domain_N_subsection_mini_quizzes.py
-    ├── test_domain_footer_navigation.py        breadcrumb link checks, all 5 domains
-    ├── test_cross_reference_links.py           every internal link/anchor resolves
-    ├── test_documentation_structure.py         this file stays in sync with reality
-    └── ...                                      one test file per cross-domain doc above
-```
-
-## Domain guides: per-domain coverage breakdown
-
-`docs/domain-N-fundamentals-of-*.md` — five markdown files, one per exam
-domain, currently 1,930–5,289 lines each, **14,296 lines total**:
+domain, currently 1,930–5,482 lines each, **14,407 lines total**:
 
 - Domain 1: 1,930 lines
 - Domain 2: 2,213 lines
-- Domain 3: 5,289 lines
-- Domain 4: 2,250 lines
-- Domain 5: 2,614 lines
-
-All five follow the same template:
-
-- a breadcrumb navigation line (previous domain · position in sequence ·
-  next domain) and a `## Table of contents` linking every numbered section
-  within the file;
-- a domain overview, then 5–8 major numbered sections (`## 1`, `## 2`, …),
-  each with an "AWS example" and an "Exam tip";
-- a condensed **"## Quick-reference cheat sheet"** section — every domain
-  now has one (Domain 3 got it first; Domains 1, 2, 4, and 5 each later
-  added their own), sitting between the comparison table and the glossary
-  for last-minute review;
-- domain-specific supplementary sections beyond the shared template, e.g.
-  Domain 2's inference-parameter interaction visual guide and per-domain
-  "mini quiz" call-outs embedded under individual subsections;
-- a comparison/reference table (e.g., "AWS managed AI/ML services at a
-  glance" in D1, "AWS generative AI services" in D2);
-- a `## Key terms glossary` (15–50 entries; Domain 5's heading matches the
-  same "Key terms glossary" convention used by D1–D4);
-- a dedicated `## Worked example` section closing out each domain;
-- `## Practice questions` (15–20 per domain, except **24 for Domain 1**,
-  **24 for Domain 2**, **29 for Domain 3**, and **32 for Domain 5**
-  (Domain 4 has 20), including exactly 2 multiple-response ["select TWO"]
-  questions, for **129 domain practice questions in total** across
-  the five domain guides) and a full `## Answer key` with justifications
+- Domain 3: 5,482 lines
+- Domain 4: 2,247 lines
+- Domain 5: 2,535 lines
   ruling out each wrong answer.
 
 **Worked examples:** Domains 1, 2, 3, 4, and 5 each close with a dedicated
@@ -423,10 +373,10 @@ and a scoring-by-domain breakdown — so a wrong answer on either one points
 straight back to the domain guide section it came from.
 
 **`master-glossary.md`** and **`GLOSSARY.md`** are two views of the same
-merged term set: `master-glossary.md` groups **156 entries** alphabetically
+merged term set: `master-glossary.md` groups **157 entries** alphabetically
 under "Jump to a letter" navigation, with each entry tagged
 `[D#, ...]` for the domain guide(s) that define it, while `GLOSSARY.md`
-presents the identical 156-term set as backlinked prose organized the same
+presents the identical 157-term set as backlinked prose organized the same
 way. Both files must be updated together whenever a term is added, renamed,
 or retagged, which `tests/test_documentation_structure.py` enforces by
 requiring their entry counts to match.

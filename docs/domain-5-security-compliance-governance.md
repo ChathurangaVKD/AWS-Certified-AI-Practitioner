@@ -1145,6 +1145,55 @@ audit reports and legal agreements.
 centers meet ISO 27001 requirements to satisfy an internal audit. They
 download the relevant report from AWS Artifact Reports.
 
+#### Decision guide: choosing the right AWS Artifact agreement (BAA vs. DPA)
+
+AWS Artifact has two distinct areas that the exam likes to blur together:
+**Artifact Reports** (read-only, no signature — AWS's own SOC/ISO/PCI
+audit reports) and **Artifact Agreements** (legal documents you review and
+accept online before sending regulated data to AWS). The table below maps
+common compliance scenarios to the correct Agreement.
+
+| Compliance scenario | Regulation / data type | AWS Artifact agreement to accept | Why |
+|---|---|---|---|
+| A healthcare startup fine-tunes a model on patient records containing PHI using Amazon SageMaker. | HIPAA — protected health information (PHI) | **Business Associate Addendum (BAA)** | AWS becomes a HIPAA "business associate" processing PHI on the company's behalf; a BAA must be executed before any PHI reaches AWS. |
+| An EU-based retailer sends EU customers' order history (personal data) to Amazon Bedrock to power a recommendation feature. | GDPR — personal data of EU/EEA individuals | **AWS GDPR Data Processing Addendum (DPA)** | AWS is the data processor and the retailer is the data controller; the DPA documents AWS's contractual GDPR obligations as processor. |
+| A US health insurer's EU subsidiary sends EU patients' health records to a Bedrock knowledge base. | Both HIPAA (PHI) and GDPR (the same records are also EU personal data) | **Both the BAA and the DPA** | Two independent regulations attach to the same dataset; one agreement doesn't substitute for the other — PHI triggers the BAA requirement, EU personal data triggers the DPA requirement. |
+| An internal audit team needs written proof that AWS's own data centers currently hold SOC 2 and ISO 27001 certifications. | Internal audit evidence — no regulated customer data is sent to AWS as part of this request | **Neither** — download the report from AWS Artifact **Reports**, not Agreements | No PHI or personal data is involved; the team only needs AWS's own third-party audit reports, which don't require accepting or signing anything. |
+
+**Requesting and verifying an agreement:** From the AWS Artifact console
+(or, for an AWS Organizations member account, from the management
+account so the acceptance covers the whole organization), open
+**Artifact > Agreements**, select the relevant agreement (e.g., "Business
+Associate Addendum" or "AWS GDPR Data Processing Addendum"), review its
+terms, and accept it online — no separate paperwork is mailed or signed
+outside the console. To verify: the Agreements page shows the agreement's
+status (**Active**), the accepting account, and the acceptance date, and
+lets you download a signed PDF copy for the compliance record. Accepting
+the BAA is necessary but not sufficient for HIPAA: you must also confirm
+every AWS service actually in use appears on AWS's published list of
+HIPAA-eligible services (e.g., Amazon SageMaker, Amazon Comprehend
+Medical) — the BAA alone doesn't make a non-eligible service compliant.
+
+**Where this fits in the pre-deployment checklist:**
+1. Classify the data the workload will touch (PHI? EU/EEA personal data?
+   neither?) — use the [Compliance framework decision
+   matrix](#compliance-framework-decision-matrix) above.
+2. Accept the applicable AWS Artifact agreement(s) (BAA, DPA, or both)
+   *before* any regulated data is sent to an AWS AI/ML service.
+3. Restrict the workload to HIPAA-eligible services (for PHI) and/or an
+   EU Region for data residency (for GDPR).
+4. Turn on AWS KMS encryption and AWS CloudTrail/AWS Config so there is
+   an auditable trail from the first request.
+5. Only then move the workload from a test/staging state into
+   production.
+
+**Exam tip:** If a scenario says a company must *download* something from
+AWS with no signature involved, it's an Artifact **Report** (SOC 2, ISO
+27001, PCI DSS). If it says a company must *execute*, *sign*, or *accept*
+something before sending regulated data, it's an Artifact **Agreement** —
+BAA for PHI, DPA for GDPR personal data, and both when the same data is
+covered by both regulations.
+
 ### GDPR (General Data Protection Regulation) — conceptual level
 An EU regulation governing the processing of personal data of individuals
 in the EU/EEA. Key AIF-C01-relevant concepts:
@@ -2354,6 +2403,7 @@ policy.
 - **Source citation / attribution** — Referencing the source documents used to generate an AI response, as provided by Amazon Bedrock Knowledge Bases.
 - **AWS Artifact** — Self-service portal for AWS compliance reports and agreements (e.g., BAA).
 - **BAA (Business Associate Addendum)** — Agreement required with AWS before processing PHI under HIPAA.
+- **DPA (Data Processing Addendum)** — Agreement (available via AWS Artifact) documenting AWS's obligations as data processor before processing EU/EEA personal data under GDPR.
 - **GDPR** — EU regulation governing processing of personal data.
 - **HIPAA** — US law governing protected health information (PHI).
 - **Data controller / data processor** — Under GDPR, the controller decides how/why data is processed (usually the customer); the processor processes it on the controller's behalf (AWS).

@@ -204,7 +204,7 @@ class TestDomain3RetrievalQualityMetricsDecisionGuide(unittest.TestCase):
     def test_worked_example_synthesizes_a_takeaway_across_metrics(self):
         self.assertRegex(
             self.worked_example,
-            r"(?i)no single metric tells the whole story",
+            r"(?i)no single metric\s+tells the whole story",
             "expected the worked example to tie its numbers back to the "
             "principle that no single retrieval metric is sufficient "
             "alone",

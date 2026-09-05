@@ -8,6 +8,7 @@
 
 - [1. Design considerations for foundation model applications](#1-design-considerations-for-foundation-model-applications)
   - [Multi-model routing and fallback strategies: routing requests to the right model at request time](#multi-model-routing-and-fallback-strategies-routing-requests-to-the-right-model-at-request-time)
+    - [Runtime decision tree: selecting a fallback model when the primary is unavailable, rate-limited, or too costly](#runtime-decision-tree-selecting-a-fallback-model-when-the-primary-is-unavailable-rate-limited-or-too-costly)
     - [Worked example: routing a dashboard-and-batch analytics feature by latency sensitivity](#worked-example-routing-a-dashboard-and-batch-analytics-feature-by-latency-sensitivity)
 - [2. Prompt engineering techniques](#2-prompt-engineering-techniques)
   - [Comparison table: prompt engineering techniques at a glance](#comparison-table-prompt-engineering-techniques-at-a-glance)
@@ -399,6 +400,50 @@ flowchart TD
 > unavailable, still return an answer using another model," that's a
 > fallback chain; if it says "block this request rather than let the wrong
 > model answer it," that's strict routing.
+
+#### Runtime decision tree: selecting a fallback model when the primary is unavailable, rate-limited, or too costly
+
+The flowchart above decides *whether* a fallback chain belongs in the
+design at all. Once a fallback chain exists, a second, separate decision
+happens on every request at **invocation time**: is the primary model
+actually usable for this call right now, and if not, which of the
+candidate fallback models should handle it? That runtime check walks
+through availability first, then cost, before picking among the
+configured fallback candidates:
+
+```mermaid
+flowchart TD
+    START(["Request is about to be sent\nto the primary model"])
+    START --> Q1{"Is the primary model healthy and\nreachable - no timeout, throttling,\nor 5xx/ServiceUnavailable response\non the health check or last call?"}
+    Q1 -->|"YES"| Q2{"Is the primary model currently\nrate-limited for this account or\ntenant (e.g., a ThrottlingException\nor an exhausted provisioned-\nthroughput quota)?"}
+    Q1 -->|"NO - down or erroring"| CANDIDATES["Evaluate fallback candidates\nFM-2 and FM-3 in configured\npriority order"]
+    Q2 -->|"NO"| Q3{"Does this request's per-call cost\nceiling (from the cost-governance\nbudget) allow the primary model's\nprice at current volume?"}
+    Q2 -->|"YES - rate-limited"| CANDIDATES
+    Q3 -->|"YES"| PRIMARY["Call the primary model\nNo fallback needed - primary is\nhealthy, not throttled, and\nwithin budget"]
+    Q3 -->|"NO - over budget"| CANDIDATES
+    CANDIDATES --> Q4{"Is the highest-priority fallback\n(FM-2) healthy, not rate-limited,\nand within the cost ceiling?"}
+    Q4 -->|"YES"| FM2["Call FM-2\nFirst fallback candidate meets\nall three checks"]
+    Q4 -->|"NO"| Q5{"Is the next fallback (FM-3)\nhealthy, not rate-limited, and\nwithin the cost ceiling?"}
+    Q5 -->|"YES"| FM3["Call FM-3\nSecond fallback candidate meets\nall three checks"]
+    Q5 -->|"NO"| EXHAUSTED["Fallback chain exhausted\nFail the request (or queue/degrade\nper the application's own error-\nhandling policy) rather than call\na model that is down, throttled,\nor over budget"]
+```
+
+Notice the check order: **availability, then rate limits, then cost** —
+an unreachable or throttled model is skipped before cost is even
+considered, because a model that can't respond has no cost to compare.
+Only once a candidate clears both health checks does its price get
+weighed against the request's cost ceiling. The same three checks repeat
+for each fallback candidate in priority order; if every candidate in the
+chain fails all three, the request fails rather than silently landing on
+a model that's down, throttled, or too expensive to serve it.
+
+> **Exam tip:** A scenario that says a fallback model was called even
+> though it was *more expensive* than the primary is not a bug — cost is
+> only a **tie-breaker among available models**, not a reason to leave a
+> request unanswered. If a scenario instead describes a request routed to
+> a cheaper model while the primary was healthy and within budget, that's
+> wrong per this tree: cost only matters once availability and rate
+> limits have already ruled the primary in or out.
 
 #### Worked example: routing a dashboard-and-batch analytics feature by latency sensitivity
 

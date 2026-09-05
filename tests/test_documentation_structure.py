@@ -1694,5 +1694,129 @@ class TestDocumentationStructureQuickReferenceCheatSheetAccuracy(
         )
 
 
+class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's 'Diagrams' subsection previously stated
+    only the 55 Mermaid diagrams in the full domain guides and cross-domain
+    materials, and mentioned the 39 additional diagrams in the Fast Track
+    condensed guides only as a parenthetical caveat excluded from the
+    total -- leaving readers unsure whether 55 or 94 was the repo's actual
+    diagram count. These tests derive the true full-guide, cross-domain,
+    and Fast Track diagram counts directly from the source files and
+    assert DOCUMENTATION_STRUCTURE.md states the correct, internally
+    consistent 94-diagram grand total with an itemized breakdown, so the
+    count can't silently drift stale or under-report again."""
+
+    FAST_TRACK_DIAGRAM_FILES = {
+        "Domain 1": DOCS_DIR / "domain-1-fast-track" / "README.md",
+        "Domain 2": DOCS_DIR / "domain-2-fast-track" / "README.md",
+        "Domain 3 part 1": DOCS_DIR
+        / "domain-3-fast-track"
+        / "part-1-application-design-and-customization.md",
+        "Domain 3 part 2": DOCS_DIR
+        / "domain-3-fast-track"
+        / "part-2-inference-and-multimodal.md",
+        "Domain 3 part 3": DOCS_DIR
+        / "domain-3-fast-track"
+        / "part-3-deployment-and-troubleshooting.md",
+        "Domain 4": DOCS_DIR / "domain-4-fast-track" / "README.md",
+        "Domain 5 part 2": DOCS_DIR
+        / "domain-5-fast-track"
+        / "part-2-governance-and-monitoring.md",
+    }
+
+    CONCEPT_MAP_DOC = DOCS_DIR / "cross-domain-concept-map.md"
+    DECISION_GUIDE_DOC = DOCS_DIR / "aws-service-decision-guide.md"
+
+    @staticmethod
+    def _mermaid_count(path):
+        return len(re.findall(r"```mermaid", path.read_text(encoding="utf-8")))
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        diagrams_idx = cls.structure_text.find("**Diagrams:**")
+        assert diagrams_idx != -1
+        cls.diagrams_section = cls.structure_text[diagrams_idx : diagrams_idx + 2000]
+
+    def test_actual_per_domain_diagram_counts_are_7_5_25_6_7(self):
+        expected = {1: 7, 2: 5, 3: 25, 4: 6, 5: 7}
+        for domain_number, path in DOMAIN_FILES.items():
+            with self.subTest(domain=domain_number):
+                self.assertEqual(self._mermaid_count(path), expected[domain_number])
+
+    def test_actual_cross_domain_diagram_counts_are_2_and_3(self):
+        self.assertEqual(self._mermaid_count(self.CONCEPT_MAP_DOC), 2)
+        self.assertEqual(self._mermaid_count(self.DECISION_GUIDE_DOC), 3)
+
+    def test_actual_fast_track_diagram_counts_are_6_8_4_8_7_4_2(self):
+        expected = {
+            "Domain 1": 6,
+            "Domain 2": 8,
+            "Domain 3 part 1": 4,
+            "Domain 3 part 2": 8,
+            "Domain 3 part 3": 7,
+            "Domain 4": 4,
+            "Domain 5 part 2": 2,
+        }
+        for label, path in self.FAST_TRACK_DIAGRAM_FILES.items():
+            with self.subTest(label=label):
+                self.assertEqual(self._mermaid_count(path), expected[label])
+
+    def test_full_guide_and_cross_domain_total_is_55(self):
+        domain_total = sum(
+            self._mermaid_count(path) for path in DOMAIN_FILES.values()
+        )
+        grand = (
+            domain_total
+            + self._mermaid_count(self.CONCEPT_MAP_DOC)
+            + self._mermaid_count(self.DECISION_GUIDE_DOC)
+        )
+        self.assertEqual(grand, 55)
+
+    def test_fast_track_total_is_39(self):
+        fast_track_total = sum(
+            self._mermaid_count(path)
+            for path in self.FAST_TRACK_DIAGRAM_FILES.values()
+        )
+        self.assertEqual(fast_track_total, 39)
+
+    def test_structure_doc_states_94_total_mermaid_diagrams(self):
+        self.assertIn(
+            "**94 total Mermaid diagrams**",
+            self.diagrams_section,
+            "DOCUMENTATION_STRUCTURE.md's Diagrams subsection does not "
+            "state the full 94-diagram grand total (55 full-guide/"
+            "cross-domain + 39 Fast Track)",
+        )
+
+    def test_structure_doc_states_55_and_39_component_totals(self):
+        self.assertIn("**55 Mermaid diagrams**", self.diagrams_section)
+        self.assertIn("**39 Fast Track diagrams**", self.diagrams_section)
+
+    def test_structure_doc_no_longer_excludes_fast_track_from_total(self):
+        lowered = self.diagrams_section.lower()
+        self.assertNotIn("not counted in the 55 figure", lowered)
+        self.assertNotIn(
+            "additional diagrams adapted for condensed-format presentation, "
+            "not counted",
+            lowered,
+        )
+
+    def test_structure_doc_itemizes_fast_track_breakdown(self):
+        for fragment in (
+            "6 in\nDomain 1",
+            "8 in\nDomain 2",
+            "4 in\nDomain 3's part 1",
+            "8 in\nDomain 3's part 2",
+            "7 in\nDomain 3's part 3",
+            "4 in\nDomain 4",
+            "2 in\nDomain\n5's part 2",
+        ):
+            normalized_section = re.sub(r"\s+", " ", self.diagrams_section)
+            normalized_fragment = re.sub(r"\s+", " ", fragment)
+            with self.subTest(fragment=fragment):
+                self.assertIn(normalized_fragment, normalized_section)
+
+
 if __name__ == "__main__":
     unittest.main()

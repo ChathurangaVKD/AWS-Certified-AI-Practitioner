@@ -22,7 +22,9 @@ point; there is nothing to pre-fill.
 
 | Attempt # | Assessment / question set | Date | # Correct | # Total | % Score | Domain breakdown (if available) | Time spent | Weak-area notes |
 |---|---|---|---|---|---|---|---|---|
-| | | | | | | | | |
+
+*(Add one row per attempt below the header — the table intentionally ships
+with no rows yet.)*
 
 **How to fill this in:**
 

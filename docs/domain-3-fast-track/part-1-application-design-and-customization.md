@@ -80,7 +80,19 @@ set of factors traded off against each other:
 **Inference parameters feed back into cost/latency too:** temperature,
 top-p, and top-k don't change per-token price, but a high-temperature/
 high-top-p setting that produces inconsistent or overly long completions
-drives up retries and total output tokens.
+drives up retries and total output tokens — while low temperature reduces
+both. See [Domain 2's cost and latency
+subsection](../domain-2-fundamentals-of-generative-ai.md#cost-and-latency-implications-of-temperature-top-p-and-top-k)
+for the worked budget example behind this mechanism.
+
+**Within a single provider, model selection can also span modalities**:
+Amazon's own **Nova** family alone spans seven variants across four
+modalities — text (**Nova Micro/Lite/Pro/Premier**), image (**Nova
+Canvas**), video (**Nova Reel**), and speech (**Nova Sonic**). See
+[Domain 2's Nova comparison
+table](../domain-2-fundamentals-of-generative-ai.md#comparing-amazon-nova-model-variants)
+for how the four text tiers trade off cost and latency against each
+other and against the three non-text variants.
 
 **Context window doesn't scale with model size.** Within Anthropic's
 Claude family, Haiku/Sonnet/Opus all share the same large (~200K-token)
@@ -229,9 +241,19 @@ guide that needs no training data or training job.
 > logic) with no extra data or cost, the answer is almost always
 > **chain-of-thought prompting**, not fine-tuning.
 
-Full explanation, the four-technique worked example running the same
-review-classification task through zero-shot/few-shot/CoT/negative
-prompting, and the mini-quiz: [full guide, Section
+**Worked example, condensed — the same mixed-signal review** ("arrived
+two days late and the box was a little dented, but everything inside
+works perfectly and support was quick to apologize") **run through four
+techniques:**
+
+| Technique | Prompt addition | Resulting output | What it demonstrates |
+|---|---|---|---|
+| Zero-shot | Instruction only | `Sentiment: Positive` | Fast, cheap, but the model picks its own output format |
+| Few-shot | Two labeled example reviews + a required `Label: <reason>` format | `Label: Positive: minor shipping/packaging issues outweighed by a fully functional product and a responsive apology` | Examples lock in the exact output format and expected nuance |
+| Chain-of-thought | "Think through positive and negative signals step by step" | Numbered reasoning steps, then `Final sentiment: Positive` | Makes a borderline call auditable — you can see *why* |
+| Negative prompting | "Do not answer Neutral for a fully working product... no extra text" | `Positive` | Cheaply eliminates one specific failure mode (hedging to "Neutral") |
+
+Full explanation and the mini-quiz: [full guide, Section
 2](../domain-3-applications-of-foundation-models.md#2-prompt-engineering-techniques).
 
 ---
@@ -281,6 +303,14 @@ this whole pipeline — point it at an S3 data source and it handles
 ingestion, chunking, embedding, and storage. Your application calls
 **`Retrieve`** (returns matching chunks only) or **`RetrieveAndGenerate`**
 (retrieval + prompting + generation in one call).
+
+**AWS example, condensed:** a software company wants an internal chatbot
+that answers employee questions from a constantly updated wiki, without
+retraining anything every time the wiki changes. They point an **Amazon
+Bedrock Knowledge Base** at an S3 bucket synced from the wiki, using
+**Amazon OpenSearch Serverless** as the vector store and **Amazon Titan
+Text Embeddings**. When the wiki updates, they simply re-sync the S3 data
+source — no retraining.
 
 > **Exam tip:** If a scenario's goal is "keep responses current with
 > frequently changing data" or "reduce hallucination by grounding answers
@@ -511,8 +541,21 @@ for something SFT can't capture: which of several plausible responses
 > the complaint is outdated or missing proprietary knowledge, RLHF is the
 > wrong lever — reach for **RAG** instead.
 
-Full explanation and the AWS worked example (a support-chat assistant
-combining SFT, RLHF, and a RAG layer): [full guide,
+**AWS worked example, condensed:** a SaaS company's support-chat
+assistant runs **SFT** first, on labeled transcript/response pairs, so
+the model learns company tone and terminology. Support leads then notice
+technically-correct-but-terse answers — a *degree-of-quality* problem SFT
+can't fix by adding one more "correct" label. The team collects human
+rankings of multiple candidate responses per prompt and runs **RLHF** to
+align the SFT model toward the responses reviewers consistently
+preferred. Because the assistant must also answer questions about the
+current product catalog and open tickets, the team keeps a **RAG** layer
+(Amazon Bedrock Knowledge Bases) in front of the whole pipeline — RLHF
+improves *how* the model responds; RAG ensures *what* it knows stays
+current. All three techniques solve different, non-overlapping problems
+in the same production system.
+
+Full explanation: [full guide,
 RLHF](../domain-3-applications-of-foundation-models.md#reinforcement-learning-from-human-feedback-rlhf-aligning-fine-tuned-models-to-human-preferences).
 
 ---
@@ -659,6 +702,14 @@ dataset](../domain-3-applications-of-foundation-models.md#curating-a-fine-tuning
   perceived (not actual) latency.
 - **Provisioned throughput** — reserved capacity billed at a flat rate,
   typically required to serve a Bedrock fine-tuned custom model.
+- **Context window** — the maximum amount of text (tokens) a model can
+  consider at once; doesn't automatically scale with a model's size or
+  price tier.
+- **Amazon Bedrock Agents** — orchestrates multi-step tasks; its
+  multi-agent collaboration feature can route sub-tasks to different
+  underlying FMs.
+- **Amazon Bedrock Prompt Management** — creates, versions, and shares
+  prompt templates across an application.
 
 For the complete glossary: [full guide, Key terms
 glossary](../domain-3-applications-of-foundation-models.md#key-terms-glossary).
@@ -738,6 +789,7 @@ guide's practice set.
 | Full guide, [Section 5, Cost governance](../domain-3-applications-of-foundation-models.md#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput) | Provisioned throughput for fine-tuned models | This part notes fine-tuned Bedrock custom models typically require provisioned throughput; Section 5 (Part 2 scope) covers the cost mechanics of that choice in depth |
 | [Domain 1, Section 6](../domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) | Overfitting and validation holdouts | Both this part's dataset-curation guidance and Domain 1's classical-ML evaluation basics rest on the same principle: a held-out validation set is what catches overfitting, regardless of model type |
 | [`cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md#practice-questions) | Choosing the right customization approach under competing constraints | Several cross-domain scenario questions test whether a fix belongs to this domain's customization spectrum (RAG/fine-tuning/RLHF) or a Domain 4 responsible-AI control |
+| [Domain 5, Cost governance](../domain-5-security-compliance-governance.md#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans) | Per-request vs. aggregate cost control | This part's model-selection cost/latency trade-offs bound *one* response's cost; Domain 5 bounds *how many* requests can be made in total — the exam expects both together |
 
 ---
 

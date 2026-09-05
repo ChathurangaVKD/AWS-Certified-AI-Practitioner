@@ -286,7 +286,42 @@ more for questions 23–27, e.g. `*(Domains 1, 3, 4, 5)*`.
     C. Routing low-confidence cases to a human reviewer defeats the purpose of automation and should be avoided for the sake of consistency
     D. Raising the model's temperature parameter allows it to signal low-confidence predictions for human review
 
-23. **[Advanced]** A genomics research firm wants to build an internal
+23. **[Beginner]** A team wants to rapidly prototype and compare five
+    different summarization approaches this week before committing
+    engineering time to a full classical SageMaker training pipeline (data
+    collection, feature engineering, training, tuning, and evaluation) for
+    a separate numeric credit-score-adjustment task. Which approach best
+    matches the standard tradeoff between these two paradigms during this
+    exploratory phase?
+    A. Use prompt engineering against a pretrained foundation model to quickly draft and compare the summarization approaches, since it requires no training-data collection or training cycle; reserve the classical SageMaker training pipeline's data-prep, training, tuning, and evaluation stages for the numeric credit-score task, where a dedicated, benchmarkable model is needed
+    B. Skip prototyping entirely and build a full classical training pipeline for the summarization task too, since prompt engineering cannot be used to compare different approaches
+    C. Use Retrieval Augmented Generation for the numeric credit-score task, since retrieval improves numeric regression accuracy
+    D. Use continued pre-training for both tasks, since it is always the fastest way to prototype any task
+
+24. **[Intermediate]** A team already evaluates a classical SageMaker
+    regression model using RMSE and R² computed against a held-out test
+    set, per the ML lifecycle's evaluation stage. They now want to
+    evaluate a foundation model's summarization quality before choosing it
+    for production. Which evaluation approach correctly extends that
+    lifecycle stage to a generative task, and why?
+    A. Reuse RMSE directly on the generated summary text, since RMSE is metric-agnostic and works equally well on any model output, numeric or textual
+    B. Use FM benchmarking suited to open-ended generation — automated metrics like ROUGE or BERTScore against reference summaries, plus human evaluation for coherence and faithfulness — since a summary has no single "correct" numeric value the way a regression target does, but the held-out, pre-deployment evaluation principle from the ML lifecycle still applies
+    C. Skip evaluation entirely, since foundation models are pretrained and already validated by their provider before release
+    D. Only track training loss, since the ML lifecycle's evaluation stage concerns the training phase only, not deployment readiness
+
+25. **[Advanced]** (Select TWO.) A financial company is building (1) a
+    numeric credit-risk score that regulators will audit year over year
+    against a well-defined, benchmarkable metric, and (2) a customer-facing
+    assistant that summarizes each applicant's file in plain language.
+    Which two statements correctly match each task to an ML paradigm and
+    its standard lifecycle/evaluation step?
+    A. The credit-risk score should be built as a classical supervised learning model whose performance is tracked with a standard, auditable metric such as AUC computed on a held-out test set from the ML lifecycle's evaluation stage
+    B. The plain-language summarizer is better served by a foundation model, since generating fluent, varied natural-language summaries is a core foundation-model strength that a classical supervised model isn't designed to produce
+    C. Both should be built as foundation models, since AUC can be computed directly on generated summary text
+    D. The credit-risk score should be built as a foundation model prompted to output a risk number, since prompting requires no held-out test set at all
+    E. The summarizer should be a classical supervised learning model, since natural language generation always requires labeled input-output training pairs
+
+26. **[Advanced]** A genomics research firm wants to build an internal
     Amazon Bedrock-based assistant that answers scientists' questions using
     proprietary, unpublished genomic sequence data stored in Amazon S3.
     Auditors require (1) a verifiable record of exactly which raw dataset

@@ -527,6 +527,26 @@ A request that exceeds the context window is **rejected as invalid
 input**, not silently trimmed — "close enough" token estimates that skip
 the overhead can point you at a model that's actually too small.
 
+**Building an end-to-end generative AI support assistant** strings the
+lifecycle, service choices, and prompting techniques into one build —
+exactly the shape AIF-C01 scenario questions favor ("which single step is
+missing or wrong?"):
+
+| Build step | AWS choice | What it prevents |
+|---|---|---|
+| Scope + success criteria before picking a model | — | Choosing a model before the problem is defined |
+| Access several candidate FMs through one API | **Amazon Bedrock** | Provisioning and hosting open-source models directly |
+| Iterate on tone/format before writing app code | Zero-shot for FAQs, few-shot for reply tone (Bedrock playground) | Hard-coding formatting logic in the application |
+| Block pricing-sheet leakage, harmful content, PII | **Guardrails for Amazon Bedrock** | A clever prompt talking the model out of the safety policy |
+| Let the assistant take real action (order lookup) | **Agents for Amazon Bedrock** | The FM guessing an order status from training data |
+| Compare models/prompts on real historical data | **Amazon Bedrock Model Evaluation** | Launching without confirming the hallucination-risk trade-off is acceptable |
+
+> **Exam tip:** a scenario describing a generative AI project that skips
+> guardrails, skips evaluation, or calls an open-source model directly
+> instead of through a managed service — the correct answer is almost
+> always to **add the missing AWS-managed safeguard**, not to write custom
+> code to solve the same problem.
+
 **Modality trade-off for a real-time voice assistant:** a scenario asking
 for hands-free, sub-second, interruptible spoken conversation should point
 at **Amazon Nova Sonic** (true audio-in/audio-out in one model call), not

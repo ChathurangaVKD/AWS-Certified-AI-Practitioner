@@ -1699,6 +1699,31 @@ Audit Manager's purpose — it draws on CloudTrail and Config data
 underneath but is the service that produces the audit-ready package
 itself.
 
+**Visual summary — the compliance evidence chain, end to end:** AWS
+Config, AWS Audit Manager, and AWS Artifact have each been discussed
+separately above, but on the exam (and in practice) they chain together
+into a single audit-ready evidence package for an AI system: Config
+captures what the AI system's resources actually look like over time,
+Audit Manager organizes that evidence against a chosen compliance
+framework, and Artifact supplies AWS's own compliance reports to cover
+the parts of the stack the customer doesn't control.
+
+```mermaid
+flowchart TD
+    RESOURCES["AI system resources\nSageMaker endpoints, Bedrock\nknowledge bases, training jobs"] --> CONFIG["AWS Config\ncaptures configuration/change\nhistory and evaluates Config rules"]
+    CONFIG -->|"configuration/change-history\nevidence"| AUDITMGR["AWS Audit Manager\ncollects and organizes evidence\nagainst a chosen framework\n(HIPAA, ISO 27001, GDPR, custom)"]
+    ARTIFACT["AWS Artifact\nAWS-provided compliance reports\n(SOC 2, ISO 27001, PCI DSS)\nand agreements (BAA, DPA)"] -->|"AWS's own third-party\naudit evidence"| PACKAGE["Audit-ready compliance\nevidence package for\nthe AI system"]
+    AUDITMGR -->|"framework-mapped\nevidence folder"| PACKAGE
+```
+
+**Exam tip:** Keep the two evidence sources straight. Config and Audit
+Manager together produce evidence *about the customer's own resources*
+(how the AI system is configured and whether it stays compliant).
+Artifact instead supplies evidence *about AWS's own infrastructure*
+(AWS's third-party audit reports and agreements) — evidence the customer
+could never generate themselves. A complete audit-ready package for an
+AI system needs both halves.
+
 #### Mini-quiz: Test your understanding of AWS Config, Audit Manager, and CloudTrail for AI governance
 
 Quick self-check before moving on — try to answer before reading the

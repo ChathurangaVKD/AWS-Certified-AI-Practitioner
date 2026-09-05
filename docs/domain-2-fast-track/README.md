@@ -56,7 +56,9 @@ prose, mini-quiz, and AWS example behind any condensed table below:
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
 - [RAG architecture at a glance](#rag-architecture-at-a-glance)
 - [AWS service → use case table](#aws-service-use-case-table)
+- [Worked-example distillations](#worked-example-distillations)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
+- [Rapid self-check](#rapid-self-check)
 - [Common exam traps checklist](#common-exam-traps-checklist)
 - [Cross-domain connections](#cross-domain-connections)
 - [Where to go deeper](#where-to-go-deeper)
@@ -448,6 +450,72 @@ Bedrock** or **SageMaker JumpStart**.
 
 ---
 
+## Worked-example distillations
+
+The full guide closes with five step-by-step "## Worked example" sections.
+Their scenario narration is trimmed here, but their **decision logic** is
+exactly the kind of reasoning pattern scenario questions test — condensed
+below to the rule each one teaches.
+
+**Token budgeting for context window (RAG and long-document
+summarization):** tokens ≠ words — use **1 token ≈ ¾ of an English word**
+(equivalently, 100 words ≈ ~133 tokens) to translate a scenario's stated
+document length or retrieved-passage count into an approximate token
+count, then add prompt/instruction overhead and response headroom before
+comparing against a candidate model's context window:
+
+| Scenario shape | Approx. token budget | Sizing takeaway |
+|---|---|---|
+| RAG request: system prompt + 5 retrieved passages + conversation history + question + response headroom | ~1,900 tokens | Comfortably fits an 8K-token model with headroom to grow |
+| Summarize a 40-page document (~20,000 words) in one prompt, no chunking | ~27,000 tokens | An 8K model can't hold it at all; a 32K model fits with modest headroom; a 200K model fits comfortably |
+
+A request that exceeds the context window is **rejected as invalid
+input**, not silently trimmed — "close enough" token estimates that skip
+the overhead can point you at a model that's actually too small.
+
+**Modality trade-off for a real-time voice assistant:** a scenario asking
+for hands-free, sub-second, interruptible spoken conversation should point
+at **Amazon Nova Sonic** (true audio-in/audio-out in one model call), not
+a three-hop **Amazon Transcribe → Bedrock text FM → Amazon Polly**
+pipeline — every extra network hop between "customer speaks" and
+"assistant speaks back" works against a real-time latency requirement,
+and a transcription error in hop one silently corrupts what the text
+model reasons over in hop two. The same **Transcribe + text FM + Polly**
+pipeline becomes the *better* fit once the requirement turns
+**asynchronous** (e.g., overnight transcription/summarization of support
+calls) — the deciding factor is always whether the scenario demands live,
+real-time conversation or tolerates a one-directional/async workflow.
+
+**Escalating lightest-touch to heaviest-touch (insurance claims-triage
+lifecycle):** when a scenario reports that a lighter-touch customization
+is insufficient, match the *specific* failure to the next-heaviest option
+rather than jumping straight to full pretraining:
+
+| Reported failure | Next step |
+|---|---|
+| Model fabricates or omits real facts (e.g., a policy clause that doesn't exist) | **RAG** — ground answers in the actual source documents |
+| Output has the right facts but the wrong tone, format, or house style | **Fine-tuning** on labeled examples of the desired output |
+| Model doesn't understand large-scale, specialized, **unlabeled** vocabulary before any labeled task begins | **Continued pre-training** |
+| None of the above — needs a model that doesn't exist yet | Full pretraining (almost never the correct exam answer) |
+
+**Amazon Q Business vs. a custom Bedrock assistant (cost and connector
+trade-off):** the two options bill on different axes — Q Business charges
+**per named user/month** regardless of usage volume; a custom Bedrock
+assistant bills **per token generated**, tracking conversation volume
+regardless of headcount. A lower raw token total does not automatically
+win: Q Business's dozens of pre-built connectors (Zendesk, Salesforce,
+Confluence, SharePoint, and more) and its **automatic inheritance of each
+source system's own access permissions** absorb engineering cost — custom
+ingestion pipelines and a hand-built, ACL-aware permissions layer — that a
+bare token-cost comparison leaves out entirely.
+
+> **Exam tip:** When a scenario states "minimal setup, ready-made,
+> out-of-the-box, multiple existing enterprise data sources," a lower raw
+> dollar total for the *other* option is a distractor, not a reason to
+> build custom. When it instead needs deep customization, a bespoke
+> multi-step agent, or only a single already-integrated source, the
+> calculus flips toward a custom Bedrock build.
+
 ## Rapid-fire key terms
 
 - **Generative AI** — subset of deep learning where models generate new
@@ -501,6 +569,32 @@ Bedrock** or **SageMaker JumpStart**.
   pretrained FMs.
 - **Provisioned Throughput** — reserved Bedrock capacity for steady,
   high-volume traffic.
+
+## Rapid self-check
+
+Fifteen quick recall questions — cover the answer column and try each one
+before checking it. These are new questions, not a repeat of the full
+guide's practice set.
+
+| # | Question | Answer |
+|---|---|---|
+| 1 | An array like `[0.12, -0.87, 0.33, ...]` that captures a sentence's meaning — what is it called, and what produced it? | It's a **vector**; the process that derived it is called **embedding** |
+| 2 | Why can self-attention resolve a pronoun several sentences back at no extra compute cost? | It computes a relevance weight between **every pair of tokens directly**, not step-by-step through intermediate tokens |
+| 3 | A team needs domain-specific embeddings but has only a small labeled dataset — general-purpose embeddings underperform. What's the right stopping point on the embedding-model decision tree? | A **domain-specific pretrained embedding model**, not fine-tuning (limited labeled data doesn't justify it) |
+| 4 | A scenario wants a model to use up-to-date, proprietary company data *without retraining* — which lifecycle option? | **RAG** |
+| 5 | A scenario wants the model to adopt a specific tone and labeled output format — which lifecycle option? | **Fine-tuning** |
+| 6 | Which GenAI disadvantage is "confidently stating a fact that is fabricated," distinct from just being wrong? | **Hallucination** |
+| 7 | Which single technique reduces run-to-run output variation for an identical prompt? | Lowering **temperature** |
+| 8 | A company wants a ready-made assistant grounded in Salesforce/SharePoint data with minimal setup — which service? | **Amazon Q Business** |
+| 9 | Which Bedrock capability lets an FM call your own APIs/Lambda functions to complete multi-step tasks? | **Agents for Amazon Bedrock** |
+| 10 | A developer includes three example Q&A pairs in a prompt before the real question. Which technique, and does it change model weights? | **Few-shot prompting**; **no**, weights are unchanged |
+| 11 | Which inference parameter restricts sampling to the smallest set of tokens whose *cumulative probability* exceeds a threshold? | **Top-p** (nucleus sampling) — not top-k, which uses a fixed count |
+| 12 | High temperature paired with a small top-k still produces narrow, repetitive output — why? | Top-k prunes away the long tail temperature just flattened in, before sampling happens |
+| 13 | A team summarizing a 40-page contract in one prompt without chunking cares most about which selection criterion? | **Context window** |
+| 14 | Inside the Amazon Nova family, which three variants are chosen by *output modality* rather than a text-capability tier? | **Nova Canvas** (image), **Nova Reel** (video), **Nova Sonic** (speech) |
+| 15 | Which AWS capability is the answer whenever a scenario needs harmful content blocked or PII redacted from FM output? | **Guardrails for Amazon Bedrock** |
+
+---
 
 ## Common exam traps checklist
 

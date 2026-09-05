@@ -239,6 +239,22 @@ committee's formal sign-off versus a read-through, and walks through the
 committee meeting where those sections are used to defend the deployment
 decision.
 
+Domain 5 also has an eleventh nested "####"-level worked-example
+subsection, nested inside the "NIST AI Risk Management Framework (AI RMF)
+— conceptual level" subsection right after its exam tip and before the
+"GDPR, HIPAA, and the NIST AI RMF" mini-quiz: "#### Worked example:
+applying NIST AI RMF to a multi-region Bedrock deployment." It walks
+Solstice Mutual's Bedrock claims-summarization assistant, deployed
+identically across `us-east-1` and `eu-west-1`, through all four NIST AI
+RMF functions in implementation order: Map (SageMaker Model Cards and
+Clarify pre-training bias reports inventorying each Region's model and
+risks), Measure (a pre-launch Bedrock model evaluation job plus
+per-Region Clarify and Model Monitor drift tracking), Manage (per-Region
+Guardrails for Amazon Bedrock configurations and a Model-Registry-gated
+fine-tuning approval pipeline), and Govern (cross-Region CloudTrail
+API-call logging, AWS Config conformance packs, and an AWS Audit Manager
+evidence package for board review).
+
 Domain 1 also has a second nested "###"-level worked-example subsection,
 alongside the canary-deployment one: "### Worked example: estimating
 training cost for the loan-default predictor: SageMaker managed spot
@@ -268,10 +284,11 @@ Domain 5's cost-capping, data-encryption-vs-model-encryption,
 multi-team quota-sizing, SageMaker-to-Bedrock shared-responsibility, Titan Image Generator
 watermarking-provenance, differential-privacy healthcare-training,
 cost-optimization-SLA-tradeoffs, hallucination-rate-drift-monitoring,
-indirect-prompt-injection-RAG-defense, and Model-Card-governance-sign-off
-subsections), the five domain guides mark **46
+indirect-prompt-injection-RAG-defense, Model-Card-governance-sign-off, and
+NIST-AI-RMF-multi-region-Bedrock-deployment subsections), the five domain
+guides mark **47
 worked-example sections in total**: 3 in Domain 1, 5 in Domain 2, 18 in
-Domain 3, 8 in Domain 4, and 12 in Domain 5, plus further example content
+Domain 3, 8 in Domain 4, and 13 in Domain 5, plus further example content
 nested at the sub-bullet level within some of those sections.
 
 Every depth gap previously flagged against this documentation is now

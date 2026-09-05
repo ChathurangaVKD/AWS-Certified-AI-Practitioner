@@ -639,6 +639,17 @@ than memorizing either definition alone:
   models).
 - **SageMaker Model Monitor** — watches a deployed model/endpoint for
   bias drift, data drift, and performance drift over time.
+- **Variance** — a model's sensitivity to fluctuations in the training
+  data; the statistical-bias counterpart, distinct from fairness bias
+  (see [Domain 1](../domain-1-fundamentals-of-ai-and-ml.md#7-overfitting-underfitting-and-the-biasvariance-trade-off)).
+- **Denied topics (Guardrails)** — a Guardrails configuration that blocks
+  a model from engaging with specified topics.
+- **Contextual grounding check (Guardrails)** — verifies a response is
+  grounded in provided source content, reducing hallucination.
+- **Amazon Macie** — discovers and classifies sensitive data (including
+  PII) stored in Amazon S3.
+- **AWS Well-Architected Framework Sustainability Pillar** — design
+  principles for minimizing the environmental impact of workloads on AWS.
 
 For the complete 30+ term glossary with full definitions:
 [full guide, Key terms
@@ -649,7 +660,7 @@ For terms shared across domains: [`docs/master-glossary.md`](../master-glossary.
 
 ## Rapid self-check
 
-Ten quick recall questions — cover the answer column and try each one
+Fifteen quick recall questions — cover the answer column and try each one
 before checking it. These are new questions, not a repeat of the full
 guide's practice set.
 
@@ -665,6 +676,11 @@ guide's practice set.
 | 8 | Who fills out a SageMaker Model Card vs. who publishes an AI Service Card? | **You** fill out a Model Card (your model); **AWS** publishes an AI Service Card (its managed service) |
 | 9 | A scenario names a structured ranking model *and* a separate text-generating FM — which tool audits which? | **Clarify** on the ranking model, **Guardrails** on the FM — never swapped, never blended |
 | 10 | What watches a deployed endpoint for bias drift after launch? | **SageMaker Model Monitor** |
+| 11 | Which category of legal/ethical concern covers a Bedrock model possibly reproducing copyrighted training content? | **Intellectual property (IP)** — look for IP indemnification |
+| 12 | A generative AI assistant occasionally fabricates a confident-sounding but ungrounded answer — which Guardrails capability catches this? | **Contextual grounding checks** |
+| 13 | A team adds a fairness constraint to the training objective itself — which mitigation stage? | **In-processing** |
+| 14 | A team recalibrates prediction thresholds per group after training, without retraining — which mitigation stage? | **Post-processing** |
+| 15 | Which AWS tool reports the estimated carbon emissions of a customer's AWS usage? | **AWS Customer Carbon Footprint Tool** |
 
 ---
 
@@ -703,6 +719,22 @@ guide's practice set.
       safety/privacy, not copyright liability).
 - [ ] **Model Card = self-authored** (a model you built); **AI Service
       Card = AWS-authored** (a service you're evaluating/adopting).
+- [ ] **Fairness and veracity/robustness overlap** — a model that's
+      unfair to a group is also producing unreliable output for that
+      group, but the exam still expects the *more specific* dimension
+      named in the scenario, not just "responsible AI" generically.
+- [ ] **Governance is built on top of transparency, not a separate tool**
+      — a recurring review that re-reads a Model Card against fresh
+      Clarify/Model Monitor metrics is governance *using* an existing
+      transparency artifact, not a new capability.
+- [ ] **Reducing environmental impact means reusing a pretrained FM**
+      (via prompting/RAG/fine-tuning) instead of pretraining from
+      scratch — not simply "pick the smallest model," which can also be
+      the right call but isn't the primary lever the exam tests.
+- [ ] **A confidence threshold for A2I routing is not the same as
+      temperature** — temperature is a generative-model sampling
+      parameter with no meaning for a classical classifier's predicted
+      probability.
 
 ---
 
@@ -737,6 +769,25 @@ set. Go back to the full guide for:
   embedded after each numbered section
 - [20 practice questions with a full answer
   key](../domain-4-guidelines-for-responsible-ai.md#practice-questions)
+
+**What the 20 full-guide practice questions cover, by topic**, so you can
+tell which of the tables above to re-check if you miss one:
+
+| Question(s) | Topic |
+|---|---|
+| 1 | Identifying a responsible AI dimension from a scenario (fairness) |
+| 2, 12 | SageMaker Clarify — pre-training DPL; SHAP feature attribution |
+| 3, 18, 20 | SageMaker Model Cards, incl. distinguishing from AI Service Cards |
+| 4, 16 | AI Service Cards; Guardrails denied topics |
+| 5 | Guardrails contextual grounding checks |
+| 6, 17 | Bias vs. variance; label/human bias |
+| 7 | Historical bias |
+| 8 | Amazon A2I human review routing |
+| 9, 14 | IP indemnification; legal/ethical categories (select two) |
+| 10 | Guardrails sensitive information filters (PII) |
+| 11, 15 | Performance-vs-interpretability tradeoff by stakes |
+| 13 | Environmental impact / reusing pretrained foundation models |
+| 19 | Post-processing bias mitigation |
 
 For material that spans multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and

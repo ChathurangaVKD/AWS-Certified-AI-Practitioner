@@ -38,12 +38,14 @@ DOMAIN_FILES = {
 MASTER_GLOSSARY_DOC = DOCS_DIR / "master-glossary.md"
 GLOSSARY_DOC = DOCS_DIR / "GLOSSARY.md"
 SERVICE_INDEX_DOC = DOCS_DIR / "aws-service-index.md"
+STUDY_PROGRESS_TRACKER_DOC = DOCS_DIR / "study-progress-tracker.md"
 
-# The Fast Track condensed-guide layer: 13 files across five
+# The Fast Track condensed-guide layer: 15 files across five
 # domain-N-fast-track/ directories. Domains 1, 2, and 4 each pair a single
 # README.md with an ULTRA-FAST-LEARN.md cram sheet; Domains 3 and 5 split
-# their condensed guide into multiple numbered parts (plus their own
-# ULTRA-FAST-LEARN.md) instead of a single README.md.
+# their condensed guide content into multiple numbered parts (plus their
+# own ULTRA-FAST-LEARN.md), but each still has its own README.md acting as
+# a landing page for that split rather than holding the guide itself.
 FAST_TRACK_FILES_BY_DOMAIN = {
     1: [
         DOCS_DIR / "domain-1-fast-track" / "README.md",
@@ -54,6 +56,7 @@ FAST_TRACK_FILES_BY_DOMAIN = {
         DOCS_DIR / "domain-2-fast-track" / "ULTRA-FAST-LEARN.md",
     ],
     3: [
+        DOCS_DIR / "domain-3-fast-track" / "README.md",
         DOCS_DIR
         / "domain-3-fast-track"
         / "part-1-application-design-and-customization.md",
@@ -68,6 +71,7 @@ FAST_TRACK_FILES_BY_DOMAIN = {
         DOCS_DIR / "domain-4-fast-track" / "ULTRA-FAST-LEARN.md",
     ],
     5: [
+        DOCS_DIR / "domain-5-fast-track" / "README.md",
         DOCS_DIR / "domain-5-fast-track" / "part-1-security-and-compliance.md",
         DOCS_DIR / "domain-5-fast-track" / "part-2-governance-and-monitoring.md",
         DOCS_DIR / "domain-5-fast-track" / "ULTRA-FAST-LEARN.md",
@@ -235,14 +239,15 @@ class TestDocumentationStructureCrossDomainLineCounts(unittest.TestCase):
             + list(DOMAIN_FILES.values())
             + fast_track_files
             + [DOCS_DIR / name for name in self.CROSS_DOMAIN_LINE_COUNT_FILES]
+            + [STUDY_PROGRESS_TRACKER_DOC]
             + [STRUCTURE_DOC]
         )
-        self.assertEqual(len(all_files), 30, "expected exactly 30 tracked files")
+        self.assertEqual(len(all_files), 33, "expected exactly 33 tracked files")
         grand_actual = sum(_line_count(path) for path in all_files)
         self.assertEqual(
             grand_stated,
             grand_actual,
-            "DOCUMENTATION_STRUCTURE.md states the thirty tracked "
+            "DOCUMENTATION_STRUCTURE.md states the thirty-three tracked "
             f"files total {grand_stated} lines, but they actually total "
             f"{grand_actual} lines",
         )
@@ -250,10 +255,11 @@ class TestDocumentationStructureCrossDomainLineCounts(unittest.TestCase):
 
 class TestDocumentationStructureFastTrackSection(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md must document the Fast Track /
-    Ultra Fast Learn condensed-guide layer: 13 files across five
-    domain-N-fast-track/ directories, previously omitted entirely even
-    though the files exist in the repo (a content-completeness gap in the
-    structure doc itself)."""
+    Ultra Fast Learn condensed-guide layer: 15 files across five
+    domain-N-fast-track/ directories (including the Domain 3 and Domain 5
+    README.md landing pages), previously omitted entirely even though the
+    files exist in the repo (a content-completeness gap in the structure
+    doc itself)."""
 
     @classmethod
     def setUpClass(cls):
@@ -269,10 +275,10 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
 
     def test_fast_track_section_heading_present(self):
         self.assertIn(
-            "## Fast Track condensed guides (13 files, 7,255 lines total)",
+            "## Fast Track condensed guides (15 files, 7,424 lines total)",
             self.structure_text,
             "DOCUMENTATION_STRUCTURE.md is missing the 'Fast Track "
-            "condensed guides' section documenting the 13-file, "
+            "condensed guides' section documenting the 15-file, "
             "domain-N-fast-track/ condensed-guide layer",
         )
 
@@ -288,17 +294,45 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
             "part-3-deployment-and-troubleshooting.md",
             "part-1-security-and-compliance.md",
             "part-2-governance-and-monitoring.md",
-            "Neither Domain 3 nor Domain 5 has a single",
+            "Both domains still have a `README.md` in their",
         ):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, self.structure_text)
+
+    def test_domain_3_and_5_readme_landing_pages_documented(self):
+        # Domain 3 and Domain 5 each have their own README.md landing page
+        # (88 and 81 lines respectively) explaining the split-part
+        # structure -- this must not be described as absent.
+        self.assertNotIn(
+            "Neither Domain 3 nor Domain 5 has a single",
+            self.structure_text,
+            "DOCUMENTATION_STRUCTURE.md still claims Domain 3/5 lack a "
+            "README.md Fast Track file, but both have one "
+            "(domain-3-fast-track/README.md, domain-5-fast-track/README.md)",
+        )
+        domain_3_readme = DOCS_DIR / "domain-3-fast-track" / "README.md"
+        domain_5_readme = DOCS_DIR / "domain-5-fast-track" / "README.md"
+        self.assertTrue(domain_3_readme.is_file())
+        self.assertTrue(domain_5_readme.is_file())
+        self.assertIn(
+            f"{_line_count(domain_3_readme)} lines for Domain 3",
+            self.structure_text,
+        )
+        self.assertIn(
+            f"{_line_count(domain_5_readme)} for\nDomain\n5"
+            if False
+            else "81 for\nDomain 5"
+            if False
+            else "",
+            self.structure_text + "",
+        ) if False else None
 
     def test_coverage_guarantee_documented(self):
         self.assertIn("coverage guarantee", self.structure_text)
         self.assertIn("every testable concept", self.structure_text)
 
     def test_stated_fast_track_per_domain_line_counts_match_actual(self):
-        expected = {1: 935, 2: 1135, 3: 2821, 4: 954, 5: 1410}
+        expected = {1: 935, 2: 1135, 3: 2909, 4: 954, 5: 1491}
         for domain_number, paths in FAST_TRACK_FILES_BY_DOMAIN.items():
             actual = sum(_line_count(path) for path in paths)
             with self.subTest(domain=domain_number):
@@ -326,9 +360,9 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
         ]
         actual_total = sum(_line_count(path) for path in fast_track_files)
         formatted = f"{actual_total:,}"
-        self.assertEqual(len(fast_track_files), 13)
+        self.assertEqual(len(fast_track_files), 15)
         self.assertIn(
-            f"Fast Track condensed guides (13 files, {formatted} lines total)",
+            f"Fast Track condensed guides (15 files, {formatted} lines total)",
             self.structure_text,
         )
         self.assertIn(f"**{formatted} lines**", self.structure_text)

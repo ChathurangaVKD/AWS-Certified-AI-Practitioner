@@ -552,30 +552,35 @@ rather than relying on a point-in-time human check.
 
 ## Complete file inventory
 
-The repository's Markdown content is **30 files**: `README.md`; the five
+The repository's Markdown content is **33 files**: `README.md`; the five
 domain guides (`domain-1-fundamentals-of-ai-and-ml.md` through
-`domain-5-security-compliance-governance.md`); the 13 Fast Track condensed
-guides across the five `docs/domain-N-fast-track/` directories (see "Fast
-Track condensed guides" above); the ten cross-domain support documents
+`domain-5-security-compliance-governance.md`); the 15 Fast Track condensed
+guides across the five `docs/domain-N-fast-track/` directories, including
+the Domain 3 and Domain 5 `README.md` landing pages (see "Fast Track
+condensed guides" above); the ten cross-domain support documents
 (`aws-service-index.md`, `aws-service-decision-guide.md`,
 `cross-domain-concept-map.md`, `cross-domain-scenario-questions.md`,
 `case-study-ai-system-lifecycle.md`, `exam-preparation-strategy.md`,
 `full-length-mock-exam.md`, `mock-exam.md`, `master-glossary.md`, and
-`GLOSSARY.md`); and this file, `DOCUMENTATION_STRUCTURE.md`. Every one of
-the sixteen non-Fast-Track `docs/` files is reachable from `README.md`'s
-study plan within two clicks (either linked directly, or linked from a
-domain guide's breadcrumb or glossary that README.md itself links to).
+`GLOSSARY.md`); `study-progress-tracker.md`, a standalone checklist for
+tracking progress through the study plan; and this file,
+`DOCUMENTATION_STRUCTURE.md`. Every one of the seventeen non-Fast-Track
+`docs/` files is reachable from `README.md`'s study plan within two clicks
+(either linked directly, or linked from a domain guide's breadcrumb or
+glossary that README.md itself links to).
 
 Combined, the ten cross-domain support documents listed above total
 **5,426 lines** (`aws-service-index.md`: 159; `aws-service-decision-guide.md`:
 793; `cross-domain-concept-map.md`: 281; `cross-domain-scenario-questions.md`:
 440; `case-study-ai-system-lifecycle.md`: 279; `exam-preparation-strategy.md`:
 594; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
-`master-glossary.md`: 238; `GLOSSARY.md`: 229). The 13 Fast Track condensed
+`master-glossary.md`: 238; `GLOSSARY.md`: 229). The 15 Fast Track condensed
 guides listed above (see "Fast Track condensed guides" section) add
-**7,255 lines**. All thirty files together — `README.md`, the five domain
-guides, the 13 Fast Track condensed guides, the ten cross-domain support
-documents, and this file — total **29,624 lines**.
+**7,424 lines**, and `study-progress-tracker.md` adds a further **163
+lines**. All thirty-three files together — `README.md`, the five domain
+guides, the 15 Fast Track condensed guides, the ten cross-domain support
+documents, `study-progress-tracker.md`, and this file — total
+**29,967 lines**.
 
 ## Cross-linking architecture
 

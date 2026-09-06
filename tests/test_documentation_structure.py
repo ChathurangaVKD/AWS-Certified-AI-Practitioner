@@ -314,18 +314,15 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
         domain_5_readme = DOCS_DIR / "domain-5-fast-track" / "README.md"
         self.assertTrue(domain_3_readme.is_file())
         self.assertTrue(domain_5_readme.is_file())
+        domain_3_lines = _line_count(domain_3_readme)
+        domain_5_lines = _line_count(domain_5_readme)
         self.assertIn(
-            f"{_line_count(domain_3_readme)} lines for Domain 3",
-            self.structure_text,
+            f"{domain_3_lines} lines for Domain 3, {domain_5_lines} for",
+            self.normalized_text,
+            "DOCUMENTATION_STRUCTURE.md does not state the actual line "
+            f"counts of the Domain 3 ({domain_3_lines}) and Domain 5 "
+            f"({domain_5_lines}) Fast Track README.md landing pages",
         )
-        self.assertIn(
-            f"{_line_count(domain_5_readme)} for\nDomain\n5"
-            if False
-            else "81 for\nDomain 5"
-            if False
-            else "",
-            self.structure_text + "",
-        ) if False else None
 
     def test_coverage_guarantee_documented(self):
         self.assertIn("coverage guarantee", self.structure_text)

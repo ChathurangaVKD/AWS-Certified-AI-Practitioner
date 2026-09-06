@@ -1817,6 +1817,7 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
             "8 in\nDomain 3's part 2",
             "7 in\nDomain 3's part 3",
             "4 in\nDomain 4",
+            "4 in\nDomain 5\npart 1",
             "2 in\nDomain\n5's part 2",
         ):
             normalized_section = re.sub(r"\s+", " ", self.diagrams_section)

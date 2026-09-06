@@ -350,8 +350,8 @@ RAG troubleshooting (Domain 3's "troubleshooting a failing RAG system"
 worked example), and layering SageMaker Clarify with Bedrock Guardrails
 (Domain 4's Clarify/Guardrails-layering subsection).
 
-**Diagrams:** There are **94 total Mermaid diagrams** across the repository:
-55 in the full domain guides and cross-domain materials, plus 39 in the
+**Diagrams:** There are **98 total Mermaid diagrams** across the repository:
+55 in the full domain guides and cross-domain materials, plus 43 in the
 Fast Track condensed guides.
 
 The 55 full-guide/cross-domain diagrams break down as: Domain 1 has seven,
@@ -366,12 +366,13 @@ own (the Section 4.1 Bedrock model family selection flow, the Section 6
 cost-control flow, and the Section 1 layering-matrix request-path
 diagram) — 50 + 2 + 3 = **55 Mermaid diagrams**.
 
-The remaining 39 diagrams live in the Fast Track condensed guides, adapted
+The remaining 43 diagrams live in the Fast Track condensed guides, adapted
 for condensed-format presentation and not duplicates of the 55 above: 6 in
 Domain 1's Fast Track guide, 8 in Domain 2's, 4 in Domain 3's part 1, 8 in
-Domain 3's part 2, 7 in Domain 3's part 3, 4 in Domain 4's, and 2 in Domain
-5's part 2 (6 + 8 + 4 + 8 + 7 + 4 + 2 = **39 Fast Track diagrams**), for a
-combined grand total of 55 + 39 = **94 Mermaid diagrams** repository-wide.
+Domain 3's part 2, 7 in Domain 3's part 3, 4 in Domain 4's, 4 in Domain 5
+part 1, and 2 in Domain 5's part 2 (6 + 8 + 4 + 8 + 7 + 4 + 4 + 2 =
+**43 Fast Track diagrams**), for a combined grand total of 55 + 43 =
+**98 Mermaid diagrams** repository-wide.
 
 **Quick-reference cheat sheets:** each of the five domain guides also
 closes with its own `## Quick-reference cheat sheet` section — a

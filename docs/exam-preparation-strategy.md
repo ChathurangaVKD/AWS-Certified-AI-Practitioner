@@ -1,5 +1,11 @@
 # Exam Preparation and Study Strategy Guide
 
+**Last verified:** 2026-09-05 — this page's exam format, time management,
+and domain-weight/high-yield guidance should be re-checked whenever AWS
+revises the official AIF-C01 exam guide, and at least every 6 months
+otherwise, since the study plans below are only as accurate as the exam
+blueprint they're built from.
+
 The five domain guides in this series ([Domain 1](domain-1-fundamentals-of-ai-and-ml.md),
 [Domain 2](domain-2-fundamentals-of-generative-ai.md),
 [Domain 3](domain-3-applications-of-foundation-models.md),

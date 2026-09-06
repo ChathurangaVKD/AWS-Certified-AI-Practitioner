@@ -1700,10 +1700,13 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
     materials, and mentioned the 39 additional diagrams in the Fast Track
     condensed guides only as a parenthetical caveat excluded from the
     total -- leaving readers unsure whether 55 or 94 was the repo's actual
-    diagram count. These tests derive the true full-guide, cross-domain,
+    diagram count. The 39 figure itself was also wrong: it omitted Domain
+    5 part 1 (`part-1-security-and-compliance.md`), which carries 4 more
+    Mermaid diagrams, so the true Fast Track subtotal is 43 and the true
+    grand total is 98. These tests derive the true full-guide, cross-domain,
     and Fast Track diagram counts directly from the source files and
     assert DOCUMENTATION_STRUCTURE.md states the correct, internally
-    consistent 94-diagram grand total with an itemized breakdown, so the
+    consistent 98-diagram grand total with an itemized breakdown, so the
     count can't silently drift stale or under-report again."""
 
     FAST_TRACK_DIAGRAM_FILES = {
@@ -1719,6 +1722,9 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
         / "domain-3-fast-track"
         / "part-3-deployment-and-troubleshooting.md",
         "Domain 4": DOCS_DIR / "domain-4-fast-track" / "README.md",
+        "Domain 5 part 1": DOCS_DIR
+        / "domain-5-fast-track"
+        / "part-1-security-and-compliance.md",
         "Domain 5 part 2": DOCS_DIR
         / "domain-5-fast-track"
         / "part-2-governance-and-monitoring.md",
@@ -1748,7 +1754,7 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
         self.assertEqual(self._mermaid_count(self.CONCEPT_MAP_DOC), 2)
         self.assertEqual(self._mermaid_count(self.DECISION_GUIDE_DOC), 3)
 
-    def test_actual_fast_track_diagram_counts_are_6_8_4_8_7_4_2(self):
+    def test_actual_fast_track_diagram_counts_are_6_8_4_8_7_4_4_2(self):
         expected = {
             "Domain 1": 6,
             "Domain 2": 8,
@@ -1756,6 +1762,7 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
             "Domain 3 part 2": 8,
             "Domain 3 part 3": 7,
             "Domain 4": 4,
+            "Domain 5 part 1": 4,
             "Domain 5 part 2": 2,
         }
         for label, path in self.FAST_TRACK_DIAGRAM_FILES.items():
@@ -1773,25 +1780,25 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
         )
         self.assertEqual(grand, 55)
 
-    def test_fast_track_total_is_39(self):
+    def test_fast_track_total_is_43(self):
         fast_track_total = sum(
             self._mermaid_count(path)
             for path in self.FAST_TRACK_DIAGRAM_FILES.values()
         )
-        self.assertEqual(fast_track_total, 39)
+        self.assertEqual(fast_track_total, 43)
 
-    def test_structure_doc_states_94_total_mermaid_diagrams(self):
+    def test_structure_doc_states_98_total_mermaid_diagrams(self):
         self.assertIn(
-            "**94 total Mermaid diagrams**",
+            "**98 total Mermaid diagrams**",
             self.diagrams_section,
             "DOCUMENTATION_STRUCTURE.md's Diagrams subsection does not "
-            "state the full 94-diagram grand total (55 full-guide/"
-            "cross-domain + 39 Fast Track)",
+            "state the full 98-diagram grand total (55 full-guide/"
+            "cross-domain + 43 Fast Track)",
         )
 
-    def test_structure_doc_states_55_and_39_component_totals(self):
+    def test_structure_doc_states_55_and_43_component_totals(self):
         self.assertIn("**55 Mermaid diagrams**", self.diagrams_section)
-        self.assertIn("**39 Fast Track diagrams**", self.diagrams_section)
+        self.assertIn("**43 Fast Track diagrams**", self.diagrams_section)
 
     def test_structure_doc_no_longer_excludes_fast_track_from_total(self):
         lowered = self.diagrams_section.lower()
@@ -1810,6 +1817,7 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
             "8 in\nDomain 3's part 2",
             "7 in\nDomain 3's part 3",
             "4 in\nDomain 4",
+            "4 in\nDomain 5\npart 1",
             "2 in\nDomain\n5's part 2",
         ):
             normalized_section = re.sub(r"\s+", " ", self.diagrams_section)

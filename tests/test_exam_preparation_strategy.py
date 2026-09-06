@@ -391,5 +391,68 @@ class TestExamPreparationStrategyLinksResolve(unittest.TestCase):
                 )
 
 
+LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*\d{4}-\d{2}-\d{2}")
+
+
+class TestExamPreparationStrategyLastVerifiedDate(unittest.TestCase):
+    """Mirrors tests/test_domain_last_verified_date.py: this guide covers
+    exam format, domain weights, and study plans that go stale if AWS
+    revises the AIF-C01 exam guide, so it needs the same
+    '**Last verified:** YYYY-MM-DD' staleness signal the five domain guides
+    and Fast Track materials already carry."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+
+    def test_has_a_last_verified_date(self):
+        self.assertRegex(
+            self.text,
+            LAST_VERIFIED_RE,
+            "exam-preparation-strategy.md is missing a "
+            "'**Last verified:** YYYY-MM-DD' line",
+        )
+
+    def test_last_verified_date_appears_immediately_after_the_title(self):
+        match = LAST_VERIFIED_RE.search(self.text)
+        self.assertIsNotNone(match)
+        title_match = re.search(r"^# .+$", self.text, re.M)
+        self.assertIsNotNone(title_match)
+        # Nothing but the title (and blank lines) should precede the
+        # date stamp, matching the placement convention used in the five
+        # domain guides (title, then Last verified, then the rest).
+        between = self.text[title_match.end() : match.start()]
+        self.assertNotRegex(
+            between,
+            r"^\s*#",
+            "'Last verified' line should come right after the title, "
+            "before any other heading",
+        )
+        toc_or_body_start = self.text.find("## 1. Exam format")
+        self.assertNotEqual(toc_or_body_start, -1)
+        self.assertLess(
+            match.start(),
+            toc_or_body_start,
+            "'Last verified' line should appear near the top of the "
+            "document, before the body sections",
+        )
+
+    def test_notes_a_reverification_cadence(self):
+        # The task calls for a re-verification cadence (e.g., re-check
+        # whenever the AIF-C01 exam guide is revised, or at least every 6
+        # months) so future scans can detect staleness the same way they
+        # already do for the domain guides -- not just a bare date with no
+        # guidance on when it goes stale.
+        match = LAST_VERIFIED_RE.search(self.text)
+        self.assertIsNotNone(match)
+        nearby = self.text[match.start() : match.start() + 400]
+        self.assertIn(
+            "months",
+            nearby.lower(),
+            "'Last verified' line should note a re-verification cadence "
+            "(e.g. 'at least every 6 months')",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

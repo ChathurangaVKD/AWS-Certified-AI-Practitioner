@@ -561,10 +561,10 @@ study plan within two clicks (either linked directly, or linked from a
 domain guide's breadcrumb or glossary that README.md itself links to).
 
 Combined, the ten cross-domain support documents listed above total
-**5,420 lines** (`aws-service-index.md`: 159; `aws-service-decision-guide.md`:
+**5,426 lines** (`aws-service-index.md`: 159; `aws-service-decision-guide.md`:
 793; `cross-domain-concept-map.md`: 281; `cross-domain-scenario-questions.md`:
 440; `case-study-ai-system-lifecycle.md`: 279; `exam-preparation-strategy.md`:
-588; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
+594; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
 `master-glossary.md`: 238; `GLOSSARY.md`: 229). The 13 Fast Track condensed
 guides listed above (see "Fast Track condensed guides" section) add
 **7,255 lines**. All thirty files together — `README.md`, the five domain

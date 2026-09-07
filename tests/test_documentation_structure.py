@@ -1914,5 +1914,43 @@ class TestDocumentationStructureNavigationGapAccuracy(unittest.TestCase):
         self.assertIn("study plan", window.lower())
 
 
+class TestDocumentationStructureAnswerKeyHeadingConsistency(unittest.TestCase):
+    """All five domain guides must use identical answer-key heading wording.
+
+    Domain 5 previously used the bare "## Answer key" heading while
+    Domains 1-4 all used "## Answer key and explanations" -- a
+    naming-convention inconsistency with no content impact (Domain 5's 32
+    questions already all had full explanations). This guards against that
+    drift recurring for any domain guide.
+    """
+
+    EXPECTED_HEADING = "## Answer key and explanations"
+
+    def test_every_domain_guide_uses_the_same_answer_key_heading(self):
+        for domain_number, path in DOMAIN_FILES.items():
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(domain=domain_number):
+                self.assertIn(
+                    self.EXPECTED_HEADING,
+                    text,
+                    f"domain {domain_number}'s guide ({path.name}) should "
+                    f"use the heading {self.EXPECTED_HEADING!r} for its "
+                    "answer key section, matching the other domain guides.",
+                )
+                self.assertNotIn(
+                    "\n## Answer key\n",
+                    text,
+                    f"domain {domain_number}'s guide ({path.name}) still "
+                    "has a bare '## Answer key' heading; it should be "
+                    f"{self.EXPECTED_HEADING!r} for consistency with the "
+                    "other domain guides.",
+                )
+
+    def test_domain_5_table_of_contents_links_to_the_renamed_heading(self):
+        text = DOMAIN_FILES[5].read_text(encoding="utf-8")
+        self.assertIn("[Answer key and explanations](#answer-key-and-explanations)", text)
+        self.assertNotIn("[Answer key](#answer-key)", text)
+
+
 if __name__ == "__main__":
     unittest.main()

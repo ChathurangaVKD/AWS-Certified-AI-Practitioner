@@ -106,14 +106,16 @@ class TestReadmeHasThreeTierSection(unittest.TestCase):
     def test_explains_fast_track_tier(self):
         self.assertRegex(
             self.section,
-            re.compile(r"Fast Track[^.]*40%", re.IGNORECASE),
+            re.compile(r"Fast Track(?:(?!\.\s).)*40%", re.IGNORECASE | re.DOTALL),
             "section must describe Fast Track as the ~40%-length tier",
         )
 
     def test_explains_ultra_fast_learn_tier(self):
         self.assertRegex(
             self.section,
-            re.compile(r"Ultra Fast Learn[^.]*15%", re.IGNORECASE),
+            re.compile(
+                r"Ultra Fast Learn(?:(?!\.\s).)*15%", re.IGNORECASE | re.DOTALL
+            ),
             "section must describe Ultra Fast Learn as the ~15%-length "
             "tier",
         )
@@ -130,8 +132,8 @@ class TestReadmeHasThreeTierSection(unittest.TestCase):
         self.assertRegex(
             self.section,
             re.compile(
-                r"already know[^.]*Domain 1[^.]*Fast Track",
-                re.IGNORECASE,
+                r"already know(?:(?!\.\s).)*Domain 1(?:(?!\.\s).)*Fast Track",
+                re.IGNORECASE | re.DOTALL,
             ),
             "section must give concrete guidance like 'if you already "
             "know Domain 1 fundamentals, start with the Fast Track'",

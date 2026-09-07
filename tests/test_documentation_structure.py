@@ -1857,5 +1857,62 @@ class TestDocumentationStructureFastTrackDiagramTotalAccuracy(unittest.TestCase)
                 self.assertIn(normalized_fragment, normalized_section)
 
 
+class TestDocumentationStructureNavigationGapAccuracy(unittest.TestCase):
+    """A prior scan's suggested Navigation-section gap claimed README.md
+    'does NOT mention Fast Track condensed guides or Ultra Fast Learn cram
+    sheets.' That claim is false -- README.md's own "Three-tier learning
+    structure" section (currently around lines 21-57) already explains all
+    three study tiers and links into every domain's condensed material. This
+    class guards against that false claim being (re-)stated in
+    DOCUMENTATION_STRUCTURE.md's Navigation section, while making sure the
+    two genuinely still-open navigation gaps (domain guide introductions,
+    and exam-preparation-strategy.md's study plans) stay documented."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        cls.readme_text = README_PATH.read_text(encoding="utf-8")
+        nav_idx = cls.structure_text.find("## Navigation")
+        content_health_idx = cls.structure_text.find("## Content health")
+        assert nav_idx != -1 and content_health_idx != -1 and content_health_idx > nav_idx
+        cls.nav_section = cls.structure_text[nav_idx:content_health_idx]
+
+    def test_readme_actually_has_a_three_tier_learning_structure_section(self):
+        # Guards the underlying fact: README.md must actually carry the
+        # section that makes the old "README doesn't mention Fast Track /
+        # Ultra Fast Learn" claim false.
+        self.assertIn("## Three-tier learning structure", self.readme_text)
+        idx = self.readme_text.find("## Three-tier learning structure")
+        window = self.readme_text[idx : idx + 2000]
+        self.assertIn("Fast Track", window)
+        self.assertIn("Ultra Fast Learn", window)
+
+    def test_navigation_section_does_not_repeat_false_readme_gap_claim(self):
+        lowered = self.nav_section.lower()
+        self.assertNotIn(
+            "does not mention fast track",
+            lowered,
+            "Navigation section should not claim README.md lacks Fast "
+            "Track / Ultra Fast Learn coverage -- it already has a "
+            "'Three-tier learning structure' section that covers this.",
+        )
+        self.assertNotIn("does not mention ultra fast learn", lowered)
+
+    def test_navigation_section_credits_readme_three_tier_structure(self):
+        self.assertIn("Three-tier learning structure", self.nav_section)
+        self.assertIn("README.md", self.nav_section)
+
+    def test_navigation_section_still_documents_domain_intro_gap(self):
+        lowered = self.nav_section.lower()
+        self.assertIn("domain guide introductions", lowered)
+        self.assertIn("fast-track", lowered)
+
+    def test_navigation_section_still_documents_exam_prep_gap(self):
+        self.assertIn("exam-preparation-strategy.md", self.nav_section)
+        idx = self.nav_section.find("exam-preparation-strategy.md")
+        window = self.nav_section[idx : idx + 400]
+        self.assertIn("study plan", window.lower())
+
+
 if __name__ == "__main__":
     unittest.main()

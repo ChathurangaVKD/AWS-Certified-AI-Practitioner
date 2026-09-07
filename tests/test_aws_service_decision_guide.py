@@ -1224,6 +1224,43 @@ class TestAwsServiceDecisionGuideConsolidatedMatrix(unittest.TestCase):
     def test_matrix_links_back_to_service_index(self):
         self.assertIn("aws-service-index.md", self.section_text)
 
+    def test_third_party_bedrock_provider_peer_listings_are_reciprocal(self):
+        # AI21 Labs, Cohere, and Mistral AI's rows each describe themselves
+        # as a third-party Bedrock model provider "alongside" the other
+        # peer providers. If one row names another provider as a peer, the
+        # named provider's own row must name it back -- otherwise the
+        # matrix contradicts itself about who the peer providers are.
+        third_party_providers = ["AI21 Labs", "Cohere", "Mistral AI"]
+        row_re = re.compile(
+            r"^\|\s*\*\*(?P<service>[^*]+)\*\*\s*\|.*?\|\s*(?P<when>Pick a "
+            r"third-party Bedrock model provider[^|]*)\|",
+            re.M,
+        )
+        when_to_use_by_service = {
+            m.group("service").strip(): m.group("when")
+            for m in row_re.finditer(self.section_text)
+        }
+        for provider in third_party_providers:
+            self.assertIn(
+                provider,
+                when_to_use_by_service,
+                f"expected a {provider!r} row describing it as a "
+                "third-party Bedrock model provider",
+            )
+
+        for provider in third_party_providers:
+            for peer in third_party_providers:
+                if peer == provider:
+                    continue
+                with self.subTest(provider=provider, peer=peer):
+                    self.assertIn(
+                        peer,
+                        when_to_use_by_service[provider],
+                        f"{provider}'s row does not list {peer} as a peer "
+                        "third-party Bedrock provider, breaking the "
+                        "reciprocal peer listing",
+                    )
+
 
 DOMAIN_LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*(?P<date>\d{4}-\d{2}-\d{2})")
 BEDROCK_LAST_VERIFIED_RE = re.compile(

@@ -12,10 +12,9 @@ in manual review.
 
 Mirrors the conventions established in tests/test_domain_4_study_guide.py,
 adapted to Domain 5's own conventions: section callouts are
-"**AWS example:**" / "**Exam tip:**", the answer key
-heading is "## Answer key" (not "## Answer key and explanations"), and
-answer entries are formatted "N. **Letter.** explanation" (bold letter(s)
-immediately followed by a period, not an em-dash).
+"**AWS example:**" / "**Exam tip:**", and answer entries are formatted
+"N. **Letter.** explanation" (bold letter(s) immediately followed by a
+period, not an em-dash).
 
 Also keeps the original diagram/difficulty-tag/existence tests that
 predate this expansion.

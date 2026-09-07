@@ -36,7 +36,7 @@
 - [Quick-reference cheat sheet](#quick-reference-cheat-sheet)
 - [Key terms glossary](#key-terms-glossary)
 - [Practice questions](#practice-questions)
-- [Answer key](#answer-key)
+- [Answer key and explanations](#answer-key-and-explanations)
 
 ## Domain overview
 
@@ -2814,7 +2814,7 @@ policy.
 
 ---
 
-## Answer key
+## Answer key and explanations
 
 1. **B.** A gateway VPC endpoint for S3 keeps S3 traffic within the AWS network without needing internet access. (A) and (C) both require internet connectivity the private subnet lacks by design; (D) a VPN connects networks, it doesn't provide S3 access.
 2. **C.** AWS Artifact is the self-service portal for AWS's compliance reports and agreements, including the HIPAA BAA. Audit Manager (A) builds evidence for *your* account's compliance, not AWS's own certifications; Config (B) tracks resource configuration; CloudTrail (D) logs API activity.

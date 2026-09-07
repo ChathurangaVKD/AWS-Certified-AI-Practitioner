@@ -539,6 +539,27 @@ which domain guide(s) define each term, so a reader can always jump from a
 term, a scenario question, or a mock-exam answer back to the source
 material it was drawn from.
 
+**Discovering the Fast Track and Ultra Fast Learn tiers:** `README.md`
+already handles this well and should not be flagged as a gap — its
+"Three-tier learning structure" section (lines 21-57) explicitly walks
+through when to use the full guide versus the Fast Track versus the
+Ultra Fast Learn cram sheet, with worked links into all five domains'
+condensed material. Two narrower navigation gaps remain genuinely open,
+though, and are still worth fixing:
+
+- **Domain guide introductions don't point sideways.** None of the five
+  domain guides' opening sections (`domain-1-fundamentals-of-ai-and-ml.md`
+  through `domain-5-security-compliance-governance.md`) link to that same
+  domain's `docs/domain-N-fast-track/` guide or `ULTRA-FAST-LEARN.md` cram
+  sheet — a reader who lands directly on a full domain guide (rather than
+  starting from `README.md`) has no in-file pointer to the condensed
+  tiers for that domain.
+- **`exam-preparation-strategy.md`'s study plans don't mention condensed
+  material.** Its 1-week, 2-week, and 4-week study plans describe what to
+  study and when but never mention that Fast Track or Ultra Fast Learn
+  passes are an option for review time, even though a compressed plan is
+  exactly the scenario those tiers are built for.
+
 ## Content health
 
 All five domain guides carry a `**Last verified:**` line stamped with the

@@ -18,6 +18,44 @@ Each domain document covers the exam guide's task statements in depth, with
 worked examples and a set of practice questions (with answers and
 explanations) at the end.
 
+## Three-tier learning structure
+
+Every domain above is available in three tiers, each suited to a
+different point in your study cycle:
+
+1. **Full domain guide** (the `Doc` column above) — the complete,
+   foundational treatment: every concept explained in prose, with worked
+   examples, AWS example scenarios, embedded mini-quizzes, and a full set
+   of practice questions. Start here for any domain whose material is new
+   to you.
+2. **Fast Track** (`docs/domain-N-fast-track/README.md`) — a ~40%-length
+   condensation of the full guide, built for reviewing material you've
+   already learned rather than learning it for the first time. It keeps
+   comparison tables, decision tables, and one-line takeaways, trimming
+   the worked-example narration and repeated "AWS example" paragraphs.
+3. **Ultra Fast Learn** (`docs/domain-N-fast-track/ULTRA-FAST-LEARN.md`)
+   — a ~15%-length cram sheet: bullets and tables only, no prose, no
+   worked examples, meant for the last 15-20 minutes before the exam.
+
+Across all three tiers, **every testable concept is retained** — only
+narrative explanation and redundant examples are trimmed as the tiers get
+shorter, so a Fast Track or Ultra Fast Learn pass never leaves out
+exam-relevant material.
+
+Use whichever tier matches your familiarity with a domain: if you're
+learning Domain 1 fundamentals for the first time, read the [full
+guide](docs/domain-1-fundamentals-of-ai-and-ml.md); if you already know
+Domain 1 fundamentals and just need a refresher, start with the [Fast
+Track](docs/domain-1-fast-track/README.md); and if you've already done a
+Fast Track pass and just need the tables one more time before the exam,
+use the [Ultra Fast
+Learn](docs/domain-1-fast-track/ULTRA-FAST-LEARN.md) cram sheet. The same
+`docs/domain-N-fast-track/` pattern exists for all five domains. See
+[`docs/study-progress-tracker.md`](docs/study-progress-tracker.md), which
+already tracks Fast Track and Ultra Fast Learn sessions as valid study
+materials alongside full-guide study, for logging which tier you used on
+each attempt.
+
 ## Study plan
 
 **Recommended reading order: Domain 1 → Domain 2 → Domain 3 → Domain 4 →

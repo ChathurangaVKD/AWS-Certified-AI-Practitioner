@@ -1,6 +1,11 @@
 # Full-Length Mock Exam (AIF-C01)
 
-The five [domain guides](DOCUMENTATION_STRUCTURE.md) in this series contain
+The five domain guides ([Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md),
+[Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md),
+[Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md),
+[Domain 4: Guidelines for Responsible AI](domain-4-guidelines-for-responsible-ai.md),
+[Domain 5: Security, Compliance, and Governance](domain-5-security-compliance-governance.md))
+in this series contain
 roughly 85 practice questions, but each guide's questions are scoped to
 that single domain and answered untimed — nothing in the series simulates
 what exam day actually feels like. This mock exam fills that gap: **65
@@ -9,7 +14,11 @@ proportions as the real exam, mixed in exam-like order (not grouped by
 domain), with a full answer key and explanations at the end.**
 
 Use it as a capstone after working through the [domain
-guides](DOCUMENTATION_STRUCTURE.md) and the
+guides](domain-1-fundamentals-of-ai-and-ml.md), [Domain
+2](domain-2-fundamentals-of-generative-ai.md), [Domain
+3](domain-3-applications-of-foundation-models.md), [Domain
+4](domain-4-guidelines-for-responsible-ai.md), [Domain
+5](domain-5-security-compliance-governance.md), and the
 [exam preparation and study strategy guide](exam-preparation-strategy.md) —
 every study plan in that guide schedules a full timed mock exam near the
 end of the plan, and this is that mock exam.

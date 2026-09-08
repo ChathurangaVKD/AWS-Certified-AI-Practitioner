@@ -26,6 +26,7 @@ STRUCTURE_DOC = DOCS_DIR / "DOCUMENTATION_STRUCTURE.md"
 README_PATH = REPO_ROOT / "README.md"
 SCENARIO_QUESTIONS_DOC = DOCS_DIR / "cross-domain-scenario-questions.md"
 MOCK_EXAM_DOC = DOCS_DIR / "full-length-mock-exam.md"
+SECOND_MOCK_EXAM_DOC = DOCS_DIR / "mock-exam.md"
 
 DOMAIN_FILES = {
     1: DOCS_DIR / "domain-1-fundamentals-of-ai-and-ml.md",
@@ -1219,12 +1220,22 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         return total
 
     def _actual_mock_exam_question_total(self):
-        text = MOCK_EXAM_DOC.read_text(encoding="utf-8")
-        return self._count_numbered_questions(
-            text,
+        full_length_text = MOCK_EXAM_DOC.read_text(encoding="utf-8")
+        full_length_count = self._count_numbered_questions(
+            full_length_text,
             "## Mock exam questions (1–65)",
             "## 3. Scoring your mock exam",
         )
+        second_text = SECOND_MOCK_EXAM_DOC.read_text(encoding="utf-8")
+        second_count = self._count_numbered_questions(
+            second_text,
+            "## Mock exam questions",
+            "## Answer key and explanations",
+        )
+        # full-length-mock-exam.md and mock-exam.md are two separate,
+        # independent 65-question mock exams (130 combined); both count
+        # toward the repository's total self-assessment items.
+        return full_length_count + second_count
 
     def _actual_scenario_question_total(self):
         text = SCENARIO_QUESTIONS_DOC.read_text(encoding="utf-8")

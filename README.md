@@ -167,9 +167,10 @@ domains you missed the first time.
 
 ## Progress tracking
 
-With 259 total self-assessment items across the series (129 domain
+With 324 total self-assessment items across the series (129 domain
 practice questions, 35 embedded mini-quizzes, 30 cross-domain scenario
-questions, and two 65-question mock exams), it's easy to lose track of
+questions, and 130 mock-exam questions across two 65-question mock
+exams), it's easy to lose track of
 which domains keep coming up weak across attempts. See
 [`docs/study-progress-tracker.md`](docs/study-progress-tracker.md) for a
 blank attempt-log template plus guidance on spotting recurring weak areas

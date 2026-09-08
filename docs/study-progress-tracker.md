@@ -1,11 +1,11 @@
 # Study Progress Tracker
 
-This series gives you **259 total self-assessment items** to practice
+This series gives you **324 total self-assessment items** to practice
 with: 129 domain-scoped [practice questions](exam-preparation-strategy.md#1-exam-format-and-time-management)
 (spread across the five domain guides), 35 embedded
 [mini-quizzes](exam-preparation-strategy.md#mini-quizzes-formative-checks-while-you-study),
 30 [cross-domain scenario questions](cross-domain-scenario-questions.md),
-and two independent 65-question mock exams
+and 130 mock-exam questions across two independent 65-question mock exams
 ([`full-length-mock-exam.md`](full-length-mock-exam.md) and
 [`mock-exam.md`](mock-exam.md)). What none of those pages give you is a
 single place to *log* your scores across multiple attempts and notice

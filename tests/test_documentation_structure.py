@@ -1321,7 +1321,7 @@ class TestDocumentationStructureQuestionTotalsAccuracy(unittest.TestCase):
         self.assertIn(f"{scenario_total} scenario questions", window)
         self.assertIn(f"{mini_quiz_total} embedded mini-quiz questions", window)
         self.assertIn(f"{grand_total}", window)
-        self.assertIn("total practice items", window)
+        self.assertIn("total self-assessment items", window)
 
     def test_structure_doc_does_not_state_stale_101_or_188_counts(self):
         self.assertNotIn("101 domain practice questions", self.structure_text)
@@ -1637,7 +1637,15 @@ class TestDocumentationStructureMockExamDistinctionAccuracy(unittest.TestCase):
     65-question sets, not a format-only duplicate (see
     tests/test_mock_exam.py and tests/test_full_length_mock_exam.py, which
     verify each file's own question content independently). These tests
-    guard against the doc drifting back to that misleading description."""
+    guard against the doc drifting back to that misleading description.
+
+    The paragraph also previously excluded mock-exam.md's 65 questions from
+    the stated grand total (259 instead of the correct 324), on the theory
+    that a second, independent practice pool shouldn't count toward the
+    total -- contradicting README.md and docs/study-progress-tracker.md,
+    which both correctly count all 130 combined mock-exam questions toward
+    324 total self-assessment items. These tests also guard against that
+    exclusion note reappearing."""
 
     @classmethod
     def setUpClass(cls):
@@ -1653,16 +1661,24 @@ class TestDocumentationStructureMockExamDistinctionAccuracy(unittest.TestCase):
         )
 
     def test_describes_mock_exam_as_independent_practice_pool(self):
-        idx = self.structure_text.find("second\n65-question `mock-exam.md`")
+        idx = self.structure_text.find("independent 65-question practice pools")
         self.assertNotEqual(
             idx,
             -1,
-            "expected the 'Total assessment' paragraph to reference the "
-            "second 65-question `mock-exam.md`",
+            "expected the 'Total assessment' paragraph to describe "
+            "full-length-mock-exam.md and mock-exam.md as independent "
+            "65-question practice pools",
         )
-        window = self.structure_text[idx : idx + 250]
-        self.assertIn("independent practice pool", window)
+        window = self.structure_text[idx : idx + 100]
         self.assertIn("completely different set of questions", window)
+
+    def test_does_not_exclude_second_mock_exam_from_total(self):
+        idx = self.structure_text.find("**Total assessment:**")
+        self.assertNotEqual(idx, -1)
+        window = self.structure_text[idx : idx + 400]
+        self.assertNotIn("this excludes", window)
+        self.assertIn("130 mock-exam questions", window)
+        self.assertIn("324 total self-assessment items", window)
 
     def test_full_length_and_second_mock_exam_have_different_questions(self):
         # Sanity check the underlying fact the doc now asserts: the two

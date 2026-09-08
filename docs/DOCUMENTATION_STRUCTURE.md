@@ -495,12 +495,12 @@ of self-testing:
   `mock-exam.md` (130 combined), simulating the real AIF-C01 format and
   timing.
 
-**Total assessment:** 129 domain practice questions + 65 mock-exam questions +
+**Total assessment:** 129 domain practice questions + 130 mock-exam questions +
 30 scenario questions + 35 embedded mini-quiz questions =
-259 total practice items across the repository (this excludes the second
-65-question `mock-exam.md`, which is a second, independent practice pool
-with a completely different set of questions—meant to be taken as a
-follow-up rehearsal after re-studying weak domains from the first exam).
+324 total self-assessment items across the repository. The 130 mock-exam
+questions are the combined total of `full-length-mock-exam.md` and
+`mock-exam.md`, two independent 65-question practice pools with a
+completely different set of questions (see above).
 
 **Test coverage:** Every content claim in this file is enforced by a
 matching test, not just asserted in prose:

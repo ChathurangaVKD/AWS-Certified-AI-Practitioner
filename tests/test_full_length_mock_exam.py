@@ -480,6 +480,24 @@ class TestMockExamLinksResolve(unittest.TestCase):
                     f"{file_part} -- the mock exam link is stale",
                 )
 
+    def test_domain_guide_references_do_not_point_to_internal_structure_doc(self):
+        # DOCUMENTATION_STRUCTURE.md is the internal architecture/contributor
+        # reference, not study content. A reader following a "domain guides"
+        # link from a mock exam expects to land on one of the five domain
+        # guide files, not on that internal document.
+        self.assertNotIn(
+            "DOCUMENTATION_STRUCTURE.md",
+            self.text,
+            "the mock exam should link readers to the actual domain guide "
+            "files, not to the internal DOCUMENTATION_STRUCTURE.md reference",
+        )
+        for domain_file in REQUIRED_LINKED_DOMAINS:
+            with self.subTest(domain=domain_file):
+                # Every "domain guide(s)" mention should resolve to a real
+                # domain guide file appearing nearby in the link markup,
+                # rather than a single generic link elsewhere in the doc.
+                self.assertIn(f"]({domain_file})", self.text)
+
     def test_every_same_document_anchor_matches_a_real_heading(self):
         own_anchors = _heading_anchors(self.text)
         same_doc_anchors = [

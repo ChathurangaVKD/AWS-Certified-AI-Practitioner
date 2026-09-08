@@ -1,8 +1,9 @@
 """Structural validation for docs/study-progress-tracker.md.
 
-The gap this covers: the series has 259 total self-assessment items (129
+The gap this covers: the series has 324 total self-assessment items (129
 domain practice questions + 35 embedded mini-quizzes + 30 cross-domain
-scenario questions + two 65-question mock exams) but, before this file
+scenario questions + 130 mock-exam questions across two 65-question mock
+exams) but, before this file
 existed, no structured place to log scores across multiple attempts or
 notice a recurring weak domain. This test asserts the tracker:
 
@@ -157,7 +158,7 @@ class TestRequiredContent(unittest.TestCase):
             "35",
             "30",
             "65",
-            "259",
+            "324",
         ]:
             self.assertIn(
                 phrase,

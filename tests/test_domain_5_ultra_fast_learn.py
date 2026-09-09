@@ -317,5 +317,43 @@ class TestUltraFastLearnContent(unittest.TestCase):
                 self.assertIn(term, self.text)
 
 
+class TestUltraFastLearnHop2BackfilledConcepts(unittest.TestCase):
+    """Regression test for the five hop-2 gaps identified in
+    docs/domain-5-fast-track/COVERAGE-VERIFICATION-REPORT.md: named
+    threats/services/frameworks present in the Fast Track parts
+    (part-1-security-and-compliance.md / part-2-governance-and-monitoring.md)
+    but dropped from this further-condensed cram sheet."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(ULTRA_FAST_LEARN_PATH)
+
+    def test_covers_insecure_output_handling_threat(self):
+        self.assertIn("Insecure output handling", self.text)
+
+    def test_covers_security_frameworks(self):
+        for term in ["MITRE ATLAS", "OWASP Top 10 for LLM Applications"]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_amazon_macie(self):
+        self.assertIn("Amazon Macie", self.text)
+
+    def test_covers_titan_image_generator_watermarking(self):
+        self.assertIn("Titan Image Generator", self.text)
+        self.assertIn("watermark", self.text.lower())
+
+    def test_covers_algorithmic_accountability_act_in_frameworks_table(self):
+        frameworks_section = re.search(
+            r"\n## 1\. Five compliance frameworks side by side\n(.*?)\n## ",
+            self.text,
+            re.S,
+        )
+        self.assertIsNotNone(frameworks_section)
+        self.assertIn(
+            "Algorithmic Accountability Act", frameworks_section.group(1)
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -12,21 +12,23 @@ narrow hop-1 exceptions -- GDPR's "right to erasure"/"data minimization",
 GDPR's "special category" data classification, "SOC 2 Type II" as the
 specific audit type, and the Aurora Benefits worked example's named
 CloudWatch metrics -- which have since been backfilled into part-1/part-2
-(2026-09-09). It also identifies that the further-condensed Ultra Fast
-Learn cram sheet drops five additional concept groups the Fast Track
+(2026-09-09). It also identified that the further-condensed Ultra Fast
+Learn cram sheet dropped five additional concept groups the Fast Track
 retains -- the "insecure output handling" threat name, MITRE ATLAS /
 OWASP Top 10, Amazon Macie, Titan Image Generator watermarking, and the
-Algorithmic Accountability Act -- which remains an open hop-2 gap.
+Algorithmic Accountability Act -- which was an open hop-2 gap and has
+since also been backfilled into `ULTRA-FAST-LEARN.md` (2026-09-09).
 
 These tests assert the report exists, links back to the files it audits
 with resolving anchors, and that its central claims still hold against
 the live files: the hop-1 gap topics are present in the full guide *and*
 now in the Fast Track (README + part-1 + part-2), but still absent from
-Ultra Fast Learn; and the hop-2 gap topics are present in the Fast Track
-(hop 1 is otherwise clean for these) but absent from Ultra Fast Learn
-(hop 2 has the gap) -- so the hop-2 test would start failing, as a useful
-signal, the day someone backfills Ultra Fast Learn and the report's
-"still open" claim for hop 2 goes stale.
+Ultra Fast Learn (hop 1's backfill only reached part-1/part-2, not the
+further-condensed cram sheet); and the hop-2 gap topics are present in
+the Fast Track *and* now in Ultra Fast Learn too, since the hop-2
+backfill closed that gap directly in `ULTRA-FAST-LEARN.md` -- so the
+hop-2 "now present" test would start failing, as a useful signal, the
+day someone regresses this content out of Ultra Fast Learn again.
 
 Run with:
     python3 -m unittest tests/test_domain_5_coverage_verification_report.py -v
@@ -69,8 +71,8 @@ HOP1_GAP_TOPICS = {
 }
 
 # The five concept groups the report identifies as retained in the Fast
-# Track but missing from Ultra Fast Learn (hop 2: Fast Track -> Ultra
-# Fast Learn).
+# Track and, since the 2026-09-09 hop-2 backfill, now also present in
+# Ultra Fast Learn (hop 2: Fast Track -> Ultra Fast Learn).
 HOP2_GAP_TOPICS = {
     "insecure output handling threat name": ["Insecure output handling"],
     "mitre atlas / owasp top 10 security frameworks": [
@@ -314,30 +316,29 @@ class TestHop2GapTopicsPresentInFastTrack(unittest.TestCase):
                     self.assertIn(keyword, self.fast_track_text)
 
 
-class TestHop2GapTopicsAbsentFromUltraFastLearn(unittest.TestCase):
-    """Hop 2 (Fast Track -> Ultra Fast Learn) is reported to have a real
-    gap: none of the five topics' keywords should appear in Ultra Fast
-    Learn today. If this test starts failing, the gap has been
-    backfilled and COVERAGE-VERIFICATION-REPORT.md's "Recommendation"
-    section (and this test) should be updated to reflect that, rather
-    than silently left describing a stale problem."""
+class TestHop2GapTopicsNowPresentInUltraFastLearn(unittest.TestCase):
+    """Hop 2 (Fast Track -> Ultra Fast Learn) was reported to have a real
+    gap, since backfilled directly into `ULTRA-FAST-LEARN.md` on
+    2026-09-09: every one of the five topics' keywords must now appear
+    in Ultra Fast Learn. If this test starts failing, the backfill has
+    regressed and COVERAGE-VERIFICATION-REPORT.md's "Result: Ultra Fast
+    Learn" section (and this test) should be updated to reflect that."""
 
     @classmethod
     def setUpClass(cls):
         cls.ultra_text = _read(ULTRA_FAST_LEARN_PATH)
 
-    def test_ultra_fast_learn_is_missing_every_gap_topic_keyword(self):
+    def test_ultra_fast_learn_now_contains_every_gap_topic_keyword(self):
         for topic, keywords in HOP2_GAP_TOPICS.items():
             for keyword in keywords:
                 with self.subTest(topic=topic, keyword=keyword):
-                    self.assertNotIn(
+                    self.assertIn(
                         keyword,
                         self.ultra_text,
                         f"expected {keyword!r} (part of the {topic} gap) to "
-                        "still be absent from ULTRA-FAST-LEARN.md -- if it "
-                        "has been added, the coverage gap this report "
-                        "documents has been closed and the report/tests "
-                        "should be updated to match",
+                        "now be present in ULTRA-FAST-LEARN.md following "
+                        "the 2026-09-09 hop-2 backfill -- if it is "
+                        "missing, the backfill has regressed",
                     )
 
 

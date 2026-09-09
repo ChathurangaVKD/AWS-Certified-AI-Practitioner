@@ -1,7 +1,8 @@
 # Domain 5 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status:** technical verification complete; the four hop-1 gaps below
-have been backfilled · **Verified:** 2026-09-09 · **Hop-1 backfill
+**Status:** technical verification complete; the four hop-1 gaps and the
+five hop-2 gaps below have both been backfilled · **Verified:**
+2026-09-09 · **Hop-1 backfill applied:** 2026-09-09 · **Hop-2 backfill
 applied:** 2026-09-09
 
 ## What this report is
@@ -23,7 +24,7 @@ Three major sections of
 [`docs/domain-5-fast-track/README.md`](README.md),
 [`part-1-security-and-compliance.md`](part-1-security-and-compliance.md),
 and [`part-2-governance-and-monitoring.md`](part-2-governance-and-monitoring.md)
-(1,561 lines combined, after the hop-1 backfill described below), and then against
+(1,580 lines combined, after the hop-1 and hop-2 backfills described below), and then against
 [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md), confirming whether every
 exam-relevant fact, decision criterion, AWS service, metric, and concept
 survives both condensation hops.
@@ -109,38 +110,49 @@ as pinned test assertions below.
 
 ## Result: Ultra Fast Learn (Fast Track → Ultra Fast Learn hop)
 
-**Five coverage gaps found.** `ULTRA-FAST-LEARN.md` is deliberately far
-more compressed than the two-part Fast Track, and that additional trim is
-expected. However, the following are named, testable AWS
-services/concepts present in the Fast Track — confirmed absent entirely
-from `ULTRA-FAST-LEARN.md`, not merged under a different heading:
+**Five coverage gaps found — now backfilled.** `ULTRA-FAST-LEARN.md` is
+deliberately far more compressed than the two-part Fast Track, and that
+additional trim is expected. However, the following were named, testable
+AWS services/concepts present in the Fast Track — confirmed absent
+entirely from `ULTRA-FAST-LEARN.md`, not merged under a different
+heading:
 
 1. **"Insecure output handling"** as a named threat category. Present in
    part-1's threat table (line 231) and rapid-fire terms (line 555).
-   `ULTRA-FAST-LEARN.md` §5 "Incident-response steps" (lines 107–140) is
-   the file's threat-category list and names 9 of the 10 threats but
-   skips this one.
+   `ULTRA-FAST-LEARN.md` §5 "Incident-response steps" named 9 of the 10
+   threats but skipped this one. **Now backfilled** into §5's
+   threat-category list and as its own one-line bullet with the
+   validate/sanitize/parameterize + Guardrails output-filtering
+   mitigation.
 2. **MITRE ATLAS and OWASP Top 10 for LLM Applications.** A full section
    in part-1 (`## 7. Security frameworks: MITRE ATLAS and OWASP Top 10`,
    lines 317–341, plus rapid-fire terms and mini-quiz entries). Neither
-   framework name appears anywhere in `ULTRA-FAST-LEARN.md`, despite its
+   framework name appeared anywhere in `ULTRA-FAST-LEARN.md`, despite its
    own intro claiming to condense the full guide's Sections 1, 2, and 5.
+   **Now backfilled** as a bullet in §5 naming both frameworks and their
+   one-line descriptions.
 3. **Amazon Macie.** Present in part-1 (prompt-injection/sensitive-
    information-disclosure mitigations, lines 228 and 234) and as its own
    table row, decision callout, and mini-quiz answer in part-2 (lines
    119, 153, 333, 366, 381, 400, 451). Never named in
-   `ULTRA-FAST-LEARN.md`.
+   `ULTRA-FAST-LEARN.md`. **Now backfilled** as a bullet in §5 naming its
+   PII/PHI-discovery role and its threat mitigations.
 4. **Titan Image Generator watermarking / provenance detection.**
    Part-1's `## 4. Source citation and data lineage` (line 192) covers
    this as its own "Provenance watermarking" table row (line 198), with a
    dedicated disambiguation callout distinguishing it from the Domain
    2/3 "visible logo" watermark. Both "Titan" and "watermark" as terms
-   are absent from `ULTRA-FAST-LEARN.md`.
+   were absent from `ULTRA-FAST-LEARN.md`. **Now backfilled** as a
+   one-line bullet in §5.
 5. **Algorithmic Accountability Act.** Named in both part-1 (lines 387,
    444, 589, mini-quiz line 653) and part-2's comparison table (line
    351). `ULTRA-FAST-LEARN.md` §1's "Five compliance frameworks" table
-   names only GDPR, HIPAA, NIST AI RMF, EU AI Act, and ISO/IEC 42001 —
-   the sixth, proposed regulation is dropped entirely.
+   named only GDPR, HIPAA, NIST AI RMF, EU AI Act, and ISO/IEC 42001 —
+   the sixth, proposed regulation was dropped entirely. **Now
+   backfilled** as a sixth row in §1's compliance-frameworks table
+   (marked *proposed*, not binding), plus a clarifying note in the
+   binding-vs-voluntary bullet distinguishing "proposed" from
+   "voluntary."
 
 One further partial gap is worth noting in prose, though it does not rise
 to a strict test assertion below since it is a 3-of-4 partial match on a
@@ -151,14 +163,8 @@ name all four); `ULTRA-FAST-LEARN.md` line 42's requirements table names
 
 ## Recommendation
 
-Backfill the five Hop-2 items into `ULTRA-FAST-LEARN.md` (condensed
-bullets/table rows only, sourced verbatim from part-1/part-2, no new
-facts to author): add "insecure output handling" to §5's threat list; add
-a short MITRE ATLAS / OWASP Top 10 row or bullet (§1 or a new section);
-name Amazon Macie alongside the existing PrivateLink/incident-response
-services it already covers; add a one-line Titan Image Generator
-watermarking bullet; and add the Algorithmic Accountability Act as a
-sixth row (or footnote) in §1's compliance-frameworks table.
+Both backfills identified by this report are now complete — no
+outstanding action items remain from this audit.
 
 **Update, 2026-09-09: the four Hop-1 items have been backfilled.** GDPR's
 right-to-erasure/data-minimization concepts and the "special category"
@@ -173,12 +179,20 @@ Each addition also extended `tests/test_domain_5_fast_track_part_1.py`
 and `tests/test_domain_5_fast_track_part_2.py` with assertions for the
 newly-covered terms.
 
-The Hop-2 backfill should similarly extend
-`tests/test_domain_5_ultra_fast_learn.py` with assertions for the
-newly-covered terms, so a future edit cannot silently drop this content
-again. This backfill is scoped as follow-up work rather than folded into
-this report, since `ULTRA-FAST-LEARN.md`'s stated line count is
-cross-checked by exact-total assertions in
-`tests/test_documentation_structure.py` (per-domain Fast Track totals and
-the repository-wide grand total) that must be updated in lockstep with
-any line-count change to that file.
+**Update, 2026-09-09: the five Hop-2 items have also been backfilled.**
+"Insecure output handling," the MITRE ATLAS / OWASP Top 10 for LLM
+Applications framework names, Amazon Macie, Titan Image Generator
+watermarking, and the Algorithmic Accountability Act were all added to
+`ULTRA-FAST-LEARN.md` as condensed bullets/table rows sourced verbatim
+from part-1/part-2 (§5's threat/mitigation bullets, and a sixth row in
+§1's compliance-frameworks table). `tests/test_domain_5_ultra_fast_learn.py`
+was extended with a `TestUltraFastLearnHop2BackfilledConcepts` test class
+asserting each newly-covered term, and
+`tests/test_domain_5_coverage_verification_report.py`'s Hop-2 assertions
+were flipped from "absent from Ultra Fast Learn" to "present in Ultra
+Fast Learn," so a future edit cannot silently drop this content again.
+`ULTRA-FAST-LEARN.md` grew from 182 to 201 lines, which required updating
+the per-domain Fast Track total and repository-wide grand total in
+`docs/DOCUMENTATION_STRUCTURE.md` (and the exact-total assertions in
+`tests/test_documentation_structure.py` that cross-check them) in
+lockstep.

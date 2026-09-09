@@ -7,26 +7,26 @@ guarantee (docs/DOCUMENTATION_STRUCTURE.md: "every testable concept the
 full domain guide covers is retained somewhere in the condensed layer")
 that had never been technically verified against the source guide.
 `docs/domain-5-fast-track/COVERAGE-VERIFICATION-REPORT.md` is that
-verification: a section-by-section spot-check confirming the Fast Track
-retains almost everything from the full guide (four narrow exceptions:
-GDPR's "right to erasure"/"data minimization", GDPR's "special category"
-data classification, "SOC 2 Type II" as the specific audit type, and the
-Aurora Benefits worked example's named CloudWatch metrics), and
-identifying that the further-condensed Ultra Fast Learn cram sheet drops
-five additional concept groups the Fast Track retains -- the "insecure
-output handling" threat name, MITRE ATLAS / OWASP Top 10, Amazon Macie,
-Titan Image Generator watermarking, and the Algorithmic Accountability
-Act.
+verification: a section-by-section spot-check that originally found four
+narrow hop-1 exceptions -- GDPR's "right to erasure"/"data minimization",
+GDPR's "special category" data classification, "SOC 2 Type II" as the
+specific audit type, and the Aurora Benefits worked example's named
+CloudWatch metrics -- which have since been backfilled into part-1/part-2
+(2026-09-09). It also identifies that the further-condensed Ultra Fast
+Learn cram sheet drops five additional concept groups the Fast Track
+retains -- the "insecure output handling" threat name, MITRE ATLAS /
+OWASP Top 10, Amazon Macie, Titan Image Generator watermarking, and the
+Algorithmic Accountability Act -- which remains an open hop-2 gap.
 
 These tests assert the report exists, links back to the files it audits
 with resolving anchors, and that its central claims still hold against
-the live files: the hop-1 gap topics are present in the full guide but
-absent from the entire Fast Track directory (README + part-1 + part-2)
-and from Ultra Fast Learn, and the hop-2 gap topics are present in the
-Fast Track (hop 1 is otherwise clean for these) but absent from Ultra
-Fast Learn (hop 2 has the gap) -- so this test would start failing, as a
-useful signal, the day someone backfills either file and the report's
-"still open" claims go stale.
+the live files: the hop-1 gap topics are present in the full guide *and*
+now in the Fast Track (README + part-1 + part-2), but still absent from
+Ultra Fast Learn; and the hop-2 gap topics are present in the Fast Track
+(hop 1 is otherwise clean for these) but absent from Ultra Fast Learn
+(hop 2 has the gap) -- so the hop-2 test would start failing, as a useful
+signal, the day someone backfills Ultra Fast Learn and the report's
+"still open" claim for hop 2 goes stale.
 
 Run with:
     python3 -m unittest tests/test_domain_5_coverage_verification_report.py -v

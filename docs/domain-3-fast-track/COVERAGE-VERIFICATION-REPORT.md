@@ -1,12 +1,16 @@
 # Domain 3 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status: technical verification complete.** This report is the
-technical verification flagged as outstanding in the Content Health
-assessment for Domain 3's condensed layer. This is a correctness audit
-against the live files, not new content authoring — no prose in the
-Fast Track or Ultra Fast Learn was rewritten to produce this report; two
-real coverage gaps were found and are documented below with exact
-locations so they can be fixed in a follow-up change.
+**Status: technical verification complete; hop-2 gaps backfilled
+2026-09-09.** This report is the technical verification flagged as
+outstanding in the Content Health assessment for Domain 3's condensed
+layer. This is a correctness audit against the live files, not new content authoring
+— no prose in the Fast Track or Ultra Fast Learn was rewritten to
+produce the original audit below; two classes of real coverage gap were
+found and documented with exact locations. The four hop-2 gaps
+(Findings 2-5) have since been backfilled into `ULTRA-FAST-LEARN.md`,
+sourced verbatim from the same Fast Track sections this report cites —
+see the "Findings 2-5" section below for the update. The hop-1 gap
+(Finding 1, Kendra GenAI Index) remains open and is tracked separately.
 
 ## The claim under audit
 
@@ -147,30 +151,34 @@ infrastructure → Kendra) is already captured in Part 2's vector-database
 decision table and flowchart. That one is exactly the "extra worked
 example" trimming the coverage guarantee permits.
 
-## Findings 2–5 (hop-2 gaps): dropped entirely from Ultra Fast Learn
+## Findings 2–5 (hop-2 gaps): dropped entirely from Ultra Fast Learn — now backfilled
 
-Hop 1 (full guide → Fast Track) is otherwise clean for every topic below
-— each is fully present in both the full guide and Part 1 or Part 2. The
-gap is at hop 2: none of these keywords appear anywhere in
-`ULTRA-FAST-LEARN.md` today.
+**Update, 2026-09-09: all four backfilled.** These four were originally
+found dropped entirely from Ultra Fast Learn despite being clean at hop 1
+(full guide → Fast Track — each fully present in Part 1 or Part 2). They
+have now been backfilled into `ULTRA-FAST-LEARN.md`'s customization
+section (Section 1, for #2–#4) and evaluation section (Section 5, for
+#5), sourced verbatim from the same Fast Track subsections cited below —
+no new facts were authored to close these gaps.
 
 | # | Topic | Full guide → Fast Track (hop 1) | Fast Track → Ultra Fast Learn (hop 2) |
 |---|---|---|---|
-| 2 | **Fine-tuning efficiency techniques** — LoRA, QLoRA, instruction tuning, the GPU-memory/training-time/quality decision flowchart, and the merged-vs-unmerged serving-latency table | Clean — full explanation in [Part 1, Section 6](part-1-application-design-and-customization.md#6-fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning) | **Gap** — Ultra Fast Learn's customization table (Section 1) has one undifferentiated "Fine-tuning" row; LoRA/QLoRA/instruction tuning, the resource-cost tables, and the decision flowchart never appear |
-| 3 | **RLHF** — the three-stage SFT → reward model → PPO process, and when it applies vs. plain SFT or RAG | Clean — full explanation in [Part 1, Section 7](part-1-application-design-and-customization.md#7-rlhf-aligning-fine-tuned-models-to-human-preferences) | **Gap** — "RLHF," "reward model," and "SFT" do not appear anywhere in Ultra Fast Learn |
-| 4 | **Fine-tuning dataset curation** — minimum labeled-example thresholds by technique/model scale, the data-quality checklist (diversity, edge-case coverage, label correctness, class balance), synthetic-vs-real trade-offs, catastrophic forgetting, overfitting, early stopping, inter-annotator agreement | Clean — full explanation in [Part 1, Section 8](part-1-application-design-and-customization.md#8-curating-a-fine-tuning-dataset) | **Gap** — none of these terms appear in Ultra Fast Learn |
-| 5 | **Retrieval quality metrics** — NDCG, MAP, Recall@k, and MRR, and the decision tree for picking among them | Clean — full explanation in [Part 2, Section 8](part-2-inference-and-multimodal.md#8-retrieval-quality-metrics) | **Gap** — Ultra Fast Learn's evaluation section (Section 5) covers benchmark/human/business evaluation and named benchmarks (MMLU, ARC, HumanEval, GSM8K, BERTScore, perplexity, toxicity) but never mentions NDCG, MAP, Recall@k, or MRR |
+| 2 | **Fine-tuning efficiency techniques** — LoRA, QLoRA, instruction tuning, the GPU-memory/training-time/quality decision flowchart, and the merged-vs-unmerged serving-latency table | Clean — full explanation in [Part 1, Section 6](part-1-application-design-and-customization.md#6-fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning) | **Fixed** — Ultra Fast Learn's customization section (Section 1) now carries a LoRA/QLoRA/instruction-tuning comparison table, the decision-order bullets standing in for the flowchart, and the merged-vs-unmerged serving-latency bullet |
+| 3 | **RLHF** — the three-stage SFT → reward model → PPO process, and when it applies vs. plain SFT or RAG | Clean — full explanation in [Part 1, Section 7](part-1-application-design-and-customization.md#7-rlhf-aligning-fine-tuned-models-to-human-preferences) | **Fixed** — "RLHF," "reward model," "SFT," and "PPO" now appear in Ultra Fast Learn's Section 1, with the three-stage process and the SFT-vs-RLHF-vs-RAG applicability bullets |
+| 4 | **Fine-tuning dataset curation** — minimum labeled-example thresholds by technique/model scale, the data-quality checklist (diversity, edge-case coverage, label correctness, class balance), synthetic-vs-real trade-offs, catastrophic forgetting, overfitting, early stopping, inter-annotator agreement | Clean — full explanation in [Part 1, Section 8](part-1-application-design-and-customization.md#8-curating-a-fine-tuning-dataset) | **Fixed** — Ultra Fast Learn's Section 1 now carries the minimum-examples table, the data-quality checklist, the synthetic-vs-real trade-off, and all of catastrophic forgetting/overfitting/early stopping/inter-annotator agreement |
+| 5 | **Retrieval quality metrics** — NDCG, MAP, Recall@k, and MRR, and the decision tree for picking among them | Clean — full explanation in [Part 2, Section 8](part-2-inference-and-multimodal.md#8-retrieval-quality-metrics) | **Fixed** — Ultra Fast Learn's evaluation section (Section 5) now carries the NDCG/MAP/Recall@k/MRR comparison table and decision-order bullets standing in for the decision tree |
 
-These four are a materially larger hop-2 gap than any other domain's
-report has found (three topics for Domain 1, four for Domain 4 — but
+These four were a materially larger hop-2 gap than any other domain's
+report had found (three topics for Domain 1, four for Domain 4 — but
 Domain 4's four hop-2 topics were narrower single distinctions; here,
-three of the four are entire multi-page subsections with their own
+three of the four were entire multi-page subsections with their own
 decision flowcharts and comparison tables, dropped as a whole unit).
-Given Domain 3 is the highest-weight domain, an exam-taker relying solely
-on the last-minute Ultra Fast Learn cram sheet has a materially higher
-chance of encountering a question on fine-tuning efficiency technique
-selection, RLHF, dataset sizing, or retrieval-metric selection with zero
-cram-sheet coverage than the guarantee implies.
+Given Domain 3 is the highest-weight domain, closing this gap removed a
+materially higher chance than other domains' remaining gaps posed of an
+exam-taker relying solely on the last-minute Ultra Fast Learn cram sheet
+encountering a question on fine-tuning efficiency technique selection,
+RLHF, dataset sizing, or retrieval-metric selection with zero cram-sheet
+coverage.
 
 ## What's confirmed clean
 

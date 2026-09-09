@@ -466,6 +466,20 @@ compressing for review.
 | 3 | [Domain 3](domain-3-applications-of-foundation-models.md) (~28%, highest weight) | Days 1–5: read all 8 sections and the comparison table — this domain gets the most days of any single domain. Day 6: practice questions. Day 7: read the [AWS service decision guide](aws-service-decision-guide.md)'s decision flow and the Domain 1→3 rows of the concept map. |
 | 4 | [Domain 4](domain-4-guidelines-for-responsible-ai.md) + [Domain 5](domain-5-security-compliance-governance.md) (~14% each) + full review | Days 1–2: Domain 4 (read + practice questions). Days 3–4: Domain 5 (read + practice questions). Day 5: full read of [GLOSSARY.md](GLOSSARY.md), [aws-service-decision-guide.md](aws-service-decision-guide.md), and [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) above. Day 6: take the [full-length mock exam](full-length-mock-exam.md) (65 questions weighted and mixed across all five domains, 90 minutes). Day 7: review every missed mock question and re-read the matching domain section it came from. |
 
+**Fast Track substitution:** by Weeks 3–4, if an earlier domain (1 or 2)
+already feels solid, you don't need to re-read its full guide again during
+Day 7 cross-referencing or mock-exam remediation — swap in that domain's
+Fast Track guide instead:
+[domain-1-fast-track/README.md](domain-1-fast-track/README.md),
+[domain-2-fast-track/README.md](domain-2-fast-track/README.md),
+[domain-3-fast-track/README.md](domain-3-fast-track/README.md),
+[domain-4-fast-track/README.md](domain-4-fast-track/README.md),
+[domain-5-fast-track/README.md](domain-5-fast-track/README.md). Each Fast
+Track guide keeps **every testable concept** from its full guide — only
+the narrative explanation and redundant worked examples are trimmed — so
+substituting it for a full re-read doesn't cost you any exam-relevant
+content.
+
 ### 2-week plan (condensed, still prerequisite-ordered)
 
 Best if you already have some AI/ML background and mainly need the
@@ -488,6 +502,21 @@ exam-specific framing and AWS service mappings.
 | 13 | Review every missed mock question against [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) — most missed questions map directly onto one of the consolidated traps. |
 | 14 | Light final review only: skim [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) and the glossary terms you've flagged as weak. Avoid cramming new material the day before the exam. |
 
+**Fast Track substitution:** if you have prior exposure to some of this
+material, Days 1–10 don't have to mean a full read of every domain guide.
+For any domain you've already seen before, read that domain's ~40%-length
+Fast Track guide instead of the full guide:
+[domain-1-fast-track/README.md](domain-1-fast-track/README.md),
+[domain-2-fast-track/README.md](domain-2-fast-track/README.md),
+[domain-3-fast-track/README.md](domain-3-fast-track/README.md),
+[domain-4-fast-track/README.md](domain-4-fast-track/README.md),
+[domain-5-fast-track/README.md](domain-5-fast-track/README.md). Every Fast
+Track guide keeps **every testable concept** from its full guide — it only
+trims the narrative explanation and redundant examples down to their
+one-line takeaways — so this saves reading time without dropping anything
+the exam covers. Still do the practice questions from the full guide's
+linked sections.
+
 ### 1-week plan (time-constrained review)
 
 **This plan assumes you already have general AI/ML/cloud familiarity** and
@@ -501,15 +530,28 @@ This plan is intentionally **weight-ordered rather than prerequisite-ordered**
 (see [Section 3](#3-recommended-reading-order)) to maximize expected score
 per hour studied when time is the binding constraint:
 
+**Fast Track as primary material:** because this plan targets learners
+who already have general AI/ML/cloud familiarity, Days 1–4 below recommend
+each domain's **Fast Track guide** — not the full guide — as the primary
+reading. Every Fast Track guide keeps **every testable concept** from its
+full guide (the AWS services, decision criteria, evaluation metrics, and
+every other exam-relevant fact); it only trims the narrative explanation
+and redundant worked examples down to their one-line takeaways. If a
+domain turns out to be less familiar than expected once you're in it,
+fall back to that domain's full guide (linked from the Fast Track guide's
+"Where each section comes from" table) before moving on. Day 5 adds each
+domain's **Ultra Fast Learn cram sheet** — bullets and tables only, no
+prose — for final review the day of/before the mock exam:
+
 | Day | Focus |
 |---|---|
-| 1 | [Domain 3](domain-3-applications-of-foundation-models.md) (~28%, highest weight) — full read + comparison table + practice questions. |
-| 2 | [Domain 2](domain-2-fundamentals-of-generative-ai.md) (~24%) — full read + comparison table + practice questions. |
-| 3 | [Domain 1](domain-1-fundamentals-of-ai-and-ml.md) (~20%) — full read + comparison table + practice questions. |
-| 4 | [Domain 4](domain-4-guidelines-for-responsible-ai.md) and [Domain 5](domain-5-security-compliance-governance.md) (~14% each) — full read + comparison tables + practice questions for both. |
-| 5 | [AWS service decision guide](aws-service-decision-guide.md) + [GLOSSARY.md](GLOSSARY.md) skim + [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) in full. |
+| 1 | [Domain 3 Fast Track](domain-3-fast-track/README.md) (~28%, highest weight) — full read + practice questions from the [full guide](domain-3-applications-of-foundation-models.md)'s linked sections. |
+| 2 | [Domain 2 Fast Track](domain-2-fast-track/README.md) (~24%) — full read + practice questions from the [full guide](domain-2-fundamentals-of-generative-ai.md)'s linked sections. |
+| 3 | [Domain 1 Fast Track](domain-1-fast-track/README.md) (~20%) — full read + practice questions from the [full guide](domain-1-fundamentals-of-ai-and-ml.md)'s linked sections. |
+| 4 | [Domain 4 Fast Track](domain-4-fast-track/README.md) and [Domain 5 Fast Track](domain-5-fast-track/README.md) (~14% each) — full read + practice questions from both full guides' ([domain-4-guidelines-for-responsible-ai.md](domain-4-guidelines-for-responsible-ai.md), [domain-5-security-compliance-governance.md](domain-5-security-compliance-governance.md)) linked sections. |
+| 5 | Final review using each domain's Ultra Fast Learn cram sheet — [Domain 1](domain-1-fast-track/ULTRA-FAST-LEARN.md), [Domain 2](domain-2-fast-track/ULTRA-FAST-LEARN.md), [Domain 3](domain-3-fast-track/ULTRA-FAST-LEARN.md), [Domain 4](domain-4-fast-track/ULTRA-FAST-LEARN.md), [Domain 5](domain-5-fast-track/ULTRA-FAST-LEARN.md) — plus the [AWS service decision guide](aws-service-decision-guide.md), a [GLOSSARY.md](GLOSSARY.md) skim, and [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts) in full. |
 | 6 | Take the [full-length mock exam](full-length-mock-exam.md): 65 questions, 90 minutes, weighted and mixed across all five domains. Score it and identify your two weakest domains. Also work through the [cross-domain scenario questions](cross-domain-scenario-questions.md) for practice combining domains in one question. |
-| 7 | Re-review only your two weakest domains from Day 6, plus a final skim of [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts). Keep the day before the exam light — recognition review, not new material. |
+| 7 | Re-review only your two weakest domains from Day 6 — using that domain's Ultra Fast Learn cram sheet, or the full guide if the gap is conceptual rather than a forgotten detail — plus a final skim of [Section 4](#4-common-exam-traps-consolidated-from-every-domains-exam-tip-callouts). Keep the day before the exam light — recognition review, not new material. |
 
 ---
 

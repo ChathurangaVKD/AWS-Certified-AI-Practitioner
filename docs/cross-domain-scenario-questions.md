@@ -1,5 +1,11 @@
 # Cross-Domain Scenario Questions (AIF-C01)
 
+**Last verified:** 2026-09-06 — this page's scenario questions cite AWS
+services, model families, and compliance details spanning all five domain
+guides, so it goes stale faster than any single domain guide. Re-verify at
+least every 60 days, or sooner if a linked domain guide's own
+**Last verified** date moves.
+
 > **Difficulty tiers:** Questions 1–25 are 2-domain pairings; questions
 > 26–30 are the harder tier, each requiring reasoning across 3+ domains at
 > once. Master the 2-domain set before attempting 26–30.

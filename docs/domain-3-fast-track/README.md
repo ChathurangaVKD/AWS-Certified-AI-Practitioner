@@ -1,12 +1,12 @@
 # Domain 3 Fast Track: Applications of Foundation Models
 
-**Condensed guide, split into 3 parts** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,845 lines) · **Last verified:** 2026-09-06
+**Condensed guide, split into 3 parts** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,957 lines) · **Last verified:** 2026-09-06
 
 ## Why this fast track is split into three parts
 
 Domain 3 (Applications of Foundation Models) is the exam's heaviest-weighted
 domain — roughly **28% of scored questions** — and its full study guide runs
-6,845 lines across 25 Mermaid diagrams and dozens of worked examples. That is
+6,957 lines across 25 Mermaid diagrams and dozens of worked examples. That is
 too long for a single condensed guide to stay easy to navigate end to end, so
 the Fast Track splits it into three parts, one per major topic cluster:
 

@@ -30,7 +30,7 @@ domain, currently 2,030–6,957 lines each, **16,303 lines total**:
 - Domain 4: 2,250 lines
 - Domain 5: 2,853 lines
 
-## Fast Track condensed guides (15 files, 7,710 lines total)
+## Fast Track condensed guides (15 files, 7,729 lines total)
 
 Beyond the five full domain guides, each domain also has a condensed
 "Fast Track" layer under its own `docs/domain-N-fast-track/` directory.

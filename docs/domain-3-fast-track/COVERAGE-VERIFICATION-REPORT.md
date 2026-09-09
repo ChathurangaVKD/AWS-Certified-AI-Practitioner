@@ -198,24 +198,23 @@ thresholds found no gaps in:
   resilience-pattern vocabulary (circuit breaker, jitter, flapping).
 - Evaluation benchmarks other than the four retrieval-ranking metrics
   above (MMLU, ARC, HumanEval, GSM8K, BERTScore, perplexity, toxicity) —
-  full coverage at both hops.
+  full coverage at both hops (as, now, are the four retrieval-ranking
+  metrics themselves — see the "Findings 2–5" update above).
 
 ## Recommendation
 
-1. **Fix the hop-1 gap first** (Finding 1) — it's the more serious class
-   of gap. Add a Kendra GenAI Index subsection to either Part 1, Section 4
-   or Part 2, Section 4 (whichever a future edit decides is the
-   canonical home for Section 3's vector-store-selection depth), stating
-   the reuse-over-duplicate decision rule Ultra Fast Learn already
-   captures independently.
-2. **Backfill the four hop-2 gaps** (Findings 2–5) into Ultra Fast Learn,
-   following the same compact bullet/table style already used for the
-   customization trade-off table and RAG failure-mode triage — these are
-   exactly the kind of high-yield, easily-tabulated decision content the
-   cram sheet is meant to hold.
-3. Until both are addressed, this report's specific claims will be kept
-   accurate by the accompanying test suite
+1. **Fix the remaining hop-1 gap** (Finding 1) — it's the more serious
+   class of gap and is still open. Add a Kendra GenAI Index subsection to
+   either Part 1, Section 4 or Part 2, Section 4 (whichever a future edit
+   decides is the canonical home for Section 3's vector-store-selection
+   depth), stating the reuse-over-duplicate decision rule Ultra Fast
+   Learn already captures independently.
+2. ~~Backfill the four hop-2 gaps (Findings 2–5) into Ultra Fast
+   Learn~~ — **done, 2026-09-09**, following the same compact
+   bullet/table style already used for the customization trade-off table
+   and RAG failure-mode triage.
+3. Until the hop-1 gap is also addressed, this report's specific claims
+   will be kept accurate by the accompanying test suite
    (`tests/test_domain_3_coverage_verification_report.py`), which fails
-   loudly the day either gap is closed so the report (and this
-   recommendation) can be updated to match, rather than silently going
-   stale.
+   loudly the day it's closed too so the report (and this recommendation)
+   can be updated to match, rather than silently going stale.

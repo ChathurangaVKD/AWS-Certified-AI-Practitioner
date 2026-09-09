@@ -88,8 +88,8 @@ fine-tuned model to human preferences:**
       policy; (2) train a **reward model** on human preference
       rankings/comparisons of multiple outputs for the same prompt;
       (3) fine-tune the SFT model against the reward model via
-      reinforcement learning (commonly **PPO**, Proximal Policy
-      Optimization) without drifting so far it loses coherence.
+      reinforcement learning (commonly **PPO**, Proximal Policy Optimization)
+      without drifting so far it loses coherence.
 - [ ] Narrow, well-defined labeled task, no ambiguity about "correct" →
       **SFT alone**. Open-ended chat/instruction-following where humans
       must judge *which response is better* (helpfulness, tone,

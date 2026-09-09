@@ -1,5 +1,12 @@
 # Cross-Domain Glossary
 
+**Last verified:** 2026-09-06 — this glossary's 157 entries cite AWS
+service names, model families (e.g. the Titan model family), and feature
+names (e.g. Guardrails for Amazon Bedrock) drawn from all five domain
+guides, so it goes stale just as fast as any single domain guide.
+Re-verify at least every 60 days, or sooner if a linked domain guide's own
+**Last verified** date moves.
+
 Every domain guide in this series ends with its own **Key terms** section, scoped to that guide's material. This page merges all of them into one alphabetical, series-wide glossary so you can look up a term without knowing (or guessing) which domain defines it.
 
 Each entry gives a one-line working definition plus a backlink — or, for terms that show up in more than one domain, several backlinks — to the "Key terms" section where the concept is explained in full, with surrounding context and examples.

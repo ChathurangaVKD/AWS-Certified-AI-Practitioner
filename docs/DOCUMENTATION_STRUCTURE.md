@@ -22,11 +22,11 @@ AWS-Certified-AI-Practitioner/
 │   ├── domain-4-guidelines-for-responsible-ai.md
 │   ├── domain-5-security-compliance-governance.md
 │   │
-domain, currently 2,030–6,845 lines each, **16,191 lines total**:
+domain, currently 2,030–6,957 lines each, **16,303 lines total**:
 
 - Domain 1: 2,030 lines
 - Domain 2: 2,213 lines
-- Domain 3: 6,845 lines
+- Domain 3: 6,957 lines
 - Domain 4: 2,250 lines
 - Domain 5: 2,853 lines
 
@@ -601,7 +601,7 @@ guides listed above (see "Fast Track condensed guides" section) add
 lines**. All thirty-three files together — `README.md`, the five domain
 guides, the 15 Fast Track condensed guides, the ten cross-domain support
 documents, `study-progress-tracker.md`, and this file — total
-**29,967 lines**.
+**30,079 lines**.
 
 ## Cross-linking architecture
 

@@ -22,11 +22,11 @@ AWS-Certified-AI-Practitioner/
 │   ├── domain-4-guidelines-for-responsible-ai.md
 │   ├── domain-5-security-compliance-governance.md
 │   │
-domain, currently 2,030–6,845 lines each, **16,191 lines total**:
+domain, currently 2,030–6,957 lines each, **16,303 lines total**:
 
 - Domain 1: 2,030 lines
 - Domain 2: 2,213 lines
-- Domain 3: 6,845 lines
+- Domain 3: 6,957 lines
 - Domain 4: 2,250 lines
 - Domain 5: 2,853 lines
 
@@ -384,7 +384,7 @@ closes with its own `## Quick-reference cheat sheet` section — a
 condensed, print-friendly recap of that guide's content for last-minute
 review, distinct from the closing `## Worked example`/`## Practice
 questions` sections that precede it: Domain 1: line 1524; Domain 2: line 1668;
-Domain 3: line 6147; Domain 4: line 1746; Domain 5: line 2496.
+Domain 3: line 6259; Domain 4: line 1746; Domain 5: line 2496.
 Each one is validated by its own `tests/test_domain_N_quick_reference_cheat_sheet.py`
 file (heading present, linked from the table of contents, and positioned
 between the comparison table and the glossary link). These in-guide
@@ -601,7 +601,7 @@ guides listed above (see "Fast Track condensed guides" section) add
 lines**. All thirty-three files together — `README.md`, the five domain
 guides, the 15 Fast Track condensed guides, the ten cross-domain support
 documents, `study-progress-tracker.md`, and this file — total
-**29,967 lines**.
+**30,079 lines**.
 
 ## Cross-linking architecture
 

@@ -42,6 +42,7 @@
   - [SageMaker endpoint auto-scaling: a parameter-tuning decision guide](#sagemaker-endpoint-auto-scaling-a-parameter-tuning-decision-guide)
     - [Worked example: configuring auto-scaling for a real-time customer-support chatbot endpoint](#worked-example-configuring-auto-scaling-for-a-real-time-customer-support-chatbot-endpoint)
 - [Inference failures and recovery strategies](#inference-failures-and-recovery-strategies)
+  - [Recovering from a Bedrock `InvokeModel` throttling spike: a concrete walkthrough](#recovering-from-a-bedrock-invokemodel-throttling-spike-a-concrete-walkthrough)
 - [Inference error handling and resilience patterns](#inference-error-handling-and-resilience-patterns)
   - [Retry strategies compared: immediate retry vs. exponential backoff vs. circuit breaker](#retry-strategies-compared-immediate-retry-vs-exponential-backoff-vs-circuit-breaker)
   - [Decision flowchart: choosing a resilience strategy by error type](#decision-flowchart-choosing-a-resilience-strategy-by-error-type)
@@ -4465,6 +4466,117 @@ can't scale fast enough, a batch job whose payloads outgrow its timeout
 budget), and two about *token budgets* (a conversation that outgrows the
 model's context window, and a workload that outgrows its provisioned or
 on-demand throughput).
+
+### Recovering from a Bedrock `InvokeModel` throttling spike: a concrete walkthrough
+
+Before working through the full triage flowchart and four detailed
+scenarios below, here's a single walkthrough that ties detection and
+recovery together end to end for the most common real-world case: a
+direct Bedrock API call that starts throttling once traffic outgrows what
+the account has provisioned.
+
+**Scenario:** A retailer calls Amazon Bedrock's `InvokeModel` API
+directly from a product-description generation service running on
+**on-demand** pricing (no Provisioned Throughput purchased yet). A
+marketing team launches a flash sale without warning the platform team,
+and the surge of catalog updates pushes `InvokeModel` traffic to several
+times its normal volume within minutes.
+
+**Step 1 — detect the throttling with CloudWatch.** Amazon Bedrock
+publishes per-model usage metrics to CloudWatch under the `AWS/Bedrock`
+namespace. Two metrics tell the on-call engineer exactly what's
+happening, without guessing from application logs alone:
+
+- **`Invocations`** — the raw call volume — shows a sharp step up the
+  moment the flash sale traffic arrives.
+- **`InvocationThrottles`** — incremented every time a call receives a
+  `ThrottlingException` — starts climbing in lockstep once volume crosses
+  the account's on-demand tokens-per-minute (TPM) quota for that model.
+
+A CloudWatch alarm on `InvocationThrottles` (dimensioned by `ModelId`)
+catches this automatically instead of waiting for a customer complaint or
+an application error-rate dashboard to notice:
+
+```python
+import boto3
+
+cloudwatch = boto3.client("cloudwatch")
+cloudwatch.put_metric_alarm(
+    AlarmName="bedrock-invokemodel-throttling-flash-sale",
+    Namespace="AWS/Bedrock",
+    MetricName="InvocationThrottles",
+    Dimensions=[{"Name": "ModelId", "Value": "anthropic.claude-3-haiku-20240307-v1:0"}],
+    Statistic="Sum",
+    Period=60,
+    EvaluationPeriods=2,
+    Threshold=5,
+    ComparisonOperator="GreaterThanThreshold",
+    AlarmActions=["arn:aws:sns:us-east-1:123456789012:oncall-alerts"],
+)
+```
+
+This is the same `ThrottlingException` symptom as
+[Scenario 1](#scenario-1-a-sagemaker-real-time-endpoint-that-cant-scale-fast-enough-for-a-traffic-spike)
+and [Scenario 4](#scenario-4-a-production-workload-that-exceeds-its-provisioned-token-budget)
+below, just observed directly on a Bedrock API call rather than on a
+SageMaker endpoint or an account-wide budget trend.
+
+**Step 2 — apply exponential backoff so calls in flight survive the
+spike.** While the platform team works on the underlying capacity fix,
+the calling application needs to stop failing outright on every throttled
+call. Wrapping `invoke_model` in a small retry loop with **full jitter
+exponential backoff** — a delay that doubles on every attempt, with the
+actual wait drawn randomly between zero and that doubled value — buys
+enough time for short bursts to clear without every client retrying in
+lockstep:
+
+```python
+import random
+import time
+from botocore.exceptions import ClientError
+
+def invoke_with_backoff(client, max_attempts=5, base_delay=0.5, max_delay=20.0, **kwargs):
+    for attempt in range(max_attempts):
+        try:
+            return client.invoke_model(**kwargs)
+        except ClientError as err:
+            if err.response["Error"]["Code"] != "ThrottlingException" or attempt == max_attempts - 1:
+                raise
+            delay = min(max_delay, base_delay * (2 ** attempt))
+            time.sleep(random.uniform(0, delay))
+```
+
+(See the [full worked example on exponential backoff and
+jitter](#worked-example-retrying-a-throttled-bedrock-invokemodel-call-with-exponential-backoff-and-jitter)
+later in this domain for the complete version of this pattern, including
+which error codes are safe to retry.) Backoff buys time and smooths out
+short bursts, but it does not raise the account's actual throughput
+ceiling — if the elevated traffic is sustained rather than a brief blip,
+retried calls simply keep competing for the same exhausted budget.
+
+**Step 3 — scale Provisioned Throughput as the durable fix.** Once
+CloudWatch confirms the elevated volume is holding steady rather than
+subsiding with the initial burst, the team purchases **Amazon Bedrock
+Provisioned Throughput** model units sized for the new sustained rate,
+moving the workload off the shared on-demand quota entirely for the
+duration of the sale (Provisioned Throughput can also be purchased with a
+one-hour no-commitment term, which fits a planned, time-boxed event like
+this one). This mirrors the capacity-planning fix in [Scenario
+4](#scenario-4-a-production-workload-that-exceeds-its-provisioned-token-budget):
+retrying harder never fixes an exhausted throughput budget, only paying
+for more of it does. Once the flash sale ends and `Invocations` drops
+back to baseline, the team can let the no-commitment Provisioned
+Throughput term expire and fall back to on-demand for normal traffic.
+
+> **Exam tip:** Detection, retry, and capacity are three separate levers,
+> and a scenario usually tests whether you reach for the right one.
+> CloudWatch (`InvocationThrottles`) tells you *that* throttling is
+> happening; exponential backoff with jitter is an application-side
+> mitigation that survives a short burst without amplifying it into a
+> retry storm; only raising the Provisioned Throughput or on-demand quota
+> actually removes the ceiling being hit. A question describing sustained
+> (not bursty) throttling that backoff alone can't resolve is pointing at
+> the capacity fix, not a retry-logic fix.
 
 ### Orientation: an inference-failure triage flowchart
 

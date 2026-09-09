@@ -332,7 +332,6 @@ class TestUltraFastLearnContent(unittest.TestCase):
             "StartHumanLoop",
             "flow definition",
             "worker task template",
-            "private workforce",
             "Private workforce",
             "Mechanical Turk",
         ]:

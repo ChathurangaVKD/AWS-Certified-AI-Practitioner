@@ -17,8 +17,10 @@ guide section it's drawn from.
 - [3. Prompt-engineering techniques](#3-prompt-engineering-techniques)
 - [4. Inference parameters](#4-inference-parameters)
 - [5. RAG architecture](#5-rag-architecture)
-- [6. Common GenAI risks](#6-common-genai-risks)
+- [6. GenAI advantages and disadvantages](#6-genai-advantages-and-disadvantages)
 - [7. AWS service → use case table](#7-aws-service-use-case-table)
+- [8. Foundation model and LLM lifecycle](#8-foundation-model-and-llm-lifecycle)
+- [9. Business use cases](#9-business-use-cases)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
 - [Common exam traps checklist](#common-exam-traps-checklist)
 - [Where each row comes from](#where-each-row-comes-from)
@@ -48,6 +50,19 @@ guide section it's drawn from.
   array it's stored as; **vector database** = where those arrays are
   stored/searched (e.g., Amazon OpenSearch Service, Aurora + `pgvector`,
   Amazon Kendra).
+
+**Choosing an embedding model** — a cost/accuracy trade-off; work down
+only as far as needed:
+
+| Decision point | Choose | Cost / latency / accuracy |
+|---|---|---|
+| General-purpose model sufficient? → **Yes** | General-purpose model (e.g., Titan Text Embeddings) | $ · lowest latency · good on broad domains |
+| → **No** (poor retrieval quality) → domain specialized (legal, medical, financial)? → **No** | Larger general model or better chunking/hybrid search | $$ · slightly higher latency |
+| → **Yes** → fine-tuning justified by data volume + accuracy bar? → **No** | Domain-specific pretrained embedding model | $$ · meaningfully better domain accuracy |
+| → **Yes** — large labeled dataset, high-stakes accuracy | Fine-tune an embedding model (e.g., via SageMaker) | $$$ · highest accuracy, needs retraining as data drifts |
+
+- Jumping straight to fine-tuning "to be safe" usually just adds training
+  and maintenance cost for accuracy a cheaper option already delivers.
 
 ## 2. Foundation model selection criteria
 
@@ -146,7 +161,14 @@ guide section it's drawn from.
 - **Knowledge Bases for Amazon Bedrock** is the managed, no-retrain way to
   wire steps 1-6 together without building custom retrieval code.
 
-## 6. Common GenAI risks
+## 6. GenAI advantages and disadvantages
+
+| Advantage | What it means |
+|---|---|
+| **Adaptability** | One FM handles many tasks (summarization, drafting, Q&A, code) via prompting alone |
+| **Responsiveness** | Interactive, real-time conversational responses (chatbots, assistants) |
+| **Simplicity / creativity** | Produces novel content/ideas instead of just a label or number |
+| **Scalability** | One deployed FM serves many use cases/users, versus dozens of bespoke models |
 
 | Risk | Definition | Primary mitigation |
 |---|---|---|
@@ -187,6 +209,59 @@ guide section it's drawn from.
   production-grade control it needs, the more it shifts toward **Amazon
   Bedrock** or **SageMaker JumpStart**.
 
+## 8. Foundation model and LLM lifecycle
+
+| # | Stage | AWS |
+|---|---|---|
+| 1 | Scope the use case — define the problem; is generative AI even the right fit? | — |
+| 2 | Select a foundation model | Amazon Bedrock, SageMaker JumpStart |
+| 3 | Adapt and customize | Bedrock prompt console; Knowledge Bases; Bedrock custom models/JumpStart fine-tuning; Bedrock continued pre-training |
+| 4 | Evaluate the model | Amazon Bedrock Model Evaluation |
+| 5 | Deploy and integrate | Bedrock API (on-demand/Provisioned Throughput) or a SageMaker endpoint |
+| 6 | Monitor quality, cost, latency, safety; iterate | CloudWatch metrics; Guardrails for Amazon Bedrock |
+
+**Stage 3 adaptation options, lightest to heaviest touch:**
+
+| Option | Touch | AWS |
+|---|---|---|
+| Prompt engineering | No training | Bedrock prompt console |
+| RAG | Ground in own data at inference time, no weight changes | Knowledge Bases for Amazon Bedrock |
+| Fine-tuning | Train weights on labeled data | Bedrock custom models / SageMaker JumpStart fine-tuning |
+| Continued pre-training | Train weights on unlabeled corpus | Amazon Bedrock continued pre-training |
+
+- **Iterative loop:** a poor evaluation sends you back to stage 3 (a
+  different prompt, retrieval strategy, or fine-tuning) — long before
+  full pretraining of a brand-new FM is the right call.
+- **Exam tip:** "Up-to-date or proprietary company data without
+  retraining" → **RAG**. "Learn a specific tone, format, or specialized
+  labeled task" → **fine-tuning**. Full pretraining of a new FM is almost
+  never the correct answer for a business use case.
+- **RAG** grounds answers in retrieved data at inference time — it never
+  touches model weights. **Fine-tuning** and **continued pre-training**
+  both retrain weights, on labeled task data and unlabeled domain corpora
+  respectively.
+
+## 9. Business use cases
+
+| Use case | What it covers | AWS |
+|---|---|---|
+| **Content creation** | Draft marketing copy, product descriptions, emails, images from a prompt | Amazon Bedrock, Amazon Nova Canvas |
+| **Summarization** | Condense long documents/transcripts/tickets into short summaries | Amazon Bedrock |
+| **Chatbots / conversational assistants** | Natural-language help, often RAG-grounded in company data | Amazon Bedrock (custom) or **Amazon Q Business** (pre-built) |
+| **Code generation** | Generate, explain, complete, refactor code from natural language | **Amazon Q Developer** |
+| **Search** | **Semantic search** — find results by meaning via embeddings/vector similarity | Amazon OpenSearch Service + Bedrock Knowledge Bases |
+
+- Other exam-relevant use cases: **translation**, **personalization** of
+  generated content, **data augmentation** (synthetic training data for
+  other ML models), and **text-to-image/text-to-video** generation for
+  design and marketing.
+- **Exam tip:** "Assistant grounded in their own enterprise data with
+  minimal setup" → prefer the purpose-built **Amazon Q Business** over a
+  custom Bedrock build from scratch.
+- **"One company, five initiatives"** scenario shape: map each stated
+  initiative to exactly one use case and one AWS service, never more than
+  one of each.
+
 ---
 
 ## Rapid-fire key terms
@@ -223,6 +298,8 @@ guide section it's drawn from.
 - **Retrieval Augmented Generation (RAG)** — grounds FM answers in
   retrieved external data at inference time, without retraining.
 - **Fine-tuning** — further training an FM's weights on labeled data.
+- **Continued pre-training** — further training an FM on a large corpus of
+  unlabeled domain data, before any task-specific fine-tuning.
 - **Hallucination** — confident but fabricated/incorrect output.
 - **Nondeterminism** — same prompt, different output across runs.
 - **Prompt injection** — malicious input overriding prompt instructions.
@@ -231,6 +308,8 @@ guide section it's drawn from.
   assistant / generative AI coding companion.
 - **Provisioned Throughput** — reserved Bedrock capacity for steady,
   high-volume traffic.
+- **Data augmentation** — using generative AI to create synthetic training
+  data for other ML models.
 
 ## Common exam traps checklist
 
@@ -259,6 +338,18 @@ guide section it's drawn from.
 - [ ] Content-safety questions need **Guardrails for Amazon Bedrock** —
       raising/lowering inference parameters alone cannot enforce a
       content policy.
+- [ ] GenAI has four **advantages** too (adaptability, responsiveness,
+      simplicity/creativity, scalability) — don't recall only the
+      disadvantages side.
+- [ ] "Up-to-date/proprietary data without retraining" → **RAG**;
+      "specific tone, format, or labeled task" → **fine-tuning**; full
+      pretraining of a new FM is almost never the correct exam answer.
+- [ ] On the embedding-model decision tree, jumping straight to
+      fine-tuning "to be safe" wastes cost — work down only as far as a
+      cheaper option's accuracy actually falls short.
+- [ ] A "one company, five initiatives" business-use-case scenario maps
+      each initiative to exactly one use case and one AWS service, never
+      more than one of each.
 
 ---
 
@@ -271,8 +362,10 @@ guide section it's drawn from.
 | 3. Prompt-engineering techniques | [Section 6](../domain-2-fundamentals-of-generative-ai.md#6-prompt-engineering-fundamentals) |
 | 4. Inference parameters | [Cost and latency implications subsection](../domain-2-fundamentals-of-generative-ai.md#cost-and-latency-implications-of-temperature-top-p-and-top-k) |
 | 5. RAG architecture | [Section 1](../domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) + [Section 5](../domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) |
-| 6. Common GenAI risks | [Section 3](../domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) |
+| 6. GenAI advantages and disadvantages | [Section 3](../domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) |
 | 7. AWS service → use case table | [Comparison table](../domain-2-fundamentals-of-generative-ai.md#comparison-table-aws-generative-ai-services-at-a-glance) |
+| 8. Foundation model and LLM lifecycle | [Section 2](../domain-2-fundamentals-of-generative-ai.md#2-llm-lifecycle-basics) |
+| 9. Business use cases | [Section 4](../domain-2-fundamentals-of-generative-ai.md#4-business-use-cases-for-generative-ai) |
 | Rapid-fire key terms | [Key terms glossary](../domain-2-fundamentals-of-generative-ai.md#key-terms-glossary) |
 
 For the full explanations, worked examples, mini-quizzes, and practice

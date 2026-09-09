@@ -226,30 +226,26 @@ class TestGapTopicsPresentInSourceAndFastTrack(unittest.TestCase):
                     self.assertIn(keyword, self.fast_track_text)
 
 
-class TestGapTopicsAbsentFromUltraFastLearn(unittest.TestCase):
-    """Hop 2 (Fast Track -> Ultra Fast Learn) is reported to have a real
-    gap: none of the four topics' keywords should appear in Ultra Fast
-    Learn today. If this test starts failing, the gap has been backfilled
-    and COVERAGE-VERIFICATION-REPORT.md's "Recommendation" section (and
-    this test) should be updated to reflect that, rather than silently
-    left describing a stale problem."""
+class TestGapTopicsPresentInUltraFastLearn(unittest.TestCase):
+    """Hop 2 (Fast Track -> Ultra Fast Learn) gap has been backfilled: all
+    four topics' keywords now appear in Ultra Fast Learn. This supersedes
+    the original "still absent" assertion the report called for updating
+    once the backfill landed (see the report's 2026-09-09 update note)."""
 
     @classmethod
     def setUpClass(cls):
         cls.ultra_text = _read(ULTRA_FAST_LEARN_PATH)
 
-    def test_ultra_fast_learn_is_missing_every_gap_topic_keyword(self):
+    def test_ultra_fast_learn_contains_every_gap_topic_keyword(self):
         for topic, keywords in GAP_TOPICS.items():
             for keyword in keywords:
                 with self.subTest(topic=topic, keyword=keyword):
-                    self.assertNotIn(
+                    self.assertIn(
                         keyword,
                         self.ultra_text,
                         f"expected {keyword!r} (part of the {topic} gap) to "
-                        "still be absent from ULTRA-FAST-LEARN.md -- if it "
-                        "has been added, the coverage gap this report "
-                        "documents has been closed and the report/tests "
-                        "should be updated to match",
+                        "now be present in ULTRA-FAST-LEARN.md following "
+                        "the backfill",
                     )
 
 

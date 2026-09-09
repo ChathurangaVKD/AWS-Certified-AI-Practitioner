@@ -298,6 +298,8 @@ only as far as needed:
 - **Retrieval Augmented Generation (RAG)** — grounds FM answers in
   retrieved external data at inference time, without retraining.
 - **Fine-tuning** — further training an FM's weights on labeled data.
+- **Continued pre-training** — further training an FM on a large corpus of
+  unlabeled domain data, before any task-specific fine-tuning.
 - **Hallucination** — confident but fabricated/incorrect output.
 - **Nondeterminism** — same prompt, different output across runs.
 - **Prompt injection** — malicious input overriding prompt instructions.
@@ -306,6 +308,8 @@ only as far as needed:
   assistant / generative AI coding companion.
 - **Provisioned Throughput** — reserved Bedrock capacity for steady,
   high-volume traffic.
+- **Data augmentation** — using generative AI to create synthetic training
+  data for other ML models.
 
 ## Common exam traps checklist
 
@@ -334,6 +338,18 @@ only as far as needed:
 - [ ] Content-safety questions need **Guardrails for Amazon Bedrock** —
       raising/lowering inference parameters alone cannot enforce a
       content policy.
+- [ ] GenAI has four **advantages** too (adaptability, responsiveness,
+      simplicity/creativity, scalability) — don't recall only the
+      disadvantages side.
+- [ ] "Up-to-date/proprietary data without retraining" → **RAG**;
+      "specific tone, format, or labeled task" → **fine-tuning**; full
+      pretraining of a new FM is almost never the correct exam answer.
+- [ ] On the embedding-model decision tree, jumping straight to
+      fine-tuning "to be safe" wastes cost — work down only as far as a
+      cheaper option's accuracy actually falls short.
+- [ ] A "one company, five initiatives" business-use-case scenario maps
+      each initiative to exactly one use case and one AWS service, never
+      more than one of each.
 
 ---
 
@@ -346,8 +362,10 @@ only as far as needed:
 | 3. Prompt-engineering techniques | [Section 6](../domain-2-fundamentals-of-generative-ai.md#6-prompt-engineering-fundamentals) |
 | 4. Inference parameters | [Cost and latency implications subsection](../domain-2-fundamentals-of-generative-ai.md#cost-and-latency-implications-of-temperature-top-p-and-top-k) |
 | 5. RAG architecture | [Section 1](../domain-2-fundamentals-of-generative-ai.md#1-generative-ai-core-concepts) + [Section 5](../domain-2-fundamentals-of-generative-ai.md#5-aws-generative-ai-services-and-capabilities) |
-| 6. Common GenAI risks | [Section 3](../domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) |
+| 6. GenAI advantages and disadvantages | [Section 3](../domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai) |
 | 7. AWS service → use case table | [Comparison table](../domain-2-fundamentals-of-generative-ai.md#comparison-table-aws-generative-ai-services-at-a-glance) |
+| 8. Foundation model and LLM lifecycle | [Section 2](../domain-2-fundamentals-of-generative-ai.md#2-llm-lifecycle-basics) |
+| 9. Business use cases | [Section 4](../domain-2-fundamentals-of-generative-ai.md#4-business-use-cases-for-generative-ai) |
 | Rapid-fire key terms | [Key terms glossary](../domain-2-fundamentals-of-generative-ai.md#key-terms-glossary) |
 
 For the full explanations, worked examples, mini-quizzes, and practice

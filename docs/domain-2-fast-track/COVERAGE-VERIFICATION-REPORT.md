@@ -1,6 +1,15 @@
 # Domain 2 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status:** technical verification complete · **Verified:** 2026-09-09
+**Status:** technical verification complete · backfill applied ·
+**Verified:** 2026-09-09
+
+> **Update (2026-09-09):** the four gaps this report identifies below have
+> been backfilled into `ULTRA-FAST-LEARN.md` (see its "8. Foundation model
+> and LLM lifecycle" and "9. Business use cases" sections, the "Choosing
+> an embedding model" table folded into its section 1, and the advantages
+> table added to its section 6). The findings below are kept as the
+> historical record of the audit that motivated the backfill; they no
+> longer describe the current state of `ULTRA-FAST-LEARN.md`.
 
 ## What this report is
 

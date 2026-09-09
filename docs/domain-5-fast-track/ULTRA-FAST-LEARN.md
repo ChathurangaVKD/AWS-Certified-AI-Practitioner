@@ -32,6 +32,7 @@ roughly **14%** of scored questions.
 | **NIST AI RMF** | Voluntary US framework | US-originated, referenced globally | AI system risk across its lifecycle (process, not a data type) |
 | **EU AI Act** | Binding EU law | EU — AI systems placed on the EU market or affecting people in the EU | AI systems themselves, tiered by risk |
 | **ISO/IEC 42001** | Voluntary international standard | Global — adoptable by any organization | AI management system (AIMS) processes |
+| **Algorithmic Accountability Act** | *Proposed* (not yet binding) US legislation | United States | Automated decision systems — would require algorithmic impact assessments |
 
 **Key requirements side by side:**
 
@@ -44,7 +45,9 @@ roughly **14%** of scored questions.
 | **ISO/IEC 42001** | Not prescribed — org selects controls via its own AI risk assessment | Required indirectly — certifiable AIMS needs monitoring/internal audit (Clause 9) | Not addressed — an organizational management-system standard | Annex A controls on human oversight, scoped to the org's own risk assessment |
 
 - **Binding vs. voluntary:** GDPR, HIPAA, EU AI Act = binding law.
-  NIST AI RMF, ISO/IEC 42001 = voluntary.
+  NIST AI RMF, ISO/IEC 42001 = voluntary. Algorithmic Accountability Act
+  = *proposed*, not yet binding — don't confuse "proposed" with
+  "voluntary."
 - "PHI" in a scenario → **HIPAA**, regardless of region. "Risk tiers" for
   an AI system → **EU AI Act**, not GDPR.
 - HIPAA (BAA via AWS Artifact) + HIPAA-eligible services; GDPR (EU Region
@@ -128,15 +131,31 @@ roughly **14%** of scored questions.
       (built on CloudTrail + Config) for the compliance/risk record;
       update the IAM policy, KMS key policy, or Guardrails configuration
       that let the incident occur; log the root cause against the
-      relevant threat category (data poisoning, prompt injection, model
-      inversion/extraction, DoS, supply chain, sensitive-info disclosure,
-      insecure plugin design, excessive agency, overreliance).
+      relevant threat category (data poisoning, prompt injection,
+      insecure output handling, model inversion/extraction, DoS, supply
+      chain, sensitive-info disclosure, insecure plugin design,
+      excessive agency, overreliance).
 
 - Model drift is **degradation**, not an attack — its "incident
   response" is monitoring + scheduled retraining, not containment/
   eradication.
 - "Which service shows a bucket became public **three days ago**?" →
   AWS Config (configuration history), not CloudTrail.
+- **Insecure output handling** — an app trusts/acts on raw LLM output
+  (e.g., passes it to SQL) without validation; mitigate by
+  validating/sanitizing/parameterizing LLM output before use plus
+  Guardrails output filtering.
+- **MITRE ATLAS** (adversary tactics/techniques knowledge base for AI
+  systems) and **OWASP Top 10 for LLM Applications** (prioritized
+  LLM-specific risk checklist, incl. insecure output handling) —
+  industry frameworks, not AWS services, for reasoning about these
+  threat categories systematically.
+- **Amazon Macie** — discovers/classifies sensitive data (PII/PHI) in
+  S3; primary mitigation for indirect prompt injection (pre-ingestion
+  scanning) and sensitive information disclosure.
+- **Titan Image Generator** embeds an invisible, always-on watermark on
+  generated images; Bedrock's detection API confirms its presence later
+  to prove an image is AI-generated (provenance watermarking).
 
 ## 6. Shared-responsibility model
 

@@ -1,16 +1,17 @@
 # Domain 3 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status: technical verification complete; hop-2 gaps backfilled
-2026-09-09.** This report is the technical verification flagged as
-outstanding in the Content Health assessment for Domain 3's condensed
-layer. This is a correctness audit against the live files, not new content authoring
-— no prose in the Fast Track or Ultra Fast Learn was rewritten to
-produce the original audit below; two classes of real coverage gap were
-found and documented with exact locations. The four hop-2 gaps
-(Findings 2-5) have since been backfilled into `ULTRA-FAST-LEARN.md`,
-sourced verbatim from the same Fast Track sections this report cites —
-see the "Findings 2-5" section below for the update. The hop-1 gap
-(Finding 1, Kendra GenAI Index) remains open and is tracked separately.
+**Status: technical verification complete; all findings fixed.** This
+report is the technical verification flagged as outstanding in the
+Content Health assessment for Domain 3's condensed layer. This is a
+correctness audit against the live files, not new content authoring —
+no prose in the Fast Track or Ultra Fast Learn was rewritten to produce
+the original audit below; two classes of real coverage gap were found
+and documented with exact locations. The hop-1 gap (Finding 1, Kendra
+GenAI Index) was fixed first, in a separate change (Part 2, Section 4).
+The four hop-2 gaps (Findings 2-5) have since been backfilled into
+`ULTRA-FAST-LEARN.md` (2026-09-09), sourced verbatim from the same Fast
+Track sections this report cites. See the "Finding 1" and
+"Findings 2-5" sections below for both updates.
 
 ## The claim under audit
 
@@ -84,9 +85,20 @@ in the Fast Track but missing from Ultra Fast Learn is a **hop-2 gap**
 condensation — but only acceptable if what's cut is genuinely
 non-exam-relevant repetition, not a distinct testable concept).
 
-## Finding 1 (hop-1 gap): Kendra GenAI Index as a Bedrock Knowledge Base data source
+## Finding 1 (hop-1 gap): Kendra GenAI Index as a Bedrock Knowledge Base data source — fixed
 
-**Severity: real gap, not narrative trimming.** The full guide devotes a
+**Update: fixed.** Part 2, Section 4 now states the reuse-over-duplicate
+decision rule with a resolving link to the full guide's worked example
+(see [Part 2, Section
+4](part-2-inference-and-multimodal.md#4-vector-databases-and-embeddings-choosing-a-backend),
+subsection "Reuse before you provision: an existing Kendra GenAI
+Index"). The description below is the original audit that found the gap
+and is retained for the record; the `grep -c` result it quotes for Part
+2 reflects the state **before** that fix and is no longer current — Part
+2 now contains multiple "Kendra GenAI Index" mentions.
+
+**Severity: real gap, not narrative trimming (at the time of the
+original audit).** The full guide devotes a
 dedicated, ~200-line worked example
 ([lines 1208–1405](../domain-3-applications-of-foundation-models.md#worked-example-building-a-product-knowledge-assistant-using-kendras-genai-index-as-a-bedrock-knowledge-base-data-source))
 to a specific, exam-called-out distinction: a **Kendra GenAI Index** is an
@@ -135,12 +147,13 @@ $ grep -n "Kendra GenAI Index" docs/domain-3-fast-track/ULTRA-FAST-LEARN.md
 332:- [ ] Reuse an existing **Kendra GenAI Index** as a Knowledge Base's
 ```
 
-So today, a reader who only reads Part 1 and Part 2 (as the Fast Track's
-own reading-order instructions direct) will never encounter this concept
-at all, while a reader who skips straight to the Ultra Fast Learn cram
-sheet will — an inversion of the intended layering, and a real,
-independently-confirmable gap in the Fast Track's own coverage claim,
-not a stale test artifact.
+At the time of the original audit, a reader who only read Part 1 and
+Part 2 (as the Fast Track's own reading-order instructions direct) would
+never have encountered this concept at all, while a reader who skipped
+straight to the Ultra Fast Learn cram sheet would — an inversion of the
+intended layering, and a real, independently-confirmable gap in the Fast
+Track's own coverage claim, not a stale test artifact. That inversion is
+now closed by the Part 2 fix noted above.
 
 By contrast, the *other* worked example in the same full-guide subsection
 (compliance-document Q&A: OpenSearch vs. Aurora + pgvector vs. Kendra
@@ -203,18 +216,15 @@ thresholds found no gaps in:
 
 ## Recommendation
 
-1. **Fix the remaining hop-1 gap** (Finding 1) — it's the more serious
-   class of gap and is still open. Add a Kendra GenAI Index subsection to
-   either Part 1, Section 4 or Part 2, Section 4 (whichever a future edit
-   decides is the canonical home for Section 3's vector-store-selection
-   depth), stating the reuse-over-duplicate decision rule Ultra Fast
-   Learn already captures independently.
+1. ~~Fix the hop-1 gap (Finding 1)~~ — **done**, in Part 2, Section 4,
+   which now states the reuse-over-duplicate decision rule Ultra Fast
+   Learn already captured independently.
 2. ~~Backfill the four hop-2 gaps (Findings 2–5) into Ultra Fast
    Learn~~ — **done, 2026-09-09**, following the same compact
    bullet/table style already used for the customization trade-off table
    and RAG failure-mode triage.
-3. Until the hop-1 gap is also addressed, this report's specific claims
-   will be kept accurate by the accompanying test suite
-   (`tests/test_domain_3_coverage_verification_report.py`), which fails
-   loudly the day it's closed too so the report (and this recommendation)
-   can be updated to match, rather than silently going stale.
+3. Both fixes are kept accurate by the accompanying test suite
+   (`tests/test_domain_3_coverage_verification_report.py` plus
+   `tests/test_domain_3_fast_track_kendra_genai_index_reuse_gap.py` for
+   Finding 1), which fails loudly if either regresses so the report can
+   be updated to match, rather than silently going stale.

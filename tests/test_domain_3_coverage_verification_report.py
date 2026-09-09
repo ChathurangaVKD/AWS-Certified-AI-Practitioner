@@ -11,14 +11,18 @@ the longest guide (6,957 lines), split into a three-part Fast Track
 (part-1/2/3) plus ULTRA-FAST-LEARN.md, so it warrants extra scrutiny.
 
 `docs/domain-3-fast-track/COVERAGE-VERIFICATION-REPORT.md` is that
-verification. It originally found two classes of gap:
+verification. It originally found two classes of gap, both since fixed:
 
 - A hop-1 gap (full guide -> Fast Track): the "Kendra GenAI Index as a
-  Bedrock Knowledge Base data source" worked example is present in the
+  Bedrock Knowledge Base data source" worked example was present in the
   full guide AND in Ultra Fast Learn, but absent from both Fast Track
   Part 1 and Part 2 -- an inversion of the normal layering, where the
   further-condensed cram sheet has a concept the intermediate condensed
-  guide dropped. This gap is still open.
+  guide dropped. This was fixed by adding the concept to Fast Track
+  Part 2, Section 4 (see
+  tests/test_domain_3_fast_track_kendra_genai_index_reuse_gap.py); Part 1
+  still doesn't carry it, which is expected now that Part 2 is its
+  canonical home.
 - Four hop-2 gaps (Fast Track -> Ultra Fast Learn): fine-tuning
   efficiency techniques (LoRA/QLoRA/instruction tuning), RLHF, fine-tuning
   dataset curation, and retrieval quality metrics (NDCG/MAP/Recall@k/MRR)
@@ -30,8 +34,7 @@ verification. It originally found two classes of gap:
 These tests assert the report exists, links back to the files it audits
 with resolving anchors, and that its central claims still hold against the
 live files -- so this test would start failing, as a useful signal, the
-day someone backfills the remaining hop-1 gap and the report's "still
-open" claim about it goes stale.
+day any of these fixes regresses and the report's claims go stale.
 
 Run with:
     python3 -m unittest tests/test_domain_3_coverage_verification_report.py -v
@@ -289,14 +292,16 @@ class TestHop2GapTopicsNowPresentInUltraFastLearn(unittest.TestCase):
                     )
 
 
-class TestHop1GapTopicPresentInSourceAndUltraFastLearnOnly(unittest.TestCase):
+class TestHop1GapTopicNowFixedInPart2(unittest.TestCase):
     """The hop-1 finding: "Kendra GenAI Index" is present in the full guide
-    and (independently) in Ultra Fast Learn, but absent from both Fast
-    Track Part 1 and Part 2 -- the inverse of the usual layering. If either
-    Fast Track part starts containing it, the report's "falls through the
-    gap between Part 1 and Part 2" claim has been resolved and should be
-    updated to match, rather than silently left describing a stale
-    problem."""
+    and (independently) in Ultra Fast Learn; it was originally absent from
+    both Fast Track Part 1 and Part 2 -- the inverse of the usual layering.
+    That gap has since been fixed by adding the concept to Fast Track
+    Part 2, Section 4 (see
+    tests/test_domain_3_fast_track_kendra_genai_index_reuse_gap.py for the
+    detailed fix verification). Part 1 is still expected to lack it, since
+    Part 2 is the concept's canonical home. If Part 2 stops containing it,
+    the fix has regressed."""
 
     @classmethod
     def setUpClass(cls):
@@ -311,12 +316,12 @@ class TestHop1GapTopicPresentInSourceAndUltraFastLearnOnly(unittest.TestCase):
     def test_part1_is_missing_the_hop1_gap_keyword(self):
         self.assertNotIn(HOP1_GAP_KEYWORD, self.part1_text)
 
-    def test_part2_is_missing_the_hop1_gap_keyword(self):
-        self.assertNotIn(HOP1_GAP_KEYWORD, self.part2_text)
+    def test_part2_contains_the_hop1_gap_keyword(self):
+        self.assertIn(HOP1_GAP_KEYWORD, self.part2_text)
 
     def test_ultra_fast_learn_contains_the_hop1_gap_keyword(self):
         # Ultra Fast Learn captured this concept independently, which is
-        # exactly what makes it identifiable as exam-relevant rather than
+        # exactly what made it identifiable as exam-relevant rather than
         # full-guide-only narrative.
         self.assertIn(HOP1_GAP_KEYWORD, self.ultra_text)
 

@@ -304,6 +304,43 @@ class TestUltraFastLearnContent(unittest.TestCase):
             with self.subTest(term=term):
                 self.assertIn(term, self.text)
 
+    def test_covers_managed_spot_training_decision_criteria(self):
+        for term in [
+            "Managed Spot Training",
+            "On-Demand",
+            "90%",
+            "checkpoint",
+            "2-minute interruption",
+            "0%",
+            "compliance SLA",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_deployment_strategies_and_model_registry(self):
+        for term in [
+            "Canary",
+            "Blue/green",
+            "A/B testing",
+            "Shadow deployment",
+            "SageMaker Model Registry",
+            "approve",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_ground_truth_alternatives_decision_table(self):
+        for term in [
+            "Manual labeling",
+            "SageMaker Data Wrangler",
+            "Active learning",
+            "Weak supervision",
+            "Synthetic data generation",
+            "labeling budget",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
     def test_covers_ensemble_methods(self):
         for term in [
             "Bagging",

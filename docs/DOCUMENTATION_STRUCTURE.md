@@ -384,7 +384,7 @@ closes with its own `## Quick-reference cheat sheet` section — a
 condensed, print-friendly recap of that guide's content for last-minute
 review, distinct from the closing `## Worked example`/`## Practice
 questions` sections that precede it: Domain 1: line 1524; Domain 2: line 1668;
-Domain 3: line 6147; Domain 4: line 1746; Domain 5: line 2496.
+Domain 3: line 6259; Domain 4: line 1746; Domain 5: line 2496.
 Each one is validated by its own `tests/test_domain_N_quick_reference_cheat_sheet.py`
 file (heading present, linked from the table of contents, and positioned
 between the comparison table and the glossary link). These in-guide

@@ -192,12 +192,8 @@ more time. Domain 4 is roughly **14%** of scored questions.
   sensitive-information-filter target.
 - **IP indemnification** — a contractual protection shifting
   IP-infringement legal risk away from the customer.
-- **Data residency** — the geographic location where data is
-  stored/processed.
 - **AWS Customer Carbon Footprint Tool** — reports estimated carbon
   emissions from a customer's AWS usage.
-- **Black box model** — a model whose decision process isn't easily
-  understood by humans (typically deep learning/foundation models).
 - **Amazon Macie** — discovers/classifies sensitive data (incl. PII)
   stored in Amazon S3.
 
@@ -211,13 +207,9 @@ more time. Domain 4 is roughly **14%** of scored questions.
       clean Clarify report doesn't rule out a thin/absent segment.
 - [ ] **Two components (tabular model + generative FM) need two tools** —
       Clarify on the tabular model, Guardrails on the FM — never blended.
-- [ ] **RAG bias has no labeled dataset for Clarify** — look for retrieval
-      corpus curation, grounding checks, and source citation instead.
 - [ ] **SHAP is an approximation, not an exact decision trace** — only a
       natively interpretable model satisfies an actual-decision-logic requirement.
 - [ ] **Model Card = self-authored; AI Service Card = AWS-authored.**
-- [ ] **Reducing environmental impact means reusing a pretrained FM**, not
-      simply picking the smallest model.
 
 ---
 

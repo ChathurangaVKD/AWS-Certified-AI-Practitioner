@@ -318,6 +318,66 @@ class TestUltraFastLearnContent(unittest.TestCase):
         bullet_count = checklist_match.group(1).count("\n- [ ]")
         self.assertGreaterEqual(bullet_count, 5)
 
+    def test_covers_aws_tool_capabilities_beyond_clarify(self):
+        """Regression test for the hop-2 gap documented in
+        COVERAGE-VERIFICATION-REPORT.md: four of the five AWS
+        responsible-AI tools (Model Cards, AI Service Cards, Guardrails,
+        A2I) had no capability detail anywhere in this file -- only
+        one-line table-cell mentions in the dimensions table. Assert the
+        specific named capabilities/mechanics now survive as real bullet
+        or table content."""
+        for term in [
+            "Word filters",
+            "Sensitive information filters",
+            "StartHumanLoop",
+            "flow definition",
+            "worker task template",
+            "private workforce",
+            "Private workforce",
+            "Mechanical Turk",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_model_card_vs_ai_service_card_distinction(self):
+        self.assertIn("you fill it in", self.text)
+        self.assertIn("AWS publishes it", self.text)
+
+    def test_has_legal_and_ethical_considerations_section(self):
+        """Regression test for the second hop-2 gap: the entire 'Legal
+        and ethical considerations' category (IP, data privacy, toxicity,
+        environmental impact) was absent from this file."""
+        self.assertIn(
+            "\n## 7. Legal and ethical considerations\n", self.text
+        )
+        for term in [
+            "Intellectual property (IP)",
+            "IP indemnification",
+            "GDPR",
+            "data residency",
+            "Toxicity",
+            "Environmental impact",
+            "AWS Customer Carbon Footprint Tool",
+            "Well-Architected Sustainability Pillar",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_has_rapid_fire_key_terms_and_exam_traps_sections(self):
+        """Regression test for the structural gap: Domains 1, 2, 3, and 5
+        each close their Ultra Fast Learn cram sheet with a 'Rapid-fire
+        key terms' section and a 'Common exam traps checklist' section;
+        Domain 4's previously had neither."""
+        self.assertIn("\n## Rapid-fire key terms\n", self.text)
+        self.assertIn("\n## Common exam traps checklist\n", self.text)
+        traps_match = re.search(
+            r"\n## Common exam traps checklist\n(.*?)(\n## |\n---\n|\Z)",
+            self.text,
+            re.S,
+        )
+        self.assertIsNotNone(traps_match)
+        self.assertGreaterEqual(traps_match.group(1).count("\n- [ ]"), 5)
+
 
 if __name__ == "__main__":
     unittest.main()

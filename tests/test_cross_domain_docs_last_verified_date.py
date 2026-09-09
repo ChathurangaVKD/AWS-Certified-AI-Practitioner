@@ -3,7 +3,7 @@ date and a recommended re-verification cadence.
 
 The gap this covers: all five domain guides and aws-service-decision-guide.md
 carry a 'Last verified: YYYY-MM-DD' checkpoint (see
-tests/test_domain_last_verified_date.py), but three cross-domain support
+tests/test_domain_last_verified_date.py), but several cross-domain support
 files did not, even though they reference AWS services, model families, and
 compliance details (HIPAA/BAA, Bedrock features, model names) that go stale
 just as fast:
@@ -11,6 +11,8 @@ just as fast:
 - docs/cross-domain-scenario-questions.md
 - docs/cross-domain-concept-map.md
 - docs/case-study-ai-system-lifecycle.md
+- docs/master-glossary.md
+- docs/GLOSSARY.md
 
 This test encodes the invariant so a future edit that drops the date (or the
 cadence note) from one of these files fails fast, locally.
@@ -29,6 +31,8 @@ FILES_AND_CADENCE_DAYS = {
     "cross-domain-scenario-questions.md": 60,
     "cross-domain-concept-map.md": 90,
     "case-study-ai-system-lifecycle.md": 90,
+    "master-glossary.md": 60,
+    "GLOSSARY.md": 60,
 }
 
 LAST_VERIFIED_RE = re.compile(r"\*\*Last verified:\*\*\s*\d{4}-\d{2}-\d{2}")

@@ -1,5 +1,12 @@
 # Master Glossary — Cross-Domain Term Index
 
+**Last verified:** 2026-09-06 — this index's 157 entries cite AWS service
+names, model families (e.g. the Titan model family), and feature names
+(e.g. Guardrails for Amazon Bedrock) drawn from all five domain guides, so
+it goes stale just as fast as any single domain guide. Re-verify at least
+every 60 days, or sooner if a linked domain guide's own **Last verified**
+date moves.
+
 Every domain guide (Domain 1-5) ends with its own **Key terms** section, scoped to that guide's material. This page is the master index across all of them: one alphabetical list of every term, tagged with the domain(s) that define or use it, and linked straight to the section that explains it. Use it to answer questions like *"where is prompt injection explained?"* without opening every domain guide.
 
 Each entry follows the pattern **Term** `[D#, ...]` — one-line definition, followed by a link per domain tag. The domain tags are:

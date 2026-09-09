@@ -100,6 +100,25 @@ flowchart TD
 > Manager for a question that's really just asking for an API activity
 > log or a configuration check.
 
+**Worked example, condensed — assembling a SOC 2 Type II audit evidence
+chain.** Meridian Lending's SageMaker fraud-scoring endpoint undergoes an
+annual independent **SOC 2 Type II** examination — an auditor's opinion
+on whether controls operated effectively *over an audit period*, not
+just a snapshot at one point in time. Meridian's compliance lead builds
+the evidence chain from CloudTrail (every invocation logged) and Config
+(encryption/access configuration history), assembled by Audit Manager
+into a framework-mapped evidence folder, then attaches AWS's own current
+**SOC 2 Type II report** downloaded from **AWS Artifact** as evidence of
+AWS's inherited controls — the auditor issues Meridian's opinion without
+ever needing direct console access to Meridian's AWS account.
+
+> **Exam tip:** A **SOC 2 Type II** report attests that controls operated
+> effectively across an audit *period*; don't settle for a generic "SOC
+> 2" recall when a scenario names the specific type. Audit Manager
+> assembles the customer's own period-of-time evidence; Artifact
+> separately supplies AWS's own SOC 2 Type II report as inherited-control
+> evidence — a complete evidence chain needs both.
+
 Full explanation, the worked scenarios, and the Meridian Lending SOC 2
 worked example: [full guide, Section
 3](../domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
@@ -169,11 +188,14 @@ traced to knowledge-base documents updated without a matching
 re-embedding pass. Because there's no ground-truth label for
 "hallucinated," the team can't reuse SageMaker Model Monitor's
 baseline-vs.-live statistical checks built for classical models; instead
-a Bedrock LLM-as-judge call scores factual consistency, published as a
-custom CloudWatch metric with alarm thresholds. The fix is **refreshing
-and re-embedding the knowledge base and retuning retrieval** — not
-retraining or fine-tuning the model, which is the classical-drift answer
-instead.
+a Bedrock LLM-as-judge call scores factual consistency, published as
+custom CloudWatch metrics in the **`RAGAssistant/Quality`** namespace:
+**`HallucinationRate`** and **`FactualConsistencyScore`**. A CloudWatch
+alarm on `HallucinationRate` warns at **4%** (roughly two standard
+deviations above the 2% baseline) and pages on-call via **Amazon SNS**
+at **6%**. The fix is **refreshing and re-embedding the knowledge base
+and retuning retrieval** — not retraining or fine-tuning the model, which
+is the classical-drift answer instead.
 
 > **Exam tip:** If a RAG application's answer quality degrades over time
 > with no model or code change, suspect a stale or unsynced knowledge
@@ -430,6 +452,13 @@ glance](../domain-5-security-compliance-governance.md#comparison-table-governanc
   responsibility never moves.
 - **AWS Artifact** — self-service portal for AWS's own compliance reports
   and agreements (not an audit of the customer's account).
+- **SOC 2 Type II** — an independent auditor's opinion that controls
+  operated effectively over an audit *period*, not just a point-in-time
+  snapshot; Meridian Lending's annual examination is the worked example.
+- **HallucinationRate / FactualConsistencyScore** — custom CloudWatch
+  metrics (namespace `RAGAssistant/Quality`) scoring a RAG assistant's
+  output quality via an LLM-as-judge call; the `HallucinationRate` alarm
+  warns at 4% and pages via SNS at 6%, against a 2% baseline.
 
 For the complete glossary: [full guide, Key terms
 glossary](../domain-5-security-compliance-governance.md#key-terms-glossary).
@@ -439,7 +468,7 @@ For terms shared across domains: [`docs/master-glossary.md`](../master-glossary.
 
 ## Rapid self-check
 
-Ten quick recall questions — cover the answer column and try each one
+Twelve quick recall questions — cover the answer column and try each one
 before checking it. These are new questions, not a repeat of the full
 guide's practice set.
 
@@ -455,6 +484,8 @@ guide's practice set.
 | 8 | Why does custom Amazon SageMaker training place more security responsibility on the customer than fully-managed Bedrock? | The customer secures their own training containers, data pipeline, and custom code; AWS still secures the underlying infrastructure |
 | 9 | A SageMaker-to-Bedrock pipeline leaks data traced to a stage-1 anonymization bug — whose responsibility is the fix? | The **customer's** — stage 1's code is "in the cloud," regardless of which stage a failure surfaces in later |
 | 10 | A GDPR erasure request is honored in `eu-central-1` only — does this affect a HIPAA-governed record in `us-east-1`? | **No** — a fully separate regional deployment means honoring one region's obligation never forces a decision about the other's |
+| 11 | Meridian Lending's annual independent examination of its SageMaker endpoint controls is which specific SOC 2 audit type? | **SOC 2 Type II** — controls operated effectively over a period, not just a point-in-time snapshot |
+| 12 | A RAG assistant's `HallucinationRate` CloudWatch metric (namespace `RAGAssistant/Quality`) climbs above its 2% baseline — at what percentage does it warn, and at what percentage does it page on-call? | **Warns at 4%**, pages via **SNS at 6%** |
 
 ---
 
@@ -491,6 +522,13 @@ guide's practice set.
 - [ ] **A BAA satisfies HIPAA; it does nothing for GDPR, and vice versa**
       — a scenario spanning multiple regulations needs a control for
       each one, not a single control assumed to cover all of them.
+- [ ] **"SOC 2" alone isn't the testable fact — Meridian Lending's audit
+      is specifically a SOC 2 Type II examination**, attesting controls
+      operated effectively over a period, not a point-in-time snapshot.
+- [ ] **Aurora Benefits' hallucination-drift metrics have names** —
+      `HallucinationRate` and `FactualConsistencyScore` in the
+      `RAGAssistant/Quality` namespace, warning at 4% and paging at 6%
+      against a 2% baseline — not just "a custom CloudWatch metric."
 
 ---
 

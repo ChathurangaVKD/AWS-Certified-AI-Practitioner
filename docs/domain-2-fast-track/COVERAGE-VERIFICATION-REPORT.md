@@ -54,12 +54,12 @@ Specifically confirmed:
   pre-training) each mapped to its AWS service, the iterative loop-back
   note, and the RAG-vs-fine-tuning-vs-full-pretraining exam tip — all
   retained in Fast Track §2.
-- All four advantages (adaptability, responsiveness, simplicity/
-  creativity, scalability) and all five disadvantages (hallucination,
+- All four advantages (**Adaptability**, **Responsiveness**, Simplicity/
+  creativity, Scalability) and all five disadvantages (hallucination,
   interpretability, inaccuracy, nondeterminism, cost/compute intensity),
   plus the hallucination-vs.-inaccuracy exam-tip distinction — all
   retained in Fast Track §3.
-- All five named business use cases (content creation, summarization,
+- All five named business use cases (**Content creation**, summarization,
   chatbots, code generation, search) plus the "other exam-relevant use
   cases" list (translation, personalization, data augmentation,
   text-to-image/video) — all retained in Fast Track §4.
@@ -108,8 +108,8 @@ and use cases*, not narrative, are missing entirely rather than condensed:
    `ULTRA-FAST-LEARN.md` §6 ("Common GenAI risks," line 149) covers only
    the *disadvantages* side of the full guide's §3 (hallucination,
    interpretability, inaccuracy, nondeterminism, cost/compute) — it
-   carries no equivalent table or bullet list for adaptability,
-   responsiveness, simplicity/creativity, or scalability, even though
+   carries no equivalent table or bullet list for **Adaptability**,
+   **Responsiveness**, Simplicity/creativity, or Scalability, even though
    these are exam-testable (the full guide's own mini-quiz asks which
    advantage a scenario illustrates) and both other tiers retain them in
    full.

@@ -42,6 +42,27 @@ drawn from.
 - **SageMaker Feature Store** exists specifically to prevent **training/serving skew**.
 - **SageMaker Autopilot** automates steps 3–6 for tabular data (fast baseline, no custom loss function/feature engineering, no novel architecture) — a **custom loss function**, **domain-specific feature engineering**, or a **novel architecture** in the scenario rules Autopilot out in favor of manual SageMaker training.
 
+**Managed Spot Training vs. On-Demand training** (step 5's other cost lever):
+
+| | Managed Spot Training | On-Demand training |
+|---|---|---|
+| **Cost** | Up to ~90% cheaper (spare EC2 capacity) | Full price, no discount |
+| **Risk** | Reclaimed with a 2-minute interruption notice | Never interrupted |
+| **Requires** | Periodic **checkpointing** to S3 (`checkpoint_s3_uri`) — without it, an interruption restarts the job from **0%** | No special handling |
+| **Billing** | Only actual compute seconds consumed | Billed for the full run |
+| **Best for** | Routine retraining, no fixed deadline | Drift-triggered emergency retrain under a strict compliance SLA |
+
+**Production deployment strategies** (distinguish by **intent**, not mechanics):
+
+| Pattern | What it does | Intent |
+|---|---|---|
+| **Canary** | Route a small % of traffic to the new version, gradually increasing | Safely roll out one new version, gradually |
+| **Blue/green** | New version on a separate fleet, cut traffic over all at once, instant rollback | Safely roll out one new version, all at once |
+| **A/B testing** | Split live traffic between two+ versions deliberately | **Compare** two versions' real-world performance |
+| **Shadow deployment** | Send a copy of live traffic to the new version; its predictions never reach users | **Validate** a new version with zero user-facing risk |
+
+- **SageMaker Model Registry** — catalogs trained model versions, stores each version's evaluation metrics/lineage, lets a reviewer **approve/reject** before deployment. Flow: train → register ("Pending manual approval") → reviewer approves → deployment pipeline rolls the approved version out via canary/blue-green. Not Model Monitor (watches an already-deployed model for drift); not Model Cards (documents intended use/limitations).
+
 ## 2. The three learning types
 
 | Type | Data | Distinguisher | AWS SageMaker examples |
@@ -74,6 +95,17 @@ drawn from.
 | "extract text, forms, and tables from scanned documents" | **Amazon Textract** | Document extraction |
 | "real-time fraud-risk scoring" | **Amazon Fraud Detector** | Fraud detection |
 | "human-in-the-loop labeling to produce training data" | **Amazon SageMaker Ground Truth** | Data labeling |
+
+**Ground Truth vs. alternatives** (deciding factor = the named constraint):
+
+| Approach | What it does | Exam-correct when... |
+|---|---|---|
+| **SageMaker Ground Truth** | Managed human-in-the-loop labeling + built-in active learning | Large pool of **real, unlabeled** data, minimize labeling cost/time |
+| **Manual labeling** | People label every record by hand | Small dataset (tens–hundreds of records), quick PoC |
+| **SageMaker Data Wrangler** | Cleans/transforms/joins **already-labeled** data | Data is labeled but needs prep/feature engineering, not labels |
+| **Active learning (standalone)** | Baseline model picks the *next* most-informative unlabeled examples to label | Tight **labeling budget**, iterative train → query → label → retrain loop |
+| **Weak supervision** | Combines noisy rules/heuristics into probabilistic labels, little manual labeling | Labels needed fast/cheap at scale; experts can express **rules** |
+| **Synthetic data generation** | Manufactures artificial labeled examples | Real data **scarce**/sensitive/expensive, or a rare class/edge case |
 
 - **Golden rule:** if a purpose-built managed AI service matches the described task, it beats **Amazon SageMaker** — SageMaker wins only when the use case needs a **custom** model/algorithm or full control.
 
@@ -166,6 +198,11 @@ drawn from.
 - [ ] "Great on training, bad on test" = **overfitting**; "bad on both" = **underfitting** — don't swap them.
 - [ ] Tabular overfitting → **bagging/boosting**; image/audio/text overfitting → a **deep learning architecture**, not more trees.
 - [ ] **Feature Store** solves training/serving skew — it is not a labeling tool (that's Ground Truth).
+- [ ] **Managed Spot Training** without **checkpointing** restarts an interrupted job from **0%**, not from where it left off.
+- [ ] A **fixed-deadline/compliance-SLA** retrain uses **On-Demand**, not Spot — Spot is for routine retraining with no fixed deadline.
+- [ ] Gradual traffic shift with automatic rollback → **canary**; instant all-at-once cutover → **blue/green**; deliberately comparing two live versions → **A/B testing**; zero user-facing risk validation → **shadow deployment**.
+- [ ] **SageMaker Model Registry** tracks model versions and requires reviewer **approval** before deployment — it is not Model Monitor (drift) or Model Cards (documentation).
+- [ ] Among labeling/data-prep options, match the **named constraint**: labeling *budget* → active learning; *expressible rules* → weak supervision; *scarce/rare* data → synthetic data; large genuinely unlabeled pool → Ground Truth; already labeled → Data Wrangler.
 
 ---
 
@@ -174,8 +211,11 @@ drawn from.
 | This cram sheet | Fast track section |
 |---|---|
 | 1. The 8-stage lifecycle | [Section 2](README.md#2-the-ml-development-lifecycle) |
+| Managed Spot Training vs. On-Demand | [Section 2](README.md#2-the-ml-development-lifecycle) |
+| Production deployment strategies & Model Registry | [Section 2](README.md#2-the-ml-development-lifecycle) |
 | 2. The three learning types | [Section 3](README.md#3-three-learning-types) |
 | 3. AWS services decision table | [Section 5](README.md#5-aws-managed-aiml-services) |
+| Ground Truth vs. alternatives | [Section 5](README.md#5-aws-managed-aiml-services) |
 | 4. Classification evaluation metrics | [Section 6](README.md#6-model-evaluation-basics) |
 | 5. Bias–variance trade-off | [Section 7](README.md#7-biasvariance-trade-off-and-ensemble-methods) |
 | 6. Ensemble methods | [Section 7](README.md#7-biasvariance-trade-off-and-ensemble-methods) |

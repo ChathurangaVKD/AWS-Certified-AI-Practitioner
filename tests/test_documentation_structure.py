@@ -276,7 +276,7 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
 
     def test_fast_track_section_heading_present(self):
         self.assertIn(
-            "## Fast Track condensed guides (15 files, 7,424 lines total)",
+            "## Fast Track condensed guides (15 files, 7,464 lines total)",
             self.structure_text,
             "DOCUMENTATION_STRUCTURE.md is missing the 'Fast Track "
             "condensed guides' section documenting the 15-file, "
@@ -330,7 +330,7 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
         self.assertIn("every testable concept", self.structure_text)
 
     def test_stated_fast_track_per_domain_line_counts_match_actual(self):
-        expected = {1: 935, 2: 1135, 3: 2909, 4: 954, 5: 1491}
+        expected = {1: 975, 2: 1135, 3: 2909, 4: 954, 5: 1491}
         for domain_number, paths in FAST_TRACK_FILES_BY_DOMAIN.items():
             actual = sum(_line_count(path) for path in paths)
             with self.subTest(domain=domain_number):

@@ -1,10 +1,10 @@
 # Domain 3 Fast Track, Part 1: FM Application Design & Customization Methods
 
-**Condensed guide, part 1 of 3** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,845 lines) · **Last verified:** 2026-09-05
+**Condensed guide, part 1 of 3** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,957 lines) · **Last verified:** 2026-09-05
 
 ## How to use this part
 
-Domain 3 (Applications of Foundation Models) is too long — 6,845 lines
+Domain 3 (Applications of Foundation Models) is too long — 6,957 lines
 across 25 Mermaid diagrams and dozens of worked examples — for one
 condensed guide, so its Fast Track is split into three parts. **This
 part** covers **Sections 1-4**: the design considerations behind picking

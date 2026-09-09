@@ -1,6 +1,6 @@
 # Domain 3 Ultra Fast Track: Applications of Foundation Models
 
-**Ultra-condensed cram sheet** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,845 lines) · **Last verified:** 2026-09-05
+**Ultra-condensed cram sheet** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,957 lines) · **Last verified:** 2026-09-05
 
 Bullets and tables only — no prose, no worked examples, no mini-quizzes.
 For the last 15-20 minutes before the exam, once the full guide's own

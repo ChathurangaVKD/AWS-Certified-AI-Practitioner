@@ -13,8 +13,11 @@ more time. Domain 4 is roughly **14%** of scored questions.
 - [2. Common bias sources](#2-common-bias-sources)
 - [3. Fairness metrics by use case / stage](#3-fairness-metrics-by-use-case-stage)
 - [4. Key trade-offs](#4-key-trade-offs)
-- [5. Amazon SageMaker Clarify capabilities](#5-amazon-sagemaker-clarify-capabilities)
+- [5. AWS tools for responsible AI](#5-aws-tools-for-responsible-ai)
 - [6. Monitoring checklist](#6-monitoring-checklist)
+- [7. Legal and ethical considerations](#7-legal-and-ethical-considerations)
+- [Rapid-fire key terms](#rapid-fire-key-terms)
+- [Common exam traps checklist](#common-exam-traps-checklist)
 - [Where each row comes from](#where-each-row-comes-from)
 
 ---
@@ -104,7 +107,36 @@ more time. Domain 4 is roughly **14%** of scored questions.
 - A regulation requiring the explanation reflect **actual decision
   logic** disqualifies post-hoc SHAP regardless of latency budget.
 
-## 5. Amazon SageMaker Clarify capabilities
+## 5. AWS tools for responsible AI
+
+| Tool | Detects / does | Applies to |
+|---|---|---|
+| **SageMaker Clarify** | Pre/post-training bias metrics + SHAP explainability | Datasets & trained models |
+| **SageMaker Model Cards** | Self-authored documentation — intended use, training data, limits | Models you build |
+| **AI Service Cards** | AWS-authored documentation of a managed AI service | AWS-managed AI services |
+| **Guardrails for Amazon Bedrock** | Runtime safety/privacy filtering | FM input/output at inference |
+| **Amazon A2I** | Human-in-the-loop review routing | Low-confidence/high-stakes predictions |
+
+- **Model Card = you fill it in** (self-authored, your model).
+  **AI Service Card = AWS publishes it** (AWS-managed service).
+
+**Guardrails — five capabilities:**
+
+| Capability | Blocks / does |
+|---|---|
+| **Denied topics** | Blocks the model from engaging with specified topics |
+| **Content filters** | Blocks harmful categories at configurable strength |
+| **Word filters** | Blocks specific words/phrases |
+| **Sensitive information filters** | Detects/redacts or blocks **PII** |
+| **Contextual grounding checks** | Verifies a response is grounded in source content |
+
+- `StartHumanLoop` (**Amazon A2I**) routes a low-confidence prediction to
+  a human review workflow: a **flow definition** (activation condition)
+  plus a **worker task template** (reviewer-facing UI) plus a workforce.
+- **Private workforce** (Amazon Cognito) required for regulated data
+  (e.g. PHI); public **Mechanical Turk** otherwise.
+
+**SageMaker Clarify capabilities:**
 
 - **Pre-training bias metrics** — class imbalance, difference in
   proportions of labels (DPL), computed on the raw dataset.
@@ -135,6 +167,50 @@ more time. Domain 4 is roughly **14%** of scored questions.
       SageMaker Model Card against the latest Clarify/Model Monitor
       metrics; high-risk flags route through Amazon A2I.
 
+## 7. Legal and ethical considerations
+
+| Category | What it covers | AWS mitigation |
+|---|---|---|
+| **Intellectual property (IP)** | Ownership of AI-generated content; liability for content resembling copyrighted training material | Choose a Bedrock provider offering **IP indemnification** |
+| **Data privacy** | **GDPR**, **data residency**, minimizing/anonymizing personal data | Guardrails sensitive information filters (PII redaction); **Amazon Macie** |
+| **Toxicity** | Hateful, harassing, obscene, or otherwise harmful generated content | Guardrails content filters; Amazon A2I human review |
+| **Environmental impact** | Energy/compute/carbon footprint of training and running FMs | Reuse pretrained FMs (prompting/RAG/fine-tuning); **AWS Customer Carbon Footprint Tool**; **Well-Architected Sustainability Pillar** |
+
+- **IP risk → IP indemnification**, not Guardrails (content
+  safety/privacy, not copyright liability) — keep **toxicity**, **data
+  privacy**, and **IP** as three separate, non-overlapping categories.
+
+---
+
+## Rapid-fire key terms
+
+- **Responsible AI** — fair, explainable, private/secure, transparent,
+  veracious/robust, governed, safe, and controllable AI systems.
+- **SHAP** — feature-attribution values quantifying one prediction; an
+  approximation, not an exact decision trace.
+- **PII** — personally identifiable information; a Guardrails
+  sensitive-information-filter target.
+- **IP indemnification** — a contractual protection shifting
+  IP-infringement legal risk away from the customer.
+- **AWS Customer Carbon Footprint Tool** — reports estimated carbon
+  emissions from a customer's AWS usage.
+- **Amazon Macie** — discovers/classifies sensitive data (incl. PII)
+  stored in Amazon S3.
+
+## Common exam traps checklist
+
+- [ ] **Bias vs. variance** — fairness/training-data problem vs.
+      model-sensitivity/overfitting problem (Domain 1). Don't conflate.
+- [ ] **Guardrails filters live inference content**; it doesn't detect
+      training-data bias or generate explanations — that's Clarify's job.
+- [ ] **Representativeness gaps evade standard fairness metrics** — a
+      clean Clarify report doesn't rule out a thin/absent segment.
+- [ ] **Two components (tabular model + generative FM) need two tools** —
+      Clarify on the tabular model, Guardrails on the FM — never blended.
+- [ ] **SHAP is an approximation, not an exact decision trace** — only a
+      natively interpretable model satisfies an actual-decision-logic requirement.
+- [ ] **Model Card = self-authored; AI Service Card = AWS-authored.**
+
 ---
 
 ## Where each row comes from
@@ -145,8 +221,11 @@ more time. Domain 4 is roughly **14%** of scored questions.
 | 2. Common bias sources | [Section 2](README.md#2-bias-and-fairness) |
 | 3. Fairness metrics by use case / stage | [Section 2](README.md#2-bias-and-fairness) |
 | 4. Key trade-offs | [Section 5](README.md#5-performance-vs-interpretability) |
-| 5. Amazon SageMaker Clarify capabilities | [Section 3](README.md#3-aws-tools-for-responsible-ai) |
+| 5. AWS tools for responsible AI | [Section 3](README.md#3-aws-tools-for-responsible-ai) |
 | 6. Monitoring checklist | [Monitoring section](README.md#monitoring-responsible-ai-in-production) |
+| 7. Legal and ethical considerations | [Section 4](README.md#4-legal-and-ethical-considerations) |
+| Rapid-fire key terms | [Rapid-fire key terms](README.md#rapid-fire-key-terms) |
+| Common exam traps checklist | [Common exam traps checklist](README.md#common-exam-traps-checklist) |
 
 For the full tables, decision flowcharts, worked examples, and rapid
 self-check this cram sheet intentionally omits, go back to the

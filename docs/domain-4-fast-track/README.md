@@ -302,8 +302,12 @@ guide's five "## Worked example" sections):
    (AUC-ROC to compare thresholds; recall-weighted if a false negative is
    costlier than an unnecessary review). Predictions **below** the
    threshold skip any automated action and invoke A2I's `StartHumanLoop`
-   instead; the A2I **flow definition**'s activation condition should use
-   the *same* threshold as the routing logic so the two never drift apart.
+   instead, which runs a human review workflow built from three pieces: a
+   **worker task template** (the reviewer-facing UI showing the case
+   details and the model's low-confidence output, with fields for the
+   reviewer's own assessment); a **flow definition** whose activation
+   condition should use the *same* threshold as the routing logic so the
+   two never drift apart; and the workforce itself.
    A **private workforce** (via Amazon Cognito), not public Mechanical
    Turk, is required whenever the review task exposes regulated data
    (e.g., PHI). **SageMaker Model Monitor** then watches the *share* of

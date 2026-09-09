@@ -98,9 +98,10 @@ first has to justify *why generative AI*, not just reach for it.
 The team walks through the
 [advantages and disadvantages of generative AI](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai)
 honestly: an LLM can handle open-ended, natural-language questions the old
-rules-based bot can't, but it also introduces hallucination risk (making up
-a return policy that doesn't exist) that the return-prediction model in
-Phase 1 never had to worry about. They decide the upside is worth it *if*
+rules-based bot can't, but it also introduces
+[hallucination risk](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai)
+(making up a return policy that doesn't exist) that the return-prediction
+model in Phase 1 never had to worry about. They decide the upside is worth it *if*
 the bot's factual claims are grounded in real Solstice data — a
 requirement that shapes every choice in Phase 3.
 

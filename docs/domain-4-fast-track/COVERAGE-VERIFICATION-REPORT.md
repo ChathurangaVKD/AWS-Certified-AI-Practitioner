@@ -65,18 +65,20 @@ confirmed:
   Macie, AWS Customer Carbon Footprint Tool, Well-Architected
   Sustainability Pillar) — all retained in Fast Track §4.
 
-**One item is dropped even at this hop.** The full guide's Amazon A2I
-worked example (line 661) names three A2I building blocks: a **worker
-task template** (the reviewer-facing UI), a **flow definition** (the
-activation-condition wiring), and a **private workforce** (via Amazon
-Cognito). Fast Track §3's condensed version of the same worked example
-(README.md line 299–310) retains `StartHumanLoop`, the flow definition,
-the private-workforce/Cognito/Mechanical-Turk distinction, and the
-Model-Monitor drift signal — but never names the **worker task
-template** component. Grepping the Fast Track for `worker task` or `task
-template` returns nothing. This is a narrow, single-term gap (the other
-two A2I building blocks and the routing logic around them are intact),
-but it is a named, testable AWS A2I concept, not narrative.
+**One item was dropped even at this hop — now fixed.** The full guide's
+Amazon A2I worked example (line 661) names three A2I building blocks: a
+**worker task template** (the reviewer-facing UI), a **flow definition**
+(the activation-condition wiring), and a **private workforce** (via
+Amazon Cognito). Fast Track §3's condensed version of the same worked
+example (README.md line 299–310) already retained `StartHumanLoop`, the
+flow definition, the private-workforce/Cognito/Mechanical-Turk
+distinction, and the Model-Monitor drift signal, but never named the
+**worker task template** component — a narrow, single-term gap (the
+other two A2I building blocks and the routing logic around them were
+intact), but a named, testable AWS A2I concept, not narrative. This has
+since been backfilled: Fast Track §3 now names the **worker task
+template** alongside the flow definition and private workforce,
+condensed verbatim from the same full-guide worked example.
 
 ## Result: Ultra Fast Learn (Fast Track → Ultra Fast Learn hop)
 
@@ -165,9 +167,11 @@ author):
 3. Add "Rapid-fire key terms" and "Common exam traps checklist" sections
    matching the format already used in Domains 1, 2, 3, and 5's Ultra Fast
    Learn cram sheets.
-4. Separately, add the missing **worker task template** term to Fast
+4. ~~Separately, add the missing **worker task template** term to Fast
    Track §3's condensed A2I worked-example pattern (README.md line
-   299–310), closing the one hop-1 gap this report also found.
+   299–310), closing the one hop-1 gap this report also found.~~ **Done**
+   — Fast Track §3 now names the worker task template alongside the flow
+   definition and private workforce.
 
 Each addition should also extend `tests/test_domain_4_ultra_fast_learn.py`
 with assertions for the newly-covered terms, so a future edit cannot

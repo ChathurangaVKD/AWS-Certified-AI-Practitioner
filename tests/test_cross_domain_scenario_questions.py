@@ -119,6 +119,38 @@ class TestCrossDomainScenarioQuestionsOverview(unittest.TestCase):
             with self.subTest(target=target):
                 self.assertIn(target, self.text)
 
+    def test_difficulty_tags_are_paired_with_pacing_guidance(self):
+        # Each question's difficulty tag sits at the very start of the
+        # question (before its scenario text -- see
+        # test_every_question_has_options_and_a_difficulty_tag), so a
+        # learner already sees pacing-relevant info before reading. This
+        # asserts the doc also spells out *what* pacing each tag implies,
+        # tied to the shared pacing model in exam-preparation-strategy.md,
+        # rather than leaving the tag as a topic label with no time budget
+        # attached.
+        overview_section = self.text[: self.text.index("## Practice questions")]
+
+        self.assertIn(
+            "exam-preparation-strategy.md#pacing-model-by-question-type",
+            overview_section,
+            "the difficulty-tag explanation should link to the shared "
+            "pacing model so tags double as timing guidance",
+        )
+        for tier in ("Beginner", "Intermediate", "Advanced"):
+            with self.subTest(tier=tier):
+                self.assertIn(f"[{tier}]", overview_section)
+        self.assertRegex(
+            overview_section,
+            r"~1–2 minute",
+            "should state a concrete pacing target for Beginner/"
+            "Intermediate questions",
+        )
+        self.assertRegex(
+            overview_section,
+            r"~2–3 minute",
+            "should state a concrete pacing target for Advanced questions",
+        )
+
 
 class TestCrossDomainScenarioQuestions(unittest.TestCase):
     @classmethod

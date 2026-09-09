@@ -37,9 +37,17 @@ each domain guide linked above for the full depth on any single concept
 referenced here.
 
 Each question is tagged with a difficulty level
-(**[Beginner]**/**[Intermediate]**/**[Advanced]**) and each answer names
-the two or more domains it draws on, e.g. `*(Domains 3, 5)*` — or three or
-more for questions 26–30, e.g. `*(Domains 1, 3, 4, 5)*`.
+(**[Beginner]**/**[Intermediate]**/**[Advanced]**), placed right at the
+start of the question — before its scenario text — so you know the pacing
+expectation before you start reading, not after you've already answered
+it. Use these tags as pacing signals during timed practice: budget the
+[pacing model's](exam-preparation-strategy.md#pacing-model-by-question-type)
+**single-scenario ~1–2 minute** target for **[Beginner]** and
+**[Intermediate]** questions, and its **complex/multi-domain ~2–3 minute**
+target for **[Advanced]** questions (lean toward the higher end for the
+Select TWO/THREE questions in 26–30). Each answer names the two or more
+domains it draws on, e.g. `*(Domains 3, 5)*` — or three or more for
+questions 26–30, e.g. `*(Domains 1, 3, 4, 5)*`.
 
 ---
 

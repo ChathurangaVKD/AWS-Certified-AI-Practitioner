@@ -1,5 +1,10 @@
 # Case Study: Solstice Outdoors Builds an AI Shopping Assistant
 
+**Last verified:** 2026-09-06 — this case study traces AWS services across
+all five domains as Trailhead moves through its lifecycle. Re-verify at
+least every 90 days, or sooner if a linked domain guide's own
+**Last verified** date moves.
+
 Every domain guide in this series illustrates its concepts with a one-off
 **AWS example** — a company, a scenario, a paragraph, then on to the next
 topic. That's useful for isolating a single concept, but it hides something

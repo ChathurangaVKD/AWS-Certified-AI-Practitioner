@@ -1,5 +1,10 @@
 # Cross-Domain Concept Map: How Concepts Flow From Domain 1 and 2 Fundamentals to Domains 3–5
 
+**Last verified:** 2026-09-06 — this page's cross-references to AWS
+services and features track the same material covered in the five domain
+guides. Re-verify at least every 90 days, or sooner if a linked domain
+guide's own **Last verified** date moves.
+
 The five domain guides in this series are written to stand alone — each one
 covers its own exam task statements in full. But the AIF-C01 exam does not
 test domains in isolation, and neither does real-world practice: the

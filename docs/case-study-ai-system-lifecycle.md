@@ -98,9 +98,10 @@ first has to justify *why generative AI*, not just reach for it.
 The team walks through the
 [advantages and disadvantages of generative AI](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai)
 honestly: an LLM can handle open-ended, natural-language questions the old
-rules-based bot can't, but it also introduces hallucination risk (making up
-a return policy that doesn't exist) that the return-prediction model in
-Phase 1 never had to worry about. They decide the upside is worth it *if*
+rules-based bot can't, but it also introduces
+[hallucination risk](domain-2-fundamentals-of-generative-ai.md#3-advantages-and-disadvantages-of-generative-ai)
+(making up a return policy that doesn't exist) that the return-prediction
+model in Phase 1 never had to worry about. They decide the upside is worth it *if*
 the bot's factual claims are grounded in real Solstice data — a
 requirement that shapes every choice in Phase 3.
 
@@ -158,8 +159,9 @@ into the knowledge base.
 
 For "where's my order?" questions, retrieval alone isn't enough — Trailhead
 needs to take an action (look up a specific order by ID), so the team adds
-a **Bedrock Agent** that calls an internal order-status API, following the
-same
+a
+[Bedrock Agent](domain-3-applications-of-foundation-models.md#worked-example-a-bedrock-agent-executing-a-multi-step-task-with-tool-calling)
+that calls an internal order-status API, following the same
 [Amazon Bedrock feature set](domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features)
 used for the knowledge base. Before launch, Trailhead is scored with the
 same rigor Phase 1 applied to the return model, just with FM-specific
@@ -198,7 +200,8 @@ under-representation, confirming a **sampling bias** in the training and
 retrieval corpus rather than a model defect. The fix spans two layers: the
 merchandising team backfills more content and reviews for the affected
 product line (fixing the data), and the engineering team adds a
-**Bedrock Guardrail** to Trailhead so its recommendation prompts explicitly
+[Bedrock Guardrail](domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai)
+to Trailhead so its recommendation prompts explicitly
 require considering the full catalog rather than only the
 highest-frequency items (fixing the application). This reflects the
 [core dimensions of responsible AI](domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai) —
@@ -239,7 +242,8 @@ accountable.
   the same S3 order data from Phase 1 now carries a stricter encryption
   requirement because it's reachable through a public-facing chatbot.
 - **Network isolation.** Trailhead's backend calls to Bedrock and
-  OpenSearch Serverless are routed over AWS PrivateLink / VPC endpoints
+  OpenSearch Serverless are routed over
+  [AWS PrivateLink and VPC endpoints](domain-5-security-compliance-governance.md#aws-privatelink-and-vpc-endpoints-for-ai-services)
   rather than the public internet, keeping customer conversation data off
   the open internet path entirely.
 - **Audit trail.** Solstice enables

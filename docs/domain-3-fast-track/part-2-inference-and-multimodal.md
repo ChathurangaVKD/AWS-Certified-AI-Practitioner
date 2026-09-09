@@ -331,8 +331,32 @@ natural-language search across existing SharePoint and S3 repositories,
 with no embeddings pipeline of its own to build, instead deploys **Amazon
 Kendra** directly against those repositories.
 
+**Reuse before you provision: an existing Kendra GenAI Index**
+
+The three-way table above assumes a blank slate. If an **Amazon Kendra
+GenAI Index** already exists over the target content, the decision
+changes:
+
+- A **Knowledge Base** can also reuse an existing **Kendra GenAI
+  Index** as its retriever — the exam-favored answer when one already
+  exists, over standing up a second index in OpenSearch/Aurora.
+- Reuse an existing **Kendra GenAI Index** as a Knowledge Base's
+  retriever when one already exists, instead of standing up a second
+  OpenSearch/Aurora index for the same content.
+
+**Compliance-document Q&A example:** from a blank slate, the choice
+still follows the table above (hybrid/large scale → OpenSearch;
+existing Aurora + a team that can operate an embeddings pipeline →
+Aurora + `pgvector`; zero embeddings infrastructure to build → Kendra).
+But if a **Kendra GenAI Index** is already deployed over those same
+compliance documents, reuse it as the Bedrock Knowledge Base's retriever
+rather than provisioning a separate OpenSearch or Aurora + `pgvector`
+vector store for the same content.
+
 Full explanation and the AWS example: [full guide, Section
 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval).
+The Kendra GenAI Index worked example lives in [full guide, Section
+3](../domain-3-applications-of-foundation-models.md#worked-example-building-a-product-knowledge-assistant-using-kendras-genai-index-as-a-bedrock-knowledge-base-data-source).
 
 ---
 

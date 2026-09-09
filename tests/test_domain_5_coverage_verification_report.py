@@ -7,26 +7,26 @@ guarantee (docs/DOCUMENTATION_STRUCTURE.md: "every testable concept the
 full domain guide covers is retained somewhere in the condensed layer")
 that had never been technically verified against the source guide.
 `docs/domain-5-fast-track/COVERAGE-VERIFICATION-REPORT.md` is that
-verification: a section-by-section spot-check confirming the Fast Track
-retains almost everything from the full guide (four narrow exceptions:
-GDPR's "right to erasure"/"data minimization", GDPR's "special category"
-data classification, "SOC 2 Type II" as the specific audit type, and the
-Aurora Benefits worked example's named CloudWatch metrics), and
-identifying that the further-condensed Ultra Fast Learn cram sheet drops
-five additional concept groups the Fast Track retains -- the "insecure
-output handling" threat name, MITRE ATLAS / OWASP Top 10, Amazon Macie,
-Titan Image Generator watermarking, and the Algorithmic Accountability
-Act.
+verification: a section-by-section spot-check that originally found four
+narrow hop-1 exceptions -- GDPR's "right to erasure"/"data minimization",
+GDPR's "special category" data classification, "SOC 2 Type II" as the
+specific audit type, and the Aurora Benefits worked example's named
+CloudWatch metrics -- which have since been backfilled into part-1/part-2
+(2026-09-09). It also identifies that the further-condensed Ultra Fast
+Learn cram sheet drops five additional concept groups the Fast Track
+retains -- the "insecure output handling" threat name, MITRE ATLAS /
+OWASP Top 10, Amazon Macie, Titan Image Generator watermarking, and the
+Algorithmic Accountability Act -- which remains an open hop-2 gap.
 
 These tests assert the report exists, links back to the files it audits
 with resolving anchors, and that its central claims still hold against
-the live files: the hop-1 gap topics are present in the full guide but
-absent from the entire Fast Track directory (README + part-1 + part-2)
-and from Ultra Fast Learn, and the hop-2 gap topics are present in the
-Fast Track (hop 1 is otherwise clean for these) but absent from Ultra
-Fast Learn (hop 2 has the gap) -- so this test would start failing, as a
-useful signal, the day someone backfills either file and the report's
-"still open" claims go stale.
+the live files: the hop-1 gap topics are present in the full guide *and*
+now in the Fast Track (README + part-1 + part-2), but still absent from
+Ultra Fast Learn; and the hop-2 gap topics are present in the Fast Track
+(hop 1 is otherwise clean for these) but absent from Ultra Fast Learn
+(hop 2 has the gap) -- so the hop-2 test would start failing, as a useful
+signal, the day someone backfills Ultra Fast Learn and the report's
+"still open" claim for hop 2 goes stale.
 
 Run with:
     python3 -m unittest tests/test_domain_5_coverage_verification_report.py -v
@@ -232,14 +232,17 @@ class TestReportedHop1TopicsAreDocumented(unittest.TestCase):
                     )
 
 
-class TestHop1GapTopicsPresentInSourceOnly(unittest.TestCase):
-    """Hop 1 (full guide -> Fast Track) has four confirmed gaps: each
-    keyword must appear in the full guide, but be absent from the entire
-    Fast Track directory (README + part-1 + part-2) and from Ultra Fast
-    Learn. If either downstream file starts containing a keyword, the
-    report's "dropped even at this hop" claim has been resolved and
-    should be updated to match, rather than silently left describing a
-    stale problem."""
+class TestHop1GapTopicsNowInFastTrackOnly(unittest.TestCase):
+    """Hop 1 (full guide -> Fast Track) originally had four confirmed
+    gaps; they have since been backfilled into part-1/part-2. Each
+    keyword must appear in the full guide (still true) and now in the
+    combined Fast Track directory (README + part-1 + part-2), but remain
+    absent from Ultra Fast Learn (the further-condensed cram sheet
+    intentionally trims this level of named detail, per the hop-2
+    findings below). If the Fast Track ever stops containing a keyword,
+    the backfill this report documents has regressed; if Ultra Fast Learn
+    starts containing one, the report's "still absent from Ultra Fast
+    Learn" claim has gone stale and should be updated to match."""
 
     @classmethod
     def setUpClass(cls):
@@ -253,19 +256,18 @@ class TestHop1GapTopicsPresentInSourceOnly(unittest.TestCase):
                 with self.subTest(topic=topic, keyword=keyword):
                     self.assertIn(keyword, self.source_text)
 
-    def test_fast_track_is_missing_every_gap_topic_keyword(self):
+    def test_fast_track_now_contains_every_gap_topic_keyword(self):
         for topic, keywords in HOP1_GAP_TOPICS.items():
             for keyword in keywords:
                 with self.subTest(topic=topic, keyword=keyword):
-                    self.assertNotIn(
+                    self.assertIn(
                         keyword,
                         self.fast_track_text,
                         f"expected {keyword!r} (part of the {topic} gap) to "
-                        "still be absent from the Fast Track (README + "
-                        "part-1 + part-2) -- if it has been added, the "
-                        "coverage gap this report documents has been "
-                        "closed and the report/tests should be updated to "
-                        "match",
+                        "now be present in the Fast Track (README + "
+                        "part-1 + part-2) following the 2026-09-09 "
+                        "backfill -- if it is missing, the backfill has "
+                        "regressed",
                     )
 
     def test_ultra_fast_learn_is_missing_every_gap_topic_keyword(self):

@@ -1,6 +1,8 @@
 # Domain 5 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status:** technical verification complete · **Verified:** 2026-09-09
+**Status:** technical verification complete; the four hop-1 gaps below
+have been backfilled · **Verified:** 2026-09-09 · **Hop-1 backfill
+applied:** 2026-09-09
 
 ## What this report is
 
@@ -21,7 +23,7 @@ Three major sections of
 [`docs/domain-5-fast-track/README.md`](README.md),
 [`part-1-security-and-compliance.md`](part-1-security-and-compliance.md),
 and [`part-2-governance-and-monitoring.md`](part-2-governance-and-monitoring.md)
-(1,491 lines combined), and then against
+(1,561 lines combined, after the hop-1 backfill described below), and then against
 [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md), confirming whether every
 exam-relevant fact, decision criterion, AWS service, metric, and concept
 survives both condensation hops.
@@ -41,47 +43,58 @@ not itself change `README.md`, `part-1-security-and-compliance.md`,
 
 ## Result: Fast Track (full guide → Fast Track hop)
 
-**Verified clean, with four narrow exceptions.** Across all three sections
-above, essentially every exam-relevant fact, decision criterion, AWS
-service, metric, and named constraint in the full guide is present in the
-Fast Track, condensed to tables, flowcharts, and shortened exam tips. In
-particular: all 10 named security-threat categories with their specific
-AWS-service mitigations, IAM Access Analyzer, the KMS key-rotation
-behavior and data-vs-model CMK distinction, differential privacy
-(DP-SGD, epsilon), Titan Image Generator watermarking, MITRE ATLAS and the
-OWASP Top 10 for LLM Applications, AWS Artifact's Reports-vs-Agreements
-split, all five compliance frameworks with both comparison matrices, the
-full Config/Audit Manager/CloudTrail purpose distinctions, the
-Bedrock-vs-SageMaker shared-responsibility split, and both comparison
-tables in §§3–5 all survive intact. However, four specific, named facts
-were confirmed absent (via `grep`) from the entire `domain-5-fast-track/`
-directory — i.e. dropped from `README.md`, `part-1`, `part-2`, *and*
-`ULTRA-FAST-LEARN.md` alike:
+**Verified clean, with four narrow exceptions — now backfilled.** Across
+all three sections above, essentially every exam-relevant fact, decision
+criterion, AWS service, metric, and named constraint in the full guide is
+present in the Fast Track, condensed to tables, flowcharts, and shortened
+exam tips. In particular: all 10 named security-threat categories with
+their specific AWS-service mitigations, IAM Access Analyzer, the KMS
+key-rotation behavior and data-vs-model CMK distinction, differential
+privacy (DP-SGD, epsilon), Titan Image Generator watermarking, MITRE
+ATLAS and the OWASP Top 10 for LLM Applications, AWS Artifact's
+Reports-vs-Agreements split, all five compliance frameworks with both
+comparison matrices, the full Config/Audit Manager/CloudTrail purpose
+distinctions, the Bedrock-vs-SageMaker shared-responsibility split, and
+both comparison tables in §§3–5 all survive intact. Four specific, named
+facts were originally confirmed absent (via `grep`) from the entire
+`domain-5-fast-track/` directory — i.e. dropped from `README.md`,
+`part-1`, `part-2`, *and* `ULTRA-FAST-LEARN.md` alike — and have since
+been backfilled into `part-1`/`part-2` (still intentionally absent from
+`ULTRA-FAST-LEARN.md`'s further-condensed cram sheet, per the hop-2
+recommendation below):
 
 1. **GDPR's "right to erasure" and "data minimization"** (full guide line
    1206: "Concepts like the right to erasure and data minimization matter
    for AI training data pipelines... ensuring a person's data can be
    removed from a dataset and any downstream retrained model", reused in
-   the Northfield worked example at line 2451). Neither term appears
-   anywhere in the Fast Track's GDPR treatment — only data
+   the Northfield worked example at line 2451). Previously neither term
+   appeared anywhere in the Fast Track's GDPR treatment — only data
    controller/processor roles, residency, and Article 22 human-review (a
-   distinct right) survive.
+   distinct right) survived. **Now backfilled** into part-1 §9, alongside
+   its exam tip, rapid-fire key terms, rapid self-check, and exam traps
+   checklist.
 2. **GDPR's "special category" data classification** (full guide line
-   2371: `genetic data is a GDPR "special category"`). The term "special
-   category" does not appear anywhere in the Fast Track.
+   2371: `genetic data is a GDPR "special category"`). Previously the
+   term "special category" did not appear anywhere in the Fast Track.
+   **Now backfilled** into part-1 §9 alongside item 1.
 3. **"SOC 2 Type II" as the specific audit type** (full guide lines 1804,
-   1845, 1856, the Meridian Lending worked example). The Fast Track
-   mentions "SOC 2" generically, but the Type I vs. Type II distinction —
-   the actual testable fact — never appears; there is no standalone
+   1845, 1856, the Meridian Lending worked example). Previously the Fast
+   Track mentioned "SOC 2" generically, but the Type II designation — the
+   actual testable fact — never appeared; there was no standalone
    condensed takeaway for the Meridian Lending worked example the way
-   the Aurora Benefits and multi-region worked examples both got.
+   the Aurora Benefits and multi-region worked examples both got. **Now
+   backfilled** into part-2 §1 as a condensed Meridian Lending worked
+   example and exam tip, matching the Aurora Benefits/multi-region
+   treatment.
 4. **Aurora Benefits' named hallucination-drift metrics** (full guide line
    2018: the custom CloudWatch metric names `HallucinationRate` and
    `FactualConsistencyScore`, metric namespace `RAGAssistant/Quality`, and
    the specific alarm thresholds — warn at 4%, page at 6%, baseline 2%).
-   The Fast Track's condensed version keeps the 2%→8% drift narrative and
-   "custom CloudWatch metric with alarm thresholds" generically, but drops
-   the named metrics, namespace, and threshold values entirely.
+   Previously the Fast Track's condensed version kept the 2%→8% drift
+   narrative and "custom CloudWatch metric with alarm thresholds"
+   generically, but dropped the named metrics, namespace, and threshold
+   values entirely. **Now backfilled** into part-2 §2's condensed Aurora
+   Benefits worked example.
 
 A few lower-materiality service names were also observed dropped from
 worked-example asides that the Fast Track condenses to one-line
@@ -147,21 +160,25 @@ services it already covers; add a one-line Titan Image Generator
 watermarking bullet; and add the Algorithmic Accountability Act as a
 sixth row (or footnote) in §1's compliance-frameworks table.
 
-Separately, backfill the four Hop-1 items into `part-1-security-and-
-compliance.md` / `part-2-governance-and-monitoring.md` (sourced verbatim
-from the full guide): GDPR's right-to-erasure/data-minimization concepts
-in §9; the "special category" term in the same section; "Type II" added
-to the existing SOC 2 mentions, or a one-line Meridian Lending takeaway
-matching the Aurora Benefits and multi-region worked examples' treatment;
-and the named `HallucinationRate`/`FactualConsistencyScore` metrics and
-thresholds in part-2's condensed Aurora Benefits takeaway.
+**Update, 2026-09-09: the four Hop-1 items have been backfilled.** GDPR's
+right-to-erasure/data-minimization concepts and the "special category"
+term were added to part-1 §9 (sourced verbatim from full guide line
+~1206 and the Northfield worked example at line ~2371); a condensed
+Meridian Lending worked example naming **SOC 2 Type II** was added to
+part-2 §1, matching the Aurora Benefits and multi-region worked examples'
+treatment; and the named `HallucinationRate`/`FactualConsistencyScore`
+metrics, the `RAGAssistant/Quality` namespace, and the warn/page/baseline
+thresholds were added to part-2 §2's condensed Aurora Benefits takeaway.
+Each addition also extended `tests/test_domain_5_fast_track_part_1.py`
+and `tests/test_domain_5_fast_track_part_2.py` with assertions for the
+newly-covered terms.
 
-Each addition should also extend `tests/test_domain_5_ultra_fast_learn.py`
-and/or `tests/test_domain_5_fast_track_part_1.py` /
-`test_domain_5_fast_track_part_2.py` with assertions for the newly-covered
-terms, so a future edit cannot silently drop this content again. This
-backfill is scoped as follow-up work rather than folded into this report,
-since `ULTRA-FAST-LEARN.md`'s stated line count is cross-checked by
-exact-total assertions in `tests/test_documentation_structure.py`
-(per-domain Fast Track totals and the repository-wide grand total) that
-must be updated in lockstep with any line-count change to that file.
+The Hop-2 backfill should similarly extend
+`tests/test_domain_5_ultra_fast_learn.py` with assertions for the
+newly-covered terms, so a future edit cannot silently drop this content
+again. This backfill is scoped as follow-up work rather than folded into
+this report, since `ULTRA-FAST-LEARN.md`'s stated line count is
+cross-checked by exact-total assertions in
+`tests/test_documentation_structure.py` (per-domain Fast Track totals and
+the repository-wide grand total) that must be updated in lockstep with
+any line-count change to that file.

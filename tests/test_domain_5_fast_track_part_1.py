@@ -314,6 +314,18 @@ class TestFastTrackPart1Content(unittest.TestCase):
         self.assertIn("Binding vs. voluntary", self.text)
         self.assertIn("Algorithmic Accountability Act", self.text)
 
+    def test_covers_gdpr_erasure_minimization_and_special_category(self):
+        # Coverage-verification-report hop-1 gap: these named GDPR facts
+        # (full guide line ~1206 and the Northfield worked example, line
+        # ~2371) were previously dropped from the Fast Track entirely.
+        for term in [
+            "right to erasure",
+            "data minimization",
+            "special category",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
     def test_covers_nist_ai_rmf_four_functions(self):
         for function in ["GOVERN", "MAP", "MEASURE", "MANAGE"]:
             with self.subTest(function=function):

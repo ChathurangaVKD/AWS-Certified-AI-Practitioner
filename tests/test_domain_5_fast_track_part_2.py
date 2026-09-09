@@ -279,6 +279,21 @@ class TestFastTrackPart2Content(unittest.TestCase):
         self.assertIn("MedNote", self.text)
         self.assertIn("Northfield Genomics", self.text)
 
+    def test_covers_soc2_type_ii_and_aurora_named_metrics(self):
+        # Coverage-verification-report hop-1 gaps: the SOC 2 Type II audit
+        # type (Meridian Lending worked example, full guide lines
+        # ~1804/1845/1856) and Aurora Benefits' named CloudWatch metrics,
+        # namespace, and thresholds (full guide line ~2018) were
+        # previously dropped from the Fast Track entirely.
+        for term in [
+            "SOC 2 Type II",
+            "HallucinationRate",
+            "FactualConsistencyScore",
+            "RAGAssistant/Quality",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
     def test_has_comparison_tables_from_full_guide(self):
         self.assertIn(
             "\n## Comparison table: governance and monitoring services\n",

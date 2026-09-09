@@ -384,6 +384,18 @@ Artifact](../domain-5-security-compliance-governance.md#aws-artifact).
 | **EU AI Act** | Binding EU law | AI systems placed on the EU market or affecting EU people | The AI system itself, tiered by risk | Risk tiers: **unacceptable** (banned), **high** (strict requirements), **limited** (transparency), **minimal** (unregulated) |
 | **ISO/IEC 42001** | Voluntary international standard | Global, any organization | An **AI management system (AIMS)** — certifiable governance processes | Conceptually like ISO 27001 but for AI governance |
 
+GDPR also grants data-subject rights that matter directly for AI
+training-data pipelines, beyond the data-controller/processor split
+above: the **right to erasure** (the "right to be forgotten") and the
+**data minimization** principle mean honoring a deletion request requires
+removing a person's data from a dataset *and* from any model already
+retrained on it, not just from live production data — a distinct right
+from Article 22's human-review right covered in Section 11 below. GDPR
+also classifies certain personal data — including genetic, health, and
+biometric data — as **special category data**, which requires a
+stricter lawful basis for processing than personal data generally (e.g.,
+a genetic-risk-screening model processing lab results).
+
 Also recognize the **Algorithmic Accountability Act** — *proposed* (not
 yet binding) US legislation requiring impact assessments for automated
 decision systems, testing the *direction* of AI legislation, not a
@@ -419,7 +431,9 @@ Accountability Act** is proposed, not-yet-binding legislation.
 > **Exam tip:** HIPAA is US healthcare-specific; GDPR is EU personal-data
 > general regulation; the EU AI Act is EU AI-specific (risk tiers, not
 > personal data). "PHI" always → HIPAA regardless of region context.
-> "Risk tiers" for an AI system always → EU AI Act, not GDPR.
+> "Risk tiers" for an AI system always → EU AI Act, not GDPR. Don't
+> conflate GDPR's **right to erasure**/**data minimization** with Article
+> 22's separate right to human review of automated decisions.
 
 Full explanation, the multi-region NIST AI RMF worked example, and two
 mini-quizzes: [full guide, GDPR](../domain-5-security-compliance-governance.md#gdpr-general-data-protection-regulation-conceptual-level)
@@ -579,6 +593,15 @@ matrix](../domain-5-security-compliance-governance.md#compliance-framework-requi
   documenting AWS's contractual obligations as GDPR data processor.
 - **GDPR** — binding EU law on personal data; AWS is the data processor,
   the customer the data controller.
+- **Right to erasure** — GDPR's "right to be forgotten"; honoring it
+  means removing a person's data from a dataset *and* from any model
+  already retrained on it, not just from live production data.
+- **Data minimization** — GDPR principle that only data necessary for a
+  stated purpose should be collected/retained, including in AI
+  training-data pipelines.
+- **Special category data** — GDPR's classification for particularly
+  sensitive personal data (e.g., genetic, health, biometric data),
+  requiring a stricter lawful basis than personal data generally.
 - **HIPAA** — binding US law on protected health information (PHI).
 - **NIST AI Risk Management Framework (AI RMF)** — voluntary US guidance
   organized around Govern, Map, Measure, Manage.
@@ -597,9 +620,9 @@ For terms shared across domains: [`docs/master-glossary.md`](../master-glossary.
 
 ## Rapid self-check
 
-Twelve quick recall questions — cover the answer column and try each one
-before checking it. These are new questions, not a repeat of the full
-guide's practice set.
+Fourteen quick recall questions — cover the answer column and try each
+one before checking it. These are new questions, not a repeat of the
+full guide's practice set.
 
 | # | Question | Answer |
 |---|---|---|
@@ -615,6 +638,8 @@ guide's practice set.
 | 10 | Which framework is voluntary guidance organized around Govern, Map, Measure, and Manage? | **NIST AI RMF** |
 | 11 | Which framework classifies AI systems into unacceptable/high/limited/minimal risk tiers? | **EU AI Act** |
 | 12 | Which framework requires a certifiable AI management system (AIMS)? | **ISO/IEC 42001** |
+| 13 | Honoring a GDPR erasure request only means deleting a person's data from live production storage — true or false? | **False** — it also means removing it from any model already retrained on that data, per the **right to erasure** and **data minimization** |
+| 14 | Genetic and health data processed under GDPR get the same lawful-basis bar as ordinary personal data — true or false? | **False** — GDPR classifies it as **special category data**, requiring a stricter lawful basis |
 
 ---
 
@@ -654,6 +679,13 @@ guide's practice set.
 - [ ] **A SageMaker Model Card is self-authored and sign-off-able; an AI
       Service Card is AWS-authored and read-only** — don't swap them when
       a scenario describes a governance committee approving a model.
+- [ ] **GDPR's right to erasure means deleting data from retrained models
+      too** — not just live production data — and it's paired with the
+      **data minimization** principle; neither is the same as Article
+      22's human-review right.
+- [ ] **"Special category" data (genetic, health, biometric) needs a
+      stricter GDPR lawful basis** — don't treat it the same as generic
+      personal data.
 
 ---
 

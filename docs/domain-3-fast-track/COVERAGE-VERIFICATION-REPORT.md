@@ -1,12 +1,17 @@
 # Domain 3 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status: technical verification complete.** This report is the
-technical verification flagged as outstanding in the Content Health
-assessment for Domain 3's condensed layer. This is a correctness audit
-against the live files, not new content authoring — no prose in the
-Fast Track or Ultra Fast Learn was rewritten to produce this report; two
-real coverage gaps were found and are documented below with exact
-locations so they can be fixed in a follow-up change.
+**Status: technical verification complete; all findings fixed.** This
+report is the technical verification flagged as outstanding in the
+Content Health assessment for Domain 3's condensed layer. This is a
+correctness audit against the live files, not new content authoring —
+no prose in the Fast Track or Ultra Fast Learn was rewritten to produce
+the original audit below; two classes of real coverage gap were found
+and documented with exact locations. The hop-1 gap (Finding 1, Kendra
+GenAI Index) was fixed first, in a separate change (Part 2, Section 4).
+The four hop-2 gaps (Findings 2-5) have since been backfilled into
+`ULTRA-FAST-LEARN.md` (2026-09-09), sourced verbatim from the same Fast
+Track sections this report cites. See the "Finding 1" and
+"Findings 2-5" sections below for both updates.
 
 ## The claim under audit
 
@@ -80,9 +85,20 @@ in the Fast Track but missing from Ultra Fast Learn is a **hop-2 gap**
 condensation — but only acceptable if what's cut is genuinely
 non-exam-relevant repetition, not a distinct testable concept).
 
-## Finding 1 (hop-1 gap): Kendra GenAI Index as a Bedrock Knowledge Base data source
+## Finding 1 (hop-1 gap): Kendra GenAI Index as a Bedrock Knowledge Base data source — fixed
 
-**Severity: real gap, not narrative trimming.** The full guide devotes a
+**Update: fixed.** Part 2, Section 4 now states the reuse-over-duplicate
+decision rule with a resolving link to the full guide's worked example
+(see [Part 2, Section
+4](part-2-inference-and-multimodal.md#4-vector-databases-and-embeddings-choosing-a-backend),
+subsection "Reuse before you provision: an existing Kendra GenAI
+Index"). The description below is the original audit that found the gap
+and is retained for the record; the `grep -c` result it quotes for Part
+2 reflects the state **before** that fix and is no longer current — Part
+2 now contains multiple "Kendra GenAI Index" mentions.
+
+**Severity: real gap, not narrative trimming (at the time of the
+original audit).** The full guide devotes a
 dedicated, ~200-line worked example
 ([lines 1208–1405](../domain-3-applications-of-foundation-models.md#worked-example-building-a-product-knowledge-assistant-using-kendras-genai-index-as-a-bedrock-knowledge-base-data-source))
 to a specific, exam-called-out distinction: a **Kendra GenAI Index** is an
@@ -131,12 +147,13 @@ $ grep -n "Kendra GenAI Index" docs/domain-3-fast-track/ULTRA-FAST-LEARN.md
 332:- [ ] Reuse an existing **Kendra GenAI Index** as a Knowledge Base's
 ```
 
-So today, a reader who only reads Part 1 and Part 2 (as the Fast Track's
-own reading-order instructions direct) will never encounter this concept
-at all, while a reader who skips straight to the Ultra Fast Learn cram
-sheet will — an inversion of the intended layering, and a real,
-independently-confirmable gap in the Fast Track's own coverage claim,
-not a stale test artifact.
+At the time of the original audit, a reader who only read Part 1 and
+Part 2 (as the Fast Track's own reading-order instructions direct) would
+never have encountered this concept at all, while a reader who skipped
+straight to the Ultra Fast Learn cram sheet would — an inversion of the
+intended layering, and a real, independently-confirmable gap in the Fast
+Track's own coverage claim, not a stale test artifact. That inversion is
+now closed by the Part 2 fix noted above.
 
 By contrast, the *other* worked example in the same full-guide subsection
 (compliance-document Q&A: OpenSearch vs. Aurora + pgvector vs. Kendra
@@ -147,30 +164,34 @@ infrastructure → Kendra) is already captured in Part 2's vector-database
 decision table and flowchart. That one is exactly the "extra worked
 example" trimming the coverage guarantee permits.
 
-## Findings 2–5 (hop-2 gaps): dropped entirely from Ultra Fast Learn
+## Findings 2–5 (hop-2 gaps): dropped entirely from Ultra Fast Learn — now backfilled
 
-Hop 1 (full guide → Fast Track) is otherwise clean for every topic below
-— each is fully present in both the full guide and Part 1 or Part 2. The
-gap is at hop 2: none of these keywords appear anywhere in
-`ULTRA-FAST-LEARN.md` today.
+**Update, 2026-09-09: all four backfilled.** These four were originally
+found dropped entirely from Ultra Fast Learn despite being clean at hop 1
+(full guide → Fast Track — each fully present in Part 1 or Part 2). They
+have now been backfilled into `ULTRA-FAST-LEARN.md`'s customization
+section (Section 1, for #2–#4) and evaluation section (Section 5, for
+#5), sourced verbatim from the same Fast Track subsections cited below —
+no new facts were authored to close these gaps.
 
 | # | Topic | Full guide → Fast Track (hop 1) | Fast Track → Ultra Fast Learn (hop 2) |
 |---|---|---|---|
-| 2 | **Fine-tuning efficiency techniques** — LoRA, QLoRA, instruction tuning, the GPU-memory/training-time/quality decision flowchart, and the merged-vs-unmerged serving-latency table | Clean — full explanation in [Part 1, Section 6](part-1-application-design-and-customization.md#6-fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning) | **Gap** — Ultra Fast Learn's customization table (Section 1) has one undifferentiated "Fine-tuning" row; LoRA/QLoRA/instruction tuning, the resource-cost tables, and the decision flowchart never appear |
-| 3 | **RLHF** — the three-stage SFT → reward model → PPO process, and when it applies vs. plain SFT or RAG | Clean — full explanation in [Part 1, Section 7](part-1-application-design-and-customization.md#7-rlhf-aligning-fine-tuned-models-to-human-preferences) | **Gap** — "RLHF," "reward model," and "SFT" do not appear anywhere in Ultra Fast Learn |
-| 4 | **Fine-tuning dataset curation** — minimum labeled-example thresholds by technique/model scale, the data-quality checklist (diversity, edge-case coverage, label correctness, class balance), synthetic-vs-real trade-offs, catastrophic forgetting, overfitting, early stopping, inter-annotator agreement | Clean — full explanation in [Part 1, Section 8](part-1-application-design-and-customization.md#8-curating-a-fine-tuning-dataset) | **Gap** — none of these terms appear in Ultra Fast Learn |
-| 5 | **Retrieval quality metrics** — NDCG, MAP, Recall@k, and MRR, and the decision tree for picking among them | Clean — full explanation in [Part 2, Section 8](part-2-inference-and-multimodal.md#8-retrieval-quality-metrics) | **Gap** — Ultra Fast Learn's evaluation section (Section 5) covers benchmark/human/business evaluation and named benchmarks (MMLU, ARC, HumanEval, GSM8K, BERTScore, perplexity, toxicity) but never mentions NDCG, MAP, Recall@k, or MRR |
+| 2 | **Fine-tuning efficiency techniques** — LoRA, QLoRA, instruction tuning, the GPU-memory/training-time/quality decision flowchart, and the merged-vs-unmerged serving-latency table | Clean — full explanation in [Part 1, Section 6](part-1-application-design-and-customization.md#6-fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning) | **Fixed** — Ultra Fast Learn's customization section (Section 1) now carries a LoRA/QLoRA/instruction-tuning comparison table, the decision-order bullets standing in for the flowchart, and the merged-vs-unmerged serving-latency bullet |
+| 3 | **RLHF** — the three-stage SFT → reward model → PPO process, and when it applies vs. plain SFT or RAG | Clean — full explanation in [Part 1, Section 7](part-1-application-design-and-customization.md#7-rlhf-aligning-fine-tuned-models-to-human-preferences) | **Fixed** — "RLHF," "reward model," "SFT," and "PPO" now appear in Ultra Fast Learn's Section 1, with the three-stage process and the SFT-vs-RLHF-vs-RAG applicability bullets |
+| 4 | **Fine-tuning dataset curation** — minimum labeled-example thresholds by technique/model scale, the data-quality checklist (diversity, edge-case coverage, label correctness, class balance), synthetic-vs-real trade-offs, catastrophic forgetting, overfitting, early stopping, inter-annotator agreement | Clean — full explanation in [Part 1, Section 8](part-1-application-design-and-customization.md#8-curating-a-fine-tuning-dataset) | **Fixed** — Ultra Fast Learn's Section 1 now carries the minimum-examples table, the data-quality checklist, the synthetic-vs-real trade-off, and all of catastrophic forgetting/overfitting/early stopping/inter-annotator agreement |
+| 5 | **Retrieval quality metrics** — NDCG, MAP, Recall@k, and MRR, and the decision tree for picking among them | Clean — full explanation in [Part 2, Section 8](part-2-inference-and-multimodal.md#8-retrieval-quality-metrics) | **Fixed** — Ultra Fast Learn's evaluation section (Section 5) now carries the NDCG/MAP/Recall@k/MRR comparison table and decision-order bullets standing in for the decision tree |
 
-These four are a materially larger hop-2 gap than any other domain's
-report has found (three topics for Domain 1, four for Domain 4 — but
+These four were a materially larger hop-2 gap than any other domain's
+report had found (three topics for Domain 1, four for Domain 4 — but
 Domain 4's four hop-2 topics were narrower single distinctions; here,
-three of the four are entire multi-page subsections with their own
+three of the four were entire multi-page subsections with their own
 decision flowcharts and comparison tables, dropped as a whole unit).
-Given Domain 3 is the highest-weight domain, an exam-taker relying solely
-on the last-minute Ultra Fast Learn cram sheet has a materially higher
-chance of encountering a question on fine-tuning efficiency technique
-selection, RLHF, dataset sizing, or retrieval-metric selection with zero
-cram-sheet coverage than the guarantee implies.
+Given Domain 3 is the highest-weight domain, closing this gap removed a
+materially higher chance than other domains' remaining gaps posed of an
+exam-taker relying solely on the last-minute Ultra Fast Learn cram sheet
+encountering a question on fine-tuning efficiency technique selection,
+RLHF, dataset sizing, or retrieval-metric selection with zero cram-sheet
+coverage.
 
 ## What's confirmed clean
 
@@ -190,24 +211,20 @@ thresholds found no gaps in:
   resilience-pattern vocabulary (circuit breaker, jitter, flapping).
 - Evaluation benchmarks other than the four retrieval-ranking metrics
   above (MMLU, ARC, HumanEval, GSM8K, BERTScore, perplexity, toxicity) —
-  full coverage at both hops.
+  full coverage at both hops (as, now, are the four retrieval-ranking
+  metrics themselves — see the "Findings 2–5" update above).
 
 ## Recommendation
 
-1. **Fix the hop-1 gap first** (Finding 1) — it's the more serious class
-   of gap. Add a Kendra GenAI Index subsection to either Part 1, Section 4
-   or Part 2, Section 4 (whichever a future edit decides is the
-   canonical home for Section 3's vector-store-selection depth), stating
-   the reuse-over-duplicate decision rule Ultra Fast Learn already
-   captures independently.
-2. **Backfill the four hop-2 gaps** (Findings 2–5) into Ultra Fast Learn,
-   following the same compact bullet/table style already used for the
-   customization trade-off table and RAG failure-mode triage — these are
-   exactly the kind of high-yield, easily-tabulated decision content the
-   cram sheet is meant to hold.
-3. Until both are addressed, this report's specific claims will be kept
-   accurate by the accompanying test suite
-   (`tests/test_domain_3_coverage_verification_report.py`), which fails
-   loudly the day either gap is closed so the report (and this
-   recommendation) can be updated to match, rather than silently going
-   stale.
+1. ~~Fix the hop-1 gap (Finding 1)~~ — **done**, in Part 2, Section 4,
+   which now states the reuse-over-duplicate decision rule Ultra Fast
+   Learn already captured independently.
+2. ~~Backfill the four hop-2 gaps (Findings 2–5) into Ultra Fast
+   Learn~~ — **done, 2026-09-09**, following the same compact
+   bullet/table style already used for the customization trade-off table
+   and RAG failure-mode triage.
+3. Both fixes are kept accurate by the accompanying test suite
+   (`tests/test_domain_3_coverage_verification_report.py` plus
+   `tests/test_domain_3_fast_track_kendra_genai_index_reuse_gap.py` for
+   Finding 1), which fails loudly if either regresses so the report can
+   be updated to match, rather than silently going stale.

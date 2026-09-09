@@ -15,7 +15,11 @@ customization-approach trade-off table (latency/cost/flexibility), a
 Bedrock features checklist, a vector-database bullet summary, an
 evaluation-strategy table, infrastructure-scaling bullets,
 prompt-injection-prevention bullets, and a compact RAG failure-mode
-triage list.
+triage list. It also covers four hop-2 gaps backfilled 2026-09-09
+(see docs/domain-3-fast-track/COVERAGE-VERIFICATION-REPORT.md,
+"Findings 2-5"): fine-tuning efficiency techniques (LoRA/QLoRA/
+instruction tuning), RLHF, fine-tuning dataset curation, and retrieval
+quality metrics (NDCG/MAP/Recall@k/MRR).
 
 Run with:
     python3 -m unittest tests/test_domain_3_ultra_fast_learn.py -v
@@ -332,6 +336,53 @@ class TestUltraFastLearnContent(unittest.TestCase):
             "Guardrails for Amazon Bedrock",
             "content filters",
             "system prompt",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_fine_tuning_efficiency_techniques(self):
+        for term in [
+            "LoRA",
+            "QLoRA",
+            "instruction tuning",
+            "Low-Rank Adaptation",
+            "merged",
+            "unmerged",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_rlhf(self):
+        for term in [
+            "RLHF",
+            "reward model",
+            "SFT",
+            "PPO",
+            "Proximal Policy Optimization",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_fine_tuning_dataset_curation(self):
+        for term in [
+            "catastrophic forgetting",
+            "early stopping",
+            "inter-annotator",
+            "overfitting",
+            "class/category balance",
+            "Synthetic vs. real",
+        ]:
+            with self.subTest(term=term):
+                self.assertIn(term, self.text)
+
+    def test_covers_retrieval_quality_metrics(self):
+        for term in [
+            "NDCG",
+            "MAP",
+            "Recall@k",
+            "MRR",
+            "Mean Reciprocal Rank",
+            "Mean Average Precision",
         ]:
             with self.subTest(term=term):
                 self.assertIn(term, self.text)

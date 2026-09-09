@@ -11,25 +11,30 @@ the longest guide (6,957 lines), split into a three-part Fast Track
 (part-1/2/3) plus ULTRA-FAST-LEARN.md, so it warrants extra scrutiny.
 
 `docs/domain-3-fast-track/COVERAGE-VERIFICATION-REPORT.md` is that
-verification. It finds two classes of gap:
+verification. It originally found two classes of gap, both since fixed:
 
 - A hop-1 gap (full guide -> Fast Track): the "Kendra GenAI Index as a
-  Bedrock Knowledge Base data source" worked example is present in the
+  Bedrock Knowledge Base data source" worked example was present in the
   full guide AND in Ultra Fast Learn, but absent from both Fast Track
   Part 1 and Part 2 -- an inversion of the normal layering, where the
   further-condensed cram sheet has a concept the intermediate condensed
-  guide dropped.
+  guide dropped. This was fixed by adding the concept to Fast Track
+  Part 2, Section 4 (see
+  tests/test_domain_3_fast_track_kendra_genai_index_reuse_gap.py); Part 1
+  still doesn't carry it, which is expected now that Part 2 is its
+  canonical home.
 - Four hop-2 gaps (Fast Track -> Ultra Fast Learn): fine-tuning
   efficiency techniques (LoRA/QLoRA/instruction tuning), RLHF, fine-tuning
   dataset curation, and retrieval quality metrics (NDCG/MAP/Recall@k/MRR)
-  are all fully covered in Part 1 or Part 2 but entirely absent from
-  Ultra Fast Learn.
+  were all fully covered in Part 1 or Part 2 but entirely absent from
+  Ultra Fast Learn. These four have since been backfilled into
+  ULTRA-FAST-LEARN.md (2026-09-09), sourced verbatim from the same Fast
+  Track subsections, closing the gap.
 
 These tests assert the report exists, links back to the files it audits
 with resolving anchors, and that its central claims still hold against the
 live files -- so this test would start failing, as a useful signal, the
-day someone backfills any of these gaps and the report's "still open"
-claims go stale.
+day any of these fixes regresses and the report's claims go stale.
 
 Run with:
     python3 -m unittest tests/test_domain_3_coverage_verification_report.py -v
@@ -262,41 +267,41 @@ class TestHop2GapTopicsPresentInSourceAndFastTrack(unittest.TestCase):
                     self.assertIn(keyword, self.fast_track_text)
 
 
-class TestHop2GapTopicsAbsentFromUltraFastLearn(unittest.TestCase):
-    """Hop 2 (Fast Track -> Ultra Fast Learn) is reported to have a real
-    gap: none of the four topics' keywords should appear in Ultra Fast
-    Learn today. If this test starts failing, the gap has been backfilled
-    and COVERAGE-VERIFICATION-REPORT.md's "Recommendation" section (and
-    this test) should be updated to reflect that, rather than silently
-    left describing a stale problem."""
+class TestHop2GapTopicsNowPresentInUltraFastLearn(unittest.TestCase):
+    """Hop 2 (Fast Track -> Ultra Fast Learn) gap for these four topics has
+    been backfilled (2026-09-09): every keyword must now appear in Ultra
+    Fast Learn. If this test starts failing, the backfill has regressed
+    (a keyword was removed) and COVERAGE-VERIFICATION-REPORT.md's
+    "Findings 2-5" update should be re-checked against the live file."""
 
     @classmethod
     def setUpClass(cls):
         cls.ultra_text = _read(ULTRA_FAST_LEARN_PATH)
 
-    def test_ultra_fast_learn_is_missing_every_gap_topic_keyword(self):
+    def test_ultra_fast_learn_contains_every_gap_topic_keyword(self):
         for topic, keywords in HOP2_GAP_TOPICS.items():
             for keyword in keywords:
                 with self.subTest(topic=topic, keyword=keyword):
-                    self.assertNotIn(
+                    self.assertIn(
                         keyword,
                         self.ultra_text,
                         f"expected {keyword!r} (part of the {topic} gap) to "
-                        "still be absent from ULTRA-FAST-LEARN.md -- if it "
-                        "has been added, the coverage gap this report "
-                        "documents has been closed and the report/tests "
-                        "should be updated to match",
+                        "be present in ULTRA-FAST-LEARN.md now that this "
+                        "hop-2 gap has been backfilled -- if it's missing, "
+                        "the backfill has regressed",
                     )
 
 
-class TestHop1GapTopicPresentInSourceAndUltraFastLearnOnly(unittest.TestCase):
+class TestHop1GapTopicNowFixedInPart2(unittest.TestCase):
     """The hop-1 finding: "Kendra GenAI Index" is present in the full guide
-    and (independently) in Ultra Fast Learn, but absent from both Fast
-    Track Part 1 and Part 2 -- the inverse of the usual layering. If either
-    Fast Track part starts containing it, the report's "falls through the
-    gap between Part 1 and Part 2" claim has been resolved and should be
-    updated to match, rather than silently left describing a stale
-    problem."""
+    and (independently) in Ultra Fast Learn; it was originally absent from
+    both Fast Track Part 1 and Part 2 -- the inverse of the usual layering.
+    That gap has since been fixed by adding the concept to Fast Track
+    Part 2, Section 4 (see
+    tests/test_domain_3_fast_track_kendra_genai_index_reuse_gap.py for the
+    detailed fix verification). Part 1 is still expected to lack it, since
+    Part 2 is the concept's canonical home. If Part 2 stops containing it,
+    the fix has regressed."""
 
     @classmethod
     def setUpClass(cls):
@@ -311,12 +316,12 @@ class TestHop1GapTopicPresentInSourceAndUltraFastLearnOnly(unittest.TestCase):
     def test_part1_is_missing_the_hop1_gap_keyword(self):
         self.assertNotIn(HOP1_GAP_KEYWORD, self.part1_text)
 
-    def test_part2_is_missing_the_hop1_gap_keyword(self):
-        self.assertNotIn(HOP1_GAP_KEYWORD, self.part2_text)
+    def test_part2_contains_the_hop1_gap_keyword(self):
+        self.assertIn(HOP1_GAP_KEYWORD, self.part2_text)
 
     def test_ultra_fast_learn_contains_the_hop1_gap_keyword(self):
         # Ultra Fast Learn captured this concept independently, which is
-        # exactly what makes it identifiable as exam-relevant rather than
+        # exactly what made it identifiable as exam-relevant rather than
         # full-guide-only narrative.
         self.assertIn(HOP1_GAP_KEYWORD, self.ultra_text)
 

@@ -1,6 +1,6 @@
 # Domain 3 Ultra Fast Track: Applications of Foundation Models
 
-**Ultra-condensed cram sheet** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,957 lines) · **Last verified:** 2026-09-05
+**Ultra-condensed cram sheet** · full guide: [`docs/domain-3-applications-of-foundation-models.md`](../domain-3-applications-of-foundation-models.md) (6,957 lines) · **Last verified:** 2026-09-09
 
 Bullets and tables only — no prose, no worked examples, no mini-quizzes.
 For the last 15-20 minutes before the exam, once the full guide's own
@@ -47,6 +47,87 @@ it's drawn from.
       way to tell the two apart.
 - [ ] "No data available, quick behavior/format tweak" → **prompt
       engineering**.
+
+**Fine-tuning efficiency techniques — full fine-tuning vs. LoRA vs.
+QLoRA vs. instruction tuning:**
+
+| Technique | Parameters updated | Resource cost | Quality trade-off | Best fit |
+|---|---|---|---|---|
+| **Full fine-tuning** | 100% of weights | Highest — most GPU memory/time | Highest ceiling | Max accuracy, ample GPU budget, safety/compliance-critical |
+| **LoRA** (Low-Rank Adaptation) | <1% (small adapter matrices injected into layers) | Low — much faster/cheaper | Modest, usually acceptable | Resource-constrained, mid-size GPU (24GB+) available |
+| **QLoRA** (Quantized LoRA) | Same as LoRA, on a base model quantized (e.g., 4-bit) | Lowest — fits a single small GPU (16GB) | Small added loss vs. LoRA | GPU memory is the hard training constraint |
+| **Instruction tuning** | An *objective*, not a parameter strategy — trains on (instruction, response) pairs, layered on any of the above | Depends on the underlying method | Improves general instruction-following | Varied instruction-following, not one fixed task |
+
+- [ ] Decision order: safety/compliance-critical, or the quality floor
+      allows less than ~1 point of degradation → **full fine-tuning**.
+      Mid-size GPU (24GB+) available and a small quality gap is
+      tolerable → **LoRA**. Only a small GPU (≤16GB) → **QLoRA** (accept
+      the added quality loss, or escalate the GPU and use LoRA instead).
+- [ ] **Merged vs. unmerged serving latency:** a **merged** adapter
+      (folded into base weights after training) serves at ~1.0x
+      full-fine-tuning latency — a QLoRA-merged model must first
+      dequantize, losing its memory savings. An **unmerged** adapter
+      (many task adapters sharing one base model) adds a latency tax:
+      ~1.05-1.15x for LoRA, ~1.15-1.3x for QLoRA served quantized. QLoRA
+      can't be both low-memory and low-latency at serving time — pick
+      one.
+- [ ] "Limited GPU budget / fine-tune a large model on a single GPU" →
+      **QLoRA**. "Faster/cheaper, small quality trade-off, no
+      quantization mentioned" → **LoRA**. "Best accuracy, cost/time
+      isn't the constraint" → **full fine-tuning**. "Teach general
+      instruction-following" (not one narrow task) → **instruction
+      tuning**, layered on any of the three above.
+
+**RLHF (Reinforcement Learning from Human Feedback) — aligning a
+fine-tuned model to human preferences:**
+
+- [ ] Full fine-tuning, LoRA, QLoRA, and instruction tuning are all
+      **supervised fine-tuning (SFT)** — trained against one "correct"
+      labeled target. RLHF is a distinct step layered *on top of* SFT.
+- [ ] **Three stages:** (1) start from an **SFT** model as the baseline
+      policy; (2) train a **reward model** on human preference
+      rankings/comparisons of multiple outputs for the same prompt;
+      (3) fine-tune the SFT model against the reward model via
+      reinforcement learning (commonly **PPO**, Proximal Policy Optimization)
+      without drifting so far it loses coherence.
+- [ ] Narrow, well-defined labeled task, no ambiguity about "correct" →
+      **SFT alone**. Open-ended chat/instruction-following where humans
+      must judge *which response is better* (helpfulness, tone,
+      honesty) → **SFT, then layer RLHF**. Stale or missing
+      proprietary/current knowledge → **RAG**, not RLHF — RLHF only
+      changes *how* a model responds, never *what* it knows.
+
+**Curating a fine-tuning dataset — size thresholds, quality checklist,
+synthetic vs. real:**
+
+| Technique / model scale | Recommended minimum labeled examples |
+|---|---|
+| LoRA/QLoRA, small-to-mid model (≤13B), one task | ~100-500 |
+| LoRA/QLoRA, large model (34B+), one task | ~500-1,000 |
+| Instruction tuning, any size | ~1,000-10,000+ across many task types |
+| Full fine-tuning, small-to-mid model, one task | ~1,000-10,000 |
+| Full fine-tuning, large model (34B+), one task | ~10,000-100,000+ — risks **catastrophic forgetting** if underfed |
+| Continued pre-training, any size | Millions-billions of unlabeled tokens |
+
+- [ ] Fewer than ~50-100 examples per class/task usually signals the
+      exam wants **prompt engineering (few-shot)** or **RAG** instead of
+      fine-tuning, not a smaller fine-tune.
+- [ ] Avoid **overfitting** on a small dataset: hold out a validation
+      set and use **early stopping**; prefer LoRA/QLoRA over full
+      fine-tuning (training fewer parameters is itself a regularizer).
+- [ ] **Data-quality checklist** (size alone isn't sufficient):
+      diversity (full range of production phrasings/lengths/formats/
+      locales) · edge-case coverage (boundary/adversarial/minority
+      cases deliberately included) · label correctness (real
+      subject-matter review, measured **inter-annotator agreement**) ·
+      class/category balance (corrected via oversampling/undersampling/
+      loss weighting, not left as-is).
+- [ ] **Synthetic vs. real data:** synthetic = cheap/fast, steerable for
+      rare edge cases, but only as accurate as the generating model
+      (propagates its errors/bias). Real = the foundation, especially
+      for high-stakes behavior, reflects real-world ground truth. Safest
+      pattern: real data as the foundation, synthetic to fill specific
+      identified gaps — never entirely synthetic for a high-stakes task.
 
 ## 2. Prompt engineering techniques at a glance
 
@@ -170,6 +251,27 @@ it's drawn from.
 - [ ] Cheap/fast screening of many candidates on subjective criteria →
       automatic benchmark to shortlist, **then** human evaluation on
       finalists.
+
+**Retrieval quality metrics — NDCG, MAP, Recall@k, MRR (ranking
+quality, distinct from the automatic/human/business layers above):**
+
+| Metric | What it measures | Use it when |
+|---|---|---|
+| **Recall@k** | Whether a relevant item appears anywhere in the top *k* | Any top-*k* result counts as a win — rank within the window doesn't matter |
+| **MRR** (Mean Reciprocal Rank) | How early the *first* relevant result appears | Each query has essentially **one** correct/best answer |
+| **MAP** (Mean Average Precision) | Precision averaged across every relevant item's rank | **Multiple** relevant, binary-labeled documents per query; finding all and ranking them both matter |
+| **NDCG@k** | Ranking quality with **graded** (not binary) relevance | Relevance comes in degrees and result order matters (e.g., product search) |
+
+- [ ] Decision order: only care whether a relevant result is somewhere
+      in the top *k* → **Recall@k**. Order matters, usually one
+      correct/best answer → **MRR**. Order matters, relevance is
+      graded → **NDCG@k**. Order matters, binary relevance, multiple
+      relevant docs → **MAP**.
+- [ ] "Findable somewhere in the top 5" → **Recall@5**. "Single-answer
+      FAQ bot's best answer should rank near #1" → **MRR**. "Rank the
+      most relevant results highest" on a graded scale → **NDCG@k**.
+      "Find all relevant documents, ranked as high as possible," binary
+      labels → **MAP**.
 
 ## 6. Infrastructure-scaling bullets
 
@@ -305,6 +407,36 @@ it's drawn from.
   reproducibly score and compare model quality.
 - **Amazon SageMaker JumpStart** — hub of pretrained FMs and templates
   deployable/fine-tunable with more hosting control than Bedrock's API.
+- **LoRA (Low-Rank Adaptation)** — fine-tuning technique that freezes
+  the base model and trains small low-rank adapter matrices (often <1%
+  of parameters).
+- **QLoRA** — LoRA on a base model first quantized to a lower precision
+  (e.g., 4-bit); lowest GPU memory of the parameter-efficient options.
+- **Instruction tuning** — fine-tuning objective training on
+  (instruction, response) pairs so a model follows instructions
+  generally; layered on full fine-tuning, LoRA, or QLoRA.
+- **RLHF (Reinforcement Learning from Human Feedback)** — aligns an SFT
+  model to human preferences via a reward model and reinforcement
+  learning (commonly PPO), layered on top of SFT.
+- **Reward model** — model trained on human preference rankings to
+  predict a scalar preference score, used to guide RLHF.
+- **Catastrophic forgetting** — a fine-tuned model losing previously
+  learned general capability; the risk of full fine-tuning a large
+  model on too little data.
+- **Early stopping** — halting training once validation performance
+  stops improving, to avoid overfitting a small fine-tuning dataset.
+- **Inter-annotator agreement** — measured consistency between human
+  labelers, used to gauge fine-tuning label correctness.
+- **NDCG (Normalized Discounted Cumulative Gain)** — retrieval
+  ranking-quality metric for graded (non-binary) relevance.
+- **MAP (Mean Average Precision)** — retrieval metric averaging
+  precision across every relevant item's rank; multiple binary-labeled
+  relevant documents per query.
+- **MRR (Mean Reciprocal Rank)** — retrieval metric measuring how early
+  the first relevant result appears; fits queries with one correct/best
+  answer.
+- **Recall@k** — retrieval metric measuring whether a relevant item
+  appears anywhere in the top *k* results.
 
 ## Common exam traps checklist
 
@@ -332,6 +464,18 @@ it's drawn from.
 - [ ] Reuse an existing **Kendra GenAI Index** as a Knowledge Base's
       retriever when one already exists, instead of standing up a
       second OpenSearch/Aurora index for the same content.
+- [ ] "Limited GPU budget, single GPU" → **QLoRA**; "faster/cheaper,
+      small quality trade-off, no quantization" → **LoRA**; "best
+      accuracy, cost/time not the constraint" → **full fine-tuning**.
+- [ ] **RLHF** fixes *how* a model responds (tone, helpfulness) — it
+      never fixes stale or missing knowledge; that's **RAG**'s job, not
+      RLHF's.
+- [ ] Fewer than ~50-100 labeled examples per class/task → **prompt
+      engineering (few-shot)** or **RAG**, not a smaller fine-tune.
+- [ ] Retrieval-metric picks: one correct/best answer → **MRR**; graded
+      relevance and order matters → **NDCG@k**; binary, multiple
+      relevant docs, order matters → **MAP**; only "somewhere in the top
+      *k*" matters → **Recall@k**.
 
 ---
 
@@ -340,10 +484,14 @@ it's drawn from.
 | This cram sheet | Full guide section |
 |---|---|
 | 1. Customization trade-off table | [Comparison table: customization approaches](../domain-3-applications-of-foundation-models.md#comparison-table-customization-approaches-for-foundation-model-applications) |
+| 1a. Fine-tuning efficiency techniques (LoRA/QLoRA/instruction tuning) | [Fine-tuning efficiency techniques](../domain-3-applications-of-foundation-models.md#fine-tuning-efficiency-techniques-full-fine-tuning-vs-lora-vs-qlora-vs-instruction-tuning) |
+| 1b. RLHF | [Reinforcement Learning from Human Feedback (RLHF)](../domain-3-applications-of-foundation-models.md#reinforcement-learning-from-human-feedback-rlhf-aligning-fine-tuned-models-to-human-preferences) |
+| 1c. Fine-tuning dataset curation | [Curating a fine-tuning dataset](../domain-3-applications-of-foundation-models.md#curating-a-fine-tuning-dataset-size-thresholds-a-quality-checklist-and-synthetic-vs-real-data) |
 | 2. Prompt engineering techniques | [Section 2](../domain-3-applications-of-foundation-models.md#2-prompt-engineering-techniques) + [comparison table](../domain-3-applications-of-foundation-models.md#comparison-table-prompt-engineering-techniques-at-a-glance) |
 | 3. Bedrock features checklist | [Section 5](../domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) + [Guardrails rule-type decision tree](../domain-3-applications-of-foundation-models.md#guardrails-rule-type-decision-tree-matching-the-use-case-to-the-right-filter) |
 | 4. Vector databases and embeddings | [Vector store decision guide](../domain-3-applications-of-foundation-models.md#vector-store-decision-guide-opensearch-vs-aurora-pgvector-vs-amazon-kendra) + [Section 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) + [embedding model selection](../domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned) |
 | 5. Evaluation-strategy table | [Section 7](../domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) |
+| 5a. Retrieval quality metrics (NDCG/MAP/Recall@k/MRR) | [Retrieval quality metrics](../domain-3-applications-of-foundation-models.md#retrieval-quality-metrics-ndcg-map-recallk-and-mrr-a-selection-decision-guide) |
 | 6. Infrastructure-scaling bullets | [Section 8](../domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads) + [SageMaker auto-scaling decision guide](../domain-3-applications-of-foundation-models.md#sagemaker-endpoint-auto-scaling-a-parameter-tuning-decision-guide) |
 | 7. Prompt-injection prevention | [Section 2](../domain-3-applications-of-foundation-models.md#2-prompt-engineering-techniques) + [Guardrails rule-type decision tree](../domain-3-applications-of-foundation-models.md#guardrails-rule-type-decision-tree-matching-the-use-case-to-the-right-filter) |
 | 8. RAG failure-mode triage | [Worked example: troubleshooting a failing RAG system](../domain-3-applications-of-foundation-models.md#worked-example-troubleshooting-a-failing-rag-system) + [decision tree](../domain-3-applications-of-foundation-models.md#decision-tree-diagnosing-rag-retrieval-failures) |

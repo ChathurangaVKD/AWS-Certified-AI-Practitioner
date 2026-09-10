@@ -1922,11 +1922,20 @@ class TestDocumentationStructureNavigationGapAccuracy(unittest.TestCase):
     'does NOT mention Fast Track condensed guides or Ultra Fast Learn cram
     sheets.' That claim is false -- README.md's own "Three-tier learning
     structure" section (currently around lines 21-57) already explains all
-    three study tiers and links into every domain's condensed material. This
-    class guards against that false claim being (re-)stated in
+    three study tiers and links into every domain's condensed material.
+
+    A second Navigation-section gap claim -- that exam-preparation-strategy.md's
+    study plans 'never mention that Fast Track or Ultra Fast Learn passes are
+    an option' -- was also false: its 4-week and 2-week plans each carry a
+    "Fast Track substitution" callout, and its 1-week plan is built around
+    Fast Track guides as primary material plus a dedicated Ultra Fast Learn
+    cram-sheet review day.
+
+    This class guards against either false claim being (re-)stated in
     DOCUMENTATION_STRUCTURE.md's Navigation section, while making sure the
-    two genuinely still-open navigation gaps (domain guide introductions,
-    and exam-preparation-strategy.md's study plans) stay documented."""
+    one genuinely still-open navigation gap (domain guide introductions not
+    linking sideways to their Fast Track / Ultra Fast Learn material) stays
+    documented."""
 
     @classmethod
     def setUpClass(cls):
@@ -1967,11 +1976,25 @@ class TestDocumentationStructureNavigationGapAccuracy(unittest.TestCase):
         self.assertIn("domain guide introductions", lowered)
         self.assertIn("fast-track", lowered)
 
-    def test_navigation_section_still_documents_exam_prep_gap(self):
+    def test_navigation_section_does_not_repeat_false_exam_prep_gap_claim(self):
+        lowered = self.nav_section.lower()
+        self.assertNotIn(
+            "never mention that fast track",
+            lowered,
+            "Navigation section should not claim exam-preparation-strategy.md's "
+            "study plans never mention Fast Track / Ultra Fast Learn -- its "
+            "4-week and 2-week plans each carry a 'Fast Track substitution' "
+            "callout, and its 1-week plan is built around Fast Track guides "
+            "as primary material plus an Ultra Fast Learn review day.",
+        )
+        self.assertNotIn("don't mention condensed", lowered)
+
+    def test_navigation_section_credits_exam_prep_condensed_integration(self):
         self.assertIn("exam-preparation-strategy.md", self.nav_section)
         idx = self.nav_section.find("exam-preparation-strategy.md")
         window = self.nav_section[idx : idx + 400]
         self.assertIn("study plan", window.lower())
+        self.assertIn("Fast Track", window)
 
 
 class TestDocumentationStructureAnswerKeyHeadingConsistency(unittest.TestCase):

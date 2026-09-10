@@ -544,8 +544,13 @@ already handles this well and should not be flagged as a gap — its
 "Three-tier learning structure" section (lines 21-57) explicitly walks
 through when to use the full guide versus the Fast Track versus the
 Ultra Fast Learn cram sheet, with worked links into all five domains'
-condensed material. Two narrower navigation gaps remain genuinely open,
-though, and are still worth fixing:
+condensed material. `exam-preparation-strategy.md` also does this well:
+its 4-week, 2-week, and 1-week study plans each successfully integrate the
+condensed tiers — a "Fast Track substitution" callout in the 4-week and
+2-week plans, and the 1-week plan built around Fast Track guides as the
+primary material for Days 1–4 plus a dedicated Ultra Fast Learn cram-sheet
+review day. One narrower navigation gap remains genuinely open, though,
+and is still worth fixing:
 
 - **Domain guide introductions don't point sideways.** None of the five
   domain guides' opening sections (`domain-1-fundamentals-of-ai-and-ml.md`
@@ -554,11 +559,6 @@ though, and are still worth fixing:
   sheet — a reader who lands directly on a full domain guide (rather than
   starting from `README.md`) has no in-file pointer to the condensed
   tiers for that domain.
-- **`exam-preparation-strategy.md`'s study plans don't mention condensed
-  material.** Its 1-week, 2-week, and 4-week study plans describe what to
-  study and when but never mention that Fast Track or Ultra Fast Learn
-  passes are an option for review time, even though a compressed plan is
-  exactly the scenario those tiers are built for.
 
 ## Content health
 

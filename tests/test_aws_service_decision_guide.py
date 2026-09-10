@@ -596,11 +596,20 @@ class TestAwsServiceDecisionGuideBedrockCatalog20260909Refresh(unittest.TestCase
         self.assertIn("Large", jamba_row)
         self.assertIn("Mini", jamba_row)
 
-    def test_jamba_2_0_no_longer_present_anywhere_in_section(self):
-        # The old version name must not linger in the table, the exam
-        # tips, or the §4.1 decision-flow diagram now that AI21's family
-        # is Jamba 1.5.
-        self.assertNotIn("Jamba 2.0", self.section_text)
+    def test_jamba_2_0_no_longer_present_in_table_or_diagram(self):
+        # The old version name must not linger in the comparison table,
+        # the exam tips, or the §4.1 decision-flow diagram now that
+        # AI21's family is Jamba 1.5 -- it may still appear once, in the
+        # 'changes found and applied' changelog prose, as a historical
+        # note of what the family moved *from*.
+        self.assertEqual(
+            self.section_text.count("Jamba 2.0"),
+            1,
+            "expected 'Jamba 2.0' to appear at most once, in the "
+            "changelog prose noting what AI21's family moved from -- "
+            "not still lingering in the table, an exam tip, or the "
+            "decision-flow diagram",
+        )
 
     def test_claude_row_reflects_5_x_generation(self):
         claude_row = next(

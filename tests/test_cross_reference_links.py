@@ -93,13 +93,10 @@ def _read(path):
 def _slugify(heading_text):
     """Approximate the GitHub markdown heading-anchor algorithm: lowercase,
     strip characters that aren't word characters/spaces/hyphens, then turn
-    each remaining space into a hyphen (consecutive spaces -- e.g. from a
-    removed "+" or em-dash -- become consecutive hyphens, not a single
-    collapsed one, matching GitHub's actual behavior and the convention
-    already used in tests/test_domain_3_fast_track_part2_inference_and_multimodal.py)."""
+    runs of whitespace into single hyphens."""
     s = heading_text.strip().lower()
     s = re.sub(r"[^\w\s-]", "", s)
-    s = s.replace(" ", "-")
+    s = re.sub(r"\s+", "-", s.strip())
     return s
 
 

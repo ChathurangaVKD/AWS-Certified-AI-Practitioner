@@ -36,10 +36,27 @@ MIN_THREE_PLUS_DOMAIN_QUESTIONS = 4
 DIFFICULTY_RE = re.compile(r"\*\*\[(Beginner|Intermediate|Advanced)\]\*\*")
 DOMAIN_TAG_RE = re.compile(r"\*\(Domains?\s+([0-9,\s]+)\)\*")
 CORRECT_LETTER_RE = re.compile(r"\*\*[A-E](?:\s*(?:,|and)\s*[A-E])*\s*[—-]")
+MD_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)\s]+)\)")
 
 
 def _read(path):
     return path.read_text(encoding="utf-8")
+
+
+def _slugify(heading_text):
+    """Approximate the GitHub markdown heading-anchor algorithm: lowercase,
+    strip characters that aren't word characters/spaces/hyphens, then turn
+    runs of whitespace into single hyphens."""
+    s = heading_text.strip().lower()
+    s = re.sub(r"[^\w\s-]", "", s)
+    s = re.sub(r"\s+", "-", s.strip())
+    return s
+
+
+def _heading_anchors(doc_text):
+    """Return the set of anchor slugs for every heading in a markdown doc."""
+    headings = re.findall(r"^#{1,6}\s+(.*)$", doc_text, re.M)
+    return {_slugify(h) for h in headings}
 
 
 def _section(text, start_heading_regex, end_heading_regex=r"\n## "):
@@ -297,6 +314,69 @@ class TestCrossDomainScenarioQuestions(unittest.TestCase):
                         f"({sorted(domains)}) and should be tagged "
                         "[Advanced]",
                     )
+
+
+class TestCrossDomainScenarioQuestionsLinksResolve(unittest.TestCase):
+    """This doc's cross-domain framing depends on its links back into the
+    domain guides, the concept map, the case study, and the exam-prep guide
+    being correct. Unlike docs/cross-domain-concept-map.md,
+    docs/case-study-ai-system-lifecycle.md, and
+    docs/exam-preparation-strategy.md -- which all already assert every
+    internal link resolves -- this file previously only checked that a few
+    target filenames appeared as substrings, so a renamed heading or typoed
+    anchor here would go unnoticed. Verify every relative markdown link
+    (optionally with a #anchor) points at a real file, and that the anchor
+    -- if present -- matches a real heading in that file."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        cls.links = MD_LINK_RE.findall(cls.text)
+        cls.internal_links = [
+            link
+            for link in cls.links
+            if not link.startswith(("http://", "https://", "#"))
+        ]
+
+    def test_found_a_substantial_number_of_internal_links(self):
+        # Sanity check that the regex above is actually matching the
+        # document's link syntax, so the resolution tests below aren't
+        # silently vacuous.
+        self.assertGreaterEqual(
+            len(self.internal_links),
+            10,
+            "expected many internal links from the cross-domain scenario "
+            "questions into the domain guides and companion docs",
+        )
+
+    def test_every_internal_link_target_file_exists(self):
+        for link in self.internal_links:
+            file_part = link.split("#", 1)[0]
+            with self.subTest(link=link):
+                target_path = (DOCS_DIR / file_part).resolve()
+                self.assertTrue(
+                    target_path.is_file(),
+                    f"linked file does not exist: {file_part!r} "
+                    f"(resolved to {target_path})",
+                )
+
+    def test_every_internal_anchor_matches_a_real_heading(self):
+        anchor_cache = {}
+        for link in self.internal_links:
+            if "#" not in link:
+                continue
+            file_part, anchor = link.split("#", 1)
+            with self.subTest(link=link):
+                if file_part not in anchor_cache:
+                    target_path = (DOCS_DIR / file_part).resolve()
+                    anchor_cache[file_part] = _heading_anchors(_read(target_path))
+                self.assertIn(
+                    anchor,
+                    anchor_cache[file_part],
+                    f"anchor #{anchor} does not match any heading slug in "
+                    f"{file_part} -- the cross-domain scenario questions "
+                    "link is stale",
+                )
 
 
 if __name__ == "__main__":

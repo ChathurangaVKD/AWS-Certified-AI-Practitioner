@@ -28,13 +28,14 @@ heading-derived anchor without changing the link text itself, so this
 re-derives every anchor from the *current* heading text on every run
 rather than trusting that a prior audit still holds.
 
-The second tier also covers README.md and the remaining cross-domain
-support documents that reference the five domain guides and each other --
-aws-service-decision-guide.md, cross-domain-concept-map.md,
-cross-domain-scenario-questions.md, exam-preparation-strategy.md,
-study-progress-tracker.md, mock-exam.md, and full-length-mock-exam.md --
-closing the previously-unverified "comprehensive cross-linking" claim
-called out for README.md and the cross-domain materials as a whole.
+The second tier also covers README.md, DOCUMENTATION_STRUCTURE.md, and the
+remaining cross-domain support documents that reference the five domain
+guides and each other -- aws-service-decision-guide.md,
+cross-domain-concept-map.md, cross-domain-scenario-questions.md,
+exam-preparation-strategy.md, study-progress-tracker.md, mock-exam.md, and
+full-length-mock-exam.md -- closing the previously-unverified
+"comprehensive cross-linking" claim called out for README.md,
+DOCUMENTATION_STRUCTURE.md, and the cross-domain materials as a whole.
 
 Mirrors the conventions established in tests/test_readme_study_plan.py.
 
@@ -67,8 +68,18 @@ DOMAIN_FILES = {
 # but none of those individually re-derive *every* file's worth of anchors
 # in one consolidated pass the way DOCUMENTATION_STRUCTURE.md's "every
 # internal link and anchor across every file resolves" claim implies.
+#
+# DOCUMENTATION_STRUCTURE.md itself is included here too, closing the one
+# named source that a 2026-09-10 audit found was never actually a checked
+# *source* of links (only a checked *target*): it is a narrative/structural
+# map rather than a lookup table, so it carries no real markdown links today
+# other than one prose example (`[← Domain N-1 of 5](...)`) that
+# illustrates the breadcrumb link *format* with a literal "..." placeholder
+# rather than linking anywhere -- that placeholder is filtered out below so
+# it isn't mistaken for a broken link.
 SPOT_CHECK_FILES = {
     "README.md": REPO_ROOT / "README.md",
+    "DOCUMENTATION_STRUCTURE.md": DOCS_DIR / "DOCUMENTATION_STRUCTURE.md",
     "case-study-ai-system-lifecycle.md": DOCS_DIR
     / "case-study-ai-system-lifecycle.md",
     "master-glossary.md": DOCS_DIR / "master-glossary.md",
@@ -274,6 +285,14 @@ class TestSpotCheckedCrossReferenceLinksResolve(unittest.TestCase):
     during a content backfill in one file can't silently break a link
     living in a different file's dedicated test that nobody re-ran."""
 
+    # Files that are known, checked sources of zero *real* internal links --
+    # e.g. a narrative/structural document that only mentions the link
+    # *format* in prose via a literal "..." placeholder rather than linking
+    # anywhere. Kept explicit (rather than silently allowed) so a future
+    # file added to SPOT_CHECK_FILES with genuinely zero links doesn't slip
+    # through test_found_internal_links_in_every_spot_checked_file unnoticed.
+    NO_REAL_LINKS_EXPECTED = {"DOCUMENTATION_STRUCTURE.md"}
+
     @classmethod
     def setUpClass(cls):
         cls.anchor_cache = {}
@@ -285,6 +304,9 @@ class TestSpotCheckedCrossReferenceLinksResolve(unittest.TestCase):
                 link
                 for link in links
                 if not link.startswith(("http://", "https://", "mailto:"))
+                # Prose placeholder used to illustrate the breadcrumb link
+                # *format* (e.g. "[← Domain N-1 of 5](...)"), not a real link.
+                and link != "..."
             ]
 
     def _resolve_target_path(self, source_label, file_part):
@@ -299,6 +321,8 @@ class TestSpotCheckedCrossReferenceLinksResolve(unittest.TestCase):
 
     def test_found_internal_links_in_every_spot_checked_file(self):
         for label in SPOT_CHECK_FILES:
+            if label in self.NO_REAL_LINKS_EXPECTED:
+                continue
             with self.subTest(file=label):
                 self.assertGreaterEqual(
                     len(self.links_by_file[label]),

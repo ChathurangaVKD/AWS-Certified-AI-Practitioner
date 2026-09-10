@@ -276,14 +276,14 @@ class TestHop2GapTopicsNowPresentInUltraFastLearn(unittest.TestCase):
                     )
 
 
-class TestHop1GapTopicNowFixedInFastTrack(unittest.TestCase):
+class TestHop1GapTopicNowFixedEverywhere(unittest.TestCase):
     """The one hop-1 finding: the Amazon A2I "worker task template" term
     was present in the full guide but absent from both the Fast Track and
-    Ultra Fast Learn. That gap has since been backfilled into the Fast
-    Track (README.md Section 3's condensed A2I worked-example pattern), so
-    the term must now appear in the full guide and the Fast Track alike.
-    Ultra Fast Learn is a separate, still-open hop-2 gap and should
-    continue to omit it until that follow-up work happens."""
+    Ultra Fast Learn. That gap has since been backfilled into both the
+    Fast Track (README.md Section 3's condensed A2I worked-example
+    pattern) and Ultra Fast Learn (Section 5's A2I mechanics bullet list),
+    so the term must now appear in all three: the full guide, the Fast
+    Track, and Ultra Fast Learn."""
 
     @classmethod
     def setUpClass(cls):
@@ -297,8 +297,8 @@ class TestHop1GapTopicNowFixedInFastTrack(unittest.TestCase):
     def test_fast_track_now_contains_worker_task_template(self):
         self.assertRegex(self.fast_track_text, HOP1_GAP_PATTERN)
 
-    def test_ultra_fast_learn_is_missing_worker_task_template(self):
-        self.assertNotRegex(self.ultra_text, HOP1_GAP_PATTERN)
+    def test_ultra_fast_learn_now_contains_worker_task_template(self):
+        self.assertRegex(self.ultra_text, HOP1_GAP_PATTERN)
 
 
 if __name__ == "__main__":

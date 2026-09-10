@@ -530,7 +530,7 @@ class TestAwsServiceDecisionGuideModelFamilySelectionDiagram(unittest.TestCase):
         for family in [
             "Amazon Nova",
             "Anthropic Claude",
-            "AI21 Labs Jamba 2.0",
+            "AI21 Labs Jamba 1.5",
             "DeepSeek-R1",
         ]:
             with self.subTest(family=family):
@@ -550,6 +550,162 @@ class TestAwsServiceDecisionGuideModelFamilySelectionDiagram(unittest.TestCase):
             "expected an exam tip explaining how the diagram's decision "
             "order relates to the comparison table above it",
         )
+
+
+class TestAwsServiceDecisionGuideBedrockCatalog20260909Refresh(unittest.TestCase):
+    """Section 4 -- a 2026-09-09 re-verification pass against the official
+    Bedrock model catalog found seven existing provider rows had moved:
+    AI21 Labs renamed its family from Jamba 2.0 to Jamba 1.5 (Large/Mini
+    tiers); Anthropic Claude stepped to the 5.x generation; DeepSeek added
+    V3.2/V3.1 general-purpose siblings alongside R1; Amazon Nova and Nova
+    Sonic each added a v2 tier (Nova 2 Lite, Nova 2 Sonic) alongside v1;
+    Meta Llama's 3.x line was clarified into 3.2/3.3 tiers; Cohere's
+    reranking model is now versioned Rerank 3.5; and OpenAI's row expanded
+    from gpt-oss alone to also cover the GPT-5.x/GPT-6 Astra closed-weight
+    series and GPT OSS Safeguard variants. Guards that this pass actually
+    landed in the table (not just the 'last verified' date) and that the
+    now-stale Jamba 2.0 naming was fully replaced, including in the
+    §4.1 decision-flow diagram."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = _read(DOC_PATH)
+        section_match = BEDROCK_MODEL_REFERENCE_SECTION_RE.search(cls.text)
+        assert section_match is not None, "could not locate section 4"
+        cls.section_text = section_match.group(0)
+
+    def test_last_verified_date_bumped_to_2026_09_09(self):
+        self.assertRegex(
+            self.section_text,
+            re.compile(r"\*\*Last verified:\*\*\s*2026-09-09"),
+            "expected the Bedrock model reference 'Last verified' date to "
+            "be refreshed to 2026-09-09",
+        )
+
+    def test_jamba_row_updated_to_1_5_large_and_mini(self):
+        jamba_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **AI21 Labs Jamba")
+            ),
+            None,
+        )
+        self.assertIsNotNone(jamba_row, "expected an AI21 Labs Jamba row")
+        self.assertIn("Jamba 1.5", jamba_row)
+        self.assertIn("Large", jamba_row)
+        self.assertIn("Mini", jamba_row)
+
+    def test_jamba_2_0_no_longer_present_anywhere_in_section(self):
+        # The old version name must not linger in the table, the exam
+        # tips, or the §4.1 decision-flow diagram now that AI21's family
+        # is Jamba 1.5.
+        self.assertNotIn("Jamba 2.0", self.section_text)
+
+    def test_claude_row_reflects_5_x_generation(self):
+        claude_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **Anthropic Claude**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(claude_row, "expected an Anthropic Claude row")
+        self.assertIn("Claude 5.x", claude_row)
+
+    def test_deepseek_row_expanded_beyond_r1(self):
+        deepseek_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **DeepSeek**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            deepseek_row,
+            "expected a DeepSeek row (previously named '**DeepSeek-R1**')",
+        )
+        self.assertIn("R1", deepseek_row)
+        self.assertIn("V3.2", deepseek_row)
+        self.assertIn("V3.1", deepseek_row)
+        self.assertIn("general-purpose", deepseek_row)
+
+    def test_nova_rows_call_out_v2_tiers(self):
+        nova_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **Amazon Nova** ")
+            ),
+            None,
+        )
+        self.assertIsNotNone(nova_row, "expected the Amazon Nova family row")
+        self.assertIn("Nova 2 Lite", nova_row)
+
+        nova_sonic_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **Amazon Nova Sonic**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(nova_sonic_row, "expected the Amazon Nova Sonic row")
+        self.assertIn("Nova 2 Sonic", nova_sonic_row)
+
+    def test_llama_row_differentiates_3_2_and_3_3(self):
+        llama_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **Meta Llama**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(llama_row, "expected a Meta Llama row")
+        self.assertIn("Llama 3.2", llama_row)
+        self.assertIn("Llama 3.3", llama_row)
+
+    def test_cohere_row_versions_rerank(self):
+        cohere_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **Cohere Command")
+            ),
+            None,
+        )
+        self.assertIsNotNone(cohere_row, "expected a Cohere row")
+        self.assertIn("Rerank 3.5", cohere_row)
+
+    def test_openai_row_expanded_beyond_gpt_oss(self):
+        openai_row = next(
+            (
+                line
+                for line in self.section_text.splitlines()
+                if line.strip().startswith("| **OpenAI**")
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            openai_row,
+            "expected an OpenAI row (previously named '**OpenAI gpt-oss**')",
+        )
+        self.assertIn("gpt-oss", openai_row)
+        self.assertIn("GPT-5.6", openai_row)
+        self.assertIn("GPT-6 Astra", openai_row)
+        self.assertIn("GPT OSS Safeguard", openai_row)
+
+    def test_diagram_jamba_node_uses_1_5_not_2_0(self):
+        diagram_match = re.search(
+            r"```mermaid(?P<body>.*?)```", self.section_text, re.S
+        )
+        self.assertIsNotNone(diagram_match)
+        diagram_body = diagram_match.group("body")
+        self.assertIn("AI21 Labs Jamba 1.5", diagram_body)
+        self.assertNotIn("Jamba 2.0", diagram_body)
 
 
 DECISION_FLOW_SECTION_RE = re.compile(

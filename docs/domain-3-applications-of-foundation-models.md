@@ -2,7 +2,7 @@
 
 [← Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md) · **Domain 3 of 5** · [Domain 4: Guidelines for Responsible AI →](domain-4-guidelines-for-responsible-ai.md)
 
-**Last verified:** 2026-09-02
+**Last verified:** 2026-09-09
 
 ## Table of contents
 

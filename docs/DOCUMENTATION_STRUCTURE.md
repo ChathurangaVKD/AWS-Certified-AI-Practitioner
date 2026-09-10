@@ -571,6 +571,25 @@ continuously enforced by `tests/test_documentation_structure.py`, which
 re-derives every figure in this file from the underlying source files
 rather than relying on a point-in-time human check.
 
+**Coverage guarantee status: Domains 1-5 all FULFILLED.** The Fast Track
+coverage guarantee stated above ("every testable concept the full domain
+guide covers is retained somewhere in the condensed layer") has been
+technically verified against the source material for every domain, one
+dedicated audit per domain in each domain's
+`docs/domain-N-fast-track/COVERAGE-VERIFICATION-REPORT.md` (N = 1 through
+5). Domain 1's audit found no gaps. Domains 2 and 3 each found a handful
+of gaps, since backfilled. Domains 4 and 5 also each found real gaps —
+Domain 4's Ultra Fast Learn hop, and both hops for Domain 5 — but those
+have since been backfilled too: Domain 4's report
+(`docs/domain-4-fast-track/COVERAGE-VERIFICATION-REPORT.md`, line 3:
+"technical verification complete, all identified gaps backfilled," lines
+100-158 document the fix) was backfilled 2026-09-10, and Domain 5's report
+(`docs/domain-5-fast-track/COVERAGE-VERIFICATION-REPORT.md`, lines 3-6:
+"technical verification complete; the four hop-1 gaps and the five hop-2
+gaps below have both been backfilled," lines 169-198 document the fix)
+was backfilled 2026-09-09. Known coverage gaps: none — every gap any of
+the five audits identified has been backfilled, most recently 2026-09-10.
+
 ## Complete file inventory
 
 The repository's Markdown content is **33 files**: `README.md`; the five

@@ -47,7 +47,7 @@ below:
 | 4. Vector databases and embeddings: choosing a backend | [Section 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) | 2931-3018 |
 | 5. Choosing an embedding model | [Choosing an embedding model](../domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned) | 3019-3101 |
 | 6. Reranking and hybrid search | [Reranking and hybrid search](../domain-3-applications-of-foundation-models.md#reranking-and-hybrid-search-sharpening-vector-only-results) | 3102-3371 |
-| 7. Multi-modal application patterns | [Multi-modal retrieval worked example](../domain-3-applications-of-foundation-models.md#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text--images) and [token-budget worked example](../domain-3-applications-of-foundation-models.md#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text--tables--images) | 1404-1562, 3372-3512 |
+| 7. Multi-modal application patterns | [Multi-modal retrieval worked example](../domain-3-applications-of-foundation-models.md#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text-images) and [token-budget worked example](../domain-3-applications-of-foundation-models.md#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text-tables-images) | 1404-1562, 3372-3512 |
 | 8. Retrieval quality metrics | [Retrieval quality metrics](../domain-3-applications-of-foundation-models.md#retrieval-quality-metrics-ndcg-map-recallk-and-mrr-a-selection-decision-guide) | 3513-3738 |
 | 9. Evaluating foundation model performance | [Section 7](../domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) | 3739-4223 |
 
@@ -527,9 +527,9 @@ type, not defaulting every table and chart to the same option.
 
 Full explanation and the code sketch for Reciprocal Rank Fusion: [full
 guide, multi-modal retrieval worked
-example](../domain-3-applications-of-foundation-models.md#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text--images)
+example](../domain-3-applications-of-foundation-models.md#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text-images)
 and [token-budget worked
-example](../domain-3-applications-of-foundation-models.md#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text--tables--images).
+example](../domain-3-applications-of-foundation-models.md#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text-tables-images).
 
 ---
 

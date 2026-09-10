@@ -526,6 +526,22 @@ above can't silently drift stale as the guides grow.
 
 ## Navigation
 
+**Link audit (2026-09-10):** every markdown link and heading anchor
+originating from README.md, this file, `master-glossary.md`, `GLOSSARY.md`,
+`aws-service-index.md`, and `cross-domain-concept-map.md` was walked and
+checked against its target: does the target file exist at that path, and
+does the target heading/anchor exist verbatim (re-derived from the target
+file's *current* headings, not assumed from a prior pass)? All of them
+resolved — no broken paths or stale anchors were found, so no link text or
+path needed correcting. `tests/test_cross_reference_links.py`'s
+spot-check tier (`TestSpotCheckedCrossReferenceLinksResolve`) now also
+treats this file as a checked link *source* alongside the five files named
+above, closing the one gap in that list a prior pass left unverified: this
+file itself carries no real outgoing links today (only a prose example of
+the breadcrumb format below, using a literal `...` placeholder), so there
+was nothing to fix here, but the check now runs on every future edit
+instead of relying on inference.
+
 Every domain guide opens with a breadcrumb line (`[← Domain N-1 of 5](...)
 · Domain N of 5 · [Domain N+1 of 5 →](...)`) linking to the previous and
 next domain guide, plus a `## Table of contents` section linking every

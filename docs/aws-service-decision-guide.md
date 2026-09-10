@@ -345,84 +345,17 @@ tools](domain-4-guidelines-for-responsible-ai.md#comparison-table-aws-responsibl
 > none of the three substitutes for the others.
 
 For the full walkthrough of each concept, see Domain 5:
-[Data encryption at rest and in transit](domain-5-security-compliance-governance.md#data-encryption-at-rest-and-in-transit),
-[AWS PrivateLink and VPC endpoints for AI services](domain-5-security-compliance-governance.md#aws-privatelink-and-vpc-endpoints-for-ai-services),
-[AWS Artifact](domain-5-security-compliance-governance.md#aws-artifact), and
-[HIPAA — conceptual level](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act-conceptual-level).
+UNRESOLVABLE
 
----
+The conflict presents two incompatible verification reports that make contradictory factual claims:
 
-## 4. Bedrock model reference: capabilities and use-case fit
+- **HEAD (2026-09-09)** claims specific changes were found and applied: Jamba moved from 2.0 to 1.5, Claude updated to 5.x, DeepSeek expanded with V3.2/V3.1, Nova v2 added, Llama clarified to 3.2/3.3, etc.
 
-The domain guides mention Titan, Claude, Llama, Nova, and other Bedrock
-models throughout, but scattered mentions aren't a substitute for a single
-place to compare them. Use this table when a scenario names a use case
-(or a required modality) and you need to reason about *which family* of
-model fits — not the exact model version, which changes too often to be
-exam-testable.
+- **Incoming (2026-09-10)** claims a re-check found **"No further model additions, deprecations, renames, or capability changes"** since the prior 2026-09-02 pass, with Jamba still listed as "Jamba 2.0".
 
-> **Staleness warning:** Amazon Bedrock's model catalog changes
-> frequently — AWS adds new model versions and deprecates old ones on an
-> ongoing basis. The exam tests **model-family capabilities and
-> selection criteria** (context window trade-offs, which modality a
-> family supports, when multimodal beats text-only), not specific
-> version numbers. Always verify exact model names/versions against the
-> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
-> before relying on this table outside exam prep.
->
-> **Last verified:** 2026-09-09, against the official Bedrock model
-> catalog above. Changes found and applied in this pass: AI21's **Jamba**
-> line moved from the previously-recorded Jamba 2.0 to **Jamba 1.5**,
-> offered in **Large** (maximum context/quality) and **Mini** (lower
-> cost/latency) tiers, so the row below now reflects both tiers instead
-> of a single entry; **Anthropic Claude** stepped from the 4.x generation
-> to **Claude 5.x** as its current Bedrock line, carrying its existing
-> reasoning/tool-use/computer-use strengths forward; **DeepSeek** expanded
-> beyond **DeepSeek-R1** to add **V3.2** and **V3.1**, general-purpose,
-> non-reasoning alternatives that broaden DeepSeek's use-case fit from
-> cost-efficient reasoning alone to general-purpose inference as well;
-> **Amazon Nova** added a v2 generation — **Nova 2 Lite** and **Nova 2
-> Sonic** — offered alongside the existing v1 tiers rather than replacing
-> them, so the Nova and Nova Sonic rows below now call out versioning
-> explicitly; **Meta Llama**'s 3.x line was clarified into its **3.2**
-> (smaller/faster) and **3.3** (higher-capability successor) tiers;
-> **Cohere**'s reranking model is now versioned as **Rerank 3.5**; and
-> **OpenAI**'s row expanded well beyond gpt-oss to add the closed-weight
-> **GPT-5.4**, **GPT-5.5**, and **GPT-5.6** series, **GPT-6 Astra**, and
-> the **GPT OSS Safeguard** open-weight safety-classification variants.
-> Nine additional third-party providers were also observed as newly
-> available in the catalog during this pass (e.g., Google/Gemma, NVIDIA,
-> Qwen, xAI, and others); adding dedicated rows for them, and extending
-> the §4.1 decision flow to route to them, is tracked as separate
-> follow-up work rather than folded into this pass. The rest of the
-> catalog (Titan, Mistral AI, Stability AI) was re-checked against the
-> catalog and found unchanged. The next reviewer should update this date
-> and summary after re-checking against the catalog link above.
->
-> **Verification process (for maintainers):** the Bedrock catalog is
-> observed to change roughly monthly, so treat this table as due for
-> re-verification once the **Last verified** date above is more than
-> ~60 days old — don't assume a table with no open issues is still
-> accurate. To re-verify: open the
-> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
-> linked in the staleness warning above, diff its current model list
-> against the rows below, update any changed/added/removed rows, and
-> then update both the **Last verified** date and the "changes found
-> and applied" summary to reflect that pass — a re-verification that
-> only bumps the date without recording what was checked defeats the
-> purpose of this note.
+These versions directly contradict each other on what the actual AWS Bedrock catalog contains. If the 2026-09-09 changes genuinely occurred in the catalog, the 2026-09-10 verification should acknowledge them; if nothing changed between 2026-09-02 and 2026-09-10, then Jamba would not have moved from 2.0 to 1.5 as HEAD claims.
 
-### Maintenance process
-
-This subsection spells out, concretely, what a re-verification pass
-against the table below actually involves, so a future contributor doing
-the ~60-day check doesn't have to re-derive the process from the
-staleness warning above.
-
-**What to check.** Walk the table row by row and confirm four things per
-family: (1) **model names/versions** — has AWS renamed a tier, retired a
-version, or shipped a new generation (e.g., Titan → Nova was exactly this
-kind of change)? (2) **regional availability** — is the family still
+Resolving this requires knowing which verification report is factually accurate against the real AWS Bedrock catalog at those dates.
 offered in the AWS Regions this guide's readers are likely to use (the
 table intentionally omits per-region columns since availability shifts
 too often to be exam-testable, but a family that has quietly become

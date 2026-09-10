@@ -276,7 +276,7 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
 
     def test_fast_track_section_heading_present(self):
         self.assertIn(
-            "## Fast Track condensed guides (15 files, 7,729 lines total)",
+            "## Fast Track condensed guides (15 files, 7,901 lines total)",
             self.structure_text,
             "DOCUMENTATION_STRUCTURE.md is missing the 'Fast Track "
             "condensed guides' section documenting the 15-file, "
@@ -330,7 +330,7 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
         self.assertIn("every testable concept", self.structure_text)
 
     def test_stated_fast_track_per_domain_line_counts_match_actual(self):
-        expected = {1: 975, 2: 1228, 3: 2909, 4: 1037, 5: 1580}
+        expected = {1: 975, 2: 1228, 3: 3081, 4: 1037, 5: 1580}
         for domain_number, paths in FAST_TRACK_FILES_BY_DOMAIN.items():
             actual = sum(_line_count(path) for path in paths)
             with self.subTest(domain=domain_number):
@@ -364,6 +364,39 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
             self.structure_text,
         )
         self.assertIn(f"**{formatted} lines**", self.structure_text)
+
+    def test_stated_domain_3_fast_track_file_by_file_breakdown_matches_actual(self):
+        """The Domain 3 Fast Track bullet spells out each of its five
+        files' individual line counts (README, part-1, part-2, part-3,
+        ULTRA-FAST-LEARN.md), not just the domain total. A 2026-09-09/10
+        coverage backfill grew ULTRA-FAST-LEARN.md from 358 to 506 lines and
+        part-2 from 784 to 808 lines without the doc being updated -- this
+        pins each individual figure (and the domain total they sum to) to
+        the files' actual current sizes so that drift can't hide behind a
+        correct-looking aggregate total."""
+        paths = FAST_TRACK_FILES_BY_DOMAIN[3]
+        readme, part1, part2, part3, ultra = (
+            _line_count(p) for p in paths
+        )
+        self.assertEqual(readme, 88)
+        self.assertEqual(part1, 832)
+        self.assertEqual(part2, 808)
+        self.assertEqual(part3, 847)
+        self.assertEqual(ultra, 506)
+        domain_total = readme + part1 + part2 + part3 + ultra
+        self.assertEqual(domain_total, 3081)
+        expected_bullet = (
+            f"- Domain 3 Fast Track: {domain_total:,} lines (`README.md` "
+            f"{readme} + `part-1` {part1} + `part-2` {part2} +\n"
+            f"  `part-3` {part3} + `ULTRA-FAST-LEARN.md` {ultra})"
+        )
+        self.assertIn(
+            expected_bullet,
+            self.structure_text,
+            "DOCUMENTATION_STRUCTURE.md's Domain 3 Fast Track bullet does "
+            "not state each file's actual current line count "
+            f"(expected: {expected_bullet!r})",
+        )
 
 
 class TestDocumentationStructureCrossDomainMaterials(unittest.TestCase):

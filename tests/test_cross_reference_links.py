@@ -28,6 +28,14 @@ heading-derived anchor without changing the link text itself, so this
 re-derives every anchor from the *current* heading text on every run
 rather than trusting that a prior audit still holds.
 
+The second tier also covers README.md and the remaining cross-domain
+support documents that reference the five domain guides and each other --
+aws-service-decision-guide.md, cross-domain-concept-map.md,
+cross-domain-scenario-questions.md, exam-preparation-strategy.md,
+study-progress-tracker.md, mock-exam.md, and full-length-mock-exam.md --
+closing the previously-unverified "comprehensive cross-linking" claim
+called out for README.md and the cross-domain materials as a whole.
+
 Mirrors the conventions established in tests/test_readme_study_plan.py.
 
 Run with:
@@ -60,11 +68,20 @@ DOMAIN_FILES = {
 # in one consolidated pass the way DOCUMENTATION_STRUCTURE.md's "every
 # internal link and anchor across every file resolves" claim implies.
 SPOT_CHECK_FILES = {
+    "README.md": REPO_ROOT / "README.md",
     "case-study-ai-system-lifecycle.md": DOCS_DIR
     / "case-study-ai-system-lifecycle.md",
     "master-glossary.md": DOCS_DIR / "master-glossary.md",
     "GLOSSARY.md": DOCS_DIR / "GLOSSARY.md",
     "aws-service-index.md": DOCS_DIR / "aws-service-index.md",
+    "aws-service-decision-guide.md": DOCS_DIR / "aws-service-decision-guide.md",
+    "cross-domain-concept-map.md": DOCS_DIR / "cross-domain-concept-map.md",
+    "cross-domain-scenario-questions.md": DOCS_DIR
+    / "cross-domain-scenario-questions.md",
+    "exam-preparation-strategy.md": DOCS_DIR / "exam-preparation-strategy.md",
+    "study-progress-tracker.md": DOCS_DIR / "study-progress-tracker.md",
+    "mock-exam.md": DOCS_DIR / "mock-exam.md",
+    "full-length-mock-exam.md": DOCS_DIR / "full-length-mock-exam.md",
     "domain-1-fast-track/README.md": DOCS_DIR / "domain-1-fast-track" / "README.md",
     "domain-2-fast-track/README.md": DOCS_DIR / "domain-2-fast-track" / "README.md",
     "domain-3-fast-track/README.md": DOCS_DIR / "domain-3-fast-track" / "README.md",

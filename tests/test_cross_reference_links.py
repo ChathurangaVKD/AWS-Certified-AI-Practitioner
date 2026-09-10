@@ -15,6 +15,19 @@ referenced material. This test asserts:
     links) actually resolves: the target file exists, and if the link has
     an anchor, that anchor matches a real heading slug in the target file.
 
+It also independently spot-checks link/anchor integrity in a second,
+broader tier of documents that are individually covered by their own
+dedicated test files (test_case_study_ai_system_lifecycle.py,
+test_master_glossary.py, test_glossary.py, test_aws_service_index.py, and
+the per-domain fast-track guide tests) but whose combined "does every
+cross-reference still resolve" claim -- as stated in
+DOCUMENTATION_STRUCTURE.md -- was previously only true by inference across
+those separate files rather than checked in one place. Headers reworded or
+sections reorganized during a content backfill can silently break a
+heading-derived anchor without changing the link text itself, so this
+re-derives every anchor from the *current* heading text on every run
+rather than trusting that a prior audit still holds.
+
 Mirrors the conventions established in tests/test_readme_study_plan.py.
 
 Run with:
@@ -36,6 +49,27 @@ DOMAIN_FILES = {
     3: DOCS_DIR / "domain-3-applications-of-foundation-models.md",
     4: DOCS_DIR / "domain-4-guidelines-for-responsible-ai.md",
     5: DOCS_DIR / "domain-5-security-compliance-governance.md",
+}
+
+# Second tier of documents spot-checked for cross-reference link integrity:
+# the AI system lifecycle case study's back-references into domain
+# sections, each domain's Fast Track front-matter mapping table, the two
+# glossaries' term backlinks into domain guides, and the AWS service
+# index's section links. Each already has its own dedicated content test,
+# but none of those individually re-derive *every* file's worth of anchors
+# in one consolidated pass the way DOCUMENTATION_STRUCTURE.md's "every
+# internal link and anchor across every file resolves" claim implies.
+SPOT_CHECK_FILES = {
+    "case-study-ai-system-lifecycle.md": DOCS_DIR
+    / "case-study-ai-system-lifecycle.md",
+    "master-glossary.md": DOCS_DIR / "master-glossary.md",
+    "GLOSSARY.md": DOCS_DIR / "GLOSSARY.md",
+    "aws-service-index.md": DOCS_DIR / "aws-service-index.md",
+    "domain-1-fast-track/README.md": DOCS_DIR / "domain-1-fast-track" / "README.md",
+    "domain-2-fast-track/README.md": DOCS_DIR / "domain-2-fast-track" / "README.md",
+    "domain-3-fast-track/README.md": DOCS_DIR / "domain-3-fast-track" / "README.md",
+    "domain-4-fast-track/README.md": DOCS_DIR / "domain-4-fast-track" / "README.md",
+    "domain-5-fast-track/README.md": DOCS_DIR / "domain-5-fast-track" / "README.md",
 }
 
 # One expected linked substring per prose mention that was converted to a

@@ -31,7 +31,7 @@
   - [Choosing an embedding model: domain-specific vs. general vs. fine-tuned](#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned)
   - [Reranking and hybrid search: sharpening vector-only results](#reranking-and-hybrid-search-sharpening-vector-only-results)
   - [Worked example: when to use Cohere Rerank in a RAG pipeline](#worked-example-when-to-use-cohere-rerank-in-a-rag-pipeline)
-  - [Worked example: budgeting tokens for a multimodal financial-report RAG pipeline (text + tables + images)](#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text-tables-images)
+  - [Worked example: budgeting tokens for a multimodal financial-report RAG pipeline (text + tables + images)](#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text--tables--images)
   - [Retrieval quality metrics: NDCG, MAP, Recall@k, and MRR (a selection decision guide)](#retrieval-quality-metrics-ndcg-map-recallk-and-mrr-a-selection-decision-guide)
     - [Worked example: computing Recall@k, MRR, MAP, and NDCG on a sample retrieval result set](#worked-example-computing-recallk-mrr-map-and-ndcg-on-a-sample-retrieval-result-set)
 - [7. Evaluating foundation model performance](#7-evaluating-foundation-model-performance)
@@ -3374,7 +3374,7 @@ gain looks as a percentage.
 
 [Section 1](#1-design-considerations-for-foundation-model-applications) flags
 multimodal (text + image) input as a design consideration, and the
-[multimodal retrieval worked example above](#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text-images)
+[multimodal retrieval worked example above](#worked-example-retrieval-patterns-for-a-multimodal-product-catalog-rag-system-text--images)
 shows how to *merge* text and image search results. Neither one answers a
 question that comes up as soon as a document mixes the two modalities in a
 single page: *how should the table and chart content actually be

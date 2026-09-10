@@ -45,7 +45,7 @@ HEADING_REGEX = re.escape(HEADING)
 TOC_LINK = (
     "[Worked example: budgeting tokens for a multimodal financial-report "
     "RAG pipeline (text + tables + images)]"
-    "(#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text-tables-images)"
+    "(#worked-example-budgeting-tokens-for-a-multimodal-financial-report-rag-pipeline-text--tables--images)"
 )
 
 

@@ -1139,6 +1139,101 @@ class TestDocumentationStructureLastVerifiedAccuracy(unittest.TestCase):
                 self.assertNotIn(phrase, lowered)
 
 
+class TestDocumentationStructureCoverageGuaranteeStatus(unittest.TestCase):
+    """DOCUMENTATION_STRUCTURE.md's 'Content health' section states, per
+    domain, whether that domain's Fast Track coverage guarantee (see the
+    "Fast Track condensed guides" section above) has been technically
+    verified. All five domains now have a completed
+    docs/domain-N-fast-track/COVERAGE-VERIFICATION-REPORT.md audit, and
+    Domains 4 and 5 specifically found real gaps that have since been
+    backfilled (2026-09-10 and 2026-09-09 respectively). This guards
+    against the Content health section drifting back to claiming any
+    domain's coverage guarantee is unverified or violated now that those
+    backfills have landed, and against the cited report line numbers
+    silently going stale."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.structure_text = STRUCTURE_DOC.read_text(encoding="utf-8")
+        health_idx = cls.structure_text.find("## Content health")
+        next_idx = cls.structure_text.find("## Complete file inventory")
+        assert health_idx != -1
+        assert next_idx != -1
+        assert next_idx > health_idx
+        cls.health_section = cls.structure_text[health_idx:next_idx]
+
+    def test_content_health_states_all_five_domains_fulfilled(self):
+        self.assertIn(
+            "Domains 1-5 all FULFILLED",
+            self.health_section,
+            "Content health section should state the coverage guarantee "
+            "status for all five domains, not just some of them",
+        )
+
+    def test_content_health_does_not_claim_any_domain_violated(self):
+        self.assertNotIn(
+            "VIOLATED",
+            self.health_section,
+            "Content health section should not claim any domain's "
+            "coverage guarantee is VIOLATED now that Domains 4 and 5's "
+            "gaps have been backfilled",
+        )
+
+    def test_content_health_reports_no_open_coverage_gaps(self):
+        self.assertIn("Known coverage gaps: none", self.health_section)
+
+    def test_content_health_cites_domain_4_and_5_reports(self):
+        self.assertIn(
+            "docs/domain-4-fast-track/COVERAGE-VERIFICATION-REPORT.md",
+            self.health_section,
+        )
+        self.assertIn(
+            "docs/domain-5-fast-track/COVERAGE-VERIFICATION-REPORT.md",
+            self.health_section,
+        )
+
+    def test_all_five_domain_coverage_reports_are_actually_complete(self):
+        # Sanity-check the underlying fact for every domain, not just the
+        # two (4 and 5) the Content health section quotes verbatim.
+        for domain_number in range(1, 6):
+            with self.subTest(domain=domain_number):
+                report_path = (
+                    DOCS_DIR
+                    / f"domain-{domain_number}-fast-track"
+                    / "COVERAGE-VERIFICATION-REPORT.md"
+                )
+                text = report_path.read_text(encoding="utf-8")
+                header = "\n".join(text.splitlines()[:6])
+                self.assertIn("technical verification complete", header)
+
+    def test_domain_4_report_cited_lines_actually_document_the_backfill(self):
+        report_path = (
+            DOCS_DIR / "domain-4-fast-track" / "COVERAGE-VERIFICATION-REPORT.md"
+        )
+        lines = report_path.read_text(encoding="utf-8").splitlines()
+        # Line 3 (1-indexed) is the status line quoted in
+        # DOCUMENTATION_STRUCTURE.md.
+        self.assertIn("all identified gaps backfilled", lines[2])
+        # Lines 100-158 (1-indexed) are cited as documenting the fix.
+        detail = "\n".join(lines[99:158])
+        self.assertIn("Fixed", detail)
+        self.assertIn("worker task template", detail)
+
+    def test_domain_5_report_cited_lines_actually_document_the_backfill(self):
+        report_path = (
+            DOCS_DIR / "domain-5-fast-track" / "COVERAGE-VERIFICATION-REPORT.md"
+        )
+        lines = report_path.read_text(encoding="utf-8").splitlines()
+        # Lines 3-6 (1-indexed) are the status block quoted in
+        # DOCUMENTATION_STRUCTURE.md.
+        status_block = "\n".join(lines[2:6])
+        self.assertIn("both been backfilled", status_block)
+        # Lines 169-198 (1-indexed) are cited as documenting the fix.
+        detail = "\n".join(lines[168:198])
+        self.assertIn("backfilled", detail)
+        self.assertIn("Hop-2", detail)
+
+
 class TestDocumentationStructureScenarioQuestionCountAccuracy(unittest.TestCase):
     """DOCUMENTATION_STRUCTURE.md states the cross-domain scenario question
     count twice (once in the repo-layout tree, once in the cross-domain

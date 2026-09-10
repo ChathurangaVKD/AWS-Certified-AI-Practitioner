@@ -6,24 +6,28 @@ carry an explicit coverage guarantee (docs/DOCUMENTATION_STRUCTURE.md:
 "every testable concept the full domain guide covers is retained somewhere
 in the condensed layer") that had never been technically verified against
 the source guide. `docs/domain-4-fast-track/COVERAGE-VERIFICATION-REPORT.md`
-is that verification: a section-by-section spot-check confirming the Fast
-Track retains almost everything from the full guide (one narrow exception,
-since backfilled: the Amazon A2I "worker task template" term), and
-identifying that the further-condensed Ultra Fast Learn cram sheet drops
-four concept groups the Fast Track retains -- Guardrails'
-word/sensitive-information filters, Amazon A2I's routing mechanics, the
-Model Card vs. AI Service Card distinction, and the entire "Legal and
-ethical considerations" category.
+is that verification: a section-by-section spot-check that originally found
+the Fast Track retains almost everything from the full guide (one narrow
+exception: the Amazon A2I "worker task template" term) and that the
+further-condensed Ultra Fast Learn cram sheet dropped four concept groups
+the Fast Track retains -- Guardrails' word/sensitive-information filters,
+Amazon A2I's routing mechanics, the Model Card vs. AI Service Card
+distinction, and the entire "Legal and ethical considerations" category.
+
+Both gaps have since been backfilled: the Fast Track now names the
+"worker task template" term, and `ULTRA-FAST-LEARN.md` now has an "AWS
+tools for responsible AI" section (all five tools plus the Guardrails
+5-capability table and A2I mechanics) and a "Legal and ethical
+considerations" section, sourced verbatim from the Fast Track.
+`COVERAGE-VERIFICATION-REPORT.md` documents both fixes as "Done".
 
 These tests assert the report exists, links back to the files it audits
 with resolving anchors, and that its central claims still hold against the
-live files: the hop-1 gap topic is present in the full guide and has now
-been backfilled into the Fast Track (but is still absent from Ultra Fast
-Learn), and the hop-2 gap topics are present in the full guide and the
-Fast Track (hop 1 is otherwise clean) but absent from Ultra Fast Learn
-(hop 2 has the gap) -- so these tests would start failing, as a useful
-signal, the day someone backfills Ultra Fast Learn too and the report's
-"still open" claims go stale.
+live files: every gap topic's keywords are present in the full guide, the
+Fast Track, *and* now Ultra Fast Learn (hop 1 was already clean; hop 2 is
+now fixed too) -- so these tests would start failing again, as a useful
+signal, the day any of that backfilled content is silently dropped from
+Ultra Fast Learn or the Fast Track.
 
 Run with:
     python3 -m unittest tests/test_domain_4_coverage_verification_report.py -v
@@ -242,41 +246,44 @@ class TestHop2GapTopicsPresentInSourceAndFastTrack(unittest.TestCase):
                     self.assertIn(keyword, self.fast_track_text)
 
 
-class TestHop2GapTopicsAbsentFromUltraFastLearn(unittest.TestCase):
-    """Hop 2 (Fast Track -> Ultra Fast Learn) is reported to have a real
-    gap: none of the four topics' keywords should appear in Ultra Fast
-    Learn today. If this test starts failing, the gap has been backfilled
-    and COVERAGE-VERIFICATION-REPORT.md's "Recommendation" section (and
-    this test) should be updated to reflect that, rather than silently
-    left describing a stale problem."""
+class TestHop2GapTopicsNowPresentInUltraFastLearn(unittest.TestCase):
+    """Hop 2 (Fast Track -> Ultra Fast Learn) was reported to have a real
+    gap: none of the four topics' keywords used to appear in Ultra Fast
+    Learn. That gap has since been backfilled (see
+    COVERAGE-VERIFICATION-REPORT.md's "Recommendation" section, now marked
+    "Done"), so every keyword must now appear -- case-insensitively, since
+    Ultra Fast Learn's tables render some of these terms in title case
+    (e.g. "Word filters") while the report and the Fast Track use sentence
+    case. If this test starts failing, the backfilled content has been
+    silently dropped again."""
 
     @classmethod
     def setUpClass(cls):
-        cls.ultra_text = _read(ULTRA_FAST_LEARN_PATH)
+        cls.ultra_text_lower = _read(ULTRA_FAST_LEARN_PATH).lower()
 
-    def test_ultra_fast_learn_is_missing_every_gap_topic_keyword(self):
+    def test_ultra_fast_learn_now_contains_every_gap_topic_keyword(self):
         for topic, keywords in HOP2_GAP_TOPICS.items():
             for keyword in keywords:
                 with self.subTest(topic=topic, keyword=keyword):
-                    self.assertNotIn(
-                        keyword,
-                        self.ultra_text,
+                    self.assertIn(
+                        keyword.lower(),
+                        self.ultra_text_lower,
                         f"expected {keyword!r} (part of the {topic} gap) to "
-                        "still be absent from ULTRA-FAST-LEARN.md -- if it "
-                        "has been added, the coverage gap this report "
-                        "documents has been closed and the report/tests "
-                        "should be updated to match",
+                        "now appear in ULTRA-FAST-LEARN.md -- it was "
+                        "backfilled to close this hop-2 coverage gap; if "
+                        "it's missing again, the backfilled content has "
+                        "been silently dropped",
                     )
 
 
-class TestHop1GapTopicNowFixedInFastTrack(unittest.TestCase):
+class TestHop1GapTopicNowFixedEverywhere(unittest.TestCase):
     """The one hop-1 finding: the Amazon A2I "worker task template" term
     was present in the full guide but absent from both the Fast Track and
-    Ultra Fast Learn. That gap has since been backfilled into the Fast
-    Track (README.md Section 3's condensed A2I worked-example pattern), so
-    the term must now appear in the full guide and the Fast Track alike.
-    Ultra Fast Learn is a separate, still-open hop-2 gap and should
-    continue to omit it until that follow-up work happens."""
+    Ultra Fast Learn. That gap has since been backfilled into both the
+    Fast Track (README.md Section 3's condensed A2I worked-example
+    pattern) and Ultra Fast Learn (Section 5's A2I mechanics bullet list),
+    so the term must now appear in all three: the full guide, the Fast
+    Track, and Ultra Fast Learn."""
 
     @classmethod
     def setUpClass(cls):
@@ -290,8 +297,8 @@ class TestHop1GapTopicNowFixedInFastTrack(unittest.TestCase):
     def test_fast_track_now_contains_worker_task_template(self):
         self.assertRegex(self.fast_track_text, HOP1_GAP_PATTERN)
 
-    def test_ultra_fast_learn_is_missing_worker_task_template(self):
-        self.assertNotRegex(self.ultra_text, HOP1_GAP_PATTERN)
+    def test_ultra_fast_learn_now_contains_worker_task_template(self):
+        self.assertRegex(self.ultra_text, HOP1_GAP_PATTERN)
 
 
 if __name__ == "__main__":

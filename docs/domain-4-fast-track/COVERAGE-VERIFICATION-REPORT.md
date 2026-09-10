@@ -1,6 +1,6 @@
 # Domain 4 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status:** technical verification complete · **Verified:** 2026-09-09
+**Status:** technical verification complete, all identified gaps backfilled · **Verified:** 2026-09-09 · **Backfilled:** 2026-09-10
 
 ## What this report is
 
@@ -14,15 +14,20 @@ against the source material. This report is that spot-check: a
 line-by-line comparison of four major sections of
 [`docs/domain-4-guidelines-for-responsible-ai.md`](../domain-4-guidelines-for-responsible-ai.md)
 (2,250 lines) against
-[`docs/domain-4-fast-track/README.md`](README.md) (796 lines) and
+[`docs/domain-4-fast-track/README.md`](README.md) (796 lines at the time
+of this audit, now 800 after the worker-task-template backfill below) and
 [`docs/domain-4-fast-track/ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md)
-(158 lines), confirming whether every exam-relevant fact, decision
-criterion, AWS service, metric, and concept survives both condensation
-hops.
+(158 lines at the time of this audit, now 237 after the backfill
+described in the Recommendation section), confirming whether every
+exam-relevant fact, decision criterion, AWS service, metric, and concept
+survives both condensation hops.
 
 This is a correctness audit, not new content authoring: it documents what
-was checked, what verified clean, and where a real gap was found. It does
-not itself change `README.md` or `ULTRA-FAST-LEARN.md`.
+was checked, what verified clean, and where a real gap was found. Writing
+this report did not itself change `README.md` or `ULTRA-FAST-LEARN.md` —
+the fixes described below (marked "Done") were applied in separate,
+targeted follow-up edits sourced verbatim from the full guide and Fast
+Track, not authored here.
 
 ## Sections spot-checked
 
@@ -30,8 +35,8 @@ not itself change `README.md` or `ULTRA-FAST-LEARN.md`.
 |---|---|---|---|
 | 1 | [§1 Core dimensions of responsible AI](../domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai) (line 56) | [§1](README.md#1-core-dimensions-of-responsible-ai) (line 59) | [§1](ULTRA-FAST-LEARN.md#1-dimensions-of-responsible-ai) (line 22) |
 | 2 | [§2 Identifying bias and fairness issues](../domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) (line 229), incl. the "representativeness vs. demographic fairness bias" worked example (line 406) | [§2](README.md#2-bias-and-fairness) (line 133) | [§2](ULTRA-FAST-LEARN.md#2-common-bias-sources) (line 42), [§3](ULTRA-FAST-LEARN.md#3-fairness-metrics-by-use-case-stage) (line 59) |
-| 3 | [§3 AWS tools for responsible AI](../domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) (line 544), incl. the Amazon A2I worked example (line 609) and the Clarify/Guardrails layering worked example (line 699) | [§3](README.md#3-aws-tools-for-responsible-ai) (line 244) | [§5](ULTRA-FAST-LEARN.md#5-amazon-sagemaker-clarify-capabilities) (line 107) — Clarify only |
-| 4 | [§4 Legal and ethical considerations](../domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) (line 960) | [§4](README.md#4-legal-and-ethical-considerations) (line 362) | *no corresponding section exists* |
+| 3 | [§3 AWS tools for responsible AI](../domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) (line 544), incl. the Amazon A2I worked example (line 609) and the Clarify/Guardrails layering worked example (line 699) | [§3](README.md#3-aws-tools-for-responsible-ai) (line 244) | *at audit time:* §5 titled "Amazon SageMaker Clarify capabilities" — Clarify only. **Now fixed:** [§5 "AWS tools for responsible AI"](ULTRA-FAST-LEARN.md#5-aws-tools-for-responsible-ai) (line 110) covers all five tools |
+| 4 | [§4 Legal and ethical considerations](../domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) (line 960) | [§4](README.md#4-legal-and-ethical-considerations) (line 362) | *at audit time:* no corresponding section existed. **Now fixed:** [§7 "Legal and ethical considerations"](ULTRA-FAST-LEARN.md#7-legal-and-ethical-considerations) (line 170) |
 
 ## Result: Fast Track (full guide → Fast Track hop)
 
@@ -82,102 +87,110 @@ condensed verbatim from the same full-guide worked example.
 
 ## Result: Ultra Fast Learn (Fast Track → Ultra Fast Learn hop)
 
-**Two significant coverage gaps found**, plus a structural gap relative to
-sibling domains. `ULTRA-FAST-LEARN.md` is deliberately far more
-compressed than the Fast Track (158 lines vs. 796), and its own intro says
-it is "bullets and tables only — no prose, no worked examples, no
-mini-quizzes" by design — that trim is expected and consistent with the
-guarantee (narrative and worked examples are the parts allowed to go).
-However, the following are *named AWS tools/capabilities and a whole
-category of exam content*, not narrative, and are missing entirely rather
-than condensed:
+**Two significant coverage gaps were found, plus a structural gap relative
+to sibling domains — all three have since been backfilled.**
+`ULTRA-FAST-LEARN.md` is deliberately far more compressed than the Fast
+Track (158 lines vs. 796), and its own intro says it is "bullets and
+tables only — no prose, no worked examples, no mini-quizzes" by design —
+that trim is expected and consistent with the guarantee (narrative and
+worked examples are the parts allowed to go). However, the following were
+*named AWS tools/capabilities and a whole category of exam content*, not
+narrative, and were missing entirely rather than condensed:
 
-1. **Four of the five AWS responsible-AI tools have no capability detail
-   anywhere.** `ULTRA-FAST-LEARN.md` §5 is titled "Amazon SageMaker
-   Clarify capabilities" and covers only Clarify. SageMaker Model Cards,
-   AI Service Cards, Guardrails for Amazon Bedrock, and Amazon A2I appear
-   *only* as one-line "Primary AWS tool" values inside the §1 dimensions
-   table (e.g., "Guardrails (denied topics)"). None of the following
-   survives anywhere in the file: Guardrails' **word filters** or
-   **sensitive information filters** capabilities (2 of its 5 named
-   capabilities — only denied topics, content filters, and contextual
-   grounding surface, and only as table-cell labels, not as a capability
-   list); the Amazon A2I mechanics of `StartHumanLoop`, **flow
+1. ~~**Four of the five AWS responsible-AI tools have no capability detail
+   anywhere.**~~ **Fixed.** `ULTRA-FAST-LEARN.md` §5 was titled "Amazon
+   SageMaker Clarify capabilities" and covered only Clarify. SageMaker
+   Model Cards, AI Service Cards, Guardrails for Amazon Bedrock, and
+   Amazon A2I appeared *only* as one-line "Primary AWS tool" values inside
+   the §1 dimensions table (e.g., "Guardrails (denied topics)"). None of
+   the following survived anywhere in the file: Guardrails' **word
+   filters** or **sensitive information filters** capabilities (2 of its 5
+   named capabilities — only denied topics, content filters, and
+   contextual grounding surfaced, and only as table-cell labels, not as a
+   capability list); the Amazon A2I mechanics of `StartHumanLoop`, **flow
    definition**, **worker task template**, **private workforce**, or
    **Mechanical Turk**; and the Model-Card-vs-AI-Service-Card
-   self-authored/AWS-authored distinction (the file names both terms once
-   each in the dimensions table but never states the distinguishing
-   exam tip). Grepping the file for `word filters|sensitive information
-   filters|StartHumanLoop|worker task template|private workforce|Mechanical
-   Turk|you fill it in` outside this report returns nothing.
+   self-authored/AWS-authored distinction (the file named both terms once
+   each in the dimensions table but never stated the distinguishing exam
+   tip — "Model Card = you fill it in" vs. "AI Service Card = AWS
+   publishes it"). §5 has since been expanded into "AWS tools for
+   responsible AI": a 5-tool table (Clarify, Model Cards, AI Service
+   Cards, Guardrails, A2I) with the self-authored/AWS-authored exam tip,
+   a Guardrails 5-capability table (including word filters and sensitive information
+   filters), and an A2I mechanics bullet list (`StartHumanLoop`, flow
+   definition, worker task template, private workforce vs. Mechanical
+   Turk) — keeping the original Clarify-capabilities bullets as a
+   subsection.
 
-2. **The entire "Legal and ethical considerations" category is absent.**
-   Neither the table of contents nor any section of
-   `ULTRA-FAST-LEARN.md` mentions **intellectual property (IP)
+2. ~~**The entire "Legal and ethical considerations" category is
+   absent.**~~ **Fixed.** Neither the table of contents nor any section of
+   `ULTRA-FAST-LEARN.md` used to mention **intellectual property (IP)
    indemnification**, **GDPR**, **data residency**, **toxicity**, or
    **environmental impact** (the **AWS Customer Carbon Footprint Tool**,
-   the **Well-Architected Sustainability Pillar**). This is a full,
-   named section in both the full guide (line 960, with its own mini-quiz)
-   and the Fast Track (line 362, with its own exam tip and AWS example
-   row) — a scored ~14%-of-exam domain with an entire legal/ethical
-   category untested by the cram sheet is a genuine, checkable
-   regression, not a narrative trim.
+   the **Well-Architected Sustainability Pillar**) — a full, named section
+   in both the full guide (line 960, with its own mini-quiz) and the Fast
+   Track (line 362, with its own exam tip and AWS example row). A new "7.
+   Legal and ethical considerations" section has since been added,
+   covering all four categories (IP, data privacy/GDPR/data residency,
+   toxicity, environmental impact) and the AWS mitigation for each,
+   condensed verbatim from Fast Track §4.
 
-3. **Structural gap versus every sibling domain's Ultra Fast Learn.**
-   Domains 1, 2, 3, and 5 each close their `ULTRA-FAST-LEARN.md` with a
-   "Rapid-fire key terms" section and a "Common exam traps checklist"
-   section (see, e.g.,
+3. ~~**Structural gap versus every sibling domain's Ultra Fast Learn.**~~
+   **Fixed.** Domains 1, 2, 3, and 5 each close their `ULTRA-FAST-LEARN.md`
+   with a "Rapid-fire key terms" section and a "Common exam traps
+   checklist" section (see, e.g.,
    [`docs/domain-1-fast-track/ULTRA-FAST-LEARN.md`](../domain-1-fast-track/ULTRA-FAST-LEARN.md#rapid-fire-key-terms)).
-   Domain 4's `ULTRA-FAST-LEARN.md` has neither — it jumps from
+   Domain 4's `ULTRA-FAST-LEARN.md` used to have neither — it jumped from
    "6. Monitoring checklist" straight to "Where each row comes from." Both
-   the full guide's glossary (30+ terms) and the Fast Track's own
+   sections have since been added, condensed from the Fast Track's own
    "Rapid-fire key terms" (README.md line 568) and "Common exam traps
-   checklist" (README.md line 687) sections exist and could be condensed
-   the same way the other four domains' cram sheets already are — their
-   absence here is inconsistent with the rest of the repository's
-   established Ultra Fast Learn format, independent of any single
-   dropped fact.
+   checklist" (README.md line 687) sections, matching the format already
+   used by the other four domains' cram sheets.
 
-Corroborating evidence: `ULTRA-FAST-LEARN.md`'s own "Where each row comes
-from" table (line 142–149) maps its six numbered sections back to Fast
-Track §1, §2 (twice), §3, §5, and the monitoring section — it never lists
-a source row for Fast Track §4 (Legal and ethical considerations), and its
-§5 row cites Fast Track §3 only for the Clarify slice of that section, not
-Guardrails, Model Cards, AI Service Cards, or A2I. This is consistent with
-those items having been dropped when the cram sheet was condensed, rather
-than merged elsewhere under a different heading.
+Corroborating evidence that the fix landed: `ULTRA-FAST-LEARN.md`'s own
+"Where each row comes from" table now lists a source row for Fast Track §4
+(Legal and ethical considerations) and its §5 row still cites Fast Track
+§3, now covering Guardrails, Model Cards, AI Service Cards, and A2I as
+well as Clarify — not just the Clarify slice of that section.
+`tests/test_domain_4_ultra_fast_learn.py` was extended with assertions for
+the newly-covered terms (Guardrails word/sensitive-information filters,
+the A2I mechanics terms, and the legal/ethical category terms) so a future
+edit cannot silently drop this content again.
 
 ## Recommendation
 
-Backfill `ULTRA-FAST-LEARN.md` with condensed additions (tables/bullets
+~~Backfill `ULTRA-FAST-LEARN.md` with condensed additions (tables/bullets
 only, no prose/worked examples, consistent with the file's existing
 format), sourced verbatim from Fast Track §3 and §4 (no new facts to
-author):
+author)~~ **All four items below are now done:**
 
-1. Expand §5 into an "AWS tools for responsible AI" section: a short tool
+1. ~~Expand §5 into an "AWS tools for responsible AI" section: a short tool
    table (Clarify, Model Cards, AI Service Cards, Guardrails, A2I) with
    the self-authored/AWS-authored exam tip, a Guardrails 5-capability
    table (adding word filters and sensitive information filters), and an
    A2I mechanics bullet list (`StartHumanLoop`, flow definition, worker
    task template, private workforce vs. Mechanical Turk) — keeping the
-   existing Clarify-capabilities bullets as a subsection.
-2. Add a new "Legal and ethical considerations" section (IP
+   existing Clarify-capabilities bullets as a subsection.~~ **Done** —
+   `ULTRA-FAST-LEARN.md` §5 is now "AWS tools for responsible AI" with
+   exactly this table/bullet content.
+2. ~~Add a new "Legal and ethical considerations" section (IP
    indemnification, GDPR/data privacy/data residency, toxicity,
-   environmental impact/Carbon Footprint Tool/Sustainability Pillar).
-3. Add "Rapid-fire key terms" and "Common exam traps checklist" sections
+   environmental impact/Carbon Footprint Tool/Sustainability Pillar).~~
+   **Done** — added as `ULTRA-FAST-LEARN.md` §7.
+3. ~~Add "Rapid-fire key terms" and "Common exam traps checklist" sections
    matching the format already used in Domains 1, 2, 3, and 5's Ultra Fast
-   Learn cram sheets.
+   Learn cram sheets.~~ **Done** — both sections now close
+   `ULTRA-FAST-LEARN.md`, immediately before "Where each row comes from."
 4. ~~Separately, add the missing **worker task template** term to Fast
    Track §3's condensed A2I worked-example pattern (README.md line
    299–310), closing the one hop-1 gap this report also found.~~ **Done**
    — Fast Track §3 now names the worker task template alongside the flow
    definition and private workforce.
 
-Each addition should also extend `tests/test_domain_4_ultra_fast_learn.py`
-with assertions for the newly-covered terms, so a future edit cannot
-silently drop this content again. This backfill is scoped as follow-up
-work rather than folded into this report, since `ULTRA-FAST-LEARN.md`'s
-stated line count is cross-checked by exact-total assertions in
-`tests/test_documentation_structure.py` (per-domain Fast Track totals and
-the repository-wide grand total) that must be updated in lockstep with
-any line-count change to that file.
+Each addition also extended `tests/test_domain_4_ultra_fast_learn.py` with
+assertions for the newly-covered terms, so a future edit cannot silently
+drop this content again. `ULTRA-FAST-LEARN.md`'s stated line count and
+`docs/DOCUMENTATION_STRUCTURE.md`'s per-domain Fast Track totals and
+repository-wide grand total (both cross-checked by exact-total assertions
+in `tests/test_documentation_structure.py`) were updated in lockstep with
+the line-count change to that file.

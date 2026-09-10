@@ -35,8 +35,8 @@ Track, not authored here.
 |---|---|---|---|
 | 1 | [§1 Core dimensions of responsible AI](../domain-4-guidelines-for-responsible-ai.md#1-core-dimensions-of-responsible-ai) (line 56) | [§1](README.md#1-core-dimensions-of-responsible-ai) (line 59) | [§1](ULTRA-FAST-LEARN.md#1-dimensions-of-responsible-ai) (line 22) |
 | 2 | [§2 Identifying bias and fairness issues](../domain-4-guidelines-for-responsible-ai.md#2-identifying-bias-and-fairness-issues-in-training-data-and-model-outputs) (line 229), incl. the "representativeness vs. demographic fairness bias" worked example (line 406) | [§2](README.md#2-bias-and-fairness) (line 133) | [§2](ULTRA-FAST-LEARN.md#2-common-bias-sources) (line 42), [§3](ULTRA-FAST-LEARN.md#3-fairness-metrics-by-use-case-stage) (line 59) |
-| 3 | [§3 AWS tools for responsible AI](../domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) (line 544), incl. the Amazon A2I worked example (line 609) and the Clarify/Guardrails layering worked example (line 699) | [§3](README.md#3-aws-tools-for-responsible-ai) (line 244) | [§5](ULTRA-FAST-LEARN.md#5-amazon-sagemaker-clarify-capabilities) (line 107) — Clarify only |
-| 4 | [§4 Legal and ethical considerations](../domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) (line 960) | [§4](README.md#4-legal-and-ethical-considerations) (line 362) | *no corresponding section exists* |
+| 3 | [§3 AWS tools for responsible AI](../domain-4-guidelines-for-responsible-ai.md#3-aws-tools-for-responsible-ai) (line 544), incl. the Amazon A2I worked example (line 609) and the Clarify/Guardrails layering worked example (line 699) | [§3](README.md#3-aws-tools-for-responsible-ai) (line 244) | *at audit time:* §5 titled "Amazon SageMaker Clarify capabilities" — Clarify only. **Now fixed:** [§5 "AWS tools for responsible AI"](ULTRA-FAST-LEARN.md#5-aws-tools-for-responsible-ai) (line 110) covers all five tools |
+| 4 | [§4 Legal and ethical considerations](../domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) (line 960) | [§4](README.md#4-legal-and-ethical-considerations) (line 362) | *at audit time:* no corresponding section existed. **Now fixed:** [§7 "Legal and ethical considerations"](ULTRA-FAST-LEARN.md#7-legal-and-ethical-considerations) (line 170) |
 
 ## Result: Fast Track (full guide → Fast Track hop)
 
@@ -112,10 +112,11 @@ narrative, and were missing entirely rather than condensed:
    **Mechanical Turk**; and the Model-Card-vs-AI-Service-Card
    self-authored/AWS-authored distinction (the file named both terms once
    each in the dimensions table but never stated the distinguishing exam
-   tip). §5 has since been expanded into "AWS tools for responsible AI": a
-   5-tool table (Clarify, Model Cards, AI Service Cards, Guardrails, A2I)
-   with the self-authored/AWS-authored exam tip, a Guardrails
-   5-capability table (including word filters and sensitive information
+   tip — "Model Card = you fill it in" vs. "AI Service Card = AWS
+   publishes it"). §5 has since been expanded into "AWS tools for
+   responsible AI": a 5-tool table (Clarify, Model Cards, AI Service
+   Cards, Guardrails, A2I) with the self-authored/AWS-authored exam tip,
+   a Guardrails 5-capability table (including word filters and sensitive information
    filters), and an A2I mechanics bullet list (`StartHumanLoop`, flow
    definition, worker task template, private workforce vs. Mechanical
    Turk) — keeping the original Clarify-capabilities bullets as a

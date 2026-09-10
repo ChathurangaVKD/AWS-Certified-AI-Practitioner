@@ -56,7 +56,7 @@ prose, mini-quiz, and AWS example behind any condensed table below:
 - [7. Foundation model selection criteria](#7-foundation-model-selection-criteria)
 - [RAG architecture at a glance](#rag-architecture-at-a-glance)
 - [AWS generative AI services comparison](#aws-generative-ai-services-comparison)
-- [AWS service → use case table](#aws-service-use-case-table)
+- [AWS service → use case table](#aws-service--use-case-table)
 - [Worked-example distillations](#worked-example-distillations)
 - [Rapid-fire key terms](#rapid-fire-key-terms)
 - [Rapid self-check](#rapid-self-check)

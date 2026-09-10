@@ -29,8 +29,8 @@ not itself change `README.md` or `ULTRA-FAST-LEARN.md`.
 | # | Full guide section | Fast Track section | Ultra Fast Learn section |
 |---|---|---|---|
 | 1 | [§2 The ML development lifecycle](../domain-1-fundamentals-of-ai-and-ml.md#2-the-ml-development-lifecycle) (line 178) — incl. the Managed Spot Training worked example (line 329) and the production deployment strategies subsection (line 500) | [§2](README.md#2-the-ml-development-lifecycle) (line 136) | [§1](ULTRA-FAST-LEARN.md#1-the-8-stage-ml-development-lifecycle) (line 27) |
-| 2 | [§4 Common use cases for AI/ML](../domain-1-fundamentals-of-ai-and-ml.md#4-common-use-cases-for-aiml) (line 789) | [§4](README.md#4-common-use-cases-for-aiml) (line 285) | folded into [§3](ULTRA-FAST-LEARN.md#3-aws-aiml-services-compact-decision-table) (line 61) |
-| 3 | [§5 AWS managed AI/ML services](../domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview) (line 898), incl. the SageMaker Ground Truth subsection and its labeling-alternatives decision table (line 989–1087) | [§5](README.md#5-aws-managed-aiml-services) (line 314) | [§3](ULTRA-FAST-LEARN.md#3-aws-aiml-services-compact-decision-table) (line 61) |
+| 2 | [§4 Common use cases for AI/ML](../domain-1-fundamentals-of-ai-and-ml.md#4-common-use-cases-for-aiml) (line 789) | [§4](README.md#4-common-use-cases-for-aiml) (line 285) | folded into [§3](ULTRA-FAST-LEARN.md#3-aws-aiml-services--compact-decision-table) (line 61) |
+| 3 | [§5 AWS managed AI/ML services](../domain-1-fundamentals-of-ai-and-ml.md#5-aws-managed-aiml-services-conceptual-overview) (line 898), incl. the SageMaker Ground Truth subsection and its labeling-alternatives decision table (line 989–1087) | [§5](README.md#5-aws-managed-aiml-services) (line 314) | [§3](ULTRA-FAST-LEARN.md#3-aws-aiml-services--compact-decision-table) (line 61) |
 | 4 | [§6 Model evaluation basics](../domain-1-fundamentals-of-ai-and-ml.md#6-model-evaluation-basics) (line 1090) | [§6](README.md#6-model-evaluation-basics) (line 369) | [§4](ULTRA-FAST-LEARN.md#4-classification-evaluation-metrics) (line 80) |
 
 ## Result: Fast Track (full guide → Fast Track hop)

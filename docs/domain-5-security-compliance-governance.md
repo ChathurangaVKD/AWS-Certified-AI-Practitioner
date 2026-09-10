@@ -16,11 +16,11 @@
   - [Security frameworks for AI systems: MITRE ATLAS and OWASP Top 10 for LLM Applications](#security-frameworks-for-ai-systems-mitre-atlas-and-owasp-top-10-for-llm-applications)
 - [2. AWS compliance standards relevant to AI workloads](#2-aws-compliance-standards-relevant-to-ai-workloads)
   - [AWS Artifact](#aws-artifact)
-  - [GDPR (General Data Protection Regulation) — conceptual level](#gdpr-general-data-protection-regulation-conceptual-level)
-  - [HIPAA (Health Insurance Portability and Accountability Act) — conceptual level](#hipaa-health-insurance-portability-and-accountability-act-conceptual-level)
-  - [NIST AI Risk Management Framework (AI RMF) — conceptual level](#nist-ai-risk-management-framework-ai-rmf-conceptual-level)
-  - [EU AI Act — conceptual level](#eu-ai-act-conceptual-level)
-  - [ISO/IEC 42001 and the Algorithmic Accountability Act — conceptual level](#isoiec-42001-and-the-algorithmic-accountability-act-conceptual-level)
+  - [GDPR (General Data Protection Regulation) — conceptual level](#gdpr-general-data-protection-regulation--conceptual-level)
+  - [HIPAA (Health Insurance Portability and Accountability Act) — conceptual level](#hipaa-health-insurance-portability-and-accountability-act--conceptual-level)
+  - [NIST AI Risk Management Framework (AI RMF) — conceptual level](#nist-ai-risk-management-framework-ai-rmf--conceptual-level)
+  - [EU AI Act — conceptual level](#eu-ai-act--conceptual-level)
+  - [ISO/IEC 42001 and the Algorithmic Accountability Act — conceptual level](#isoiec-42001-and-the-algorithmic-accountability-act--conceptual-level)
   - [Compliance framework decision matrix](#compliance-framework-decision-matrix)
   - [Compliance framework requirements comparison matrix](#compliance-framework-requirements-comparison-matrix)
 - [3. AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance)
@@ -2301,12 +2301,12 @@ must never leave EU AWS Regions.
 3. **Choosing the compliance posture.** Because U.S. patient data is PHI,
    MedNote executes a **Business Associate Addendum (BAA)** through **AWS
    Artifact** before processing any live transcripts
-   ([HIPAA](#hipaa-health-insurance-portability-and-accountability-act-conceptual-level),
+   ([HIPAA](#hipaa-health-insurance-portability-and-accountability-act--conceptual-level),
    [AWS Artifact](#aws-artifact)) and confirms every service in the
    pipeline (S3, Bedrock, SageMaker) is HIPAA-eligible. For EU patients,
    the data-residency obligation tied to **GDPR** means their transcripts
    and notes must also be stored and processed only in an EU Region
-   ([GDPR](#gdpr-general-data-protection-regulation-conceptual-level)).
+   ([GDPR](#gdpr-general-data-protection-regulation--conceptual-level)).
 4. **Enforcing data residency.** To satisfy both the contractual
    requirement and GDPR, MedNote runs two fully separate regional
    deployments — `us-east-1` for U.S. patients, `eu-west-1` for EU
@@ -2375,13 +2375,13 @@ influence clinical follow-up decisions.
 1. **Mapping three frameworks to one system.** Using the [compliance
    framework decision matrix](#compliance-framework-decision-matrix), the
    team sorts the three frameworks by scope: HIPAA
-   ([HIPAA](#hipaa-health-insurance-portability-and-accountability-act-conceptual-level))
+   ([HIPAA](#hipaa-health-insurance-portability-and-accountability-act--conceptual-level))
    is a binding US law covering the PHI in the lab-result explanations;
    GDPR
-   ([GDPR](#gdpr-general-data-protection-regulation-conceptual-level))
+   ([GDPR](#gdpr-general-data-protection-regulation--conceptual-level))
    is a binding EU law covering any EU patient's personal data, genetic
    data included; and the **NIST AI RMF**
-   ([NIST AI RMF](#nist-ai-risk-management-framework-ai-rmf-conceptual-level))
+   ([NIST AI RMF](#nist-ai-risk-management-framework-ai-rmf--conceptual-level))
    is voluntary guidance the company applies to the SageMaker risk-scoring
    model specifically because its output changes a patient's care path.
 2. **Two regional deployments, one architecture.** Exactly as with a

@@ -16,7 +16,7 @@ roughly **14%** of scored questions.
 - [1. Five compliance frameworks side by side](#1-five-compliance-frameworks-side-by-side)
 - [2. Encryption options](#2-encryption-options)
 - [3. IAM patterns](#3-iam-patterns)
-- [4. PrivateLink / VPC isolation](#4-privatelink-vpc-isolation)
+- [4. PrivateLink / VPC isolation](#4-privatelink--vpc-isolation)
 - [5. Incident-response steps](#5-incident-response-steps)
 - [6. Shared-responsibility model](#6-shared-responsibility-model)
 - [Where each row comes from](#where-each-row-comes-from)

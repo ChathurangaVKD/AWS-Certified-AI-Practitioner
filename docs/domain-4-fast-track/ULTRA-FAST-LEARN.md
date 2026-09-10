@@ -11,7 +11,7 @@ more time. Domain 4 is roughly **14%** of scored questions.
 
 - [1. Dimensions of responsible AI](#1-dimensions-of-responsible-ai)
 - [2. Common bias sources](#2-common-bias-sources)
-- [3. Fairness metrics by use case / stage](#3-fairness-metrics-by-use-case-stage)
+- [3. Fairness metrics by use case / stage](#3-fairness-metrics-by-use-case--stage)
 - [4. Key trade-offs](#4-key-trade-offs)
 - [5. AWS tools for responsible AI](#5-aws-tools-for-responsible-ai)
 - [6. Monitoring checklist](#6-monitoring-checklist)

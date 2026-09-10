@@ -18,7 +18,7 @@ guide section it's drawn from.
 - [4. Inference parameters](#4-inference-parameters)
 - [5. RAG architecture](#5-rag-architecture)
 - [6. GenAI advantages and disadvantages](#6-genai-advantages-and-disadvantages)
-- [7. AWS service → use case table](#7-aws-service-use-case-table)
+- [7. AWS service → use case table](#7-aws-service--use-case-table)
 - [8. Foundation model and LLM lifecycle](#8-foundation-model-and-llm-lifecycle)
 - [9. Business use cases](#9-business-use-cases)
 - [Rapid-fire key terms](#rapid-fire-key-terms)

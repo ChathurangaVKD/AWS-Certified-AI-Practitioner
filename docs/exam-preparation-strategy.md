@@ -587,7 +587,7 @@ Domain 5's dedicated cost-control mechanics.
 | Domain 3 | [Cost governance: bounding per-request cost with max tokens and provisioned throughput](domain-3-applications-of-foundation-models.md#cost-governance-bounding-per-request-cost-with-max-tokens-and-provisioned-throughput) |
 | Domain 4 | [§4 Legal and ethical considerations](domain-4-guidelines-for-responsible-ai.md#4-legal-and-ethical-considerations) — the environmental-impact bullet covers the compute/resource cost of training and running foundation models |
 | Domain 5 | [Cost governance: bounding total spend with Service Quotas and API Gateway usage plans](domain-5-security-compliance-governance.md#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans) |
-| Cross-domain concept map | [Domain 2 → Domain 3: Applications of Foundation Models](cross-domain-concept-map.md#domain-2-domain-3-applications-of-foundation-models) — traces how Domain 2's cost/latency selection criteria become Domain 3's application-design decisions |
+| Cross-domain concept map | [Domain 2 → Domain 3: Applications of Foundation Models](cross-domain-concept-map.md#domain-2--domain-3-applications-of-foundation-models) — traces how Domain 2's cost/latency selection criteria become Domain 3's application-design decisions |
 
 ### Bias and fairness
 
@@ -618,7 +618,7 @@ same retrieval corpus.
 | Domain 3 | [§3 Retrieval Augmented Generation (RAG) and Amazon Bedrock Knowledge Bases](domain-3-applications-of-foundation-models.md#3-retrieval-augmented-generation-rag-and-amazon-bedrock-knowledge-bases) (primary coverage) and [§6 Vector databases and embeddings for search and retrieval](domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) |
 | Domain 4 | [Worked example: diagnosing retrieval-induced bias and hallucination in a RAG-based HR assistant](domain-4-guidelines-for-responsible-ai.md#worked-example-diagnosing-retrieval-induced-bias-and-hallucination-in-a-rag-based-hr-assistant) |
 | Domain 5 | [Source citation and data lineage](domain-5-security-compliance-governance.md#source-citation-and-data-lineage) |
-| Cross-domain concept map | [Domain 3 → Domain 5: Security, Compliance, and Governance](cross-domain-concept-map.md#domain-3-domain-5-security-compliance-and-governance) — RAG's source citation reframed as a data-lineage and governance requirement, not just a UX nicety |
+| Cross-domain concept map | [Domain 3 → Domain 5: Security, Compliance, and Governance](cross-domain-concept-map.md#domain-3--domain-5-security-compliance-and-governance) — RAG's source citation reframed as a data-lineage and governance requirement, not just a UX nicety |
 
 ### Model evaluation and performance measurement
 
@@ -633,4 +633,4 @@ extended, not replaced, all the way through Domain 5's audit evidence.
 | Domain 3 | [§7 Evaluating foundation model performance](domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) (primary coverage) |
 | Domain 4 | [§5 Balancing model performance and interpretability](domain-4-guidelines-for-responsible-ai.md#5-balancing-model-performance-and-interpretability) — weighing performance against interpretability assumes you can already measure the performance side |
 | Domain 5 | [§3 AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) — Audit Manager collects evaluation evidence for compliance reporting |
-| Cross-domain concept map | [Domain 1 → Domain 3: Applications of Foundation Models](cross-domain-concept-map.md#domain-1-domain-3-applications-of-foundation-models) — the row tracing Domain 1's classification metrics into Domain 3's FM evaluation framework |
+| Cross-domain concept map | [Domain 1 → Domain 3: Applications of Foundation Models](cross-domain-concept-map.md#domain-1--domain-3-applications-of-foundation-models) — the row tracing Domain 1's classification metrics into Domain 3's FM evaluation framework |

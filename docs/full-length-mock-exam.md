@@ -757,7 +757,7 @@ are the highest-leverage place to start.
 | Your score | What it signals | Go straight to |
 |---|---|---|
 | 0–5 (≤55%) | Gaps in core AI security controls | [§1 Securing AI systems](domain-5-security-compliance-governance.md#1-securing-ai-systems) — especially the [IAM roles and policies](domain-5-security-compliance-governance.md#iam-roles-and-policies-for-ai-services) and [AWS PrivateLink and VPC endpoints](domain-5-security-compliance-governance.md#aws-privatelink-and-vpc-endpoints-for-ai-services) subsections |
-| 6–7 (56–78%) | Security controls hold up; governance/monitoring tooling and compliance regimes don't | [§3 AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) and the [HIPAA subsection of §2](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act-conceptual-level) |
+| 6–7 (56–78%) | Security controls hold up; governance/monitoring tooling and compliance regimes don't | [§3 AWS Config, AWS Audit Manager, and AWS CloudTrail for AI governance](domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) and the [HIPAA subsection of §2](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act--conceptual-level) |
 | 8–9 (79–100%) | Only isolated gaps | [§5 AWS shared responsibility model applied to AI/ML services](domain-5-security-compliance-governance.md#5-aws-shared-responsibility-model-applied-to-aiml-services) and the [Quick-reference cheat sheet](domain-5-security-compliance-governance.md#quick-reference-cheat-sheet) |
 
 ---

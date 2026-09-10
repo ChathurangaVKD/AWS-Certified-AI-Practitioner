@@ -1514,7 +1514,7 @@ systems is a configuration task (grant access, pick the connector, map a
 sync schedule), not an engineering project. **Knowledge Bases for Amazon
 Bedrock**, by contrast, ingests natively from Amazon S3 (or an existing
 **Amazon Kendra GenAI Index**, per the [Kendra + Bedrock branch
-expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra-bedrock-vs-bedrock-knowledge-bases-alone))
+expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra--bedrock-vs-bedrock-knowledge-bases-alone))
 — anything else, including Zendesk, Salesforce, and Confluence, first has
 to land in S3 through a pipeline Northwind builds and maintains itself
 (e.g., a scheduled export job per source, re-triggering a Knowledge Base

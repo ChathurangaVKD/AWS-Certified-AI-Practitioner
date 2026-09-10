@@ -1209,7 +1209,7 @@ themselves live only in S3.
 
 The vector store worked example above chose between three options that all
 start from a **blank slate** — no existing index, no existing connectors.
-[`aws-service-decision-guide.md`'s Kendra + Bedrock branch expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra-bedrock-vs-bedrock-knowledge-bases-alone)
+[`aws-service-decision-guide.md`'s Kendra + Bedrock branch expansion](aws-service-decision-guide.md#branch-expansion-amazon-kendra--bedrock-vs-bedrock-knowledge-bases-alone)
 covers a different, equally-tested situation: a scenario where **an Amazon
 Kendra deployment (or a Kendra GenAI Index specifically) already exists**,
 and the question is whether to reuse it as the retrieval layer for a new
@@ -1267,7 +1267,7 @@ not want to own a second content pipeline.
   disagree about what's current if one connector sync lags the other.
 
 Both alternatives duplicate a retrieval layer that already exists and
-works — exactly the pattern [the decision guide's exam tip](aws-service-decision-guide.md#branch-expansion-amazon-kendra-bedrock-vs-bedrock-knowledge-bases-alone)
+works — exactly the pattern [the decision guide's exam tip](aws-service-decision-guide.md#branch-expansion-amazon-kendra--bedrock-vs-bedrock-knowledge-bases-alone)
 calls out: when a scenario mentions an existing Kendra deployment (or a
 Kendra GenAI Index) alongside a request for FM-grounded chat, the answer is
 to point Bedrock Knowledge Bases at that index, not provision a second
@@ -1398,7 +1398,7 @@ infrastructure the company already operates and pays for.
 > pgvector," both of which are distractors that reindex the same content a
 > second time. If instead the scenario describes a **greenfield** project
 > with no existing search infrastructure, fall back to the
-> [vector store decision tree](#vector-store-decision-guide-opensearch-vs-aurora-pgvector-vs-amazon-kendra)
+> [vector store decision tree](#vector-store-decision-guide-opensearch-vs-aurora--pgvector-vs-amazon-kendra)
 > above — that's the flow for choosing a *first* retrieval layer, not for
 > deciding whether to reuse one.
 
@@ -4267,7 +4267,7 @@ infrastructure directly, a different team at the same company uses
 > training or serving large models at scale.
 
 **Decision tree: from the Domain 1 inference-type question to the Domain 3
-Bedrock throughput decision.** [The cross-domain concept map](cross-domain-concept-map.md#domain-1-domain-3-applications-of-foundation-models)
+Bedrock throughput decision.** [The cross-domain concept map](cross-domain-concept-map.md#domain-1--domain-3-applications-of-foundation-models)
 notes that Bedrock's on-demand vs. provisioned-throughput choice ([Section
 5](#5-amazon-bedrock-features)) is the generative-AI-specific version of the
 Domain 1 inference-type decision (real-time, batch, asynchronous, or

@@ -14,7 +14,7 @@ drawn from.
 
 - [1. The 8-stage ML development lifecycle](#1-the-8-stage-ml-development-lifecycle)
 - [2. The three learning types](#2-the-three-learning-types)
-- [3. AWS AI/ML services — compact decision table](#3-aws-aiml-services-compact-decision-table)
+- [3. AWS AI/ML services — compact decision table](#3-aws-aiml-services--compact-decision-table)
 - [4. Classification evaluation metrics](#4-classification-evaluation-metrics)
 - [5. Bias–variance trade-off](#5-biasvariance-trade-off)
 - [6. Ensemble methods](#6-ensemble-methods)

@@ -345,17 +345,85 @@ tools](domain-4-guidelines-for-responsible-ai.md#comparison-table-aws-responsibl
 > none of the three substitutes for the others.
 
 For the full walkthrough of each concept, see Domain 5:
-UNRESOLVABLE
+[Data encryption at rest and in transit](domain-5-security-compliance-governance.md#data-encryption-at-rest-and-in-transit),
+[AWS PrivateLink and VPC endpoints for AI services](domain-5-security-compliance-governance.md#aws-privatelink-and-vpc-endpoints-for-ai-services),
+[AWS Artifact](domain-5-security-compliance-governance.md#aws-artifact), and
+[HIPAA — conceptual level](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act-conceptual-level).
 
-The conflict presents two incompatible verification reports that make contradictory factual claims:
+---
 
-- **HEAD (2026-09-09)** claims specific changes were found and applied: Jamba moved from 2.0 to 1.5, Claude updated to 5.x, DeepSeek expanded with V3.2/V3.1, Nova v2 added, Llama clarified to 3.2/3.3, etc.
+## 4. Bedrock model reference: capabilities and use-case fit
 
-- **Incoming (2026-09-10)** claims a re-check found **"No further model additions, deprecations, renames, or capability changes"** since the prior 2026-09-02 pass, with Jamba still listed as "Jamba 2.0".
+The domain guides mention Titan, Claude, Llama, Nova, and other Bedrock
+models throughout, but scattered mentions aren't a substitute for a single
+place to compare them. Use this table when a scenario names a use case
+(or a required modality) and you need to reason about *which family* of
+model fits — not the exact model version, which changes too often to be
+exam-testable.
 
-These versions directly contradict each other on what the actual AWS Bedrock catalog contains. If the 2026-09-09 changes genuinely occurred in the catalog, the 2026-09-10 verification should acknowledge them; if nothing changed between 2026-09-02 and 2026-09-10, then Jamba would not have moved from 2.0 to 1.5 as HEAD claims.
+> **Staleness warning:** Amazon Bedrock's model catalog changes
+> frequently — AWS adds new model versions and deprecates old ones on an
+> ongoing basis. The exam tests **model-family capabilities and
+> selection criteria** (context window trade-offs, which modality a
+> family supports, when multimodal beats text-only), not specific
+> version numbers. Always verify exact model names/versions against the
+> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
+> before relying on this table outside exam prep.
+>
+> **Last verified:** 2026-09-09, against the official Bedrock model
+> catalog above. Changes found and applied in this pass: AI21's **Jamba**
+> line moved from the previously-recorded Jamba 2.0 to **Jamba 1.5**,
+> offered in **Large** (maximum context/quality) and **Mini** (lower
+> cost/latency) tiers, so the row below now reflects both tiers instead
+> of a single entry; **Anthropic Claude** stepped from the 4.x generation
+> to **Claude 5.x** as its current Bedrock line, carrying its existing
+> reasoning/tool-use/computer-use strengths forward; **DeepSeek** expanded
+> beyond **DeepSeek-R1** to add **V3.2** and **V3.1**, general-purpose,
+> non-reasoning alternatives that broaden DeepSeek's use-case fit from
+> cost-efficient reasoning alone to general-purpose inference as well;
+> **Amazon Nova** added a v2 generation — **Nova 2 Lite** and **Nova 2
+> Sonic** — offered alongside the existing v1 tiers rather than replacing
+> them, so the Nova and Nova Sonic rows below now call out versioning
+> explicitly; **Meta Llama**'s 3.x line was clarified into its **3.2**
+> (smaller/faster) and **3.3** (higher-capability successor) tiers;
+> **Cohere**'s reranking model is now versioned as **Rerank 3.5**; and
+> **OpenAI**'s row expanded well beyond gpt-oss to add the closed-weight
+> **GPT-5.4**, **GPT-5.5**, and **GPT-5.6** series, **GPT-6 Astra**, and
+> the **GPT OSS Safeguard** open-weight safety-classification variants.
+> Nine additional third-party providers newly available in the catalog as
+> of this pass — **Google (Gemma)**, **MiniMax**, **Moonshot AI**,
+> **NVIDIA**, **Qwen**, **TwelveLabs**, **Writer**, **xAI**, and **Z.AI**
+> — have each been added below as new rows, with the §4.1 decision flow
+> extended to route to the ones that represent a genuinely distinct
+> modality/use-case trade-off. The rest of the catalog (Titan, Mistral AI,
+> Stability AI) was re-checked against the catalog and found unchanged.
+> The next reviewer should update this date and summary after re-checking
+> against the catalog link above.
+>
+> **Verification process (for maintainers):** the Bedrock catalog is
+> observed to change roughly monthly, so treat this table as due for
+> re-verification once the **Last verified** date above is more than
+> ~60 days old — don't assume a table with no open issues is still
+> accurate. To re-verify: open the
+> [Bedrock model catalog](https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html)
+> linked in the staleness warning above, diff its current model list
+> against the rows below, update any changed/added/removed rows, and
+> then update both the **Last verified** date and the "changes found
+> and applied" summary to reflect that pass — a re-verification that
+> only bumps the date without recording what was checked defeats the
+> purpose of this note.
 
-Resolving this requires knowing which verification report is factually accurate against the real AWS Bedrock catalog at those dates.
+### Maintenance process
+
+This subsection spells out, concretely, what a re-verification pass
+against the table below actually involves, so a future contributor doing
+the ~60-day check doesn't have to re-derive the process from the
+staleness warning above.
+
+**What to check.** Walk the table row by row and confirm four things per
+family: (1) **model names/versions** — has AWS renamed a tier, retired a
+version, or shipped a new generation (e.g., Titan → Nova was exactly this
+kind of change)? (2) **regional availability** — is the family still
 offered in the AWS Regions this guide's readers are likely to use (the
 table intentionally omits per-region columns since availability shifts
 too often to be exam-testable, but a family that has quietly become
@@ -404,6 +472,15 @@ recording what was checked is not a valid re-verification pass.
 | **Stability AI (Stable Image)** | Stability AI | Text/image in → image out | N/A | High-control, style-flexible image generation and editing (upscaling, inpainting, outpainting, background removal, style transfer) | "Image generation," "fine-grained style control" — current Bedrock catalog exposes this as the task-specific **Stable Image** line rather than general Stable Diffusion checkpoints |
 | **OpenAI** (gpt-oss-120b/gpt-oss-20b; GPT-5.4, GPT-5.5, and the GPT-5.6 series; GPT-6 Astra; GPT OSS Safeguard variants) | OpenAI | Text in → text out across the line; exact per-tier multimodal support varies by model — check the current catalog before relying on this row for an image/video requirement | Large, reasoning-oriented | Open-weight reasoning and safety-classification tasks (gpt-oss, **GPT OSS Safeguard**) where a scenario specifically calls for OpenAI-trained weights through Bedrock's managed API; the closed-weight **GPT-5.x** series and **GPT-6 Astra** cover general-purpose and higher-capability text tasks under the same provider | "Open-weight," "OpenAI model," "reasoning model" — don't confuse with Meta Llama, which is the open-weight family the exam more commonly tests; OpenAI's Bedrock lineup now spans both open-weight (gpt-oss, GPT OSS Safeguard) and closed-weight (GPT-5.x, GPT-6 Astra) models, so "open-weight" alone no longer identifies the whole OpenAI row |
 | **DeepSeek** (R1; V3.2; V3.1) | DeepSeek | Text in → text out | Large | **R1**: open-weight, chain-of-thought reasoning tasks (multi-step math, coding, logic) at lower inference cost than comparably-sized closed-weight models; **V3.2** and **V3.1**: general-purpose, non-reasoning instruction-following inference — DeepSeek's use-case fit now spans both cost-efficient reasoning (R1) and general-purpose text generation (V3.2/V3.1), not reasoning alone | "Open-weight," "chain-of-thought," "reasoning model," "cost-efficient reasoning" points to **R1**; a scenario asking for general-purpose DeepSeek inference without a reasoning/chain-of-thought requirement points to **V3.2/V3.1** instead — distinct from OpenAI's gpt-oss (also open-weight and reasoning-oriented) and from Meta Llama (general-purpose, not reasoning-specialized) |
+| **Google Gemma** | Google | Text in → text out | Small → mid, efficient | Open-weight text generation and fine-tuning where a Google-trained open model is specifically required — same portability/control motivation as Meta Llama or DeepSeek-R1, just a different training source | "Open-weight," "Google-trained model" — distinguishes itself from Meta Llama and DeepSeek purely by provider, not by a unique capability; don't confuse with Amazon's own Nova/Titan lines, which are Amazon-native and not open-weight |
+| **MiniMax** | MiniMax | Text in → text out | Very large — among the largest context windows in the catalog | General-purpose text generation and agentic workflows that need to hold an unusually large amount of working context (long conversation histories, very large documents) in a single call | "Extremely long context window" — a scenario emphasizing context size beyond what Claude or Jamba 1.5 Large comfortably covers points to MiniMax |
+| **Moonshot AI** | Moonshot AI | Text in → text out | Large, long-context | Open-weight long-document reasoning and agentic tool-use tasks at lower cost than closed-weight long-context models | "Open-weight" plus "long context" plus "agentic tool use" together point to Moonshot AI — distinct from Jamba 1.5 (closed-weight long-context) and from Meta Llama (open-weight but not long-context-specialized) |
+| **NVIDIA** | NVIDIA | Text in → text out | Mid | Open-weight, efficient-inference models used as a base for fine-tuning or distillation into smaller task-specific models | "NVIDIA," "open-weight," "efficient inference," "distillation" — tests recognition that NVIDIA is a Bedrock third-party model provider, not just a hardware/chip vendor |
+| **Qwen** | Alibaba Cloud (Qwen) | Text in → text out for the core line; **Qwen-VL** tier adds multimodal text+image input | Mid → large | Open-weight general-purpose text generation (core Qwen line) and open-weight multimodal image-understanding tasks (**Qwen-VL**) at lower cost than closed-weight multimodal options like Claude | "Open-weight" **and** "must accept image input" together point to **Qwen-VL** specifically — the multimodal open-weight combination that Meta Llama 3.x (text-only) and OpenAI gpt-oss (text-only) don't cover; Llama 4 is the other open-weight multimodal option to weigh against it |
+| **TwelveLabs** | TwelveLabs | Video in → text out / vector embeddings (video understanding and search) | N/A | Semantic search, summarization, and classification *over existing video content* — finding a moment in hours of footage, generating a text summary of a video's content | "Search inside video," "understand/summarize existing video footage" — distinct from **Amazon Nova Reel**, which *generates* new video rather than understanding video that already exists |
+| **Writer** | Writer | Text in → text out | Mid → large | Enterprise content-generation workflows that need consistent brand voice and built-in graph-based grounding in company-specific style/terminology | "Brand voice," "enterprise content generation," "marketing/structured business copy" — distinguishes itself from Cohere's enterprise focus, which centers on RAG and tool-use rather than brand-consistent writing |
+| **xAI** | xAI | Text in → text out; multimodal image input on higher tiers | Large | General-purpose reasoning and text-generation tasks from a closed-weight provider, comparable in role to Anthropic Claude or OpenAI's closed-weight tiers | "xAI," "Grok" — the exam tests provider recognition (another closed-weight third-party option behind the same Bedrock API) rather than a capability unique to this row |
+| **Z.AI** | Z.AI | Text in → text out; multimodal on some tiers | Mid → large | Cost-efficient, open-weight general-purpose text generation and agentic tool-use tasks | "GLM," "open-weight," "cost-efficient" — another open-weight general-purpose option alongside Meta Llama, DeepSeek, Moonshot AI, and Qwen; the exam tests that Bedrock hosts many open-weight providers behind one API, not GLM-specific capabilities |
 
 > **Exam tip — pick the *capability*, not the brand name.** Exam
 > scenarios rarely ask "which company makes this model?" They describe a
@@ -441,12 +518,15 @@ graph TD
     IMG -- "Amazon-native" --> NOVACANVAS["Amazon Nova Canvas"]
     IMG -- "Third-party, fine-grained\nstyle control" --> STABILITY["Stability AI (Stable Image)"]
     START -- "Video generation" --> NOVAREEL["Amazon Nova Reel"]
+    START -- "Video understanding/search\nover existing footage" --> TWELVELABS["TwelveLabs"]
     START -- "Real-time speech-to-speech\nconversation" --> NOVASONIC["Amazon Nova Sonic"]
     START -- "Vectors only\n(RAG / semantic search)" --> EMBED{"Text only, or text\n+ image embeddings?"}
     EMBED -- "Text only" --> TITANEMBED["Amazon Titan Text\nEmbeddings V2"]
     EMBED -- "Text + image, same\nvector space" --> TITANMM["Amazon Titan\nMultimodal Embeddings"]
     START -- "Text generation / reasoning" --> MODALITY{"Must it also accept\nimage input (multimodal)?"}
-    MODALITY -- "YES" --> MMDEPTH{"Deep reasoning, agentic\ntool use, or computer use\nneeded alongside the image input?"}
+    MODALITY -- "YES" --> MMOPENWEIGHT{"Open weights required\nfor the multimodal model?"}
+    MMOPENWEIGHT -- "YES - open-weight\nmultimodal" --> QWENVL["Qwen-VL"]
+    MMOPENWEIGHT -- "NO" --> MMDEPTH{"Deep reasoning, agentic\ntool use, or computer use\nneeded alongside the image input?"}
     MMDEPTH -- "YES" --> CLAUDE["Anthropic Claude"]
     MMDEPTH -- "NO - tiered by\nspeed vs. capability" --> NOVATIER["Amazon Nova\n(Lite / Pro / Premier)"]
     MODALITY -- "NO - text-only\nis sufficient" --> REASON{"Multi-step chain-of-thought\nreasoning required\n(math, coding, logic)?"}

@@ -14,8 +14,8 @@ it's drawn from.
 
 - [1. Customization trade-off table (the most-tested decision)](#1-customization-trade-off-table-the-most-tested-decision)
 - [2. Prompt engineering techniques at a glance](#2-prompt-engineering-techniques-at-a-glance)
-- [3. Bedrock features checklist (keyword → feature)](#3-bedrock-features-checklist-keyword--feature)
-- [4. Vector databases and embeddings — bullet summary](#4-vector-databases-and-embeddings--bullet-summary)
+- [3. Bedrock features checklist (keyword → feature)](#3-bedrock-features-checklist-keyword-feature)
+- [4. Vector databases and embeddings — bullet summary](#4-vector-databases-and-embeddings-bullet-summary)
 - [5. Evaluation-strategy table](#5-evaluation-strategy-table)
 - [6. Infrastructure-scaling bullets](#6-infrastructure-scaling-bullets)
 - [7. Prompt-injection prevention bullets](#7-prompt-injection-prevention-bullets)
@@ -489,7 +489,7 @@ quality, distinct from the automatic/human/business layers above):**
 | 1c. Fine-tuning dataset curation | [Curating a fine-tuning dataset](../domain-3-applications-of-foundation-models.md#curating-a-fine-tuning-dataset-size-thresholds-a-quality-checklist-and-synthetic-vs-real-data) |
 | 2. Prompt engineering techniques | [Section 2](../domain-3-applications-of-foundation-models.md#2-prompt-engineering-techniques) + [comparison table](../domain-3-applications-of-foundation-models.md#comparison-table-prompt-engineering-techniques-at-a-glance) |
 | 3. Bedrock features checklist | [Section 5](../domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) + [Guardrails rule-type decision tree](../domain-3-applications-of-foundation-models.md#guardrails-rule-type-decision-tree-matching-the-use-case-to-the-right-filter) |
-| 4. Vector databases and embeddings | [Vector store decision guide](../domain-3-applications-of-foundation-models.md#vector-store-decision-guide-opensearch-vs-aurora--pgvector-vs-amazon-kendra) + [Section 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) + [embedding model selection](../domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned) |
+| 4. Vector databases and embeddings | [Vector store decision guide](../domain-3-applications-of-foundation-models.md#vector-store-decision-guide-opensearch-vs-aurora-pgvector-vs-amazon-kendra) + [Section 6](../domain-3-applications-of-foundation-models.md#6-vector-databases-and-embeddings-for-search-and-retrieval) + [embedding model selection](../domain-3-applications-of-foundation-models.md#choosing-an-embedding-model-domain-specific-vs-general-vs-fine-tuned) |
 | 5. Evaluation-strategy table | [Section 7](../domain-3-applications-of-foundation-models.md#7-evaluating-foundation-model-performance) |
 | 5a. Retrieval quality metrics (NDCG/MAP/Recall@k/MRR) | [Retrieval quality metrics](../domain-3-applications-of-foundation-models.md#retrieval-quality-metrics-ndcg-map-recallk-and-mrr-a-selection-decision-guide) |
 | 6. Infrastructure-scaling bullets | [Section 8](../domain-3-applications-of-foundation-models.md#8-aws-infrastructure-for-generative-ai-workloads) + [SageMaker auto-scaling decision guide](../domain-3-applications-of-foundation-models.md#sagemaker-endpoint-auto-scaling-a-parameter-tuning-decision-guide) |

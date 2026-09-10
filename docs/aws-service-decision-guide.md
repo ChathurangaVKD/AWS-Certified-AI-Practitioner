@@ -348,7 +348,7 @@ For the full walkthrough of each concept, see Domain 5:
 [Data encryption at rest and in transit](domain-5-security-compliance-governance.md#data-encryption-at-rest-and-in-transit),
 [AWS PrivateLink and VPC endpoints for AI services](domain-5-security-compliance-governance.md#aws-privatelink-and-vpc-endpoints-for-ai-services),
 [AWS Artifact](domain-5-security-compliance-governance.md#aws-artifact), and
-[HIPAA — conceptual level](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act--conceptual-level).
+[HIPAA — conceptual level](domain-5-security-compliance-governance.md#hipaa-health-insurance-portability-and-accountability-act-conceptual-level).
 
 ---
 

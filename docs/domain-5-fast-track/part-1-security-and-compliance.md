@@ -41,7 +41,7 @@ prose, mini-quiz, and AWS example behind any condensed table below:
 | 6. Cost governance | [Cost governance](../domain-5-security-compliance-governance.md#cost-governance-bounding-total-spend-with-service-quotas-and-api-gateway-usage-plans) + 3 worked examples | 666–1016 |
 | 7. Security frameworks | [MITRE ATLAS and OWASP Top 10](../domain-5-security-compliance-governance.md#security-frameworks-for-ai-systems-mitre-atlas-and-owasp-top-10-for-llm-applications) | 1017–1134 |
 | 8. AWS Artifact | [AWS Artifact](../domain-5-security-compliance-governance.md#aws-artifact) + BAA/DPA decision guide | 1137–1197 |
-| 9. The five compliance frameworks | [GDPR](../domain-5-security-compliance-governance.md#gdpr-general-data-protection-regulation--conceptual-level) through [ISO/IEC 42001](../domain-5-security-compliance-governance.md#isoiec-42001-and-the-algorithmic-accountability-act--conceptual-level) | 1198–1412 |
+| 9. The five compliance frameworks | [GDPR](../domain-5-security-compliance-governance.md#gdpr-general-data-protection-regulation-conceptual-level) through [ISO/IEC 42001](../domain-5-security-compliance-governance.md#isoiec-42001-and-the-algorithmic-accountability-act-conceptual-level) | 1198–1412 |
 | 10. Compliance decision matrix | [Compliance framework decision matrix](../domain-5-security-compliance-governance.md#compliance-framework-decision-matrix) | 1413–1453 |
 | 11. Requirements comparison matrix | [Requirements comparison matrix](../domain-5-security-compliance-governance.md#compliance-framework-requirements-comparison-matrix) + worked example | 1454–1608 |
 
@@ -436,8 +436,8 @@ Accountability Act** is proposed, not-yet-binding legislation.
 > 22's separate right to human review of automated decisions.
 
 Full explanation, the multi-region NIST AI RMF worked example, and two
-mini-quizzes: [full guide, GDPR](../domain-5-security-compliance-governance.md#gdpr-general-data-protection-regulation--conceptual-level)
-through [ISO/IEC 42001](../domain-5-security-compliance-governance.md#isoiec-42001-and-the-algorithmic-accountability-act--conceptual-level).
+mini-quizzes: [full guide, GDPR](../domain-5-security-compliance-governance.md#gdpr-general-data-protection-regulation-conceptual-level)
+through [ISO/IEC 42001](../domain-5-security-compliance-governance.md#isoiec-42001-and-the-algorithmic-accountability-act-conceptual-level).
 
 ---
 

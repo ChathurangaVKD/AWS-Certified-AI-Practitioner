@@ -45,7 +45,7 @@ is most likely to hide:
 
 - **Section 3: Retrieval Augmented Generation (RAG) and Amazon Bedrock
   Knowledge Bases**, including the [vector store decision
-  guide](../domain-3-applications-of-foundation-models.md#vector-store-decision-guide-opensearch-vs-aurora--pgvector-vs-amazon-kendra)
+  guide](../domain-3-applications-of-foundation-models.md#vector-store-decision-guide-opensearch-vs-aurora-pgvector-vs-amazon-kendra)
   and its two worked examples (compliance-document Q&A;
   [Kendra's GenAI Index as a Bedrock Knowledge Base data
   source](../domain-3-applications-of-foundation-models.md#worked-example-building-a-product-knowledge-assistant-using-kendras-genai-index-as-a-bedrock-knowledge-base-data-source))

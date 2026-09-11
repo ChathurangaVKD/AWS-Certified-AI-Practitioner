@@ -1,7 +1,8 @@
 # Domain 3 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status: technical verification complete; all findings fixed.** This
-report is the technical verification flagged as outstanding in the
+**Status:** technical verification complete; all findings fixed · **Verified:** 2026-09-09 · **Backfilled:** 2026-09-09
+
+This report is the technical verification flagged as outstanding in the
 Content Health assessment for Domain 3's condensed layer. This is a
 correctness audit against the live files, not new content authoring —
 no prose in the Fast Track or Ultra Fast Learn was rewritten to produce

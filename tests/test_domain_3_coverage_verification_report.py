@@ -163,6 +163,17 @@ class TestReportStructure(unittest.TestCase):
     def test_names_the_hop1_gap(self):
         self.assertIn(HOP1_GAP_KEYWORD, self.text)
 
+    def test_has_header_level_verified_date(self):
+        # Domains 1, 2, 4, and 5's coverage verification reports all carry
+        # an explicit "**Verified:** YYYY-MM-DD" marker on line 3, directly
+        # below the title, so the verification status is discoverable
+        # without scrolling into the body. Domain 3's report previously
+        # only mentioned its verification date inline in the body prose;
+        # it must now match its siblings.
+        lines = self.text.splitlines()
+        self.assertGreaterEqual(len(lines), 3)
+        self.assertIn("**Verified:** 2026-09-09", lines[2])
+
 
 class TestReportLinksResolve(unittest.TestCase):
     """Every internal link out of the report must resolve to a real file

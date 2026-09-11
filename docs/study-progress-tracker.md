@@ -1,5 +1,7 @@
 # Study Progress Tracker
 
+**Last verified:** 2026-09-11
+
 This series gives you **324 total self-assessment items** to practice
 with: 129 domain-scoped [practice questions](exam-preparation-strategy.md#1-exam-format-and-time-management)
 (spread across the five domain guides), 35 embedded

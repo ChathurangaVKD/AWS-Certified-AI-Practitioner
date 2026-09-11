@@ -1,5 +1,7 @@
 # Full-Length Mock Exam (AIF-C01)
 
+**Last verified:** 2026-09-11
+
 The five domain guides ([Domain 1: Fundamentals of AI and ML](domain-1-fundamentals-of-ai-and-ml.md),
 [Domain 2: Fundamentals of Generative AI](domain-2-fundamentals-of-generative-ai.md),
 [Domain 3: Applications of Foundation Models](domain-3-applications-of-foundation-models.md),

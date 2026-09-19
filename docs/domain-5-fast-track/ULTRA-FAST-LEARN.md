@@ -198,4 +198,4 @@ this cram sheet intentionally omits, go back to the
 material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md).
 
-[Full Domain 5 guide →](../domain-5-security-compliance-governance.md)
+[Full Domain 5 guide →](../domain-5-security-compliance-governance.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

@@ -229,4 +229,4 @@ explanations, worked examples, mini-quizzes, and 24 practice questions.
 For material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md).
 
-[← Back to the Domain 1 fast track](README.md) · [Full Domain 1 guide →](../domain-1-fundamentals-of-ai-and-ml.md)
+[← Back to the Domain 1 fast track](README.md) · [Full Domain 1 guide →](../domain-1-fundamentals-of-ai-and-ml.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

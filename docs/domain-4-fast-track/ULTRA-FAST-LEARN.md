@@ -239,4 +239,4 @@ self-check this cram sheet intentionally omits, go back to the
 material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md).
 
-[← Back to the Domain 4 fast track](README.md) · [Full Domain 4 guide →](../domain-4-guidelines-for-responsible-ai.md)
+[← Back to the Domain 4 fast track](README.md) · [Full Domain 4 guide →](../domain-4-guidelines-for-responsible-ai.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

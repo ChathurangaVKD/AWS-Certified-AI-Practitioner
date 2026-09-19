@@ -374,4 +374,4 @@ questions this cram sheet intentionally omits, go back to the
 material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md).
 
-[← Back to the full Domain 2 guide](../domain-2-fundamentals-of-generative-ai.md)
+[← Back to the full Domain 2 guide](../domain-2-fundamentals-of-generative-ai.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

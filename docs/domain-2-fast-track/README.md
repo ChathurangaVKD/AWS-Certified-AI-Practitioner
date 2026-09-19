@@ -844,6 +844,9 @@ tell which of the tables above to re-check if you miss one:
 
 For an even more condensed, bullets-only cram sheet, see
 [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) in this same directory. For
+an interactive, GitHub-flavored-Markdown quick-scan version of the same
+verified facts — jump links, collapsible sections, and a self-check
+checklist — see [`CHEAT-SHEET.md`](CHEAT-SHEET.md). For
 material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).

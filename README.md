@@ -56,6 +56,18 @@ already tracks Fast Track and Ultra Fast Learn sessions as valid study
 materials alongside full-guide study, for logging which tier you used on
 each attempt.
 
+Each domain's `docs/domain-N-fast-track/` directory also ships a
+`CHEAT-SHEET.md` — an **interactive quick-scan cheat sheet** alongside
+`README.md` (Fast Track) and `ULTRA-FAST-LEARN.md` (Ultra Fast Learn). It
+doesn't add new material or replace any of the three tiers above; it
+reformats their already-verified facts into a GitHub-flavored-Markdown
+layout built for a 2-3 minute skim right before the exam: a jump-link
+table of contents, collapsible `<details>` sections per topic so the page
+loads as a compact list of headings, comparison tables for
+commonly-confused pairs, and a tickable self-check checklist at the end.
+See [Domain 1's cheat sheet](docs/domain-1-fast-track/CHEAT-SHEET.md) for
+an example — the same file exists for all five domains.
+
 ## Study plan
 
 **Recommended reading order: Domain 1 → Domain 2 → Domain 3 → Domain 4 →

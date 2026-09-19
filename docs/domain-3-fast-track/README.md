@@ -24,7 +24,9 @@ complete scenario, worked examples, and mini-quizzes.
 For the last 15-20 minutes before the exam, once all three parts are already
 familiar and you just need the highest-yield tables refreshed one more time,
 see [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) — a bullets-and-tables-only
-cram sheet built on top of all three parts.
+cram sheet built on top of all three parts. For an even faster, interactive
+scan of the same verified facts — jump links, collapsible sections per
+topic, and a self-check checklist — see [`CHEAT-SHEET.md`](CHEAT-SHEET.md).
 
 ## How to use this fast track
 
@@ -48,6 +50,7 @@ familiar.
 - [Part 2: Inference Architecture & Multi-Modal Applications](part-2-inference-and-multimodal.md) — Sections 5-7
 - [Part 3: Production Deployment & Troubleshooting](part-3-deployment-and-troubleshooting.md) — Section 8 onward
 - [ULTRA-FAST-LEARN.md](ULTRA-FAST-LEARN.md) — bullets-and-tables-only cram sheet for the last 15-20 minutes before the exam
+- [CHEAT-SHEET.md](CHEAT-SHEET.md) — interactive quick-scan cheat sheet: jump links, collapsible sections, and a self-check checklist
 
 ## Where each section comes from
 

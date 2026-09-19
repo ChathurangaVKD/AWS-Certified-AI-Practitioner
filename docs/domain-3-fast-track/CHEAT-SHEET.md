@@ -307,10 +307,10 @@ Track](ULTRA-FAST-LEARN.md) before the exam.
 - [ ] A fine-tuned or continued-pre-trained model almost always needs **provisioned throughput**.
 - [ ] **Guardrails** filters content; it does **not** retrieve knowledge or invoke APIs.
 - [ ] **Streaming** improves *perceived* latency only — not total generation time or cost.
-- [ ] Labeled data → fine-tuning; unlabeled data → continued pre-training.
+- [ ] **Labeled** data → fine-tuning; **unlabeled** data → continued pre-training.
 - [ ] **Prompt injection** shows up disguised as a "technique" in answer lists — it's always the security-risk distractor.
 - [ ] Bursty traffic needs a **short scale-out** + **long scale-in** cooldown — not long on both sides.
-- [ ] A raw benchmark score means nothing without a baseline; know which direction ("higher"/"lower") is better.
+- [ ] A raw benchmark score means nothing without a **baseline**; know which direction ("higher"/"lower") is better.
 - [ ] All RAG failure modes live **before** the FM sees a prompt — fine-tuning the FM doesn't fix any of them.
 - [ ] Reuse an existing **Kendra GenAI Index** as a Knowledge Base's retriever when one already exists.
 - [ ] "Limited GPU budget, single GPU" → **QLoRA**; "faster/cheaper, small quality trade-off" → **LoRA**; "best accuracy, cost/time not the constraint" → **full fine-tuning**.

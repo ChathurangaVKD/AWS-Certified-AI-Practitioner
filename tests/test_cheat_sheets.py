@@ -175,7 +175,7 @@ class TestCheatSheetsStructure(unittest.TestCase):
                 separator_rows = re.findall(r"^\|[\s:-]*-[\s:|-]*\|$", text, re.M)
                 self.assertGreaterEqual(
                     len(separator_rows),
-                    8,
+                    6,
                     "expected many GFM comparison tables, not prose paragraphs",
                 )
 

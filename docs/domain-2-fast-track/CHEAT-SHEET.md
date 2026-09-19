@@ -303,7 +303,7 @@ Track](ULTRA-FAST-LEARN.md) before the exam.
 - [ ] **Hallucination** (confidently fabricated specifics) ≠ **inaccuracy** (just wrong/low quality).
 - [ ] Lowering **temperature** reduces nondeterminism but does **not** eliminate hallucination risk.
 - [ ] **Top-p** = cumulative-probability threshold; **top-k** = fixed count of top tokens.
-- [ ] High temperature + narrow top-p/top-k can still be repetitive — the three parameters interact.
+- [ ] High temperature + narrow top-p/top-k can still be **repetitive** — the three parameters interact.
 - [ ] **Few-shot prompting** changes nothing about model weights; only **fine-tuning** retrains them.
 - [ ] Fabricated/wrong **facts** → **RAG**; wrong **tone/format/style** → prompt engineering or fine-tuning.
 - [ ] RAG grounds answers in data — it does **not** restore interpretability or guarantee correctness.
@@ -312,8 +312,8 @@ Track](ULTRA-FAST-LEARN.md) before the exam.
 - [ ] Content-safety questions need **Guardrails for Amazon Bedrock** — inference parameters alone cannot enforce a content policy.
 - [ ] GenAI has four **advantages** too (adaptability, responsiveness, simplicity/creativity, scalability) — don't recall only the disadvantages.
 - [ ] "Up-to-date/proprietary data without retraining" → **RAG**; "specific tone, format, or labeled task" → **fine-tuning**.
-- [ ] On the embedding-model decision tree, jumping straight to fine-tuning "to be safe" wastes cost.
-- [ ] A "one company, five initiatives" scenario maps each initiative to exactly one use case and one AWS service.
+- [ ] On the embedding-model decision tree, jumping straight to fine-tuning "to be safe" **wastes cost**.
+- [ ] A "one company, five initiatives" scenario maps each initiative to **exactly one** use case and one AWS service.
 
 ---
 

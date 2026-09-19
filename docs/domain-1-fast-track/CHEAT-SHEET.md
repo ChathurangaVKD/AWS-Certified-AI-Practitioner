@@ -250,7 +250,7 @@ Track](ULTRA-FAST-LEARN.md) before the exam.
 - [ ] **No labels/target column** → **unsupervised**, even if the goal sounds like "prediction."
 - [ ] RL needs **agent + environment + reward** — don't conflate it with "no labels = unsupervised."
 - [ ] **Accuracy is misleading on imbalanced data** — look for precision, recall, F1, or AUC-ROC.
-- [ ] Raising the threshold → precision up, recall down (not both up or both down).
+- [ ] Raising the threshold → **precision up, recall down** (not both up or both down).
 - [ ] A **failed** evaluation gate (step 6) loops back to **feature engineering** (step 4), not to business goal identification or straight to deployment.
 - [ ] "Great on training, bad on test" = **overfitting**; "bad on both" = **underfitting** — don't swap them.
 - [ ] Tabular overfitting → **bagging/boosting**; image/audio/text overfitting → a **deep learning architecture**, not more trees.

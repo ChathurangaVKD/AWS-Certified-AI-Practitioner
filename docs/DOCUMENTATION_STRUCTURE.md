@@ -30,7 +30,7 @@ domain, currently 2,030–6,957 lines each, **16,303 lines total**:
 - Domain 4: 2,250 lines
 - Domain 5: 2,853 lines
 
-## Fast Track condensed guides (15 files, 7,901 lines total)
+## Fast Track condensed guides (15 files, 7,919 lines total)
 
 Beyond the five full domain guides, each domain also has a condensed
 "Fast Track" layer under its own `docs/domain-N-fast-track/` directory.
@@ -58,7 +58,7 @@ Domain 3 into `part-1-application-design-and-customization.md`,
 `ULTRA-FAST-LEARN.md`. Both domains still have a `README.md` in their
 Fast Track directory, though, and it is still an integral, load-bearing
 part of that domain's Fast Track layer: rather than holding the condensed
-guide itself, it is a short landing page (88 lines for Domain 3, 81 for
+guide itself, it is a short landing page (91 lines for Domain 3, 85 for
 Domain 5) that explains the split and links out to each part in reading
 order, so `README.md` remains the entry point into every domain's Fast
 Track layer even where the condensed content itself lives in numbered
@@ -67,15 +67,15 @@ parts.
 Per domain, the Fast Track layer (condensed guide/parts plus cram sheet
 combined) totals:
 
-- Domain 1 Fast Track: 975 lines (`README.md` 743 + `ULTRA-FAST-LEARN.md` 232)
-- Domain 2 Fast Track: 1,228 lines (`README.md` 851 + `ULTRA-FAST-LEARN.md` 377)
-- Domain 3 Fast Track: 3,081 lines (`README.md` 88 + `part-1` 832 + `part-2` 808 +
+- Domain 1 Fast Track: 978 lines (`README.md` 746 + `ULTRA-FAST-LEARN.md` 232)
+- Domain 2 Fast Track: 1,231 lines (`README.md` 854 + `ULTRA-FAST-LEARN.md` 377)
+- Domain 3 Fast Track: 3,084 lines (`README.md` 91 + `part-1` 832 + `part-2` 808 +
   `part-3` 847 + `ULTRA-FAST-LEARN.md` 506)
-- Domain 4 Fast Track: 1,037 lines (`README.md` 800 + `ULTRA-FAST-LEARN.md` 237)
-- Domain 5 Fast Track: 1,580 lines (`README.md` 81 + `part-1` 730 + `part-2` 568 +
+- Domain 4 Fast Track: 1,042 lines (`README.md` 805 + `ULTRA-FAST-LEARN.md` 237)
+- Domain 5 Fast Track: 1,584 lines (`README.md` 85 + `part-1` 730 + `part-2` 568 +
   `ULTRA-FAST-LEARN.md` 201)
 
-That is 15 files (2 + 2 + 5 + 2 + 4) totaling **7,901 lines** across all
+That is 15 files (2 + 2 + 5 + 2 + 4) totaling **7,919 lines** across all
 five domains. Every Fast Track guide and Ultra Fast Learn cram sheet
 carries the same coverage guarantee: every testable concept the full
 domain guide covers is retained somewhere in the condensed layer — only
@@ -632,7 +632,7 @@ Combined, the ten cross-domain support documents listed above total
 594; `full-length-mock-exam.md`: 1,263; `mock-exam.md`: 1,150;
 `master-glossary.md`: 238; `GLOSSARY.md`: 229). The 15 Fast Track condensed
 guides listed above (see "Fast Track condensed guides" section) add
-**7,901 lines**, and `study-progress-tracker.md` adds a further **163
+**7,919 lines**, and `study-progress-tracker.md` adds a further **163
 lines**. All thirty-three files together — `README.md`, the five domain
 guides, the 15 Fast Track condensed guides, the ten cross-domain support
 documents, `study-progress-tracker.md`, and this file — total

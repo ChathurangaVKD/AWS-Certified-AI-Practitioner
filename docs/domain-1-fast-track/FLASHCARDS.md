@@ -1,0 +1,158 @@
+# Domain 1 Flashcards: Fundamentals of AI and ML
+
+**Spaced-repetition companion deck** · fast track: [`README.md`](README.md) · cram sheet: [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) · plain-text import file: [`flashcards.tsv`](flashcards.tsv)
+
+One card per testable concept from the Domain 1 Ultra Fast Track cram sheet, ordered to match that file's own section order so studying this deck reinforces the domain's structure. Front/back only, no prose -- for active recall or spaced repetition. `flashcards.tsv` holds the identical cards as a header-less, two-column (front, back) tab-separated file, importable as-is into Anki or Quizlet.
+
+## 1. ML development lifecycle
+
+| Front | Back |
+|---|---|
+| ML lifecycle stage 1 | Business goal identification -- define the problem and success metric; no tooling yet |
+| ML lifecycle stage 2 | Data collection -- Amazon S3, AWS Glue, Amazon Kinesis / MSK |
+| ML lifecycle stage 3 | Exploratory data analysis (EDA) -- SageMaker Data Wrangler, SageMaker Studio, Amazon Athena |
+| ML lifecycle stage 4 | Data preparation / feature engineering -- SageMaker Data Wrangler, SageMaker Feature Store |
+| ML lifecycle stage 5 | Model training -- SageMaker Training Jobs, SageMaker JumpStart, Managed Spot Training |
+| ML lifecycle stage 6 | Hyperparameter tuning / evaluation -- SageMaker automatic model tuning, SageMaker Clarify (decision gate) |
+| ML lifecycle stage 7 | Deployment -- SageMaker endpoints (real-time), batch transform, serverless/async inference |
+| ML lifecycle stage 8 | Monitoring -- SageMaker Model Monitor, Amazon CloudWatch |
+| A failed evaluation at step 6 (tuning/evaluation) loops back to which step? | Step 4, data preparation / feature engineering |
+| Drift or degraded accuracy detected at step 8 (monitoring) loops back to which steps? | Step 2 (data collection) or step 5 (model training) |
+| What does SageMaker Feature Store prevent? | Training/serving skew |
+| When does a scenario rule out SageMaker Autopilot? | When it needs a custom loss function, domain-specific feature engineering, or a novel architecture |
+| Managed Spot Training cost savings vs. On-Demand | Up to ~90% cheaper (uses spare EC2 capacity) |
+| Managed Spot Training interruption notice | 2-minute interruption notice before reclaim |
+| An interrupted Spot training job with no checkpointing resumes from...? | 0% -- restarts from scratch, not from where it left off |
+| Best use case for Managed Spot Training | Routine retraining with no fixed deadline |
+| Best use case for On-Demand training | Drift-triggered emergency retrain under a strict compliance SLA |
+| Deployment pattern: route a small % of traffic to the new version, gradually increasing | Canary deployment |
+| Deployment pattern: new version on a separate fleet, cut traffic over all at once, instant rollback | Blue/green deployment |
+| Deployment pattern: split live traffic between two+ versions deliberately | A/B testing -- compares real-world performance |
+| Deployment pattern: copy of live traffic sent to the new version, predictions never reach users | Shadow deployment -- validates with zero user-facing risk |
+| What does SageMaker Model Registry do? | Catalogs trained model versions with metrics/lineage and requires reviewer approve/reject before deployment |
+
+## 2. Three learning types
+
+| Front | Back |
+|---|---|
+| Learning type: labeled data, predicts a known target (classification or regression) | Supervised learning |
+| Learning type: unlabeled data, finds structure with no target column | Unsupervised learning |
+| Learning type: agent takes actions in an environment to maximize cumulative reward | Reinforcement learning (RL) |
+| Learning type: small labeled set + large unlabeled pool, labeling is expensive | Semi-supervised learning |
+
+## 3. AWS AI/ML services -- decision table
+
+| Front | Back |
+|---|---|
+| Scenario: no ML expertise, needs a custom model/algorithm not covered by a purpose-built service | Amazon SageMaker |
+| Scenario: images/video -- objects, faces, moderation | Amazon Rekognition |
+| Scenario: convert speech/audio to text, diarization | Amazon Transcribe |
+| Scenario: analyze text for sentiment, entities, key phrases, PII | Amazon Comprehend |
+| Scenario: convert text to lifelike speech | Amazon Polly |
+| Scenario: translate between languages | Amazon Translate |
+| Scenario: build a chatbot or voice bot | Amazon Lex |
+| Scenario: personalized product/content recommendations | Amazon Personalize |
+| Scenario: forecast demand, inventory, or other time-series values | Amazon Forecast |
+| Scenario: extract text, forms, and tables from scanned documents | Amazon Textract |
+| Scenario: real-time fraud-risk scoring | Amazon Fraud Detector |
+| Scenario: human-in-the-loop labeling to produce training data | Amazon SageMaker Ground Truth |
+| Labeling approach: large pool of real, unlabeled data, minimize labeling cost/time | SageMaker Ground Truth (managed human-in-the-loop + active learning) |
+| Labeling approach: small dataset (tens-hundreds of records), quick PoC | Manual labeling |
+| Labeling approach: data is already labeled but needs prep/feature engineering | SageMaker Data Wrangler |
+| Labeling approach: tight labeling budget, iterative train -> query -> label -> retrain | Active learning (standalone) |
+| Labeling approach: labels needed fast/cheap at scale, experts can express rules | Weak supervision |
+| Labeling approach: real data is scarce/sensitive/expensive, or a rare class/edge case | Synthetic data generation |
+| Golden rule for choosing SageMaker vs. a purpose-built AI service | If a purpose-built managed AI service matches the task, it beats SageMaker; SageMaker wins only for a custom model/algorithm or full control |
+
+## 4. Classification evaluation metrics
+
+| Front | Back |
+|---|---|
+| Accuracy formula | (TP + TN) / (TP + TN + FP + FN) |
+| Precision formula | TP / (TP + FP) |
+| Recall (sensitivity) formula | TP / (TP + FN) |
+| F1 score formula | 2 x (Precision x Recall) / (Precision + Recall) |
+| AUC-ROC measures | Area under the TPR-vs-FPR curve; ranking quality across all thresholds (1.0 = perfect, 0.5 = random) |
+| RMSE / MAE measure | Average distance between predicted and actual numbers, for regression (continuous target) |
+| Fraud detection: costliest error and best metric | Missed fraud (false negative) -- use Recall |
+| Spam filtering: costliest error and best metric | Legit email flagged (false positive) -- use Precision |
+| Disease screening: costliest error and best metric | Missed case (false negative) -- use Recall |
+| Loan-default prediction: best metric | F1 -- both false positives and false negatives matter |
+| General, roughly balanced product classifier: best metric | Accuracy |
+| House-price prediction: best metric | RMSE / MAE (it's a regression problem) |
+| Accuracy paradox | On 99% "not fraud" data, always predicting "not fraud" scores 99% accuracy while catching zero fraud |
+| Effect of raising the classification threshold | Precision goes up, recall goes down (and vice versa) |
+
+## 5. Bias-variance trade-off
+
+| Front | Back |
+|---|---|
+| Underfitting vs. overfitting -- don't swap them | "Bad on both training and test" = underfitting (high bias); "great on training, poor on test" = overfitting (high variance) |
+| Fixes for underfitting (high bias) | More complex model, more/better features, train longer, less regularization |
+| Fixes for overfitting (high variance) | More data, simpler model, regularization, cross-validation, early stopping, feature selection, data augmentation, ensembling |
+| Bias-variance trade-off formula | Total error = Bias^2 + Variance + irreducible error, minimized at the model-complexity "sweet spot" |
+
+## 6. Ensemble methods
+
+| Front | Back |
+|---|---|
+| Bagging (bootstrap aggregating) | Same model type, parallel training on random bootstrap samples; primarily reduces variance (e.g., Random Forest) |
+| Boosting | Same model type, sequential training where each stage fixes prior errors; primarily reduces bias (e.g., Gradient Boosting / SageMaker XGBoost) |
+| Voting | Different model types, parallel on the same full dataset, combined by majority/average; cancels out errors from diverse algorithms |
+| Overfitting fix for tabular/structured data vs. image/audio/text data | Tabular -- bagging/boosting; image/audio/text -- a deep learning architecture (CNN/transformer), since trees can't learn spatial/sequential structure |
+
+## Rapid-fire key terms
+
+| Front | Back |
+|---|---|
+| AI | Systems performing tasks that normally require human intelligence |
+| ML | Systems that learn patterns from data instead of explicit rules |
+| DL | Multi-layer neural networks that learn representations automatically |
+| Parameter | A value learned during training (e.g., a neural network weight) |
+| Hyperparameter | A configuration value set before training (e.g., learning rate) |
+| Feature engineering | Cleaning, transforming, encoding, and selecting model inputs |
+| SageMaker Feature Store | Centralized, versioned feature repository; prevents training/serving skew |
+| SageMaker Autopilot | Automates data prep, algorithm selection, and tuning for tabular data |
+| Supervised learning | Trains on labeled data; classification or regression |
+| Unsupervised learning | Trains on unlabeled data; clustering or dimensionality reduction |
+| Reinforcement learning | An agent maximizes cumulative reward through trial and error |
+| Confusion matrix | TP/FP/FN/TN table underlying every classification metric |
+| Precision | TP / (TP + FP); few false alarms |
+| Recall | TP / (TP + FN); few missed positives |
+| F1 score | Harmonic mean of precision and recall |
+| AUC-ROC | Ranking quality across all classification thresholds |
+| Underfitting / high bias | Model too simple; poor on both training and test data |
+| Overfitting / high variance | Model too sensitive to training noise; poor generalization |
+| Regularization | L1/L2 penalty or dropout that discourages overly complex models |
+| Bagging | Parallel ensemble on bootstrap samples; reduces variance (Random Forest) |
+| Boosting | Sequential ensemble correcting prior errors; reduces bias (Gradient Boosting/XGBoost) |
+| Voting | Combines different model types by majority vote or averaged probabilities |
+| SageMaker Ground Truth | Human-in-the-loop data labeling with active learning |
+| SageMaker Model Monitor | Watches a deployed endpoint for data/concept drift |
+
+## Common exam traps
+
+| Front | Back |
+|---|---|
+| Trap: scenario says "no ML expertise" + a standard vision/speech/text/forecast/rec task | Use the purpose-built service, not SageMaker |
+| Trap: when is SageMaker actually the correct choice? | Only when a custom model/algorithm or full control is explicitly needed |
+| Trap: no labels/target column, even if the goal sounds like "prediction" | It's unsupervised learning, not supervised |
+| Trap: don't conflate "no labels" with reinforcement learning | RL specifically needs an agent + environment + reward, not just missing labels |
+| Trap: accuracy looks high on imbalanced data | Misleading -- check precision, recall, F1, or AUC-ROC instead |
+| Trap: effect of raising the classification threshold | Precision up, recall down -- not both up or both down |
+| Trap: where does a failed evaluation gate (step 6) loop back to? | Feature engineering (step 4), not business goal identification or straight to deployment |
+| Trap: "great on training, bad on test" vs. "bad on both" | Overfitting vs. underfitting -- don't swap them |
+| Trap: fixing overfitting on image/audio/text data with a tree ensemble | Doesn't work -- decision trees can't learn spatial/sequential structure; use a deep learning architecture instead |
+| Trap: what does SageMaker Feature Store solve? | Training/serving skew -- it is not a labeling tool (that's Ground Truth) |
+| Trap: Managed Spot Training interrupted with no checkpointing | Restarts the job from 0%, not from where it left off |
+| Trap: a fixed-deadline/compliance-SLA retrain | Uses On-Demand, not Spot -- Spot is for routine retraining with no fixed deadline |
+| Trap: gradual traffic shift with automatic rollback vs. instant all-at-once cutover | Gradual = canary; instant = blue/green |
+| Trap: deliberately comparing two live versions vs. zero user-facing-risk validation | Comparing = A/B testing; zero-risk validation = shadow deployment |
+| Trap: SageMaker Model Registry vs. Model Monitor vs. Model Cards | Registry tracks versions and requires approval before deployment; Model Monitor watches for drift; Model Cards document intended use/limitations |
+| Trap: choosing among labeling/data-prep options | Match the named constraint -- labeling budget -> active learning; expressible rules -> weak supervision; scarce/rare data -> synthetic data; large unlabeled pool -> Ground Truth; already labeled -> Data Wrangler |
+
+---
+
+**107 cards total.** For the full explanations behind any card, see the [fast track](README.md), the [Ultra Fast Track cram sheet](ULTRA-FAST-LEARN.md), or the [full Domain 1 guide](../domain-1-fundamentals-of-ai-and-ml.md).
+
+[← Back to the Domain 1 fast track](README.md) · [Ultra Fast Track →](ULTRA-FAST-LEARN.md)

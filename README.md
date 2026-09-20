@@ -56,6 +56,36 @@ already tracks Fast Track and Ultra Fast Learn sessions as valid study
 materials alongside full-guide study, for logging which tier you used on
 each attempt.
 
+## Flashcard decks
+
+Alongside the three tiers above, every domain also has a dedicated
+**flashcard deck** — a companion study format for active recall and
+spaced repetition rather than reading. Each deck is a reformat of that
+domain's own Fast Track and Ultra Fast Learn content into one card per
+testable concept (key term → definition, service → use case, numeric
+threshold → value, commonly confused pair → the distinguishing fact, and
+short scenario → correct service/approach), ordered to match that
+domain's own section order. No new facts are introduced — it is the same
+verified content, just reformatted for recall practice.
+
+Each deck ships as two files in that domain's `docs/domain-N-fast-track/`
+folder: `FLASHCARDS.md`, a plain Markdown front/back table you can read
+directly on GitHub, and `flashcards.tsv`, a header-less, two-column
+(front, back) tab-separated file you can import as-is into Anki or
+Quizlet.
+
+| Domain | Flashcard deck |
+|---|---|
+| 1. Fundamentals of AI and ML | [`docs/domain-1-fast-track/FLASHCARDS.md`](docs/domain-1-fast-track/FLASHCARDS.md) ([.tsv](docs/domain-1-fast-track/flashcards.tsv)) |
+| 2. Fundamentals of Generative AI | [`docs/domain-2-fast-track/FLASHCARDS.md`](docs/domain-2-fast-track/FLASHCARDS.md) ([.tsv](docs/domain-2-fast-track/flashcards.tsv)) |
+| 3. Applications of Foundation Models | [`docs/domain-3-fast-track/FLASHCARDS.md`](docs/domain-3-fast-track/FLASHCARDS.md) ([.tsv](docs/domain-3-fast-track/flashcards.tsv)) |
+| 4. Guidelines for Responsible AI | [`docs/domain-4-fast-track/FLASHCARDS.md`](docs/domain-4-fast-track/FLASHCARDS.md) ([.tsv](docs/domain-4-fast-track/flashcards.tsv)) |
+| 5. Security, Compliance, and Governance for AI Solutions | [`docs/domain-5-fast-track/FLASHCARDS.md`](docs/domain-5-fast-track/FLASHCARDS.md) ([.tsv](docs/domain-5-fast-track/flashcards.tsv)) |
+
+Domain 3 and Domain 5's Fast Tracks are split into multiple parts, but
+each domain has a single flashcard deck covering the whole domain — it is
+not split by part.
+
 ## Study plan
 
 **Recommended reading order: Domain 1 → Domain 2 → Domain 3 → Domain 4 →

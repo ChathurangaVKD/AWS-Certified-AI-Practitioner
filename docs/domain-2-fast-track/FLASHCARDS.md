@@ -10,7 +10,7 @@ top to bottom reinforces the domain's structure. One question or term per
 card, one-to-two-line answer, no re-explaining.
 
 For app-based spaced repetition (Anki, Quizlet, etc.), import
-[`flashcards.tsv`](flashcards.tsv) directly — it's the same 92 cards, same
+[`flashcards.tsv`](flashcards.tsv) directly — it's the same 93 cards, same
 order, tab-separated with no header row.
 
 ## 1. Transformer mechanics

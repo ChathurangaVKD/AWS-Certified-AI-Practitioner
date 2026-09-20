@@ -636,7 +636,7 @@ guides listed above (see "Fast Track condensed guides" section) add
 lines**. All thirty-three files together — `README.md`, the five domain
 guides, the 15 Fast Track condensed guides, the ten cross-domain support
 documents, `study-progress-tracker.md`, and this file — total
-**30,612 lines**.
+**30,861 lines**.
 
 ## Cross-linking architecture
 

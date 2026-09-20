@@ -28,7 +28,12 @@ Domain 5 makes up roughly **14% of scored questions** on the AWS Certified AI
 Practitioner (AIF-C01) exam. For the last 15-20 minutes before the exam, once
 both parts are already familiar and you just need the highest-yield tables
 refreshed one more time, see [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) — a
-bullets-and-tables-only cram sheet built on top of both parts.
+bullets-and-tables-only cram sheet built on top of both parts. For
+active-recall/spaced-repetition practice instead of reading, see
+[`FLASHCARDS.md`](FLASHCARDS.md) — a front/back deck covering every key
+term, service, numeric threshold, and commonly confused pair across the
+whole domain (not split by part), also available as
+[`flashcards.tsv`](flashcards.tsv) for import into Anki or Quizlet.
 
 ## How to use this fast track
 
@@ -49,6 +54,7 @@ review that topic cluster. For the final cram before the exam, drop down to
 - [Part 1: AI System Security & Compliance Frameworks](part-1-security-and-compliance.md) — Sections 1-2
 - [Part 2: Governance, Audit, Data Governance & Shared Responsibility](part-2-governance-and-monitoring.md) — Sections 3-5
 - [ULTRA-FAST-LEARN.md](ULTRA-FAST-LEARN.md) — bullets-and-tables-only cram sheet for the last 15-20 minutes before the exam
+- [FLASHCARDS.md](FLASHCARDS.md) — front/back flashcard deck for active recall / spaced repetition (also [flashcards.tsv](flashcards.tsv) for Anki/Quizlet import)
 
 ## Where each section comes from
 

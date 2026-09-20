@@ -1,0 +1,68 @@
+What are the four most-tested dimensions of responsible AI?	Fairness, explainability, privacy and security, and transparency.
+Fairness — key question and primary AWS tool?	Equitable treatment across groups/protected characteristics?; SageMaker Clarify (bias metrics).
+Explainability — key question and primary AWS tool?	Why did the model produce this prediction?; SageMaker Clarify (SHAP).
+Privacy and security — key question and primary AWS tool?	Is personal data protected; is the model protected from misuse?; Guardrails (PII redaction); Amazon Macie.
+Transparency — key question and primary AWS tool?	Is the whole system's build/training/limits documented?; SageMaker Model Cards / AI Service Cards.
+Veracity and robustness — key question and primary AWS tool?	Correct and reliable, even under noisy/adversarial input?; Guardrails (contextual grounding).
+Governance — key question and primary AWS tool?	Policies/processes controlling the AI lifecycle?; Model Cards; ML lineage tracking.
+Safety — key question and primary AWS tool?	Avoids harmful/dangerous generated content?; Guardrails (content filters).
+Controllability — key question and primary AWS tool?	Can a human monitor, override, or stop it?; Guardrails (denied topics); Amazon A2I.
+One prediction vs. the whole system documented — explainability or transparency?	One prediction → explainability; whole system documented → transparency.
+Sampling bias — definition?	Training data doesn't represent the real-world population.
+Measurement bias — definition?	A proxy feature (e.g., ZIP code) correlates with a protected characteristic more than the real outcome.
+Label / human bias — definition?	Annotators inject conscious/unconscious bias while labeling.
+Historical bias — definition?	Data accurately reflects a real world that is itself inequitable.
+Exclusion bias — definition?	Relevant data/features dropped, removing signal a group needs.
+Aggregation bias — definition?	One model applied uniformly to groups that need distinct treatment.
+Representativeness bias — definition?	A whole deployment segment (region/market) is thin/absent from training data — no group label exists, so standard fairness metrics miss it.
+A named proxy variable in a scenario points to which bias, and how is it fixed?	Measurement bias — fixed by dropping/transforming the feature, not by rebalancing classes.
+Does a clean fairness-metric report rule out representativeness bias?	No — check per-segment coverage and accuracy separately.
+Positive label rate differs across groups in the dataset — which metric, stage?	Difference in proportions of labels (DPL); pre-training (Clarify dataset job).
+A class/group is underrepresented in the dataset — which metric, stage?	Class imbalance; pre-training (Clarify dataset job).
+A trained model's outcome rates differ across groups — which metric, stage?	Disparate impact; post-training (Clarify model job).
+Accuracy/recall differs materially across groups — which metric, stage?	Accuracy/recall difference; post-training (Clarify model job).
+Credit/loan approval — highest-value fairness metric?	Disparate impact + DPL (pre- and post-training).
+Healthcare triage/diagnosis — highest-value fairness metric?	Accuracy/recall difference across demographic groups.
+RAG/generative assistant — what should you audit instead of a labeled-dataset fairness metric?	The retrieval corpus's coverage (no labeled dataset exists).
+No model yet, checking labels vs. predictions from a deployed model — which metric family applies?	No model yet → DPL/class imbalance; predictions/deployed model → disparate impact/accuracy-recall difference.
+Fairness vs. accuracy — typical fix to favor fairness?	Pre-processing rebalance, in-processing fairness constraints, post-processing threshold calibration.
+Fairness vs. accuracy — when do you favor fairness over accuracy?	High-stakes, regulated decisions (credit, hiring, healthcare).
+Natively interpretable model vs. post-hoc SHAP — added inference-time compute?	Natively interpretable: none, the model's logic is the explanation. Post-hoc SHAP: extra computation per explanation, often run offline/batch.
+Does post-hoc SHAP reflect the model's actual decision logic?	No — it's an approximation only; a natively interpretable model is required if the regulation demands actual decision logic.
+Explanation required AND strict real-time latency — which model type?	A natively interpretable model, not synchronous post-hoc SHAP.
+Amazon SageMaker Clarify — primary use case?	Bias detection (pre-/post-training) + SHAP explainability, on datasets and trained models.
+SageMaker Model Cards — what do they document?	Structured documentation of a model you built.
+AI Service Cards — what do they document, and who authors them?	AWS-published documentation of an AWS-managed AI service — AWS authors it, you read it.
+Model Card vs. AI Service Card — who fills it in?	Model Card = you fill it in (a model you built); AI Service Card = AWS publishes it (an AWS-managed service).
+Guardrails for Amazon Bedrock — primary use case?	Runtime safety/privacy filtering on FM inputs/outputs at inference.
+Amazon A2I — primary use case?	Human-in-the-loop review of low-confidence/high-stakes ML/AWS AI service predictions.
+Guardrails denied topics capability?	Blocks the model from engaging with specified topics.
+Guardrails content filters capability?	Blocks harmful categories (hate, insults, sexual, violence, misconduct, prompt attacks).
+Guardrails word filters capability?	Blocks specific words/phrases (profanity, competitor names).
+Guardrails sensitive information filters capability?	Detects/redacts/blocks PII in prompts and responses.
+Guardrails contextual grounding checks capability?	Verifies a response is grounded in source content, reducing hallucination.
+Amazon A2I — what triggers StartHumanLoop?	A prediction below the routing confidence threshold.
+Amazon A2I flow definition — what must match the routing logic?	The activation condition must use the same threshold as the routing logic so the two never drift apart.
+When is a private workforce (via Amazon Cognito) required for Amazon A2I review instead of public Mechanical Turk?	Whenever the review task exposes regulated data (e.g., PHI).
+SageMaker Clarify pre-training bias metrics?	Class imbalance, difference in proportions of labels (DPL), computed on the raw dataset.
+SageMaker Clarify post-training bias metrics?	Disparate impact, accuracy/recall difference, computed on a trained model's predictions.
+What does SageMaker Clarify integrate with for ongoing bias-drift monitoring?	SageMaker Model Monitor.
+Does SageMaker Clarify apply to live foundation-model input/output?	No — it applies to datasets and trained models (typically SageMaker); Guardrails covers live FM input/output.
+Intellectual property (IP) risk — what covers it, and AWS mitigation?	Ownership of AI-generated content / liability for content resembling copyrighted training material; choose a Bedrock provider offering IP indemnification.
+Data privacy — what does it cover, and AWS mitigation?	GDPR, data residency, minimizing/anonymizing personal data; Guardrails sensitive information filters (PII redaction); Amazon Macie.
+Toxicity — what does it cover, and AWS mitigation?	Hateful, harassing, obscene, or otherwise harmful generated content; Guardrails content filters; Amazon A2I human review.
+Environmental impact — what does it cover, and AWS mitigation?	Energy/compute/carbon footprint of training and running FMs; reuse pretrained FMs, AWS Customer Carbon Footprint Tool, Well-Architected Sustainability Pillar.
+IP risk — Guardrails or IP indemnification?	IP indemnification — Guardrails covers content safety/privacy, not copyright liability.
+Bias drift — how is it tracked?	Disparate impact / accuracy-recall difference tracked over time via SageMaker Model Monitor + Clarify.
+Confidence-threshold drift — what does it signal?	A rising share of predictions below an Amazon A2I routing threshold signals population drift.
+Two-component systems (a structured model + a paired FM) — how should they be monitored?	Each gets its own independent monitoring stream, never one blended metric.
+Governance cadence — what's the recommended recurring review?	A recurring (e.g. quarterly) review of the SageMaker Model Card against the latest Clarify/Model Monitor metrics; high-risk flags route through Amazon A2I.
+Responsible AI	Fair, explainable, private/secure, transparent, veracious/robust, governed, safe, and controllable AI systems.
+SHAP	Feature-attribution values quantifying one prediction; an approximation, not an exact decision trace.
+PII	Personally identifiable information; a Guardrails sensitive-information-filter target.
+IP indemnification	A contractual protection shifting IP-infringement legal risk away from the customer.
+AWS Customer Carbon Footprint Tool	Reports estimated carbon emissions from a customer's AWS usage.
+Amazon Macie	Discovers/classifies sensitive data (incl. PII) stored in Amazon S3.
+Bias vs. variance — how do these differ?	Bias (fairness) is a training-data/equity problem; variance (Domain 1) is a model-sensitivity/overfitting problem — don't conflate them.
+Guardrails vs. Clarify — what does each NOT do?	Guardrails filters live inference content but doesn't detect training-data bias or generate explanations; that's Clarify's job.
+A pipeline with a tabular model plus a generative FM — which tool covers which component?	SageMaker Clarify on the tabular model, Guardrails on the FM — never one blended tool/metric.

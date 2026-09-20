@@ -1,0 +1,177 @@
+# Domain 2 Flashcards: Fundamentals of Generative AI
+
+**Flashcard deck** · fast track: [`README.md`](README.md) · ultra fast
+learn: [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) · full guide:
+[`docs/domain-2-fundamentals-of-generative-ai.md`](../domain-2-fundamentals-of-generative-ai.md)
+
+One card per testable concept — front/back only, no prose. A reformat of
+this domain's already-verified [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md)
+content into active-recall/spaced-repetition format; it introduces no new
+facts. Cards are ordered to match `ULTRA-FAST-LEARN.md`'s own section
+order, so working through the deck top to bottom reinforces the domain's
+structure. For app-based spaced repetition (Anki, Quizlet, etc.), import
+[`flashcards.tsv`](flashcards.tsv) — the same 104 cards, same order, no
+header row, tab-separated `front\tback`.
+
+## 1. Transformer mechanics
+
+| Front | Back |
+|---|---|
+| Transformer stage — tokenization? | Text split into tokens (word/sub-word units) — tokens ≠ words. |
+| Transformer stage — embeddings? | Each token mapped to a numeric vector capturing meaning. |
+| Transformer stage — positional encoding? | Added to embeddings so word order is preserved. |
+| Transformer stage — self-attention (× N layers)? | Each token weighs the relevance of every other token, regardless of distance — the defining transformer innovation, giving both long-range context and efficient parallel training. |
+| Transformer stage — feed-forward network? | Per-token transformation applied after attention. |
+| Transformer output? | Next-token probabilities, generated one token at a time. |
+| Embedding vs. vector vs. vector database? | Embedding = semantic representation; vector = the numeric array it's stored as; vector database = where those arrays are stored/searched (e.g., Amazon OpenSearch Service, Aurora + `pgvector`, Amazon Kendra). |
+| Embedding model choice — general-purpose sufficient, or poor retrieval quality? | Sufficient → general-purpose model (e.g., Titan Text Embeddings), $, lowest latency. Poor retrieval but not domain-specialized → larger general model or better chunking/hybrid search, $$. |
+| Embedding model choice — domain-specialized: fine-tune or not? | Fine-tuning not justified → domain-specific pretrained embedding model, $$. Justified (large labeled dataset, high-stakes accuracy) → fine-tune an embedding model (e.g., via SageMaker), $$$ — jumping straight here "to be safe" usually just adds cost. |
+
+## 2. Foundation model selection criteria
+
+| Front | Back |
+|---|---|
+| FM selection factors — cost & modality? | Cost: per-token (on-demand) or Provisioned Throughput, bigger/more capable models cost more per token. Modality: does the model accept/produce the needed input/output types (text, image, audio, video)? |
+| FM selection factors — latency & context window? | Latency: real-time/interactive use cases need fast (usually smaller) models, batch/async tolerates more. Context window: is the input (plus retrieved context) small enough to fit without chunking? |
+| FM selection factors — fine-tuning support & model size/accuracy/licensing? | Can the model/provider be fine-tuned or continued-pre-trained if needed? Parameter count is a rough capability/cost proxy; validate accuracy with Amazon Bedrock Model Evaluation; check compliance/licensing terms. |
+| Amazon Nova Micro? | Text → text; lowest cost/latency; high-volume, cheap, latency-sensitive text (simple chat, classification). |
+| Amazon Nova Lite? | Text/image/video → text; low cost; lightweight multimodal chat, document Q&A with images. |
+| Amazon Nova Pro? | Text/image/video → text; moderate cost; balanced multimodal RAG, moderate agentic reasoning. |
+| Amazon Nova Premier? | Text/image/video → text; highest cost; most complex multi-step multimodal reasoning; teacher model for distillation. |
+| Amazon Nova Canvas? | Text/image → image; priced per image; studio-quality image generation/editing. |
+| Amazon Nova Reel? | Text/image → video; priced per second; short-form video generation (async). |
+| Amazon Nova Sonic? | Speech → speech; priced per duration; real-time speech-to-speech (voice assistants, IVR). |
+
+## 3. Prompt-engineering techniques
+
+| Front | Back |
+|---|---|
+| Zero-shot prompting? | Ask the model to perform a task with no examples; does not change model weights. |
+| Few-shot prompting? | Include a small number of example input/output pairs to show the desired pattern; does not change model weights. |
+| Chain-of-thought (CoT) prompting? | Instruct the model to reason step by step before the final answer; does not change model weights. |
+| Negative prompting? | Tell the model what not to include or do (common in image generation); does not change model weights. |
+| Fine-tuning, contrasted with prompting techniques? | Retrains the model's weights on labeled examples — the only one of these that changes weights. |
+| Prompt template? | A reusable prompt structure with placeholders for variable content. |
+| Prompt injection? | Malicious input tries to override a prompt's original instructions; mitigated with input validation + Guardrails for Amazon Bedrock. |
+| What are the four parts of a well-formed prompt? | Instruction + context + input data + output indicator. |
+| Scenario: multi-step arithmetic/logic task, improve accuracy without retraining? | Chain-of-thought. |
+| Scenario: inconsistent format/style across calls? | Few-shot. |
+| Scenario: unwanted elements in generated images? | Negative prompting. |
+
+## 4. Inference parameters
+
+| Front | Back |
+|---|---|
+| Temperature — what does it control? | Randomness of next-token choice; low = focused/deterministic, high = creative/varied. |
+| Top-p (nucleus sampling) — what does it control? | Cumulative-probability candidate pool; low = narrower/safer, high = wider/more diverse. |
+| Top-k — what does it control? | Fixed-size candidate pool of k most-likely tokens; small k = safer/less varied, large k = more diverse. |
+| Max tokens — what does it control? | Cap on response length; low = shorter (may truncate), high = longer responses allowed. |
+| Stop sequences — what do they control? | Halt generation when a matched string appears — immediate stop, no gradient. |
+| Order of operations & exam trap — temperature/top-p/top-k? | Temperature reshapes the distribution first, then top-p/top-k prune the candidate pool, then the next token is sampled — not independent dials. So low temp + high top-p/top-k is still mostly deterministic, and high temp + low top-p/top-k is still narrow/repetitive. |
+| Do inference parameters reduce hallucination or enforce a content policy? | No — only RAG (facts) and Guardrails for Amazon Bedrock (safety) do that. |
+| Cost/latency lever among inference parameters? | Max tokens and stop sequences are the direct levers; lower temperature indirectly cuts JSON/format retries and completion length without changing per-token price. |
+
+## 5. RAG architecture
+
+| Front | Back |
+|---|---|
+| RAG step 1 — Ingest? | Source documents (e.g., product catalog, policy docs) loaded from a data source — Amazon S3, SharePoint, Salesforce. |
+| RAG step 2 — Chunk + embed? | Documents split into chunks; each chunk converted to an embedding vector via an embeddings model (e.g., Amazon Titan Text Embeddings). |
+| RAG step 3 — Index? | Vectors stored in a vector store for similarity search — Amazon OpenSearch Service, Aurora + `pgvector`, Amazon Kendra. |
+| RAG step 4 — Query embed? | The user's question is embedded the same way, using the same embeddings model. |
+| RAG step 5 — Retrieve? | Vector store returns the chunks closest (most similar) to the query vector; managed by Knowledge Bases for Amazon Bedrock. |
+| RAG step 6 — Augment + generate? | Retrieved chunks + original question passed as a prompt to an LLM (e.g., Claude, Titan), which generates a grounded answer. |
+| Does RAG retrain the model? | No — RAG grounds answers in retrieved data at inference time; this is what distinguishes it from fine-tuning. |
+| RAG's primary purpose? | Reduce hallucination by grounding output in actual source data — it does not fully restore interpretability or guarantee correctness. |
+| Fabricated/wrong facts vs. wrong tone/format/style — which needs RAG? | Fabricated facts → RAG. Wrong tone/format/style → prompt engineering or fine-tuning, not RAG. |
+| Knowledge Bases for Amazon Bedrock? | The managed, no-retrain way to wire the RAG pipeline (ingest → retrieve → generate) together without building custom retrieval code. |
+
+## 6. GenAI advantages and disadvantages
+
+| Front | Back |
+|---|---|
+| GenAI advantage — Adaptability? | One FM handles many tasks (summarization, drafting, Q&A, code) via prompting alone. |
+| GenAI advantage — Responsiveness? | Interactive, real-time conversational responses (chatbots, assistants). |
+| GenAI advantage — Simplicity/creativity? | Produces novel content/ideas instead of just a label or number. |
+| GenAI advantage — Scalability? | One deployed FM serves many use cases/users, versus dozens of bespoke models. |
+| Risk — Hallucination? | Fluent, confident output that is factually incorrect or fabricated (e.g., a citation/API that doesn't exist); primary mitigation is RAG (lower temperature helps marginally). |
+| Risk — Interpretability (lack of)? | "Black box" — hard to explain why an FM produced a given output; mitigated by human review, not inference parameters. |
+| Risk — Inaccuracy? | Output is simply wrong/outdated/low quality, distinct from confident fabrication; mitigated by model evaluation, RAG, fine-tuning on better data. |
+| Risk — Nondeterminism? | Same prompt → different outputs on different runs; mitigated by lowering temperature/top-p/top-k (reduces, doesn't eliminate). |
+| Risk — Cost/compute intensity? | Large FMs, long context windows, and retries can be expensive at scale; mitigated by right-sizing the model, capping max tokens, lowering temperature to cut retries. |
+| Risk — Prompt injection? | Malicious input overrides/manipulates the original prompt instructions; mitigated by input validation + Guardrails for Amazon Bedrock (configurable safety/compliance filters — harmful content, denied topics, PII redaction — applied consistently across models). |
+| Hallucination vs. inaccuracy? | Hallucination is confidently fabricating specifics; inaccuracy is just being wrong/low quality — the exam tests this distinction directly. |
+
+## 7. AWS service → use case table
+
+| Front | Back |
+|---|---|
+| "Single API across multiple FMs, fully managed, minimal infra" | Amazon Bedrock. |
+| "Ground FM answers in our own data without retraining" | Knowledge Bases for Amazon Bedrock (RAG). |
+| "FM should plan/execute multi-step tasks calling our APIs/Lambda" | Agents for Amazon Bedrock. |
+| "Block harmful content, denied topics, redact PII" | Guardrails for Amazon Bedrock. |
+| "Compare FM outputs to pick the best model for a task" | Amazon Bedrock Model Evaluation. |
+| "Reserved capacity for steady, high-volume, predictable performance" | Provisioned Throughput. |
+| "Pre-built enterprise assistant grounded in company data/systems out of the box" | Amazon Q Business. |
+| "Code suggestions, explanations, security scans, AWS resource Q&A" | Amazon Q Developer. |
+| "Deploy/fine-tune pretrained FMs with deep infra control, mix with SageMaker MLOps" | Amazon SageMaker JumpStart. |
+| "Free, no-code, quick FM experimentation/prototyping" | PartyRock. |
+| "Text-to-image generation/editing" | Amazon Nova Canvas. |
+| "Text/image-to-video generation" | Amazon Nova Reel. |
+| "Real-time, bidirectional speech-to-speech" | Amazon Nova Sonic. |
+| Golden rule for choosing between these services? | The more "out of the box" a scenario needs, the more the answer shifts toward Amazon Q or PartyRock; the more custom, production-grade control it needs, the more it shifts toward Amazon Bedrock or SageMaker JumpStart. |
+
+## 8. Foundation model and LLM lifecycle
+
+| Front | Back |
+|---|---|
+| FM/LLM lifecycle stage 1? | Scope the use case — define the problem; is generative AI even the right fit? |
+| FM/LLM lifecycle stage 2? | Select a foundation model — Amazon Bedrock, SageMaker JumpStart. |
+| FM/LLM lifecycle stage 3? | Adapt and customize — Bedrock prompt console; Knowledge Bases; Bedrock custom models/JumpStart fine-tuning; Bedrock continued pre-training. |
+| FM/LLM lifecycle stage 4? | Evaluate the model — Amazon Bedrock Model Evaluation. |
+| FM/LLM lifecycle stage 5? | Deploy and integrate — Bedrock API (on-demand/Provisioned Throughput) or a SageMaker endpoint. |
+| FM/LLM lifecycle stage 6? | Monitor quality, cost, latency, safety; iterate — CloudWatch metrics; Guardrails for Amazon Bedrock. |
+| Stage 3 adaptation option — Prompt engineering? | No training; Bedrock prompt console. |
+| Stage 3 adaptation option — RAG? | Ground in own data at inference time, no weight changes; Knowledge Bases for Amazon Bedrock. |
+| Stage 3 adaptation option — Fine-tuning? | Train weights on labeled data; Bedrock custom models / SageMaker JumpStart fine-tuning. |
+| Stage 3 adaptation option — Continued pre-training? | Train weights on unlabeled corpus; Amazon Bedrock continued pre-training. |
+| Exam tip — lifecycle iteration and full pretraining? | A poor evaluation (stage 4) sends you back to stage 3 (a different prompt, retrieval strategy, or fine-tuning). "Up-to-date/proprietary data without retraining" → RAG; "specific tone, format, or labeled task" → fine-tuning; full pretraining of a new FM is almost never the correct answer for a business use case. |
+
+## 9. Business use cases
+
+| Front | Back |
+|---|---|
+| Business use case — Content creation? | Draft marketing copy, product descriptions, emails, images from a prompt — Amazon Bedrock, Amazon Nova Canvas. |
+| Business use case — Summarization? | Condense long documents/transcripts/tickets into short summaries — Amazon Bedrock. |
+| Business use case — Chatbots/conversational assistants? | Natural-language help, often RAG-grounded in company data — Amazon Bedrock (custom) or Amazon Q Business (pre-built). |
+| Business use case — Code generation? | Generate, explain, complete, refactor code from natural language — Amazon Q Developer. |
+| Business use case — Search? | Semantic search — find results by meaning via embeddings/vector similarity — Amazon OpenSearch Service + Bedrock Knowledge Bases. |
+| Other exam-relevant GenAI business use cases? | Translation, personalization of generated content, data augmentation (synthetic training data for other ML models), and text-to-image/text-to-video generation for design and marketing. |
+| Exam tip — assistant grounded in enterprise data with minimal setup? | Prefer the purpose-built Amazon Q Business over a custom Bedrock build from scratch. |
+
+## Rapid-fire key terms
+
+| Front | Back |
+|---|---|
+| Generative AI — definition? | Subset of deep learning where models generate new content rather than only predicting a label or number. |
+| Foundation model (FM) — definition? | Large model pretrained on broad data, adaptable to many tasks via prompting, RAG, or fine-tuning. |
+| Large language model (LLM) — definition? | An FM specialized for natural-language text; a subset of FMs, not a synonym for all FMs. |
+| Multimodal model — definition? | Accepts and/or generates more than one content type (text, image, audio, video); input and output modalities can differ. |
+| Transformer architecture — definition? | The neural network architecture behind most modern LLMs, built on self-attention. |
+| Data augmentation — definition? | Using generative AI to create synthetic training data for other ML models. |
+
+## Commonly confused pairs & numeric traps
+
+| Front | Back |
+|---|---|
+| Confused pair: lowering temperature vs. eliminating hallucination? | Lowering temperature reduces nondeterminism but does not eliminate hallucination risk — that comes from training data/RAG, not sampling. |
+| Confused pair: top-p vs. top-k? | Top-p = cumulative-probability threshold; top-k = fixed count of top tokens — don't swap these under pressure. |
+| Confused pair: few-shot prompting vs. fine-tuning? | Few-shot prompting changes nothing about model weights; only fine-tuning retrains them. |
+| Exam trap: scenario states multiple constraints at once (e.g., real-time + long documents + fixed budget)? | Weigh all of them together — don't just pick the biggest/most capable model. |
+| Confused pair: PartyRock vs. Amazon Q Business vs. SageMaker JumpStart? | No-code, quick experimentation = PartyRock; pre-built, grounded in enterprise data out of the box = Amazon Q Business; deep infra control/mix with SageMaker = SageMaker JumpStart. |
+| Numeric/scope trap: "one company, five initiatives" business scenario? | Map each stated initiative to exactly one use case and one AWS service, never more than one of each. |
+| Confused pair: RAG vs. fine-tuning vs. continued pre-training — which touch model weights? | RAG never touches weights (grounds at inference time); fine-tuning retrains weights on labeled task data; continued pre-training retrains weights on unlabeled domain corpora. |
+
+---
+
+[← Back to the Domain 2 fast track](README.md) · [Ultra Fast Learn →](ULTRA-FAST-LEARN.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

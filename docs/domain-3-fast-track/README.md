@@ -24,7 +24,12 @@ complete scenario, worked examples, and mini-quizzes.
 For the last 15-20 minutes before the exam, once all three parts are already
 familiar and you just need the highest-yield tables refreshed one more time,
 see [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) — a bullets-and-tables-only
-cram sheet built on top of all three parts.
+cram sheet built on top of all three parts. For active-recall/spaced-repetition
+practice instead of reading, see [`FLASHCARDS.md`](FLASHCARDS.md) — a
+front/back deck covering every key term, service, numeric threshold, and
+commonly confused pair across the whole domain (not split by part), also
+available as [`flashcards.tsv`](flashcards.tsv) for import into Anki or
+Quizlet.
 
 ## How to use this fast track
 
@@ -48,6 +53,7 @@ familiar.
 - [Part 2: Inference Architecture & Multi-Modal Applications](part-2-inference-and-multimodal.md) — Sections 5-7
 - [Part 3: Production Deployment & Troubleshooting](part-3-deployment-and-troubleshooting.md) — Section 8 onward
 - [ULTRA-FAST-LEARN.md](ULTRA-FAST-LEARN.md) — bullets-and-tables-only cram sheet for the last 15-20 minutes before the exam
+- [FLASHCARDS.md](FLASHCARDS.md) — front/back flashcard deck for active recall / spaced repetition (also [flashcards.tsv](flashcards.tsv) for Anki/Quizlet import)
 
 ## Where each section comes from
 

@@ -565,4 +565,10 @@ For material that spans multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).
 
+For active-recall/spaced-repetition practice, see
+[`docs/domain-5-fast-track/FLASHCARDS.md`](FLASHCARDS.md) — a front/back
+flashcard deck (plus [`flashcards.tsv`](flashcards.tsv) for Anki/Quizlet
+import) covering this domain's whole two-part Fast Track, not split by
+part.
+
 [← Part 1](../domain-5-fast-track/part-1-security-and-compliance.md) · [← Back to the full Domain 5 guide](../domain-5-security-compliance-governance.md#3-aws-config-aws-audit-manager-and-aws-cloudtrail-for-ai-governance) · [Domain 4 Fast Track ←](../domain-4-fast-track/README.md)

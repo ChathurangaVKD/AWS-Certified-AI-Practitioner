@@ -276,7 +276,7 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
 
     def test_fast_track_section_heading_present(self):
         self.assertIn(
-            "## Fast Track condensed guides (15 files, 7,901 lines total)",
+            "## Fast Track condensed guides (15 files, 7,919 lines total)",
             self.structure_text,
             "DOCUMENTATION_STRUCTURE.md is missing the 'Fast Track "
             "condensed guides' section documenting the 15-file, "
@@ -330,7 +330,7 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
         self.assertIn("every testable concept", self.structure_text)
 
     def test_stated_fast_track_per_domain_line_counts_match_actual(self):
-        expected = {1: 975, 2: 1228, 3: 3081, 4: 1037, 5: 1580}
+        expected = {1: 978, 2: 1231, 3: 3084, 4: 1042, 5: 1584}
         for domain_number, paths in FAST_TRACK_FILES_BY_DOMAIN.items():
             actual = sum(_line_count(path) for path in paths)
             with self.subTest(domain=domain_number):
@@ -378,13 +378,13 @@ class TestDocumentationStructureFastTrackSection(unittest.TestCase):
         readme, part1, part2, part3, ultra = (
             _line_count(p) for p in paths
         )
-        self.assertEqual(readme, 88)
+        self.assertEqual(readme, 91)
         self.assertEqual(part1, 832)
         self.assertEqual(part2, 808)
         self.assertEqual(part3, 847)
         self.assertEqual(ultra, 506)
         domain_total = readme + part1 + part2 + part3 + ultra
-        self.assertEqual(domain_total, 3081)
+        self.assertEqual(domain_total, 3084)
         expected_bullet = (
             f"- Domain 3 Fast Track: {domain_total:,} lines (`README.md` "
             f"{readme} + `part-1` {part1} + `part-2` {part2} +\n"

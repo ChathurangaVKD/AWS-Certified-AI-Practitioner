@@ -503,4 +503,4 @@ questions this cram sheet intentionally omits, go back to the
 For material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md).
 
-[← Back to the full Domain 3 guide](../domain-3-applications-of-foundation-models.md)
+[← Back to the full Domain 3 guide](../domain-3-applications-of-foundation-models.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

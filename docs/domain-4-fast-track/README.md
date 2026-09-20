@@ -21,7 +21,14 @@ Domain 4 makes up roughly **14% of scored questions** on the AWS
 Certified AI Practitioner (AIF-C01) exam. Read this fast track the day
 before the exam, or any time you already know the material and just need
 the tables refreshed; read the [full guide](../domain-4-guidelines-for-responsible-ai.md)
-first if any of these terms are new to you.
+first if any of these terms are new to you. For an even more condensed
+version — bullets and tables only, no prose, meant for the last 15-20
+minutes before the exam — see [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md).
+For active-recall/spaced-repetition practice instead of reading, see
+[`FLASHCARDS.md`](FLASHCARDS.md) — a front/back deck covering every key
+term, service, numeric threshold, and commonly confused pair in this
+domain, also available as [`flashcards.tsv`](flashcards.tsv) for import
+into Anki or Quizlet.
 
 **Where each section comes from**, for jumping straight to the full
 prose, mini-quiz, and AWS example behind any condensed table below:

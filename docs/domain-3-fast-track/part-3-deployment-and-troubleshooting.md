@@ -843,5 +843,8 @@ For material that spans multiple domains, see
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).
 For the ultra-condensed cram-sheet version of all of Domain 3 (including
 this part's RAG triage table), see [`docs/domain-3-fast-track/ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md#8-rag-failure-mode-triage-compact).
+For active-recall/spaced-repetition practice, see
+[`docs/domain-3-fast-track/FLASHCARDS.md`](FLASHCARDS.md) — one deck
+covering all three parts of Domain 3, not split by part.
 
 [← Back to the full Domain 3 guide](../domain-3-applications-of-foundation-models.md) · [Domain 4: Guidelines for Responsible AI →](../domain-4-guidelines-for-responsible-ai.md)

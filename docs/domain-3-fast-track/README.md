@@ -27,6 +27,9 @@ see [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) — a bullets-and-tables-only
 cram sheet built on top of all three parts. For an even faster, interactive
 scan of the same verified facts — jump links, collapsible sections per
 topic, and a self-check checklist — see [`CHEAT-SHEET.md`](CHEAT-SHEET.md).
+For active-recall/spaced-repetition practice (Anki, Quizlet, or similar),
+see [`FLASHCARDS.md`](FLASHCARDS.md) — one deck covering all three parts,
+plus a matching `flashcards.tsv` for direct import.
 
 ## How to use this fast track
 
@@ -51,6 +54,7 @@ familiar.
 - [Part 3: Production Deployment & Troubleshooting](part-3-deployment-and-troubleshooting.md) — Section 8 onward
 - [ULTRA-FAST-LEARN.md](ULTRA-FAST-LEARN.md) — bullets-and-tables-only cram sheet for the last 15-20 minutes before the exam
 - [CHEAT-SHEET.md](CHEAT-SHEET.md) — interactive quick-scan cheat sheet: jump links, collapsible sections, and a self-check checklist
+- [FLASHCARDS.md](FLASHCARDS.md) — active-recall/spaced-repetition flashcard deck (plus `flashcards.tsv` for Anki/Quizlet import)
 
 ## Where each section comes from
 

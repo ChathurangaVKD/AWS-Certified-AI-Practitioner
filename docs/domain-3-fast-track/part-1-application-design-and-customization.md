@@ -828,5 +828,8 @@ For material that spans multiple domains, see
 For the ultra-condensed cram-sheet version of all of Domain 3 (including
 this part's customization trade-off table), see
 [`docs/domain-3-fast-track/ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md#1-customization-trade-off-table-the-most-tested-decision).
+For active-recall/spaced-repetition practice, see
+[`docs/domain-3-fast-track/FLASHCARDS.md`](FLASHCARDS.md) — one deck
+covering all three parts of Domain 3, not split by part.
 
 [← Back to the full Domain 3 guide](../domain-3-applications-of-foundation-models.md#1-design-considerations-for-foundation-model-applications) · [Domain 3 Fast Track, Part 2: Inference Architecture & Multi-Modal Applications →](part-2-inference-and-multimodal.md)

@@ -31,7 +31,10 @@ refreshed one more time, see [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) — a
 bullets-and-tables-only cram sheet built on top of both parts. For an even
 faster, interactive scan of the same verified facts — jump links,
 collapsible sections per topic, and a self-check checklist — see
-[`CHEAT-SHEET.md`](CHEAT-SHEET.md).
+[`CHEAT-SHEET.md`](CHEAT-SHEET.md). For active-recall/spaced-repetition
+practice (Anki, Quizlet, or similar), see
+[`FLASHCARDS.md`](FLASHCARDS.md) — one deck covering both parts, plus a
+matching `flashcards.tsv` for direct import.
 
 ## How to use this fast track
 
@@ -53,6 +56,7 @@ review that topic cluster. For the final cram before the exam, drop down to
 - [Part 2: Governance, Audit, Data Governance & Shared Responsibility](part-2-governance-and-monitoring.md) — Sections 3-5
 - [ULTRA-FAST-LEARN.md](ULTRA-FAST-LEARN.md) — bullets-and-tables-only cram sheet for the last 15-20 minutes before the exam
 - [CHEAT-SHEET.md](CHEAT-SHEET.md) — interactive quick-scan cheat sheet: jump links, collapsible sections, and a self-check checklist
+- [FLASHCARDS.md](FLASHCARDS.md) — active-recall/spaced-repetition flashcard deck (plus `flashcards.tsv` for Anki/Quizlet import)
 
 ## Where each section comes from
 

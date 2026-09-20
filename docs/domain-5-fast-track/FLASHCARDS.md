@@ -1,0 +1,148 @@
+# Domain 5 Flashcards: Security, Compliance, and Governance for AI Solutions
+
+**Flashcard deck** · fast track: [`README.md`](README.md) · ultra fast
+learn: [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) · full guide:
+[`docs/domain-5-security-compliance-governance.md`](../domain-5-security-compliance-governance.md)
+
+One card per testable concept — front/back only, no prose. A reformat of
+this domain's already-verified [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md)
+content into active-recall/spaced-repetition format; it introduces no new
+facts. This single deck covers the entire domain — unlike the Fast Track
+guide, it is not split into parts. Cards are ordered to match
+`ULTRA-FAST-LEARN.md`'s own section order, so working through the deck top
+to bottom reinforces the domain's structure. For app-based spaced
+repetition (Anki, Quizlet, etc.), import [`flashcards.tsv`](flashcards.tsv)
+— the same 88 cards, same order, no header row, tab-separated
+`front\tback`.
+
+## 1. Five compliance frameworks side by side
+
+| Front | Back |
+|---|---|
+| GDPR — type, scope, subject matter? | Binding EU law; protects individuals in the EU/EEA regardless of where the company is based; covers personal data (broad — any PII). |
+| HIPAA — type, scope, subject matter? | Binding US law; United States; covers protected health information (PHI). |
+| NIST AI RMF — type, scope, subject matter? | Voluntary US framework, US-originated but referenced globally; covers AI system risk across its lifecycle (a process, not a data type). |
+| EU AI Act — type, scope, subject matter? | Binding EU law; AI systems placed on the EU market or affecting people in the EU; covers AI systems themselves, tiered by risk. |
+| ISO/IEC 42001 — type, scope, subject matter? | Voluntary international standard, global — adoptable by any organization; covers AI management system (AIMS) processes. |
+| Algorithmic Accountability Act — type, scope, subject matter? | Proposed (not yet binding) US legislation; United States; covers automated decision systems — would require algorithmic impact assessments. |
+| GDPR — encryption, audit logging, residency, human oversight requirements? | Encryption: not explicit, Article 32 requires only "appropriate" measures. Audit: no explicit clause, accountability principle (Art. 5(2)). Residency: no blanket rule, but cross-border transfer limits push toward EU/EEA Regions. Human oversight: Article 22 — right to human review of solely-automated decisions with legal/significant effect. |
+| HIPAA — encryption, audit logging, residency, human oversight requirements? | Encryption: "addressable" under the Security Rule — implement or document an equivalent. Audit: required — Security Rule mandates PHI access audit controls (45 CFR §164.312(b)). Residency: none — governs access/encryption of PHI, not location. Human oversight: not mandated by statute, expected operationally for clinical decisions. |
+| NIST AI RMF — encryption, audit logging, residency, human oversight requirements? | Encryption: not prescribed, defers to controls like AWS KMS (Manage function). Audit: recommended (Govern/Measure) for an auditable trail, not required. Residency: not addressed — a process framework. Human oversight: recommended (Govern/Manage), not mandatory. |
+| EU AI Act — encryption, audit logging, residency, human oversight requirements? | Encryption: not direct — addressed via high-risk "accuracy, robustness, cybersecurity" (Art. 15). Audit: required for high-risk systems — automatic record-keeping (Art. 12). Residency: not required — focuses on training/validation data governance (Art. 10). Human oversight: required for high-risk systems — Art. 14 mandates a human can intervene/halt. |
+| ISO/IEC 42001 — encryption, audit logging, residency, human oversight requirements? | Encryption: not prescribed, org selects controls via its own AI risk assessment. Audit: required indirectly — certifiable AIMS needs monitoring/internal audit (Clause 9). Residency: not addressed — an organizational management-system standard. Human oversight: Annex A controls on human oversight, scoped to the org's own risk assessment. |
+| Binding vs. voluntary — which frameworks are which? | Binding law: GDPR, HIPAA, EU AI Act. Voluntary: NIST AI RMF, ISO/IEC 42001. Algorithmic Accountability Act is *proposed*, not yet binding — don't confuse "proposed" with "voluntary." |
+| Scenario: "PHI" appears in a scenario → which framework, regardless of region? | HIPAA. |
+| Scenario: "risk tiers" for an AI system → which framework, not GDPR? | EU AI Act. |
+| HIPAA — which AWS mechanism satisfies it? | BAA via AWS Artifact + HIPAA-eligible services. |
+| GDPR — which AWS mechanism satisfies it? | EU Region residency + AWS Artifact DPA. |
+| EU AI Act — which AWS mechanisms satisfy it? | Guardrails + Model Cards + Audit Manager. |
+| NIST AI RMF — which AWS mechanisms satisfy it? | Model Cards + Audit Manager + AWS Config. |
+| ISO/IEC 42001 — which AWS mechanisms satisfy it? | AWS Artifact ISO certifications + Audit Manager. |
+
+## 2. Encryption options
+
+| Front | Back |
+|---|---|
+| Encryption at rest for Bedrock/SageMaker — key mechanism? | AWS KMS; AWS-managed keys (e.g. `aws/s3`) for convenience, or customer managed keys (CMKs) for key-policy control, rotation, and auditability. |
+| Encryption in transit for Bedrock/SageMaker API calls? | TLS/HTTPS by default — no extra configuration. |
+| Every CMK Encrypt/Decrypt/GenerateDataKey call is logged where? | AWS CloudTrail — KMS manages the keys, CloudTrail logs their usage. |
+| What does SageMaker encrypt? | Notebook storage, training/inference storage volumes, and inter-node traffic during distributed training. |
+| What does Bedrock encrypt, and what CMK support exists? | Data at rest/in transit by default; supports CMKs for custom models and fine-tuning data. |
+| Data-encryption CMK vs. model-encryption CMK — same key or different? | Two separate, independent CMKs — one for the training-data bucket (data confidentiality), one for the fine-tuned model artifact (IP protection); neither substitutes for the other. |
+| Differential privacy — is it encryption? | No — noise injected during training (DP-SGD) bounds what a deployed model's outputs can reveal about a training record; complements, doesn't replace, KMS. |
+| Confused pair: AWS KMS vs. CloudTrail (encryption context)? | Don't confuse KMS (manages keys) with CloudTrail (logs key usage) — a frequent distractor pairing. |
+
+## 3. IAM patterns
+
+| Front | Back |
+|---|---|
+| IAM policy scoping best practice for Bedrock/SageMaker? | Scope to specific actions on specific resource ARNs — e.g., `bedrock:InvokeModel` on one model ARN, never `bedrock:*` on `*`. |
+| What does a SageMaker training job or Bedrock fine-tuning job assume to act on your behalf? | An IAM execution role — never embed long-term access keys. |
+| Resource-based policy — what does it restrict, and examples? | Restricts access independently of the caller's identity policy; e.g. an S3 bucket policy or a Bedrock model resource policy. |
+| IAM Access Analyzer — what does it continuously flag? | Resource-based policies shared with a principal outside your account/organization. |
+| Insecure plugin design — mitigation? | Scope the Lambda/action-group IAM role to least privilege; validate inputs (e.g., account ID) server-side rather than trusting model-supplied values. |
+| Excessive agency — mitigation? | Scope an agent's execution role/action groups to only the narrow actions its task requires; require human approval before high-impact actions (delete, terminate, modify). |
+| Scenario: an AWS service needs to call another AWS service on your behalf → ? | Attach an IAM role — not embedded access keys, not a `*` wildcard. |
+
+## 4. PrivateLink / VPC isolation
+
+| Front | Back |
+|---|---|
+| Interface VPC endpoint (PrivateLink) — what does it do for Bedrock/SageMaker traffic? | Keeps it entirely within the AWS network — no internet gateway, NAT gateway, or public IP required. |
+| Which services use a gateway VPC endpoint instead of an interface endpoint? | Amazon S3 and DynamoDB — don't default to "interface" for every service. |
+| How do you restrict which principals can use a VPC endpoint? | Attach a security group and a VPC endpoint policy. |
+| Scenario: "must never traverse the public internet" / "isolated or air-gapped VPC" → ? | VPC endpoint (PrivateLink) — not a NAT gateway (still routes through the public internet), not a VPN (connects networks, not a VPC to an AWS service). |
+| How can a SageMaker-to-Bedrock fine-tuning pipeline avoid the public internet? | Route the fine-tuning job through a PrivateLink VPC endpoint so training data never traverses the public internet. |
+
+## 5. Incident-response steps
+
+| Front | Back |
+|---|---|
+| Incident response — Detect phase tools? | AWS CloudTrail (who/what/when on `InvokeModel`, `CreateTrainingJob`, etc.), AWS Config (unencrypted/public resource drift), SageMaker Model Monitor/CloudWatch (drift, anomalous invocation volume), Guardrails intervention logs (blocked topics, filtered content). |
+| Incident response — Contain phase actions? | Revoke/rotate the affected IAM role or CMK; disable or throttle the compromised endpoint (API Gateway usage plans, Service Quotas); tighten the resource-based policy an IAM Access Analyzer finding surfaced. |
+| Incident response — Eradicate phase actions? | Roll back to a known-good dataset/model version via SageMaker Model Registry versioning (data poisoning, supply chain); patch the anonymization/validation code that let sensitive data or a poisoned example through; strip/quarantine the offending source document from the knowledge base (indirect prompt injection). |
+| Incident response — Recover phase actions? | Redeploy the vetted model/dataset version; re-enable normal throttle limits; confirm Guardrails (content filters, denied topics, PII filters) are active on the restored endpoint. |
+| Incident response — Post-incident phase actions? | Assemble evidence with AWS Audit Manager (built on CloudTrail + Config) for the compliance/risk record; update the IAM policy, KMS key policy, or Guardrails configuration that let the incident occur; log the root cause against the relevant threat category. |
+| Model drift — attack or degradation, and what's the response? | Degradation, not an attack — its "incident response" is monitoring + scheduled retraining, not containment/eradication. |
+| Scenario: "Which service shows a bucket became public three days ago?" | AWS Config (configuration history), not CloudTrail. |
+| Insecure output handling — what is it, and mitigation? | An app trusts/acts on raw LLM output (e.g., passes it to SQL) without validation; mitigate by validating/sanitizing/parameterizing LLM output before use plus Guardrails output filtering. |
+| MITRE ATLAS and OWASP Top 10 for LLM Applications — what are they? | Industry frameworks, not AWS services, for reasoning about AI threat categories systematically — ATLAS is an adversary tactics/techniques knowledge base for AI systems; OWASP Top 10 is a prioritized LLM-specific risk checklist, incl. insecure output handling. |
+| Amazon Macie — role in AI security? | Discovers/classifies sensitive data (PII/PHI) in S3; primary mitigation for indirect prompt injection (pre-ingestion scanning) and sensitive information disclosure. |
+| Titan Image Generator watermarking — how does it work? | Embeds an invisible, always-on watermark on generated images; Bedrock's detection API confirms its presence later to prove an image is AI-generated (provenance watermarking). |
+| Post-incident root-cause logging — which threat categories? | Data poisoning, prompt injection, insecure output handling, model inversion/extraction, DoS, supply chain, sensitive-info disclosure, insecure plugin design, excessive agency, overreliance. |
+
+## 6. Shared-responsibility model
+
+| Front | Back |
+|---|---|
+| Bedrock — customer responsibility? | IAM permissions, data sent to/from the model, Guardrail configuration, encryption key choices. |
+| Bedrock — AWS responsibility? | Physical infrastructure, host OS/virtualization, FM hosting & patching. |
+| SageMaker — customer responsibility? | IAM permissions, training data pipeline, custom training/inference containers & code, VPC config for jobs. |
+| SageMaker — AWS responsibility? | Physical infrastructure, host OS/virtualization, underlying compute/storage infrastructure. |
+| Bedrock vs. SageMaker — which has the thinner customer slice? | Bedrock — most responsibility is AWS-managed; SageMaker is a thicker customer slice, taking on more configuration/code. |
+| Multi-stage pipeline — stage 1 (SageMaker Processing) responsibility split? | Customer: container image/code, IAM role scope, VPC config, enabling KMS encryption. AWS: physical infrastructure, host OS, patching the SageMaker platform. |
+| Multi-stage pipeline — stage 2 (Bedrock fine-tuning) responsibility split? | Customer: IAM policy scope, choice of training data, PrivateLink usage. AWS: training compute infrastructure, foundation model weights. |
+| Multi-stage pipeline — stage 3 (Bedrock Provisioned Throughput serving) responsibility split? | Customer: Guardrails configuration, invoke-access IAM policy, CloudTrail logging. AWS: serving infrastructure, host OS, multi-tenant isolation. |
+| Is the customer ever not responsible for their data/access configuration? | No — the customer is always responsible for their data and access configuration, regardless of how managed the service is. |
+| Does the shared-responsibility split apply once per pipeline or per stage? | Per stage, not once for the whole pipeline — a data leak traced to stage 1's anonymization code is the customer's fault even if stages 2-3 ran on fully-managed Bedrock infrastructure. |
+
+## Rapid-fire key terms
+
+| Front | Back |
+|---|---|
+| CMK — definition? | Customer managed key — a KMS key giving key-policy control, rotation, and auditability (vs. AWS-managed keys used for convenience). |
+| AWS KMS — role in AI security? | Manages the encryption keys used to protect data and models at rest. |
+| AWS CloudTrail — role in AI security? | Logs API activity, including CMK usage and service calls (who/what/when). |
+| AWS Config — role in AI security? | Tracks configuration history/drift — e.g., when a resource became public or unencrypted. |
+| Interface VPC endpoint — definition? | A PrivateLink-powered endpoint that keeps traffic to a service like Bedrock or SageMaker within the AWS network. |
+| Gateway VPC endpoint — definition? | The VPC endpoint type used by Amazon S3 and DynamoDB, instead of an interface endpoint. |
+| IAM execution role — definition? | A role an AWS service assumes to act on your behalf, instead of embedded long-term access keys. |
+| Resource-based policy — definition? | A policy attached to a resource (e.g., S3 bucket, Bedrock model) that restricts access independently of the caller's identity policy. |
+| IAM Access Analyzer — definition? | Continuously flags resource-based policies shared with a principal outside your account/organization. |
+| Amazon Macie — definition? | A service that discovers and classifies sensitive data (PII/PHI) in S3. |
+| MITRE ATLAS — definition? | An adversary tactics/techniques knowledge base for AI systems. |
+| OWASP Top 10 for LLM Applications — definition? | A prioritized checklist of LLM-specific risks, including insecure output handling. |
+| Differential privacy (DP-SGD) — definition? | Noise injected during training that bounds what a deployed model's outputs can reveal about a training record. |
+| Excessive agency — definition? | A security threat where an agent's permissions/actions are broader than its task requires. |
+
+## Commonly confused pairs & numeric traps
+
+| Front | Back |
+|---|---|
+| Confused pair: "proposed" vs. "voluntary" — Algorithmic Accountability Act? | It's proposed (not yet binding) legislation — not the same as a voluntary framework like NIST AI RMF or ISO/IEC 42001. |
+| Confused pair: AWS KMS vs. AWS CloudTrail? | KMS manages the keys; CloudTrail logs key usage — don't swap the two. |
+| Confused pair: AWS Config vs. AWS CloudTrail for "became public 3 days ago"? | AWS Config (configuration history) answers this, not CloudTrail. |
+| Confused pair: interface VPC endpoint vs. gateway VPC endpoint? | Bedrock/SageMaker use interface endpoints (PrivateLink); S3 and DynamoDB use gateway endpoints instead. |
+| Confused pair: VPC endpoint (PrivateLink) vs. NAT gateway vs. VPN? | VPC endpoint = traffic never touches the public internet; NAT gateway still routes through the public internet; VPN connects networks, not a VPC to an AWS service. |
+| Confused pair: model drift vs. security incident? | Drift is degradation — respond with monitoring + scheduled retraining, not containment/eradication. |
+| Confused pair: HIPAA vs. EU AI Act scenario cues? | "PHI" → HIPAA regardless of region; "risk tiers" for an AI system → EU AI Act, not GDPR. |
+| Confused pair: training-data CMK vs. fine-tuned-model CMK? | Two separate, independent CMKs — one for the data bucket, one for the model artifact; neither substitutes for the other. |
+| Confused pair: differential privacy vs. encryption? | DP-SGD bounds what model outputs can reveal about training data; it complements but doesn't replace KMS encryption. |
+| Confused pair: shared responsibility applied once vs. per stage? | Applies per stage of a pipeline, not once for the whole thing — a leak at an unmanaged stage is the customer's fault even if other stages run on fully-managed infrastructure. |
+| Numeric trap: HIPAA's audit-control citation? | 45 CFR §164.312(b) — the Security Rule provision mandating PHI access audit controls. |
+| Numeric trap: GDPR's human-review citation? | Article 22 — right to human review of solely-automated decisions with legal/significant effect. |
+| Numeric trap: EU AI Act's record-keeping vs. human-oversight citations? | Article 12 mandates automatic record-keeping for high-risk systems; Article 14 mandates a human can intervene/halt — don't swap the two article numbers. |
+
+---
+
+[← Back to the Domain 5 fast track](README.md) · [Ultra Fast Learn →](ULTRA-FAST-LEARN.md) · [Interactive cheat sheet →](CHEAT-SHEET.md)

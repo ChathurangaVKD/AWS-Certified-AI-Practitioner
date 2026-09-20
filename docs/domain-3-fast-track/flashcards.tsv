@@ -1,0 +1,160 @@
+Prompt engineering — weights changed? data required? cost/latency?	No weights changed; no data beyond the prompt itself; lowest cost and latency; highest flexibility — edit a prompt and redeploy instantly.
+RAG (Amazon Bedrock Knowledge Bases) — weights changed? data required? cost/latency?	No weights changed; external knowledge source (documents), no labeling; low cost, retrieval adds a runtime hop; high flexibility — re-sync a data source, no retraining to refresh facts.
+Fine-tuning — weights changed? data required? cost/latency?	Yes, weights change; labeled input/output example pairs; higher cost, once served often needs provisioned throughput; lower flexibility — a new training job per behavior change.
+Continued pre-training — weights changed? data required? cost/latency?	Yes, weights change; large volume of unlabeled domain-specific text; highest cost/latency to produce, serving also often needs provisioned throughput; lowest flexibility.
+Scenario: "frequently changing data" or "reduce hallucination from our own docs" → ?	RAG, not fine-tuning.
+Labeled input/output pairs for a narrow task/style/format → ?	Fine-tuning.
+Large volume of unlabeled domain-specific text, need broad domain fluency/vocabulary → ?	Continued pre-training.
+No data available, need a quick behavior/format tweak → ?	Prompt engineering.
+Full fine-tuning — parameters updated, best fit?	100% of weights; highest resource cost (most GPU memory/time); highest quality ceiling; best for max accuracy, ample GPU budget, safety/compliance-critical work.
+LoRA (Low-Rank Adaptation) — parameters updated, best fit?	<1% of weights (small adapter matrices injected into layers); low resource cost, much faster/cheaper; best when resource-constrained with a mid-size GPU (24GB+) available.
+QLoRA (Quantized LoRA) — parameters updated, best fit?	Same as LoRA, on a base model quantized (e.g., 4-bit); lowest resource cost, fits a single small GPU (16GB); small added quality loss vs. LoRA.
+Instruction tuning — what is it?	An objective, not a parameter strategy — trains on (instruction, response) pairs, layered on full fine-tuning, LoRA, or QLoRA; improves general instruction-following.
+Safety/compliance-critical, or quality floor allows <~1 point of degradation → which fine-tuning technique?	Full fine-tuning.
+Mid-size GPU (24GB+) available, small quality gap tolerable → which fine-tuning technique?	LoRA.
+Only a small GPU (≤16GB) available → which fine-tuning technique?	QLoRA (accept the added quality loss, or escalate the GPU and use LoRA instead).
+Merged LoRA/QLoRA adapter — serving latency?	~1.0x full-fine-tuning latency (folded into base weights after training); a QLoRA-merged model must first dequantize, losing its memory savings.
+Unmerged adapter — serving latency tax?	~1.05-1.15x for LoRA, ~1.15-1.3x for QLoRA served quantized (many task adapters sharing one base model); QLoRA can't be both low-memory and low-latency at serving time.
+RLHF — what is it, and what's it layered on?	Reinforcement Learning from Human Feedback; aligns a fine-tuned model to human preferences; layered on top of SFT — full fine-tuning, LoRA, QLoRA, and instruction tuning are all supervised fine-tuning (SFT).
+RLHF — three stages?	(1) Start from an SFT model as the baseline policy; (2) train a reward model on human preference rankings/comparisons; (3) fine-tune the SFT model against the reward model via reinforcement learning (commonly PPO).
+Narrow, well-defined labeled task, no ambiguity about "correct" → ?	SFT alone.
+Open-ended chat/instruction-following where humans must judge which response is better (helpfulness, tone, honesty) → ?	SFT, then layer RLHF.
+Stale or missing proprietary/current knowledge — fix with RLHF or RAG?	RAG — RLHF only changes how a model responds, never what it knows.
+LoRA/QLoRA fine-tuning — recommended minimum labeled examples?	~100-500 for a small-to-mid model (≤13B), one task; ~500-1,000 for a large model (34B+), one task.
+Full fine-tuning — recommended minimum labeled examples?	~1,000-10,000 for a small-to-mid model, one task; ~10,000-100,000+ for a large model (34B+) — risks catastrophic forgetting if underfed.
+Instruction tuning / continued pre-training — recommended data volume?	Instruction tuning: ~1,000-10,000+ examples across many task types. Continued pre-training: millions-billions of unlabeled tokens.
+Fewer than ~50-100 labeled examples per class/task usually signals → ?	The exam wants prompt engineering (few-shot) or RAG instead of fine-tuning, not a smaller fine-tune.
+How to avoid overfitting on a small fine-tuning dataset?	Hold out a validation set and use early stopping; prefer LoRA/QLoRA over full fine-tuning (training fewer parameters is itself a regularizer).
+Fine-tuning data-quality checklist (4 items)?	Diversity (full range of production phrasings/lengths/formats/locales) · edge-case coverage (boundary/adversarial/minority cases) · label correctness (measured via inter-annotator agreement) · class/category balance (corrected via oversampling/undersampling/loss weighting).
+Synthetic vs. real fine-tuning data — safest pattern?	Real data as the foundation, synthetic data to fill specific identified gaps — never entirely synthetic for a high-stakes task.
+Synthetic training data — key risk?	Only as accurate as the generating model — it propagates that model's errors/bias.
+Zero-shot prompting — exam keywords?	"No examples," "simplest task"; no weight changes; lowest cost/complexity.
+Few-shot prompting — exam keywords?	"Example input/output pairs," "consistent structure"; a few example pairs, low cost/complexity.
+Chain-of-thought (CoT) — exam keywords?	"Step by step," "reasoning," "show your work"; explicit step-by-step ask, low/medium cost/complexity.
+Prompt templates — exam keywords?	"Reusable structure," "placeholders," "Bedrock Prompt Management"; one-time authoring, reused.
+Negative prompting — exam keywords?	"Do not include," "avoid," "no watermark"; one added constraint, lowest cost/complexity.
+Prompt chaining / Prompt Flows — exam keywords?	"Sequence of prompts," "visual builder," "output feeds next"; orchestrated sequence, medium/high cost/complexity.
+System prompts / role prompting — exam keywords?	"Persona," "role," "across the conversation"; one persistent block, lowest cost/complexity.
+Prompt injection — is it a prompt engineering technique?	No — it's not a technique, it's a security risk (attacker-controlled); the exam likes planting it in technique lists as the distractor.
+Inconsistent output format/style across calls → which technique fixes it?	Few-shot prompting.
+Unwanted elements appearing in generated images → which technique fixes it?	Negative prompting.
+Scenario: "explicitly enable a model before calling it" → ?	Model access.
+Scenario: "take actions / call APIs / multi-step tasks, re-plan based on a tool result" → ?	Agents (action groups).
+Scenario: "block harmful, off-topic, or PII content" → ?	Guardrails.
+Scenario: "answer from our own documents, no retraining" → ?	Knowledge Bases (RAG).
+Scenario: "visual builder, sequence of prompts, output feeds next" → ?	Prompt Flows.
+Scenario: "compare model quality objectively/at scale" → ?	Automatic model evaluation.
+Scenario: "judge subjective quality like tone/creativity" → ?	Human evaluation.
+Scenario: "guaranteed throughput, high/steady/predictable volume, custom model" → ?	Provisioned throughput.
+Scenario: "unpredictable/low/spiky volume, pay per use" → ?	On-demand.
+Does Guardrails retrieve knowledge or invoke APIs?	No — Guardrails only filters content; retrieval is Knowledge Bases, API calls are Agents.
+Redact PII (names, SSNs, emails, phone/account numbers) → which Guardrails rule type?	Sensitive information filters — deterministic pattern match, no ML needed.
+Fixed list of exact strings (competitor names, profanity) → which Guardrails rule type?	Word filters — cheapest, lowest-latency, list fully known ahead of time.
+Whole subject area regardless of phrasing (e.g., "no medical advice") → which Guardrails rule type?	Denied topics — semantic match catches paraphrases a word list would miss.
+Standard harm category (hate, violence, sexual, prompt injection) → which Guardrails rule type?	Content filters — built-in ML classifiers per harm category.
+Model contradicts/invents facts not in the source → which Guardrails rule type?	Contextual grounding checks — the only rule type that checks truthfulness vs. a source.
+On-demand vs. provisioned throughput — decision rule?	Steady + high + predictable volume (or a custom model) → provisioned throughput; variable/spiky/low volume → on-demand.
+Amazon OpenSearch (Service / Serverless) — pick for?	Native hybrid (vector + keyword) search in one query; bring your own embedding model; horizontal/auto scaling; "large scale," default vector store for Bedrock Knowledge Bases.
+Amazon Aurora (PostgreSQL) + pgvector — pick for?	Vectors as a column type, queried with SQL; bring your own embedding model; "we already run Aurora/PostgreSQL," "query embeddings with SQL."
+Amazon Kendra — pick for?	Fully managed enterprise search; no embedding model to pick, ranking handled internally; connectors to S3/SharePoint/Salesforce; "no infrastructure/embeddings pipeline to build."
+An existing Kendra GenAI Index and a new Bedrock Knowledge Base → ?	Reuse the existing Kendra GenAI Index as the Knowledge Base's retriever — the exam-favored answer over standing up a second index in OpenSearch/Aurora.
+General-purpose embedding models (Amazon Titan Text Embeddings, Cohere Embed) — trade-off?	Default choice; zero extra training, cheapest, fastest to ship; struggles on dense specialized jargon (legal/medical/internal).
+Domain-specific pretrained embedding model — trade-off?	Captures domain vocabulary out of the box, no training pipeline; often third-party/open-source, not a Bedrock built-in; extra model to evaluate/license/host.
+Fine-tuned embedding model — trade-off?	Trained on your own labeled query/passage pairs; highest accuracy ceiling, highest cost; not a Bedrock-native fine-tuning workflow, typically Amazon SageMaker.
+When should you move off the default Titan/Cohere embedding model?	Only when a scenario calls out a specialized domain AND a retrieval-quality problem traceable to the embedding model itself (not chunking or the vector store).
+Reranking — what does it fix?	"Topically close but not the right chunk" and query/document terminology mismatches — a cross-encoder re-scores a wider candidate set; pure vector similarity alone can't fix this.
+Hybrid search — what does it fix?	Surfaces exact-term matches (SKU codes, names, acronyms) that vector similarity alone would miss, by combining vector + keyword search.
+Automatic/benchmark evaluation — measures, speed, use when?	Objective, formula-computable quality (accuracy, F1, BLEU/ROUGE, toxicity); fast, cheap, reproducible at scale; comparing many candidates quickly or screening before a costlier step.
+Human evaluation — measures, speed, use when?	Subjective quality (tone, creativity, nuance, cultural fit); slow, expensive; small candidate set where the quality bar is the priority.
+Business metrics — measures, use when?	Real-world outcome impact (CSAT, task completion, cost/interaction, escalation rate); post-launch, ongoing; the only layer tied to org goals, not model quality.
+MMLU — measures, direction?	General knowledge/reasoning across subjects; higher is better.
+ARC — measures, direction?	Science reasoning; higher is better.
+HumanEval — measures, direction?	Code generation (pass unit tests); higher is better.
+GSM8K — measures, direction?	Multi-step math word problems; higher is better.
+Toxicity scoring — direction?	Lower is better — "is this output safe to show a user?"
+BERTScore — measures, direction?	Whether output means the same as a reference despite different wording (semantic similarity); higher is better.
+Perplexity — measures, direction?	How fluent/confident the LM is, independent of correctness; lower is better.
+Why is a raw benchmark score like "MMLU: 68%" close to meaningless on its own?	Because it isn't compared to a baseline — a previous model or a competing candidate.
+BLEU/ROUGE vs. BERTScore — key difference?	BLEU/ROUGE reward exact n-gram overlap and penalize valid paraphrases; BERTScore recognizes a correctly-reworded answer as correct.
+No single evaluation metric tells the whole story — what should you combine before shipping?	A correctness/reasoning metric + a similarity/quality metric + a toxicity metric.
+Cheap/fast screening of many candidates on subjective criteria → workflow?	Automatic benchmark evaluation to shortlist, then human evaluation on the finalists.
+Recall@k — measures, use when?	Whether a relevant item appears anywhere in the top k; use when any top-k result counts as a win and rank within the window doesn't matter.
+MRR (Mean Reciprocal Rank) — measures, use when?	How early the first relevant result appears; use when each query has essentially one correct/best answer.
+MAP (Mean Average Precision) — measures, use when?	Precision averaged across every relevant item's rank; use when there are multiple relevant, binary-labeled documents per query and both finding and ranking them matter.
+NDCG@k — measures, use when?	Ranking quality with graded (not binary) relevance; use when relevance comes in degrees and result order matters (e.g., product search).
+Single-answer FAQ bot's best answer should rank near #1 → which retrieval metric?	MRR.
+AWS Trainium — purpose?	Purpose-built AWS chip (EC2 Trn1/Trn2) for high-performance, cost-efficient training at scale.
+AWS Inferentia — purpose?	Purpose-built AWS chip (EC2 Inf1/Inf2) for high-throughput, low-latency, cost-efficient inference.
+Trainium and Inferentia — programmed via what, and why do they exist?	Both programmed via the AWS Neuron SDK; both exist to beat general-purpose GPU cost at scale, not raw capability.
+Amazon SageMaker JumpStart — what does it offer beyond Bedrock's managed API?	Pretrained FMs + templates, deploy/fine-tune with more hosting control than Bedrock's managed API — a specific instance type, or a model not on Bedrock.
+SageMaker real-time endpoint auto-scaling — the five knobs?	Target metric, target value, scale-out (scale-up) cooldown, scale-in (scale-down) cooldown, MinCapacity/MaxCapacity.
+Auto-scaling target metric — options?	SageMakerVariantInvocationsPerInstance (request volume) or CPU/GPU utilization (compute-bound workload).
+Steady, predictable traffic — cooldown tuning?	Short scale-out cooldown (~60s), moderate scale-in cooldown (~180-300s) — safe to be responsive on both sides.
+Bursty/spiky traffic — cooldown tuning?	Short scale-out cooldown (~60s), long scale-in cooldown (~600-900s) — scale out fast, scale in slow, to prevent flapping.
+Periodic/scheduled known daily or weekly traffic peaks — what to layer on top of reactive scaling?	A scheduled scaling action raising MinCapacity ahead of the known window; don't rely on reactive scaling alone.
+Spike too large/fast for even a short scale-out cooldown → fix?	Raise MinCapacity as a standing buffer, or pre-warm with provisioned concurrency/throughput.
+Flapping (scale out → back in → out again quickly) — root cause and fix?	Scale-in cooldown too short — lengthen it.
+Capacity never scales back down — root cause?	Two conflicting target-tracking policies attached — scale-in needs every attached policy to agree.
+Throttles/timeouts at the start of a spike, then recovers — root cause and fix?	Target-tracking threshold too close to the real ceiling and/or scale-out cooldown too long — lower the threshold, shorten the scale-out cooldown.
+MinCapacity/MaxCapacity sitting at MaxCapacity during ordinary traffic — root cause?	Sized off one historical peak — re-baseline off current steady-state traffic, not the highest spike ever seen.
+Prompt injection — definition?	Malicious user input designed to override the application's intended prompt/system instructions (e.g., "ignore previous instructions," "reveal your system prompt").
+Is prompt injection a customization technique to intentionally apply?	No — it's a security risk to mitigate, never something to intentionally apply.
+Prompt injection — primary mitigations?	Input validation on user-supplied text before it reaches the prompt; Guardrails for Amazon Bedrock content filters; clear separation of system instructions from user-supplied content (system prompts/role prompting).
+Which Guardrails rule type catches the standard "prompt injection" harm category?	Content filters (built-in ML classifiers) — not word filters, denied topics, or contextual grounding checks.
+Do inference parameters (temperature/top-p/top-k/max tokens) stop prompt injection?	No — nothing about them helps; it's a content-policy problem, not a sampling problem.
+Answer correct but incomplete, cuts off mid-explanation — root cause and fix?	Chunks too small / answer split across a chunk boundary — increase chunk size, add chunk overlap, retrieve more chunks.
+Retrieved chunks unrelated to the query's topic entirely — root cause and fix?	Embedding model mismatched to the domain (jargon/abbreviations) — swap to a better-suited embeddings model, re-embed the corpus; expand jargon in source text.
+Retrieved chunks topically related but not the specific right answer — root cause and fix?	Vector similarity finds "close," not "correct" — add reranking; add hybrid (keyword + vector) search.
+Retrieval returns nothing relevant despite a clearly-worded answer existing — root cause and fix?	Query/document terminology mismatch (casual question vs. formal statement) — rerank a wider candidate set; rewrite the query before embedding (e.g., HyDE); index likely question phrasings alongside chunks.
+Assistant states facts not present in any retrieved chunk (hallucination) — root cause and fix?	Retrieval returned no/thin relevant chunk, so the FM fills the gap from parametric knowledge — verify a covering chunk exists, raise numberOfResults, add "answer only from provided context," require cited sources.
+Request fails/cuts off with a context-length/token-limit error — root cause and fix?	System prompt + chunks + history exceed the context window — retrieve fewer/smaller chunks, lower numberOfResults, trim history, or use a larger-context model.
+Does fine-tuning the FM fix any of the six RAG failure modes?	No — all six live in the retrieval half of the pipeline, before the FM ever sees a prompt.
+Triage order for a live, underperforming RAG system?	Hallucination → token-limit error → off-topic chunks (embedding model) → topically-close-but-wrong (reranking/hybrid) → correct-but-incomplete (chunking).
+Modality — definition?	The input/output type(s) a model handles (text, image, audio, video); multimodal = more than one.
+Prompt injection — definition?	Malicious input overriding intended prompt instructions; mitigate via input validation + Guardrails content filters.
+Chunking — definition?	Splitting documents into passages before embedding.
+Embedding — definition?	A numeric vector capturing semantic meaning.
+Vector database — definition?	Stores/queries embeddings by similarity (k-NN).
+Provisioned throughput — definition?	Reserved Bedrock capacity (model units) for a commitment period; typically required for custom (fine-tuned) models.
+On-demand — definition?	Pay-per-token Bedrock pricing, no commitment.
+Action group — definition?	The APIs (often via Lambda) a Bedrock Agent invokes.
+Reranking — definition?	A cross-encoder re-scores an initial vector-search candidate set for relevance.
+Hybrid search — definition?	Vector (semantic) search combined with keyword/full-text search in one query.
+AWS Trainium — definition?	Purpose-built AWS chip for cost-efficient training at scale (EC2 Trn1/Trn2).
+AWS Inferentia — definition?	Purpose-built AWS chip for cost-efficient inference (EC2 Inf1/Inf2).
+Retrieval Augmented Generation (RAG) — definition?	Grounds FM answers in retrieved external data at inference time, without retraining.
+Fine-tuning — definition?	Further training an FM's weights on labeled data for a specific task, style, or format.
+Continued pre-training — definition?	Further training an FM on large volumes of unlabeled domain-specific text for broad domain fluency.
+Amazon Bedrock Knowledge Bases — definition?	Bedrock's fully managed RAG feature: automatic ingestion, chunking, embedding, and retrieval.
+Denied topics (Guardrails) — definition?	A semantic block on an entire subject area regardless of phrasing.
+Content filters (Guardrails) — definition?	Built-in ML classifiers per harm category (hate, violence, sexual, prompt injection).
+Business metric — definition?	An outcome-oriented measure (CSAT, conversion rate, cost per interaction) distinct from model-quality metrics.
+Human evaluation — definition?	People scoring FM outputs on subjective criteria (tone, creativity) that automatic metrics can't capture.
+Benchmark dataset — definition?	A standardized dataset used to objectively and reproducibly score and compare model quality.
+Amazon SageMaker JumpStart — definition?	A hub of pretrained FMs and templates deployable/fine-tunable with more hosting control than Bedrock's API.
+LoRA (Low-Rank Adaptation) — definition?	A fine-tuning technique that freezes the base model and trains small low-rank adapter matrices (often <1% of parameters).
+QLoRA — definition?	LoRA on a base model first quantized to a lower precision (e.g., 4-bit); lowest GPU memory of the parameter-efficient options.
+Instruction tuning — definition?	A fine-tuning objective training on (instruction, response) pairs so a model follows instructions generally; layered on full fine-tuning, LoRA, or QLoRA.
+RLHF (Reinforcement Learning from Human Feedback) — definition?	Aligns an SFT model to human preferences via a reward model and reinforcement learning (commonly PPO), layered on top of SFT.
+Reward model — definition?	A model trained on human preference rankings to predict a scalar preference score, used to guide RLHF.
+Catastrophic forgetting — definition?	A fine-tuned model losing previously learned general capability; the risk of full fine-tuning a large model on too little data.
+Early stopping — definition?	Halting training once validation performance stops improving, to avoid overfitting a small fine-tuning dataset.
+Inter-annotator agreement — definition?	Measured consistency between human labelers, used to gauge fine-tuning label correctness.
+NDCG (Normalized Discounted Cumulative Gain) — definition?	A retrieval ranking-quality metric for graded (non-binary) relevance.
+MAP (Mean Average Precision) — definition?	A retrieval metric averaging precision across every relevant item's rank; fits multiple binary-labeled relevant documents per query.
+MRR (Mean Reciprocal Rank) — definition?	A retrieval metric measuring how early the first relevant result appears; fits queries with one correct/best answer.
+Recall@k — definition?	A retrieval metric measuring whether a relevant item appears anywhere in the top k results.
+Confused pair: "frequently changing data" / "ground in our own docs" → RAG or fine-tuning?	RAG, not fine-tuning.
+Confused pair: a fine-tuned or continued-pre-trained model under steady high load — on-demand or provisioned throughput?	Provisioned throughput — don't pick on-demand for a custom model under steady high load.
+Confused pair: Guardrails vs. Knowledge Bases/Agents?	Guardrails filters content; it does not retrieve knowledge (Knowledge Bases) or invoke APIs (Agents).
+Numeric trap: what does streaming actually improve?	Perceived latency only — not total generation time or cost.
+Confused pair: labeled vs. unlabeled data → fine-tuning or continued pre-training?	Labeled data → fine-tuning; unlabeled data → continued pre-training — the fastest way to tell them apart.
+Confused pair: is prompt injection ever the correct "technique" answer in a list?	No — it's always the security-risk distractor when it's planted in an answer list.
+Numeric trap: bursty traffic — same cooldown on both sides?	No — short scale-out cooldown + long scale-in cooldown, not long on both sides.
+Confused pair: an existing Kendra GenAI Index — reuse or build a new index?	Reuse the existing Kendra GenAI Index as a Knowledge Base's retriever, instead of standing up a second OpenSearch/Aurora index for the same content.
+Confused pair: GPU-budget fine-tuning technique picks?	Limited GPU budget, single GPU → QLoRA; faster/cheaper, small quality trade-off, no quantization mentioned → LoRA; best accuracy, cost/time isn't the constraint → full fine-tuning.
+Confused pair: RLHF vs. RAG for fixing model behavior?	RLHF fixes how a model responds (tone, helpfulness) — it never fixes stale or missing knowledge; that's RAG's job, not RLHF's.
+Numeric trap: fewer than ~50-100 labeled examples per class/task → ?	Prompt engineering (few-shot) or RAG, not a smaller fine-tune.
+Confused pair: retrieval-metric picks — one answer vs. graded vs. binary-multiple vs. top-k only?	One correct/best answer → MRR; graded relevance and order matters → NDCG@k; binary, multiple relevant docs, order matters → MAP; only "somewhere in the top k" matters → Recall@k.
+Numeric trap: is a raw benchmark score meaningful on its own?	No — always compare it to a baseline, and know which direction (higher/lower) is better for that specific metric.
+Confused pair: full fine-tuning/LoRA/QLoRA/instruction tuning vs. RLHF?	The first four are all supervised fine-tuning (SFT); RLHF is a distinct step layered on top of SFT.

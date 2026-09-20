@@ -27,7 +27,12 @@ tables and diagrams refreshed; read the [full
 guide](../domain-2-fundamentals-of-generative-ai.md) first if any of these
 terms are new to you. For the last 15-20 minutes before the exam, drop
 down further to [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md) — a
-bullets-and-tables-only cram sheet built on top of this file.
+bullets-and-tables-only cram sheet built on top of this file. For
+active-recall/spaced-repetition practice instead of reading, see
+[`FLASHCARDS.md`](FLASHCARDS.md) — a front/back deck covering every key
+term, service, numeric threshold, and commonly confused pair in this
+domain, also available as [`flashcards.tsv`](flashcards.tsv) for import
+into Anki or Quizlet.
 
 **Where each section comes from**, for jumping straight to the full
 prose, mini-quiz, and AWS example behind any condensed table below:

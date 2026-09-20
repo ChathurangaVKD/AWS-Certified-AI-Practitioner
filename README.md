@@ -68,6 +68,28 @@ commonly-confused pairs, and a tickable self-check checklist at the end.
 See [Domain 1's cheat sheet](docs/domain-1-fast-track/CHEAT-SHEET.md) for
 an example — the same file exists for all five domains.
 
+## Flashcard decks (active recall / spaced repetition)
+
+Each domain's `docs/domain-N-fast-track/` directory also ships a
+**flashcard deck** — a companion study format alongside the three tiers
+above, not a replacement for any of them. It doesn't add new material
+either: every card is a front/back reformat of a fact already verified in
+that domain's Ultra Fast Learn cram sheet (key terms, AWS service →
+use-case mappings, numeric thresholds, commonly-confused pairs, and
+short scenarios → correct approach), ordered to match that domain's own
+section order for active-recall or spaced-repetition study. Each deck
+ships as two files: `FLASHCARDS.md` (a plain front/back Markdown list,
+viewable directly on GitHub) and `flashcards.tsv` (the same cards,
+tab-separated with no header row, importable as-is into Anki, Quizlet, or
+any other spaced-repetition app). See [Domain 1's flashcard
+deck](docs/domain-1-fast-track/FLASHCARDS.md) for an example — the same
+pair of files exists for all five domains:
+[Domain 2](docs/domain-2-fast-track/FLASHCARDS.md),
+[Domain 3](docs/domain-3-fast-track/FLASHCARDS.md) (covers the full
+domain, not split by part),
+[Domain 4](docs/domain-4-fast-track/FLASHCARDS.md), and
+[Domain 5](docs/domain-5-fast-track/FLASHCARDS.md).
+
 ## Study plan
 
 **Recommended reading order: Domain 1 → Domain 2 → Domain 3 → Domain 4 →

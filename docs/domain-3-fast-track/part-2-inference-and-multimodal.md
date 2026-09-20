@@ -804,5 +804,8 @@ For material that spans multiple domains, see
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).
 For the ultra-condensed cram-sheet version of all of Domain 3, see
 [`docs/domain-3-fast-track/ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md).
+For active-recall / spaced-repetition practice, see
+[`docs/domain-3-fast-track/FLASHCARDS.md`](FLASHCARDS.md) — it covers the
+entire domain in one deck, not split by part.
 
 [← Domain 3 Fast Track, Part 1: FM Application Design & Customization](part-1-application-design-and-customization.md) · [Back to the full Domain 3 guide](../domain-3-applications-of-foundation-models.md#5-amazon-bedrock-features) · [Domain 3 Fast Track, Part 3: Production Deployment & Troubleshooting →](part-3-deployment-and-troubleshooting.md)

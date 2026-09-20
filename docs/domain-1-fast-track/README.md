@@ -738,7 +738,10 @@ last 15-20 minutes before the exam, see
 [`ULTRA-FAST-LEARN.md`](ULTRA-FAST-LEARN.md). For an interactive,
 GitHub-flavored-Markdown quick-scan version of the same verified facts —
 jump links, collapsible sections, and a self-check checklist — see
-[`CHEAT-SHEET.md`](CHEAT-SHEET.md). For material that spans
+[`CHEAT-SHEET.md`](CHEAT-SHEET.md). For active-recall / spaced-repetition
+practice on the same verified facts — importable as-is into Anki or
+Quizlet — see [`FLASHCARDS.md`](FLASHCARDS.md) (and its
+[`flashcards.tsv`](flashcards.tsv) companion). For material that spans
 multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).

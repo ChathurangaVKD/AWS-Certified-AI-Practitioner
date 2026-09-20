@@ -847,6 +847,10 @@ For an even more condensed, bullets-only cram sheet, see
 an interactive, GitHub-flavored-Markdown quick-scan version of the same
 verified facts — jump links, collapsible sections, and a self-check
 checklist — see [`CHEAT-SHEET.md`](CHEAT-SHEET.md). For
+active-recall/spaced-repetition practice (Anki, Quizlet, or similar), see
+[`FLASHCARDS.md`](FLASHCARDS.md) — the same verified facts reformatted as
+one front/back card per concept, plus a matching `flashcards.tsv` for
+direct import. For
 material spanning multiple domains, see
 [`docs/cross-domain-concept-map.md`](../cross-domain-concept-map.md) and
 [`docs/cross-domain-scenario-questions.md`](../cross-domain-scenario-questions.md).

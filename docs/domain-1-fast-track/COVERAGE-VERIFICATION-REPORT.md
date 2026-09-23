@@ -1,6 +1,17 @@
 # Domain 1 Fast Track / Ultra Fast Learn: coverage verification report
 
-**Status:** technical verification complete · **Verified:** 2026-09-09
+**Status:** technical verification complete · backfill applied ·
+**Verified:** 2026-09-09
+
+> **Update (2026-09-09):** the three gaps this report identifies below have
+> been backfilled into `ULTRA-FAST-LEARN.md` (see its "Managed Spot
+> Training vs. On-Demand training" and "Production deployment strategies"
+> tables under §1, and the "Ground Truth vs. alternatives" table under
+> §3), along with matching additions to the "Common exam traps checklist,"
+> the "Where each row comes from" mapping, and assertions in
+> `tests/test_domain_1_ultra_fast_learn.py`. The findings below are kept as
+> the historical record of the audit that motivated the backfill; they no
+> longer describe the current state of `ULTRA-FAST-LEARN.md`.
 
 ## What this report is
 

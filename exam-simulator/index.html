@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIF-C01 Exam Simulator</title>
+<meta name="description" content="Free practice exam simulator for the AWS Certified AI Practitioner (AIF-C01). Timed mock exams, per-domain results, and answer explanations.">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#1b2230;--muted:#667085;--line:#dfe3ea;--accent:#ff9900;--accent-d:#c77700;--ok:#12805c;--okbg:#e5f6ee;--bad:#c0352b;--badbg:#fdeceb;--sel:#fff4e0}
+@media (prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1b212b;--text:#e8ecf2;--muted:#9aa4b2;--line:#2c3441;--ok:#4cc79a;--okbg:#14332a;--bad:#ff8077;--badbg:#3a1d1b;--sel:#3a2d14}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:#232f3e;color:#fff;padding:14px 16px}
+header .in{max-width:820px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header h1{font-size:1.1rem;margin:0}header h1 span{color:var(--accent)}
+main{max-width:820px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px}
+h2{margin:.2em 0 .6em;font-size:1.25rem}h3{margin:.2em 0 .5em}
+.muted{color:var(--muted);font-size:.9rem}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px 16px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#1b1200;font-weight:600}
+button.primary:hover{background:var(--accent-d)}
+button:disabled{opacity:.5;cursor:default}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mode{text-align:left;padding:14px}.mode b{display:block;margin-bottom:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spacer{flex:1}
+select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--accent)}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;margin:8px 0;padding:11px 13px}
+.opt .l{font-weight:700;min-width:1.2em}
+.opt.sel{background:var(--sel);border-color:var(--accent)}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;background:var(--line);color:var(--muted);margin-right:6px}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}.timer.low{color:var(--bad)}
+.expl{margin-top:12px;padding:12px;border-radius:8px;background:var(--bg);border-left:4px solid var(--accent)}
+.score{font-size:3rem;font-weight:800;line-height:1}
+.pass{color:var(--ok)}.fail{color:var(--bad)}
+table{width:100%;border-collapse:collapse}td,th{padding:8px 6px;text-align:left;border-bottom:1px solid var(--line);font-size:.92rem}
+.nav{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.nav button{padding:3px 0;width:34px;font-size:.8rem}
+.nav .done{background:var(--sel);border-color:var(--accent)}.nav .flag{outline:2px solid var(--bad)}.nav .cur{font-weight:800;border-color:var(--text)}
+.nav .r-ok{background:var(--okbg);border-color:var(--ok)}.nav .r-bad{background:var(--badbg);border-color:var(--bad)}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
+</style>
+</head>
+<body>
+<header><div class="in"><h1>AWS <span>AIF-C01</span> Exam Simulator</h1><span id="hdr" class="muted" style="color:#c8d0dc"></span></div></header>
+<main id="app"></main>
+<footer>Unofficial study tool. Not affiliated with or endorsed by AWS. Results are stored only in your browser.</footer>
+<script src="questions.js"></script>
+<script>
+"use strict";
+const Q = window.QUESTIONS, app = document.getElementById("app"), $hdr = document.getElementById("hdr");
+const DOM = {1:"Fundamentals of AI & ML",2:"Fundamentals of Generative AI",3:"Applications of Foundation Models",4:"Guidelines for Responsible AI",5:"Security, Compliance & Governance"};
+const PASS = 0.72, KEY = "aif-c01-history-v1", DRAFT = "aif-c01-draft-v1";
+let S = null, timerId = null;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} }
+};
+const fmt = s => { s = Math.max(0, s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ":" : "") + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0"); };
+const isRight = (q, sel) => sel && sel.length === q.answer.length && q.answer.every(a => sel.includes(a));
+
+function home() {
+  clearInterval(timerId); S = null; $hdr.textContent = "";
+  const hist = store.get(KEY, []), draft = store.get(DRAFT, null);
+  app.innerHTML = `
+  <div class="card"><h2>Practice for the AWS Certified AI Practitioner</h2>
+    <p>${Q.length} exam-style questions across all five domains, with explanations and a per-domain score breakdown after every attempt.</p></div>
+  ${draft ? `<div class="card"><b>You have an unfinished exam.</b> <span class="muted">(${esc(draft.title)}, question ${draft.i + 1}/${draft.qs.length})</span>
+    <div class="row" style="margin-top:10px"><button class="primary" id="resume">Resume</button><button id="discard">Discard</button></div></div>` : ""}
+  <div class="card"><h3>Start an exam</h3><div class="modes">
+    <button class="mode" data-m="full"><b>Full exam simulation</b><span class="muted">65 questions · 90 minutes · no feedback until the end</span></button>
+    <button class="mode" data-m="quick"><b>Quick practice</b><span class="muted">20 random questions · untimed · instant feedback</span></button>
+    <button class="mode" data-m="all"><b>Whole question bank</b><span class="muted">All ${Q.length} questions · untimed · instant feedback</span></button>
+  </div>
+  <div class="row" style="margin-top:14px"><label for="dom">Or practice one domain:</label>
+    <select id="dom">${Object.entries(DOM).map(([k, v]) => `<option value="${k}">${k}. ${v} (${Q.filter(q => q.domain == k).length})</option>`).join("")}</select>
+    <button data-m="domain">Start</button></div></div>
+  <div class="card"><h3>Your results</h3>${histHtml(hist)}</div>`;
+  app.querySelectorAll("[data-m]").forEach(b => b.onclick = () => start(b.dataset.m));
+  if (draft) { document.getElementById("resume").onclick = () => { S = draft; S.t0 = Date.now() - 0; runTimer(); render(); };
+    document.getElementById("discard").onclick = () => { store.del(DRAFT); home(); }; }
+  const clr = document.getElementById("clr"); if (clr) clr.onclick = () => { if (confirm("Delete all saved results from this browser?")) { store.del(KEY); home(); } };
+}
+
+function histHtml(h) {
+  if (!h.length) return `<p class="muted">No attempts yet. Your scores will appear here.</p>`;
+  const rows = h.slice().reverse().slice(0, 15).map(r => `<tr><td>${new Date(r.date).toLocaleDateString()}</td><td>${esc(r.title)}</td><td>${r.correct}/${r.total}</td><td class="${r.pct >= PASS * 100 ? "pass" : "fail"}">${r.pct}%</td></tr>`).join("");
+  const agg = {}; h.forEach(r => Object.entries(r.byDomain).forEach(([d, v]) => { (agg[d] ??= [0, 0]); agg[d][0] += v[0]; agg[d][1] += v[1]; }));
+  const best = Math.max(...h.map(r => r.pct));
+  return `<p class="muted">${h.length} attempt(s) · best score ${best}%</p>
+  <table><tr><th>Date</th><th>Exam</th><th>Score</th><th>%</th></tr>${rows}</table>
+  <h3 style="margin-top:16px">Accuracy by domain (all attempts)</h3>${Object.keys(DOM).filter(d => agg[d]).map(d => domBar(d, agg[d][0], agg[d][1])).join("")}
+  <p><button id="clr">Clear history</button></p>`;
+}
+const domBar = (d, c, t) => { const p = t ? Math.round(100 * c / t) : 0; return `<div style="margin:8px 0"><div class="row"><span>${d}. ${DOM[d]}</span><span class="spacer"></span><b>${c}/${t} · ${p}%</b></div><div class="bar"><i style="width:${p}%"></i></div></div>`; };
+
+function start(mode) {
+  let qs, title, feedback = true, limit = 0;
+  if (mode === "full") { qs = pick(65); title = "Full exam simulation"; feedback = false; limit = 90 * 60; }
+  else if (mode === "quick") { qs = shuffle(Q).slice(0, 20); title = "Quick practice"; }
+  else if (mode === "all") { qs = shuffle(Q); title = "Whole question bank"; }
+  else { const d = document.getElementById("dom").value; qs = shuffle(Q.filter(q => q.domain == d)); title = "Domain " + d + ": " + DOM[d]; }
+  S = { title, feedback, limit, left: limit, i: 0, flags: [], ans: {}, revealed: {}, finished: false, date: Date.now(),
+        qs: qs.map(q => ({ ...q, order: shuffle(Object.keys(q.options)) })) };
+  runTimer(); render();
+}
+// domain-weighted sample matching the real exam blueprint
+function pick(n) {
+  const w = {1: .20, 2: .24, 3: .28, 4: .14, 5: .14}; let out = [];
+  for (const d in w) out = out.concat(shuffle(Q.filter(q => q.domain == d)).slice(0, Math.round(n * w[d])));
+  if (out.length < n) { const ids = new Set(out.map(q => q.id)); out = out.concat(shuffle(Q.filter(q => !ids.has(q.id))).slice(0, n - out.length)); }
+  return shuffle(out).slice(0, n);
+}
+
+function runTimer() {
+  clearInterval(timerId); if (!S.limit || S.finished) return;
+  let last = Date.now();
+  timerId = setInterval(() => {
+    const now = Date.now(); S.left -= Math.round((now - last) / 1000); last = now;
+    const el = document.getElementById("timer"); if (el) { el.textContent = fmt(S.left); el.classList.toggle("low", S.left < 600); }
+    if (S.left <= 0) finish(true);
+  }, 1000);
+}
+function save() { if (S && !S.finished) store.set(DRAFT, S); }
+
+function render() {
+  if (S.finished) return;
+  const q = S.qs[S.i], sel = S.ans[S.i] || [], rev = S.feedback && S.revealed[S.i], n = S.qs.length;
+  $hdr.textContent = S.title;
+  const letters = q.order;
+  app.innerHTML = `<div class="card">
+    <div class="row"><span><b>Question ${S.i + 1}</b> of ${n}</span><span class="spacer"></span>
+      ${S.limit ? `<span class="timer ${S.left < 600 ? "low" : ""}" id="timer">${fmt(S.left)}</span>` : ""}</div>
+    <div class="bar" style="margin:8px 0 14px"><i style="width:${100 * (S.i + 1) / n}%"></i></div>
+    <p>${esc(q.q)}</p>
+    ${q.multi ? `<p class="muted"><b>Select ${q.answer.length}.</b> All correct options are required.</p>` : ""}
+    ${letters.map((k, idx) => {
+      let c = sel.includes(k) ? "sel" : "";
+      if (rev) c = q.answer.includes(k) ? "ok" : (sel.includes(k) ? "bad" : "");
+      return `<button class="opt ${c}" data-k="${k}"${rev ? " disabled" : ""}><span class="l">${"ABCDE"[idx]}.</span><span>${esc(q.options[k])}</span></button>`;
+    }).join("")}
+    ${rev ? `<div class="expl"><b>${isRight(q, sel) ? "✅ Correct" : "❌ Incorrect"}.</b> Answer: ${q.answer.map(a => "ABCDE"[letters.indexOf(a)]).join(", ")}.<br>${esc(q.explanation)}<br><span class="tag" style="margin-top:8px">Domain ${q.domain}</span></div>` : ""}
+    <div class="row" style="margin-top:14px">
+      <button id="prev"${S.i ? "" : " disabled"}>← Previous</button>
+      <button id="flag">${S.flags.includes(S.i) ? "⚑ Unflag" : "⚐ Flag"}</button><span class="spacer"></span>
+      ${S.feedback && !rev ? `<button id="check" ${sel.length ? "" : "disabled"}>Check answer</button>` : ""}
+      ${S.i < n - 1 ? `<button class="primary" id="next">Next →</button>` : `<button class="primary" id="end">Finish exam</button>`}
+    </div>
+    <div class="nav">${S.qs.map((_, j) => `<button data-j="${j}" class="${[S.ans[j] ? "done" : "", S.flags.includes(j) ? "flag" : "", j === S.i ? "cur" : ""].join(" ")}">${j + 1}</button>`).join("")}</div>
+    <p class="row" style="margin-top:12px"><button id="quit" class="muted">Save & exit</button></p>
+  </div>`;
+  app.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    const k = b.dataset.k; let a = S.ans[S.i] || [];
+    if (q.multi) a = a.includes(k) ? a.filter(x => x !== k) : [...a, k];
+    else a = [k];
+    S.ans[S.i] = a; if (!a.length) delete S.ans[S.i]; save(); render();
+  });
+  app.querySelectorAll(".nav button").forEach(b => b.onclick = () => go(+b.dataset.j));
+  const on = (id, f) => { const e = document.getElementById(id); if (e) e.onclick = f; };
+  on("prev", () => go(S.i - 1)); on("next", () => go(S.i + 1));
+  on("flag", () => { const f = S.flags.indexOf(S.i); f < 0 ? S.flags.push(S.i) : S.flags.splice(f, 1); save(); render(); });
+  on("check", () => { S.revealed[S.i] = true; save(); render(); });
+  on("quit", () => { save(); home(); });
+  on("end", () => {
+    const un = S.qs.length - Object.keys(S.ans).length;
+    if (!un || confirm(`${un} question(s) unanswered. Finish anyway?`)) finish();
+  });
+  window.scrollTo(0, 0);
+}
+function go(i) { S.i = i; save(); render(); }
+
+function finish() {
+  clearInterval(timerId); S.finished = true; store.del(DRAFT);
+  const byDomain = {}; let correct = 0;
+  S.qs.forEach((q, i) => { const ok = isRight(q, S.ans[i]); (byDomain[q.domain] ??= [0, 0])[1]++; if (ok) { correct++; byDomain[q.domain][0]++; } });
+  const total = S.qs.length, pct = Math.round(100 * correct / total);
+  const h = store.get(KEY, []); h.push({ date: S.date, title: S.title, correct, total, pct, byDomain }); store.set(KEY, h);
+  S.result = { correct, total, pct, byDomain }; results("all");
+}
+
+function results(filter) {
+  const { correct, total, pct, byDomain } = S.result, pass = pct >= PASS * 100;
+  $hdr.textContent = "Results";
+  const items = S.qs.map((q, i) => ({ q, i, ok: isRight(q, S.ans[i]) })).filter(x => filter === "all" || (filter === "wrong" ? !x.ok : filter === "flag" ? S.flags.includes(x.i) : true));
+  app.innerHTML = `<div class="card"><h2>${esc(S.title)}</h2>
+    <div class="row"><div class="score ${pass ? "pass" : "fail"}">${pct}%</div>
+      <div><b>${correct} of ${total} correct</b><br><span class="muted">${S.limit ? "Time used: " + fmt(S.limit - Math.max(S.left, 0)) + " · " : ""}Passing estimate: ${Math.round(PASS * 100)}% (real exam: 700/1000 scaled)</span><br>
+      <b class="${pass ? "pass" : "fail"}">${pass ? "Above the estimated passing line" : "Below the estimated passing line"}</b></div></div></div>
+  <div class="card"><h3>Score by domain</h3>${Object.keys(DOM).filter(d => byDomain[d]).map(d => domBar(d, byDomain[d][0], byDomain[d][1])).join("")}
+    <p class="muted">Focus your study on the domains with the lowest percentage.</p></div>
+  <div class="card"><div class="row"><h3 style="margin:0">Review</h3><span class="spacer"></span>
+    <select id="flt"><option value="all">All questions</option><option value="wrong">Incorrect only</option><option value="flag">Flagged only</option></select>
+    <button class="primary" id="again">Back to home</button></div>
+    <div class="nav">${S.qs.map((_, j) => `<button class="${isRight(S.qs[j], S.ans[j]) ? "r-ok" : "r-bad"}" data-j="${j}">${j + 1}</button>`).join("")}</div></div>
+  ${items.map(({ q, i, ok }) => { const L = q.order, sel = S.ans[i] || [];
+    return `<div class="card" id="q${i}"><span class="tag">Q${i + 1}</span><span class="tag">Domain ${q.domain}</span><b class="${ok ? "pass" : "fail"}">${ok ? "Correct" : (sel.length ? "Incorrect" : "Unanswered")}</b>
+    <p>${esc(q.q)}</p>${L.map((k, idx) => `<div class="opt ${q.answer.includes(k) ? "ok" : sel.includes(k) ? "bad" : ""}" style="cursor:default"><span class="l">${"ABCDE"[idx]}.</span><span>${esc(q.options[k])}${sel.includes(k) ? " <i class='muted'>(your answer)</i>" : ""}</span></div>`).join("")}
+    <div class="expl">${esc(q.explanation)}</div></div>`; }).join("") || `<div class="card muted">Nothing to show for this filter.</div>`}`;
+  const f = document.getElementById("flt"); f.value = filter; f.onchange = () => results(f.value);
+  document.getElementById("again").onclick = home;
+  app.querySelectorAll(".nav button").forEach(b => b.onclick = () => { const e = document.getElementById("q" + b.dataset.j); if (e) e.scrollIntoView({ behavior: "smooth" }); else { results("all"); } });
+  window.scrollTo(0, 0);
+}
+home();
+</script>
+</body>
+</html>

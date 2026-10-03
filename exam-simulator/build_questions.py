@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Parse the markdown mock exams in ../docs into questions.js for the simulator."""
 import json, re, pathlib
+from explain_structure import structure
 
 DOCS = pathlib.Path(__file__).resolve().parent.parent / "docs"
 SOURCES = [("full-length-mock-exam.md", "Full-Length Mock Exam", "## Mock exam questions", "## 4. Answer key"),
@@ -45,6 +46,25 @@ def parse(fname, label, qmark, amark):
     return res
 
 allq = [q for s in SOURCES for q in parse(*s)]
+
+def load_extra():
+    """Hand-written edge-case questions in extra-questions/domain-N.json (already structured: why / others)."""
+    out = []
+    for f in sorted((pathlib.Path(__file__).resolve().parent / "extra-questions").glob("domain-*.json")):
+        for i, x in enumerate(json.load(open(f)), 1):
+            opts, ans = x["options"], x["answer"]
+            assert 2 <= len(opts) <= 5 and ans and all(a in opts for a in ans), (f.name, i)
+            covered = [l for o in x["others"] for l in o["l"]]
+            assert sorted(covered) == sorted(k for k in opts if k not in ans), (f.name, i, "others must cover every wrong option once")
+            expl = " ".join(x["why"] + [f"{'/'.join(o['l'])}: {o['t']}" for o in x["others"]])
+            out.append(dict(id=f"x{x['domain']}-{i}", q=x["q"], options=opts, answer=ans, explanation=expl,
+                            why=x["why"], others=x["others"], domain=x["domain"], domainName=DOMAINS[x["domain"]],
+                            source="Edge-case bank", topic=x.get("topic", ""), multi=len(ans) > 1))
+    return out
+allq += load_extra()
+for q in allq:
+    if "why" not in q:
+        q["why"], q["others"] = structure(q["explanation"], q["answer"], q["options"][q["answer"][0]])
 (pathlib.Path(__file__).parent / "questions.js").write_text(
     "window.QUESTIONS = " + json.dumps(allq, indent=1, ensure_ascii=False) + ";\n")
 from collections import Counter

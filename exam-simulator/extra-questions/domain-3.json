@@ -1,0 +1,1532 @@
+[
+  {
+    "domain": 3,
+    "topic": "Fine-tuning vs continued pre-training",
+    "q": "A company has 800 labeled examples pairing raw support emails with the exact structured summary format its CRM requires. It wants the model to produce that format consistently. Which customization approach fits best?",
+    "options": {
+      "A": "Fine-tuning on the labeled input/output pairs",
+      "B": "Continued pre-training on the emails",
+      "C": "Retrieval Augmented Generation over the emails",
+      "D": "Guardrails with a denied topic for the CRM format output"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Labeled input/output pairs are the fuel for fine-tuning, which teaches a narrow task, style or format."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Continued pre-training needs a large volume of unlabeled text and builds broad domain fluency, not a specific output format."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "RAG adds knowledge at query time; it does not teach the model a consistent output format."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Guardrails filter content; they cannot make a model produce a structured format."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "RLHF vs RAG",
+    "q": "A team proposes using RLHF to fix an assistant that quotes last year's product specifications. Which response is the most accurate?",
+    "options": {
+      "A": "Proceed, because a reward model can teach the model new facts",
+      "B": "Proceed, because RLHF is cheaper than building any retrieval pipeline",
+      "C": "Use RAG, because RLHF changes how it answers, not what it knows",
+      "D": "Use a higher temperature so the model explores newer specifications"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "RLHF aligns the style and helpfulness of answers with human preferences. Missing or outdated facts need external, current data, which RAG supplies."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A reward model scores response quality from human preferences; it never adds new knowledge."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "RLHF requires SFT plus a reward model plus RL, which is not a cheap way to fix stale facts."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Temperature changes randomness of word choice and does not inject current facts."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Temperature for deterministic output",
+    "q": "An invoice-extraction app built on a foundation model returns slightly different field values when the same invoice is submitted twice. Which change most directly improves repeatability?",
+    "options": {
+      "A": "Raise the max tokens limit",
+      "B": "Lower the temperature",
+      "C": "Switch from on-demand to provisioned throughput",
+      "D": "Increase the temperature"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Lower temperature makes the model favor its most probable tokens, so identical input yields more consistent output."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Max tokens only caps the response length; it does not affect randomness."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Capacity options affect throughput and cost, not how random the sampling is."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Higher temperature flattens the probability spread and makes outputs vary more, the opposite of what is needed."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Max tokens vs context window",
+    "q": "A chatbot's replies end abruptly mid-sentence. There is no error, the conversation is only two turns long, and the prompts are short. What is the most likely cause?",
+    "options": {
+      "A": "The context window was exceeded",
+      "B": "The temperature is set too low",
+      "C": "The model was not enabled through model access",
+      "D": "The max tokens inference parameter is set too low"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "A response cut off silently at a length cap points to max tokens, which limits how much the model may generate."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Overflowing the context window typically fails with a validation error, and two short turns cannot overflow it."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Temperature affects word-choice randomness, not where a response stops."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Without model access the call would be denied outright, not return partial text."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Context window overflow",
+    "q": "A support chatbot works for dozens of turns, then starts returning ValidationException errors about input being too long. Which fix addresses the root cause?",
+    "options": {
+      "A": "Summarize or trim older conversation history before each call",
+      "B": "Buy provisioned throughput model units",
+      "C": "Raise the temperature",
+      "D": "Re-embed the knowledge base with a new embeddings model"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Cumulative system prompt plus history plus new turn exceeded the context window, so the input must be shortened."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Model units add capacity (throughput), not a larger context window."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Temperature has no effect on how many input tokens a request carries."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "The error is about total input size, not retrieval quality."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Provisioned throughput fit",
+    "q": "Which workload is the LEAST suitable for purchasing Amazon Bedrock provisioned throughput?",
+    "options": {
+      "A": "A fine-tuned custom model serving production traffic",
+      "B": "A steady, high-volume chatbot that needs guaranteed capacity",
+      "C": "A prototype that makes a few sporadic test calls to a base model",
+      "D": "A customer-facing app with a strict latency commitment under constant load"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Provisioned throughput is billed at a fixed hourly rate per model unit (with optional 1- or 6-month commitment discounts) whether used or not; sporadic base-model calls are better served by pay-per-token on-demand."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Custom models generally need provisioned throughput to be served, so it fits well."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Steady, high, predictable volume is exactly what reserved model units are for."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Guaranteed dedicated capacity helps meet predictable performance requirements."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Batch inference",
+    "q": "A company must generate summaries for two million archived emails within a day. Nothing is waiting on an individual response in real time. Which Bedrock option is typically cheapest?",
+    "options": {
+      "A": "Provisioned throughput with a 6-month commitment",
+      "B": "Batch inference",
+      "C": "On-demand real-time requests sent one at a time",
+      "D": "Prompt Flows to chain a prompt per email"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Batch inference processes large volumes asynchronously when no one waits on each response, at a lower per-token rate than on-demand (for supported models)."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A long flat-rate commitment is wasteful for an overnight one-off job."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Works, but pays the higher real-time rate for latency the job does not need."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Prompt Flows orchestrate multi-step prompt sequences; they are not a cost-saving capacity option."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "ROUGE for summarization",
+    "q": "A team evaluates generated news summaries by measuring word overlap with human-written reference summaries. Which metric is conventionally used for this task?",
+    "options": {
+      "A": "BLEU",
+      "B": "Perplexity",
+      "C": "HumanEval",
+      "D": "ROUGE"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "ROUGE compares generated text to reference summaries via overlap, and is the standard automatic metric for summarization."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "BLEU is conventionally used for machine translation rather than summarization."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Perplexity measures fluency without a reference and says nothing about overlap with a reference summary."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "HumanEval is a code-generation benchmark that tests code against unit tests."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "BERTScore vs ROUGE/BLEU",
+    "q": "A QA bot gives answers that are correct but worded very differently from the reference answers, so ROUGE and BLEU scores look poor. Which metric better credits these correct paraphrases?",
+    "options": {
+      "A": "ROUGE-L",
+      "B": "BLEU",
+      "C": "BERTScore",
+      "D": "Perplexity"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "BERTScore compares meaning (semantic similarity), so a correctly reworded answer still scores well."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "ROUGE counts overlapping words, so paraphrases are penalized."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "BLEU also rewards exact n-gram overlap and penalizes valid rewording."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Perplexity measures how fluent or confident the model is, not whether an answer matches a reference."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Lower-is-better metrics",
+    "q": "Which TWO metrics improve as their values go DOWN? (Select TWO.)",
+    "options": {
+      "A": "BERTScore",
+      "B": "Toxicity score",
+      "C": "MMLU accuracy",
+      "D": "Perplexity"
+    },
+    "answer": [
+      "B",
+      "D"
+    ],
+    "why": [
+      "Toxicity scoring wants less harmful content, and perplexity wants a model less surprised by text, so lower is better for both."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "BERTScore measures semantic similarity, so higher is better."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "MMLU is an accuracy-style benchmark, so higher is better."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "MRR for single-answer lookups",
+    "q": "A FAQ bot's retriever is judged on how close to rank 1 the single correct passage appears. Each query has exactly one best answer. Which retrieval metric fits?",
+    "options": {
+      "A": "Mean Reciprocal Rank (MRR)",
+      "B": "Recall@k",
+      "C": "Mean Average Precision (MAP)",
+      "D": "Toxicity scoring"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "MRR rewards placing the first (only) relevant result as early as possible, ideal when each query has one best answer."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Recall@k only checks whether a relevant item is anywhere in the top k, ignoring rank within that window."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "MAP suits queries with multiple binary-relevant documents."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "This checks output safety and has nothing to do with retrieval ranking."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "NDCG for graded relevance",
+    "q": "An e-commerce search team labels results as perfect, good, or weak matches and wants the metric to reward putting the best matches highest. Which metric fits?",
+    "options": {
+      "A": "Recall@k",
+      "B": "MRR",
+      "C": "BLEU",
+      "D": "NDCG@k"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "NDCG handles graded relevance and rewards ranking highly relevant items higher."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "It treats relevance as present or absent in the top k and ignores order."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "It looks only at the rank of the first relevant result, not graded quality."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "BLEU compares generated text to references; it is not a retrieval ranking metric."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Contextual grounding checks",
+    "q": "A summarization app is given a source document, but its summaries sometimes include confident claims that appear nowhere in that document. Which Guardrails for Amazon Bedrock capability targets this?",
+    "options": {
+      "A": "Denied topics",
+      "B": "Contextual grounding checks",
+      "C": "Sensitive information filters",
+      "D": "Word filters"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Contextual grounding checks are the Guardrails capability designed to compare the model's answer against a supplied source to catch invented or contradicting claims."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Denied topics block whole subject areas and do not verify claims against a source."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "These detect and redact PII, not unsupported claims."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Word filters match fixed strings and cannot judge factual consistency."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Word filters vs denied topics",
+    "q": "A company needs its Bedrock assistant to block a short, fully known list of exact competitor names. Which Guardrails option matches fixed strings?",
+    "options": {
+      "A": "Denied topics",
+      "B": "Contextual grounding checks",
+      "C": "Word filters",
+      "D": "Sensitive information filters"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "A fixed list of exact strings is best handled by word filters, which are simple and fast."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "They match a whole subject semantically, which is heavier than needed for a known exact-string list."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "These check factual consistency against a source, not banned strings."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "These target PII such as names of people, SSNs and emails, not a competitor word list."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "What Guardrails does not do",
+    "q": "Which of the following is NOT something Guardrails for Amazon Bedrock does?",
+    "options": {
+      "A": "Retrieve company documents to ground the model's answers",
+      "B": "Block a defined subject area from being discussed",
+      "C": "Redact personally identifiable information",
+      "D": "Detect prompt-injection attempts"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Retrieval is the job of Knowledge Bases (RAG); Guardrails only filter content."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Denied topics do exactly this."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Sensitive information filters do this."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Content filters cover the prompt injection category."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Prompt injection mitigation",
+    "q": "A company wants to reduce prompt-injection attempts against its Bedrock chatbot. Which action is actually effective?",
+    "options": {
+      "A": "Set the temperature to 0 for every single request",
+      "B": "Lower top-k to a very small value for every request",
+      "C": "Increase the max tokens limit for all model responses",
+      "D": "Enable Guardrails content filters and isolate system instructions"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Content filters include a prompt-injection classifier, and keeping system instructions apart from user input limits override attempts."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Sampling randomness does not control whether the model follows malicious instructions."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Top-k narrows token choice and does nothing about instruction override."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "A longer response cap has no security effect."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "RAG chunking symptom",
+    "q": "A Knowledge Base returns relevant passages, but answers are correct yet incomplete, stopping mid-explanation because the full explanation spans two chunks. What is the best fix?",
+    "options": {
+      "A": "Fine-tune the foundation model",
+      "B": "Increase chunk size and add chunk overlap",
+      "C": "Lower the temperature",
+      "D": "Switch to provisioned throughput"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Small chunks split the answer across a boundary; larger chunks with overlap keep it together."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "The fault is in the retrieval half; changing the model's weights will not fix chunk boundaries."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Temperature affects randomness, not what text was retrieved."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Capacity does not alter how documents are split."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Hallucination despite RAG",
+    "q": "A RAG assistant states a policy detail that appears in none of the retrieved chunks. What should the team check FIRST?",
+    "options": {
+      "A": "Whether to continue pre-training the model on all documents",
+      "B": "Whether the temperature can be raised for more creative answers",
+      "C": "Whether any retrieved chunk actually covers the question",
+      "D": "Whether a larger embedding dimension fixes fluency"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "When retrieval returns thin or no relevant chunk, the model fills the gap from its own knowledge, so confirm a covering chunk exists."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "This is a heavy, expensive step, and the problem sits in retrieval."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Higher randomness would increase invented content."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Embedding size is unrelated to the model inventing unsupported text."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Hybrid search",
+    "q": "Users search a product Knowledge Base by exact SKU codes and part acronyms, but pure semantic vector search keeps missing them. Which capability helps most?",
+    "options": {
+      "A": "Hybrid search (vector plus keyword matching)",
+      "B": "Increasing the foundation model's max tokens",
+      "C": "Fine-tuning the foundation model on product descriptions",
+      "D": "Lowering the temperature"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Keyword matching catches exact terms such as SKU codes that semantic similarity can miss."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This lengthens the response and does not improve what is retrieved."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Retrieval failure lives before the model sees any text."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Temperature only affects generation randomness."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Reranking",
+    "q": "In a RAG system, the correct chunk is among the candidates retrieved but ranks below the chunks sent to the model, which are topically close but wrong. What fixes this?",
+    "options": {
+      "A": "Fine-tune the foundation model on the documents",
+      "B": "Increase the temperature of the generator",
+      "C": "Increase the max tokens limit for answers",
+      "D": "Add a reranking step that re-scores candidates"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "A cross-encoder reranker re-scores candidates for true relevance so the right chunk reaches the final top results."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "The right chunk never reached the model, so model changes cannot help."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Temperature does not influence which chunks are chosen."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "This only lengthens generation and does not reorder retrieval."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Embedding model mismatch",
+    "q": "A Knowledge Base for a specialized industry returns chunks that are unrelated to the user's question topic, because the embedding model does not understand the field's abbreviations. What is the right fix?",
+    "options": {
+      "A": "Add reranking only, keeping the same embeddings",
+      "B": "Use a better-suited embedding model and re-embed",
+      "C": "Increase chunk overlap between neighboring chunks",
+      "D": "Raise the number of results retrieved per query"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "If the embedding model misreads domain jargon, vectors are poor; swapping models requires re-embedding the documents."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Reranking reorders candidates, but if the candidates are unrelated, reordering cannot rescue them."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Overlap protects against split answers and does not repair poor semantic vectors."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "More results from a mismatched embedding space mostly adds more irrelevant text."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Reusing Kendra GenAI Index",
+    "q": "A company already runs an Amazon Kendra GenAI Index over its enterprise content and now wants a Bedrock Knowledge Base. Which approach avoids duplicate work?",
+    "options": {
+      "A": "Rebuild the same content in a new OpenSearch index",
+      "B": "Re-create the content in Aurora with pgvector",
+      "C": "Reuse the existing Kendra GenAI Index as the retriever",
+      "D": "Fine-tune a model on the content instead"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "A Knowledge Base can use an existing Kendra GenAI Index, avoiding a second index and embeddings pipeline."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "This duplicates an index that already exists and adds overhead."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Also duplicates work and needs an embeddings pipeline."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Fine-tuning changes weights on labeled data and is not a retrieval option."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Embedding model tiers",
+    "q": "A team is starting a RAG assistant over generic HR policy documents, with no evidence of retrieval quality problems. Which embedding approach should it try first?",
+    "options": {
+      "A": "A general-purpose embedding model such as Amazon Titan Text Embeddings",
+      "B": "A fine-tuned embedding model trained on its own query/passage pairs",
+      "C": "An embedding model trained from scratch",
+      "D": "A text-generation model used in place of an embedding model"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "General-purpose embeddings are the default: cheapest and fastest to ship, escalated only if retrieval problems trace to the embedding model."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Highest accuracy ceiling but highest cost; not a first step without evidence of a problem."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Expensive and unnecessary for generic documents."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Generation models produce text; they are not designed to produce retrieval vectors."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Action groups",
+    "q": "In an Agent for Amazon Bedrock, which component defines the APIs, often implemented with Lambda, that the agent can call to take actions?",
+    "options": {
+      "A": "Guardrail",
+      "B": "Knowledge Base data source",
+      "C": "Model evaluation job",
+      "D": "Action group"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Action groups hold the API definitions and the backing logic (often Lambda) the agent invokes."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A guardrail filters content; it does not define callable APIs."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A data source supplies documents for retrieval, not actions."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "An evaluation job scores model quality and has nothing to do with performing actions."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Prompt Flows vs Agents",
+    "q": "A team wants a visual builder where the output of one prompt feeds the next in a fixed, predefined sequence, with no dynamic decision on which tool to use. Which Bedrock feature fits?",
+    "options": {
+      "A": "Agents",
+      "B": "Prompt Flows",
+      "C": "Provisioned throughput",
+      "D": "Model access"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Prompt Flows chain prompts and components in a defined, visual sequence."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Agents plan dynamically and decide which APIs to call, which is more than a fixed sequence needs."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "This is a capacity option, not an orchestration tool."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "This simply enables a model for use."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Few-shot for format consistency",
+    "q": "Responses from a foundation model vary in structure from call to call. The team has no training data and wants a consistent layout without changing weights. Which technique fits?",
+    "options": {
+      "A": "Chain-of-thought prompting with reasoning steps",
+      "B": "Continued pre-training on unlabeled text",
+      "C": "Few-shot prompting with sample outputs",
+      "D": "Zero-shot prompting with no examples"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Showing a few examples of the desired layout guides the model's output format without any training."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "CoT encourages step-by-step reasoning, not a fixed layout."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This changes weights and needs a large unlabeled corpus."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Zero-shot supplies only an instruction, which does not enforce structure as well as examples."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Too little data for fine-tuning",
+    "q": "A team has only about 40 labeled examples for a new task and wants better results. Per typical guidance, which approach is the best fit?",
+    "options": {
+      "A": "Full fine-tuning",
+      "B": "Continued pre-training",
+      "C": "QLoRA fine-tuning",
+      "D": "Few-shot prompting or RAG"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Under roughly 50-100 examples, fine-tuning is usually not advised; few-shot prompting or RAG fit better."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Full fine-tuning typically needs thousands of examples and would overfit 40."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This needs millions to billions of unlabeled tokens."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Even QLoRA guidance starts around 100-500 examples, well above 40."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "QLoRA vs LoRA",
+    "q": "A team must fine-tune a large model but has only a single small GPU (about 16 GB). Which technique fits?",
+    "options": {
+      "A": "QLoRA",
+      "B": "Full fine-tuning",
+      "C": "LoRA on a full-precision base",
+      "D": "Instruction tuning"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "QLoRA trains small adapters on a 4-bit quantized base model, giving the lowest memory use."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Updates 100% of weights and demands the most GPU memory."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "LoRA is aimed at mid-size GPUs (about 24 GB+), more than this team has."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "It is a training objective, not a technique that reduces memory by itself."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Catastrophic forgetting",
+    "q": "After fine-tuning a model on a narrow dataset that was too small for its size, a team finds it lost much of its previously learned general capability. What is this called?",
+    "options": {
+      "A": "Prompt injection",
+      "B": "Catastrophic forgetting",
+      "C": "Underfitting",
+      "D": "Hallucination"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Fine-tuning can overwrite earlier learned abilities, especially when the data is too little or narrow."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "This is an attack on prompts, not a training side effect."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Underfitting means the model failed to learn the task patterns, not that it lost prior abilities."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "This is generation of unsupported content, not loss of capability from training."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Auto scaling flapping",
+    "q": "A SageMaker real-time endpoint scales out during a burst, scales back in within minutes, then has to scale out again repeatedly. Which setting should be lengthened?",
+    "options": {
+      "A": "The scale-out cooldown",
+      "B": "The max tokens parameter",
+      "C": "The scale-in cooldown",
+      "D": "The MaxCapacity value"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Flapping means capacity is removed too quickly; a longer scale-in cooldown keeps it in place."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Lengthening it slows reaction to bursts and does not stop premature scale-in."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This is a model inference setting, unrelated to endpoint scaling behavior."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A higher ceiling lets more instances exist but does not control how fast they are removed."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Conflicting scaling policies",
+    "q": "An endpoint's instance count scales out properly but never scales back down, even after traffic is near zero. Two target-tracking policies are attached. What is the likely cause?",
+    "options": {
+      "A": "Scale-in occurs only when every target-tracking policy allows it, and one is blocking it",
+      "B": "The scale-out cooldown is set too short on the policies",
+      "C": "The endpoint is billed with on-demand style pricing",
+      "D": "The model context window is too small for traffic"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "With multiple target-tracking policies, scale-in happens only when all of them are ready to scale in, so a single policy can block it indefinitely."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A short scale-out cooldown affects how fast capacity is added, not removal."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Pricing mode has no role in endpoint instance scaling."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Context window limits input size, not instance counts."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Scheduled scaling",
+    "q": "Traffic to a SageMaker endpoint peaks at the same time every weekday morning, and reactive scaling lags behind the surge. What should be added?",
+    "options": {
+      "A": "A shorter scale-in cooldown on the existing policy",
+      "B": "Fine-tuning the model on morning traffic patterns",
+      "C": "A larger chunk size for the retrieval index",
+      "D": "A scheduled scaling action that raises capacity before the window"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Predictable peaks are best handled proactively by raising capacity before they begin."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "This removes capacity faster and would worsen the peak."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Model weights do not influence instance scaling."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Chunking is a RAG ingestion setting, unrelated to endpoint capacity."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Weights-changing approaches",
+    "q": "Which TWO approaches modify a foundation model's weights? (Select TWO.)",
+    "options": {
+      "A": "Fine-tuning",
+      "B": "Few-shot prompting",
+      "C": "Continued pre-training",
+      "D": "Retrieval Augmented Generation"
+    },
+    "answer": [
+      "A",
+      "C"
+    ],
+    "why": [
+      "Fine-tuning (labeled data) and continued pre-training (unlabeled data) both further train the model, which changes its weights."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Few-shot prompting only places examples in the prompt, leaving the weights unchanged."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "RAG retrieves external data at query time and does not retrain the model."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Fixing context-length errors in RAG",
+    "q": "A RAG request fails with a context-length error because the system prompt, retrieved chunks and history are too large. Which TWO changes help? (Select TWO.)",
+    "options": {
+      "A": "Raise the temperature",
+      "B": "Retrieve fewer or smaller chunks",
+      "C": "Fine-tune the foundation model",
+      "D": "Trim older conversation history"
+    },
+    "answer": [
+      "B",
+      "D"
+    ],
+    "why": [
+      "Both shrink the total input so it fits in the model's context window."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Temperature changes randomness, not input size."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Fine-tuning does not enlarge the context window or shrink the inputs."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Choosing Guardrails rule types",
+    "q": "A Bedrock assistant must (1) block social security numbers in prompts and replies, and (2) refuse the entire subject of legal advice however a user phrases it. Which TWO Guardrails features are needed? (Select TWO.)",
+    "options": {
+      "A": "Contextual grounding checks",
+      "B": "Word filters",
+      "C": "Sensitive information filters",
+      "D": "Denied topics"
+    },
+    "answer": [
+      "C",
+      "D"
+    ],
+    "why": [
+      "Sensitive information filters handle PII like SSNs, and denied topics block a whole subject by meaning rather than exact wording."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Grounding checks verify claims against a source and neither detect PII nor block a subject."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Word filters match fixed strings, so they miss the many ways legal advice can be phrased."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "On-demand fit signals",
+    "q": "Which TWO factors favor Amazon Bedrock on-demand over provisioned throughput? (Select TWO.)",
+    "options": {
+      "A": "Steady, predictable high volume",
+      "B": "Low or unpredictable, spiky volume",
+      "C": "A fine-tuned custom model",
+      "D": "Wanting to pay per token processed rather than a flat hourly rate"
+    },
+    "answer": [
+      "B",
+      "D"
+    ],
+    "why": [
+      "On-demand is pay-per-token, which suits low or unpredictable traffic because nothing is paid while idle.",
+      "Provisioned throughput is billed hourly per model unit whether or not it is used."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Steady high volume justifies reserved capacity."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Custom models generally require provisioned throughput."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Knowledge Base sync",
+    "q": "A company uploads new policy PDFs to the S3 bucket behind its Bedrock Knowledge Base, but answers still reflect the old content. What is the simplest fix?",
+    "options": {
+      "A": "Fine-tune the foundation model on the PDFs",
+      "B": "Sync the data source to ingest the new files",
+      "C": "Purchase provisioned throughput",
+      "D": "Lower the temperature"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Knowledge Bases refresh when the data source is re-synced; no retraining is needed."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "RAG refreshes facts by re-ingesting, not by retraining."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "This adds capacity and does not update the indexed content."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Randomness settings do not make the index include new files."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Screen then judge",
+    "q": "A team has 12 candidate models and must judge tone and brand voice, a subjective criterion. Human review of all 12 is too slow and costly. What is the best strategy?",
+    "options": {
+      "A": "Use only automatic metrics to pick the winner outright",
+      "B": "Run human evaluation on all 12 models before any filtering",
+      "C": "Shortlist with automatic benchmarks, then human-judge the finalists",
+      "D": "Skip evaluation and rely on business metrics before any launch"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Automatic evaluation is cheap for broad screening; human judgment is reserved for the few finalists where subjective quality matters."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Automatic metrics cannot capture tone or brand voice well."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Meets the quality need but ignores the stated time and cost problem."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Business metrics only exist after real users interact with a deployed app."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Top-k vs top-p",
+    "q": "Which statement correctly distinguishes top-k from top-p?",
+    "options": {
+      "A": "Top-k sets the maximum response length, while top-p sets the context window size",
+      "B": "Top-p keeps a fixed number of tokens, while top-k uses a cumulative probability threshold",
+      "C": "Both parameters permanently change the model stored weights during each inference call",
+      "D": "Top-k keeps a fixed count of likeliest tokens; top-p keeps tokens up to a probability total"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Top-k is a count cutoff; top-p is a probability-mass cutoff that adapts to the distribution."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Response length is max tokens; context window is a model property."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This reverses the two definitions."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Inference parameters adjust sampling only and never change weights."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Merged vs unmerged adapters",
+    "q": "A team serves one fine-tuned task with a LoRA adapter and needs latency as close as possible to a fully fine-tuned model. What should it do?",
+    "options": {
+      "A": "Merge the adapter into the base model weights",
+      "B": "Keep the adapter unmerged on a shared base model",
+      "C": "Increase the temperature",
+      "D": "Switch to continued pre-training"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "A merged adapter serves at about the same latency as full fine-tuning, while unmerged adapters add overhead."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Unmerged adapters add a latency cost; sharing a base helps when many task adapters are served."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Temperature has no effect on serving latency."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "This is a heavier training method and does not reduce serving latency."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Gradual throttling",
+    "q": "ThrottlingException errors on a Bedrock provisioned workload rise gradually over several months as usage grows, not just during single spikes. What is the likely root cause?",
+    "options": {
+      "A": "The context window is too small for the incoming prompts",
+      "B": "Model units or quotas were sized once and no longer fit demand",
+      "C": "The max tokens setting is configured too high for the replies",
+      "D": "The embedding model is mismatched with the knowledge base"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Throttling that tracks gradual growth means the sized capacity needs to be resized for the new baseline."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A small context window causes validation errors for long inputs, not throttling that tracks traffic."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Max tokens bounds output length and does not explain growth-linked throttling."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Embedding mismatch affects retrieval relevance, not request throttling."
+      }
+    ]
+  },
+  {
+    "domain": 3,
+    "topic": "Instruction tuning",
+    "q": "Which statement about instruction tuning is correct?",
+    "options": {
+      "A": "A prompting technique that leaves the model weights unchanged",
+      "B": "Unsupervised training on large amounts of unlabeled text only",
+      "C": "A training objective on (instruction, response) pairs, used with fine-tuning",
+      "D": "A technique that replaces RAG for supplying current facts"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Instruction tuning trains on (instruction, response) pairs to teach general instruction following, and is applied with full fine-tuning or parameter-efficient methods such as LoRA."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "It trains the model, so weights change."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "It uses labeled instruction and response pairs."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "It improves instruction-following, not access to current data."
+      }
+    ]
+  }
+]

@@ -1,0 +1,1023 @@
+[
+  {
+    "domain": 4,
+    "topic": "Clarify vs Guardrails scope",
+    "q": "A team wants to check whether the labels in a raw loan-history CSV already favor one gender, before any model is trained. Which tool and metric family fits?",
+    "options": {
+      "A": "SageMaker Clarify post-training metric disparate impact",
+      "B": "Amazon A2I with a private workforce",
+      "C": "SageMaker Clarify pre-training metrics such as DPL",
+      "D": "Guardrails for Amazon Bedrock denied topics"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "No model exists yet, so only dataset-level (pre-training) metrics apply. Difference in proportions of labels (DPL) compares positive-label rates across groups in the data."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Disparate impact is a post-training metric that needs a trained model's predictions."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A2I routes individual low-confidence predictions to human reviewers; it does not measure dataset bias."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Guardrails filters live foundation-model input and output; it does not analyze a training dataset."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Proxy variable bias",
+    "q": "A credit model never uses race as a feature, yet it denies one racial group more often. Investigation shows ZIP code acts as a stand-in for race. Which bias type is this, and what is the direct fix?",
+    "options": {
+      "A": "Historical bias; retrain on more recent data samples",
+      "B": "Measurement bias; drop or transform the proxy feature",
+      "C": "Sampling bias; collect a larger random sample of applicants",
+      "D": "Aggregation bias; train a separate model per ZIP code"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "A feature that correlates with a protected characteristic is a proxy, which is measurement bias. Removing or transforming that feature addresses it directly."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Historical bias reflects an inequitable real world; newer data does not remove a proxy feature."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Sampling bias is about the data not representing the population; the stem names a proxy feature instead."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Aggregation bias is one model applied to groups needing distinct treatment, and splitting by ZIP would keep the proxy."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Model Card vs AI Service Card",
+    "q": "A compliance officer needs to understand the intended uses and limitations of Amazon Rekognition, an AWS-managed service, before approving it. Where should the team look first?",
+    "options": {
+      "A": "Run SageMaker Clarify against the Rekognition service",
+      "B": "Create a new SageMaker Model Card for Rekognition",
+      "C": "Read the AWS AI Service Card for Rekognition",
+      "D": "Configure a Guardrails for Amazon Bedrock policy"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "AI Service Cards are published by AWS to document its managed AI services, and customers read them."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Clarify analyzes datasets and models you train; you cannot point it at an AWS-managed service's internals."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Model Cards document a model you built yourself, not an AWS-managed service."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Guardrails filters Bedrock foundation-model traffic and does not document a service."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "A2I threshold",
+    "q": "A claims-processing model sends predictions below 85% confidence to human reviewers using Amazon A2I. Later the team edits the routing code to use 90% but forgets the A2I flow definition. What is the risk?",
+    "options": {
+      "A": "Human loops trigger at a threshold different from the routing code",
+      "B": "Clarify will block the endpoint until the two thresholds match again",
+      "C": "A2I will automatically switch the review work to a public workforce",
+      "D": "The worker task template will fail to render for the reviewers"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "The flow definition holds the activation condition, and it should use the same threshold as the routing logic. If they drift, the human loop fires at different confidence levels than intended."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Clarify does not govern A2I routing or block endpoints."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Workforce type is configured separately; a threshold mismatch does not change it."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "The task template defines the reviewer UI and is unrelated to the activation condition."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Private workforce for PHI",
+    "q": "A hospital uses Amazon A2I to review model predictions whose review screens show patient health records. Which workforce choice is appropriate?",
+    "options": {
+      "A": "A public workforce with Guardrails word filters",
+      "B": "A private workforce managed through Amazon Cognito",
+      "C": "Public Amazon Mechanical Turk workforce for lowest cost",
+      "D": "No workforce, since A2I only supports automated review"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Review tasks that expose regulated data such as PHI need a private workforce, set up through Amazon Cognito."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Word filters belong to Bedrock Guardrails and do not make a public workforce safe for PHI."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Mechanical Turk is a public crowd and is not suitable when regulated data is shown."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A2I exists to add human review; automated-only is the opposite of its purpose."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Interpretability vs latency",
+    "q": "A bank needs an explanation for every credit decision, and each decision must return in a few milliseconds. The explanation must reflect the model's actual decision logic. Which approach fits?",
+    "options": {
+      "A": "A larger foundation model behind Guardrails content filters",
+      "B": "A natively interpretable model such as logistic regression",
+      "C": "A deep ensemble with synchronous SHAP on every request",
+      "D": "A deep neural network with a detailed Model Card attached"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "A natively interpretable model's logic is the explanation, so it adds no inference compute and reflects actual logic. Post-hoc SHAP is an approximation and adds per-request cost."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Guardrails filters content safety; it provides no per-decision explanation."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "SHAP is an approximation, not actual decision logic, and adds latency when run per request."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A Model Card documents a model overall but does not explain individual decisions."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Explainability vs transparency",
+    "q": "Which scenario describes TRANSPARENCY rather than explainability?",
+    "options": {
+      "A": "Publishing documentation on how the system was built",
+      "B": "Telling a customer why their specific claim was denied",
+      "C": "Computing SHAP values for one individual prediction",
+      "D": "Showing which features pushed one applicant's score down"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Transparency is about documenting the whole system: how it was built, trained and what it cannot do. Explaining one prediction is explainability."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Explaining one specific decision to a customer is explainability."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "SHAP values for a single prediction are explainability."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Feature influence on one score is per-prediction explainability."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Contextual grounding check",
+    "q": "A Bedrock RAG assistant sometimes adds claims that are not in the retrieved policy documents. Which Guardrails capability directly targets this?",
+    "options": {
+      "A": "Word filters with a custom blocklist",
+      "B": "Sensitive information filters",
+      "C": "Contextual grounding checks",
+      "D": "Denied topics for off-limits subjects"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Contextual grounding checks verify a response is supported by the source content, reducing hallucination."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Word filters block specific words or phrases, not ungrounded statements."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Sensitive information filters handle PII, not factual grounding."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Denied topics block subjects the model should not discuss, not unsupported claims."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Word filter vs denied topic",
+    "q": "A company wants its Bedrock chatbot to never output the name of a specific competitor, but it may discuss the competing industry in general. Which Guardrails feature is the narrowest fit?",
+    "options": {
+      "A": "Content filters set to high",
+      "B": "Word filters",
+      "C": "Denied topics for the whole industry",
+      "D": "Contextual grounding checks"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Word filters block specific words or phrases such as competitor names, without blocking a whole subject."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Content filters cover harmful categories like hate or violence, not competitor names."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "A denied topic would block discussion of the whole industry, which is more than required."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Grounding checks compare answers to source text; they do not block names."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Prompt attack filter",
+    "q": "Users keep typing instructions such as 'ignore all previous rules' to bypass a Bedrock assistant's behavior. Which Guardrails capability addresses this?",
+    "options": {
+      "A": "Word filters with a custom profanity list",
+      "B": "Contextual grounding checks on responses",
+      "C": "Content filters using prompt attack detection",
+      "D": "Sensitive information filters for PII masking"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Content filters include a prompt attack category that detects attempts to override the model's instructions."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Profanity word filters only catch listed words, not instruction-override phrasing."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Grounding checks verify answers against sources, not user instructions."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Sensitive information filters detect PII, not jailbreak attempts."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "IP risk mitigation",
+    "q": "A legal team worries that generated content might resemble copyrighted training material and expose the company to liability. Which choice addresses the legal exposure itself?",
+    "options": {
+      "A": "Enable Guardrails sensitive information filters on outputs",
+      "B": "Run SageMaker Clarify bias analysis on every prompt",
+      "C": "Add Amazon A2I human review to every generated output",
+      "D": "Choose a model provider that offers IP indemnification"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "IP indemnification is a contractual protection that shifts infringement legal risk away from the customer."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Sensitive information filters handle PII, not copyright liability."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Clarify measures bias and explainability, not copyright."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Human review might catch some content but does not transfer legal liability."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Macie vs Guardrails PII",
+    "q": "A company wants to discover which Amazon S3 buckets contain stored personal data before using the files as training data. Which service fits?",
+    "options": {
+      "A": "Amazon A2I",
+      "B": "Guardrails for Amazon Bedrock",
+      "C": "SageMaker Model Cards",
+      "D": "Amazon Macie"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Macie discovers and classifies sensitive data, including PII, stored in S3."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A2I provides human review of predictions, not data discovery."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Guardrails redacts PII in live prompts and responses, not stored buckets."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Model Cards document models and do not scan data."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Environmental impact",
+    "q": "Which action is the MOST direct way to reduce the environmental footprint of adding generative AI to an application?",
+    "options": {
+      "A": "Add Guardrails content filters to every request",
+      "B": "Reuse a pretrained foundation model with prompting or RAG",
+      "C": "Publish an AI Service Card for the application",
+      "D": "Train a new foundation model from scratch for exclusivity"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Reusing a pretrained model avoids the large compute and energy cost of training from scratch."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Content filters address safety, not energy use."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "An AI Service Card is documentation and does not change energy use."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Training from scratch consumes the most compute and energy."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Bias vs variance (responsible AI)",
+    "q": "A colleague says 'our model has high variance, so it is biased against women.' What is wrong with this statement?",
+    "options": {
+      "A": "Variance measures dataset size, which is unrelated to fairness",
+      "B": "Nothing; high variance is a recognized type of fairness bias",
+      "C": "Bias and variance are two names for one fairness measurement",
+      "D": "Variance describes sensitivity to training data, not unfair treatment"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Variance is a model-sensitivity concept (overfitting). Fairness bias is about inequitable treatment of groups, so the two should not be conflated."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Variance is not a measure of dataset size."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "High variance does not by itself imply unfair treatment of any group."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Bias (unfair outcomes for groups) and variance (sensitivity to training data) are different concepts, not synonyms."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Representativeness bias",
+    "q": "A model passes a Clarify fairness report with no gaps across gender and age groups. Yet it performs poorly for customers in one new region that is nearly absent from training data. What explains the clean report?",
+    "options": {
+      "A": "Representativeness bias; the region was never a facet",
+      "B": "Clarify only supports age and gender attributes by design",
+      "C": "Historical bias inside the fairness metric calculations",
+      "D": "Label bias from annotators who work in that region"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "When a whole segment is thin in the data and no group label exists for it, group-based fairness metrics cannot reveal it. Check per-segment coverage and accuracy separately."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Clarify works on facets you specify; the gap is that no region facet or coverage was checked."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Historical bias is about an inequitable real world reflected in data, not a missing segment."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Nothing in the stem points to annotator labeling issues."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Aggregation bias",
+    "q": "A health model uses one set of thresholds for every patient, but diabetes markers behave differently across ethnic groups, causing worse accuracy for some. Which bias is this?",
+    "options": {
+      "A": "Aggregation bias in the model design",
+      "B": "Sampling bias in the patient data",
+      "C": "Exclusion bias in the feature set",
+      "D": "Label bias in the clinical labels"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Aggregation bias is applying one model uniformly to groups that need distinct treatment."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Sampling bias is about the data not representing the population; the stem is about uniform treatment."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Exclusion bias means relevant features or data were dropped, which is not described."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Label bias comes from annotators, and none are mentioned."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Healthcare metric choice",
+    "q": "A hospital wants to check whether its trained triage model misses disease more often in one demographic group. Which Clarify post-training metric is the best match?",
+    "options": {
+      "A": "Class imbalance",
+      "B": "Accuracy or recall difference",
+      "C": "Contextual grounding score",
+      "D": "Difference in proportions of labels"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Accuracy and recall difference compares how well the trained model performs across groups, which is what healthcare triage needs."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Class imbalance is a pre-training dataset metric."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Grounding checks belong to Guardrails and apply to generative output."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "DPL is a pre-training dataset label metric."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Fairness vs accuracy trade-off",
+    "q": "A team improves fairness for a hiring model by adjusting decision thresholds per group after training, losing a little overall accuracy. Which fairness-mitigation stage is this?",
+    "options": {
+      "A": "Post-processing after model training",
+      "B": "In-processing during model training",
+      "C": "Data labeling before model training",
+      "D": "Pre-processing before model training"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Adjusting thresholds after the model is trained is post-processing threshold calibration."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "In-processing adds fairness constraints during training."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Labeling is data preparation and does not adjust thresholds."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Pre-processing changes the data, such as rebalancing, before training."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "When to favor interpretability",
+    "q": "For which use case is accepting lower accuracy in exchange for interpretability MOST justified?",
+    "options": {
+      "A": "Spam filtering for a personal email inbox",
+      "B": "Tagging holiday photos in a photo album",
+      "C": "Loan approvals under regulatory review",
+      "D": "Ranking music playlists for daily listening"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "High-stakes regulated decisions such as credit require explanations, so interpretability can outweigh a small accuracy gain."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Spam errors are low-stakes and easily corrected."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Photo tagging is low-stakes and unregulated."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Playlist ranking is low-stakes and has no explanation requirement."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Ground Truth purpose",
+    "q": "A team needs thousands of images labeled by human annotators to train a classifier, and wants consistent labeling workflows. Which service fits?",
+    "options": {
+      "A": "Guardrails for Amazon Bedrock",
+      "B": "Amazon SageMaker Clarify",
+      "C": "Amazon SageMaker Ground Truth",
+      "D": "Amazon SageMaker Model Cards"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "SageMaker Ground Truth manages human data labeling for training datasets."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Guardrails filters live foundation-model traffic."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Clarify detects bias and explains predictions; it does not label data."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Model Cards document models, not label data."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Clarify scope on FMs",
+    "q": "Which statement about SageMaker Clarify and Guardrails for Amazon Bedrock is correct?",
+    "options": {
+      "A": "Clarify covers datasets and models; Guardrails filters live FM traffic",
+      "B": "Clarify filters and blocks harmful live foundation-model responses",
+      "C": "Guardrails computes SHAP feature attributions for tabular models",
+      "D": "Both tools only analyze data before a model is deployed"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Clarify handles bias and explainability for datasets and trained models; Guardrails applies runtime safety and privacy filters on foundation-model traffic."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Live output filtering is Guardrails' job."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "SHAP explainability belongs to Clarify."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Guardrails works at inference time, not on training data."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Mixed pipeline monitoring",
+    "q": "A system has a tabular approval model plus a Bedrock assistant that writes the customer letter. How should responsible AI tooling be assigned?",
+    "options": {
+      "A": "Only Clarify on both, reported as one blended metric",
+      "B": "Guardrails on the tabular model and Clarify on the assistant",
+      "C": "Only Model Cards for both, with no runtime tooling or monitoring",
+      "D": "Clarify on the tabular model, Guardrails on the assistant"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Clarify fits the structured model's bias and explainability, and Guardrails fits the generative component, each monitored independently."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Clarify does not filter live FM output, and blended metrics hide per-component problems."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This reverses the tools' scopes."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "A Model Card is documentation and does not provide runtime protection."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Bias drift monitoring",
+    "q": "After deployment, a team wants alerts if a model's disparate impact worsens over months. Which pairing supports this?",
+    "options": {
+      "A": "Mechanical Turk together with Cognito",
+      "B": "Amazon Macie together with Ground Truth",
+      "C": "AI Service Cards together with Guardrails",
+      "D": "Model Monitor together with Clarify"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Clarify integrates with SageMaker Model Monitor to track bias drift on a deployed endpoint."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "These are workforce and identity pieces, not monitoring."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Macie finds sensitive data in S3 and Ground Truth labels data; neither tracks bias drift."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "AI Service Cards are static documentation and Guardrails filters content."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Controllability dimension",
+    "q": "Which design BEST demonstrates the controllability dimension of responsible AI?",
+    "options": {
+      "A": "Using SHAP values to describe feature influence on each prediction",
+      "B": "Removing a proxy feature from the training dataset",
+      "C": "Publishing a card describing training data sources",
+      "D": "Letting a human reviewer override low-confidence predictions"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Controllability means a human can monitor, override or stop the system, which A2I human review enables."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "SHAP supports explainability."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Removing a proxy feature supports fairness."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Documentation of training data supports transparency."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Safety dimension select two",
+    "q": "A company deploys a customer-facing Bedrock assistant and must stop it from producing hateful or offensive text. Which TWO Guardrails features directly block that kind of output? (Select TWO.)",
+    "options": {
+      "A": "Content filters for hate, insults and violence",
+      "B": "Word filters that block profanity",
+      "C": "Contextual grounding checks against source documents",
+      "D": "Sensitive information filters that mask account numbers"
+    },
+    "answer": [
+      "A",
+      "B"
+    ],
+    "why": [
+      "Content filters block harmful categories such as hate, insults and violence, and word filters block listed offensive words or phrases. Both stop harmful text at runtime, which is the safety dimension."
+    ],
+    "others": [
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Grounding checks verify answers against source content, which targets made-up facts rather than offensive text."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Sensitive information filters detect and mask personal data, which is a privacy control rather than a harmful-language control."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Model Card contents select two",
+    "q": "A team is filling in a SageMaker Model Card for its own custom model. Which TWO items belong in it? (Select TWO.)",
+    "options": {
+      "A": "A public Mechanical Turk workforce definition",
+      "B": "A runtime filter that redacts PII from prompts",
+      "C": "Evaluation metrics and training data description",
+      "D": "Intended use and known limitations"
+    },
+    "answer": [
+      "C",
+      "D"
+    ],
+    "why": [
+      "A Model Card is structured documentation of a model you built: intended use, limitations, training data and evaluation results."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Workforce definitions belong to labeling or A2I setup, not model documentation."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "PII redaction at runtime is a Guardrails configuration, not Model Card content."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Pre-training metrics select two",
+    "q": "A team has only a dataset and no trained model yet. Which TWO Clarify metrics can they compute? (Select TWO.)",
+    "options": {
+      "A": "Disparate impact",
+      "B": "Class imbalance",
+      "C": "Accuracy difference",
+      "D": "Difference in proportions of labels"
+    },
+    "answer": [
+      "B",
+      "D"
+    ],
+    "why": [
+      "Class imbalance and DPL are computed on the raw dataset before training."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Disparate impact needs a trained model's predictions."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Accuracy difference compares a trained model's performance across groups."
+      }
+    ]
+  },
+  {
+    "domain": 4,
+    "topic": "Not a Guardrails capability",
+    "q": "Which of the following is NOT a capability of Guardrails for Amazon Bedrock?",
+    "options": {
+      "A": "Denied topics that block restricted subjects",
+      "B": "Contextual grounding checks on responses",
+      "C": "Word filters for custom blocked phrases",
+      "D": "Generating SHAP feature attributions"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "SHAP attributions come from SageMaker Clarify. Guardrails filters foundation-model input and output at runtime."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Denied topics is a real Guardrails capability."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Contextual grounding checks are a real Guardrails capability."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Word filters are a real Guardrails capability."
+      }
+    ]
+  }
+]

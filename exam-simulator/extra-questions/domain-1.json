@@ -1,0 +1,1166 @@
+[
+  {
+    "domain": 1,
+    "topic": "Accuracy on imbalanced data",
+    "q": "A factory inspects 1,000 parts, of which 10 are defective. A model labels every part as good. What are its accuracy and recall for the defective class?",
+    "options": {
+      "A": "Accuracy 50%, recall 50%",
+      "B": "Accuracy 99%, recall 100%",
+      "C": "Accuracy 1%, recall 0%",
+      "D": "Accuracy 99%, recall 0%"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "All 990 good parts are right, so accuracy is 99%, but none of the 10 defective parts are caught, so recall is 0%. This is why accuracy misleads when one class is rare."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Nothing in the stem gives 50%; accuracy is the share of all predictions that are correct."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Recall would be 100% only if every defective part were found, but the model flags none."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Accuracy is 99%, not 1%; the model is right on every good part."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Threshold effect on precision and recall",
+    "q": "A team raises the classification threshold of a spam model from 0.5 to 0.9, so an email must be very likely spam before it is flagged. What is the most likely effect?",
+    "options": {
+      "A": "Both precision and recall increase",
+      "B": "Precision decreases and recall increases",
+      "C": "Precision increases and recall decreases",
+      "D": "Both precision and recall stay the same"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "A stricter threshold flags fewer emails, so fewer false alarms (precision up) but more real spam slips through (recall down)."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Flagging fewer items cannot raise recall; it misses more positives."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "This is the effect of lowering the threshold, not raising it."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Changing the threshold shifts the balance between false positives and false negatives."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Unsupervised anomaly detection",
+    "q": "A team has years of sensor readings with no records marking which readings were faults. They want to flag unusual readings automatically using SageMaker Random Cut Forest. Which type of learning is this?",
+    "options": {
+      "A": "Supervised learning, because the model predicts a fault",
+      "B": "Unsupervised learning, because there is no target label",
+      "C": "Reinforcement learning, because the model improves over time",
+      "D": "Semi-supervised learning, because some readings are normal"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "With no labels or target column, the algorithm finds structure on its own, which is unsupervised learning. Random Cut Forest is the guide's example of unsupervised anomaly detection."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Supervised learning needs a labeled target such as past fault flags, which do not exist here."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Reinforcement learning needs an agent, actions and rewards, none of which appear."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Semi-supervised needs a small labeled subset; here nothing is labeled."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Semi-supervised learning",
+    "q": "A company has 2 million support emails but only 800 are labeled with a category, because labeling is expensive. They want to train a classifier that uses both the labeled and the unlabeled emails. Which approach fits?",
+    "options": {
+      "A": "Semi-supervised learning",
+      "B": "Unsupervised clustering only",
+      "C": "Reinforcement learning",
+      "D": "Fully supervised learning on all 2 million emails"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Semi-supervised learning combines a small labeled set with a large unlabeled pool, which matches the stem."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Clustering ignores the 800 labels, so it cannot learn the known categories."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "There is no agent taking actions to earn rewards."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Only 800 emails have labels, so fully supervised training cannot use the rest."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Managed Spot Training without checkpoints",
+    "q": "A team trains a model using SageMaker Managed Spot Training but does not configure checkpointing to Amazon S3. The training instance is reclaimed after the job reached 80% progress. What happens?",
+    "options": {
+      "A": "The job resumes automatically from 80%",
+      "B": "The job restarts from 0%",
+      "C": "The job switches to On-Demand and continues from 80%",
+      "D": "The job is marked complete with the partial model"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Without periodic checkpoints saved to S3, there is nothing to resume from, so an interrupted Spot job starts over from the beginning."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Resuming mid-job requires a saved checkpoint, which was not configured."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Spot does not silently switch to On-Demand pricing or recover lost progress."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "An interrupted job is not treated as finished; the partial work is just lost."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Spot vs On-Demand training",
+    "q": "A model's drift alarm fires and a compliance rule says the retrained model must be deployed within a fixed 4-hour window. Which training capacity is the safest choice?",
+    "options": {
+      "A": "On-Demand training, because it is never interrupted",
+      "B": "Managed Spot Training, because it is the cheapest",
+      "C": "Managed Spot Training with checkpointing to Amazon S3",
+      "D": "Waiting for spare capacity to free up"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "A hard deadline cannot tolerate reclaimed capacity, so full-price On-Demand is correct. Spot suits routine, deadline-flexible retraining."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Low cost does not help when an interruption could miss the fixed deadline."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Checkpointing reduces lost work, but the job can still be delayed while waiting for reclaimed capacity."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Waiting offers no time guarantee, which the compliance rule requires."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Shadow deployment",
+    "q": "Before replacing a production model, a team wants to see how the new version predicts on real live traffic while guaranteeing no user ever receives its output. Which strategy fits?",
+    "options": {
+      "A": "Canary deployment",
+      "B": "Blue/green deployment",
+      "C": "Shadow deployment",
+      "D": "A/B testing"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Shadow deployment sends a copy of live requests to the new model, and its predictions never reach users, so there is zero user-facing risk."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A canary serves real responses from the new model to a small share of users."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Blue/green switches real traffic to the new fleet, so users see its output."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A/B testing serves different versions to real users to compare outcomes."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "A/B testing models",
+    "q": "A retailer wants to know whether a new recommendation model produces higher click-through than the current one, measured on real shoppers over two weeks. Which deployment pattern fits?",
+    "options": {
+      "A": "Shadow deployment",
+      "B": "A/B testing",
+      "C": "Blue/green deployment",
+      "D": "Batch transform"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "A/B testing deliberately splits live traffic between versions so their real-world results can be compared."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Shadow predictions are never shown to shoppers, so clicks cannot be measured."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Blue/green is a safe all-at-once cutover, not a comparison of two versions."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Batch transform is offline scoring, not a way to compare live user behavior."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Model Registry approval gate",
+    "q": "A regulated team wants every trained model version cataloged with its evaluation metrics, and wants a reviewer to approve or reject each version before it can be deployed. Which SageMaker capability fits?",
+    "options": {
+      "A": "SageMaker Model Monitor",
+      "B": "SageMaker Model Registry",
+      "C": "SageMaker Model Cards",
+      "D": "SageMaker Feature Store"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Model Registry catalogs versions with metrics and lineage and provides an approve/reject gate before deployment."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Model Monitor watches a deployed endpoint for drift, not versions awaiting approval."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Model Cards document a model's purpose and risks; they are not a deployment gate."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Feature Store holds input features, not model versions."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Autopilot limits (Select TWO)",
+    "q": "A team is evaluating SageMaker Autopilot for a tabular dataset. Which TWO requirements would rule Autopilot out in favor of manual SageMaker training? (Select TWO.)",
+    "options": {
+      "A": "The model needs a custom loss function tailored to the business problem",
+      "B": "The team wants a fast baseline to see what accuracy is achievable on the dataset",
+      "C": "The problem is a standard tabular regression with a numeric target column",
+      "D": "The model requires a novel neural network architecture"
+    },
+    "answer": [
+      "A",
+      "D"
+    ],
+    "why": [
+      "Autopilot only tries its own built-in algorithms and generic feature steps, so a custom loss function or a novel architecture needs manual training."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A fast baseline is exactly what Autopilot is good for."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Standard tabular classification or regression is Autopilot's sweet spot."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Weak supervision",
+    "q": "A team needs to label 5 million support tickets quickly and cheaply. Domain experts can write keyword and pattern rules such as 'refund' implies Billing, but the rules are imprecise. Which approach best fits?",
+    "options": {
+      "A": "Weak supervision",
+      "B": "Manual labeling by the in-house team",
+      "C": "SageMaker Data Wrangler",
+      "D": "Synthetic data generation"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Weak supervision combines many noisy, expert-written rules into probabilistic labels at scale, which matches 'experts can express rules'."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Hand-labeling 5 million tickets is slow and costly; it suits tiny datasets."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Data Wrangler prepares data that is already labeled; it does not create labels."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Synthetic data creates artificial examples; the tickets already exist."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Synthetic data for rare classes",
+    "q": "A manufacturer has thousands of photos of normal parts but only a handful of photos of a rare, costly defect. They need more examples of the defect to train a classifier. Which approach best addresses this?",
+    "options": {
+      "A": "Label more normal photos with SageMaker Ground Truth",
+      "B": "Use SageMaker Data Wrangler to clean the photos",
+      "C": "Generate synthetic defect examples",
+      "D": "Raise the classification threshold"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "The problem is scarcity of a rare class, so synthetic data generation creates additional artificial examples of it."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Labeling more normal photos adds no defect examples."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Data Wrangler prepares existing data; it cannot create missing examples."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A threshold changes predictions, not the shortage of training data."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Ground Truth vs Data Wrangler",
+    "q": "A team has 300,000 images that are already labeled but contain inconsistent sizes and formats. They need to transform them into training-ready features. Which SageMaker capability fits?",
+    "options": {
+      "A": "Amazon SageMaker Ground Truth",
+      "B": "Amazon SageMaker Model Monitor",
+      "C": "Amazon SageMaker Clarify",
+      "D": "Amazon SageMaker Data Wrangler"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "The data is already labeled and just needs preparation, which is Data Wrangler's job."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Ground Truth creates labels; labels already exist here."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Model Monitor watches deployed models, not training data prep."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Clarify measures bias and explainability, not formatting."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Bagging and boosting (Select TWO)",
+    "q": "Which TWO statements about ensemble methods are correct? (Select TWO.)",
+    "options": {
+      "A": "Boosting trains models sequentially, each correcting its predecessor's errors",
+      "B": "Bagging trains models one after another, each one fixing its predecessor's errors",
+      "C": "Bagging trains models in parallel on bootstrap samples to reduce variance",
+      "D": "Voting requires every model in the ensemble to use the same algorithm"
+    },
+    "answer": [
+      "A",
+      "C"
+    ],
+    "why": [
+      "Boosting is sequential and mainly reduces bias; bagging is parallel on bootstrap samples and mainly reduces variance."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Sequential error-fixing describes boosting, not bagging."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Voting combines different model types, such as logistic regression plus a decision tree."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Overfitting symptoms",
+    "q": "A model that classifies medical images scores 99% on training data and 70% on unseen test data. Which statement best describes this?",
+    "options": {
+      "A": "Overfitting: the model memorized the training images and generalizes poorly",
+      "B": "Underfitting: the model is too simple to learn patterns in the images",
+      "C": "Healthy fit: a gap between training and test scores is normal",
+      "D": "High bias: the fix is to train fewer epochs on the same data"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "A very high training score with a much lower test score means the model memorized the training data instead of learning general patterns. That is overfitting."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Underfitting shows up as poor scores on both training and test data, not a big gap."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "A small gap is normal, but 29 points is a large generalization failure."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "High bias goes with underfitting, and this pattern is high variance."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Failed evaluation loop-back",
+    "q": "In the ML lifecycle, a candidate model fails the evaluation decision gate. Where does the workflow normally return?",
+    "options": {
+      "A": "Business goal identification",
+      "B": "Data preparation and feature engineering",
+      "C": "Deployment",
+      "D": "Monitoring"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "A failed evaluation loops back to data preparation / feature engineering to improve the inputs, then training is repeated."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "The business goal is not revisited just because one model underperforms."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "A model that failed evaluation must not be deployed."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Monitoring comes after deployment, which has not happened."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Model Cards vs Model Monitor",
+    "q": "A governance team wants a standard document recording each model's intended use, training data summary and known limitations. Which SageMaker capability fits?",
+    "options": {
+      "A": "SageMaker Model Cards",
+      "B": "SageMaker Model Monitor",
+      "C": "SageMaker Model Registry",
+      "D": "SageMaker Autopilot"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Model Cards are documentation for a model's purpose, risks and details."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Model Monitor tracks drift on a live endpoint; it does not document purpose."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Registry versions and approves models rather than describing intended use."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Autopilot automates model building, not documentation."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Serverless inference",
+    "q": "A model receives small requests only a few times per day at unpredictable moments. Each request finishes in seconds and the caller waits for the response, and a short cold-start delay after idle periods is acceptable. The team wants to avoid paying for an always-on endpoint. Which option fits?",
+    "options": {
+      "A": "Real-time inference on a persistent endpoint",
+      "B": "Batch transform",
+      "C": "Asynchronous inference",
+      "D": "Serverless inference"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Serverless inference scales to zero when idle and suits intermittent traffic, accepting cold starts."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A persistent endpoint is billed while running, even when idle."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Batch transform scores a large dataset offline, not individual live requests."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Asynchronous inference is for large payloads and long processing, not sparse small requests."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Batch transform",
+    "q": "Every night a company must score 50 million customer records for churn risk. Nobody waits on any single result, and results are read the next morning. Which inference option fits best?",
+    "options": {
+      "A": "Real-time inference",
+      "B": "Batch transform",
+      "C": "Serverless inference",
+      "D": "Asynchronous inference"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "A large offline job with no live requester is the batch inference pattern, using SageMaker batch transform."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A persistent low-latency endpoint is overkill when nobody waits on results."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Serverless inference handles intermittent live requests, not a huge offline dataset."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Asynchronous inference queues individual large requests, not a nightly bulk job."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Transcribe plus Comprehend (Select TWO)",
+    "q": "A company records customer calls and wants to convert the audio to text and then find the sentiment of what was said, without building custom models. Which TWO services should it use? (Select TWO.)",
+    "options": {
+      "A": "Amazon Transcribe",
+      "B": "Amazon Polly",
+      "C": "Amazon Comprehend",
+      "D": "Amazon Textract"
+    },
+    "answer": [
+      "A",
+      "C"
+    ],
+    "why": [
+      "Transcribe converts speech to text, and Comprehend then analyzes the text for sentiment."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Polly does the reverse, turning text into speech."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Textract extracts text from scanned documents, not audio."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Polly for text-to-speech",
+    "q": "A news site wants to offer an audio version of each written article using lifelike voices, with no model training. Which service fits?",
+    "options": {
+      "A": "Amazon Transcribe",
+      "B": "Amazon Translate",
+      "C": "Amazon Comprehend",
+      "D": "Amazon Polly"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Polly converts written text into lifelike speech."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Transcribe goes the opposite way, from speech to text."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Translate changes the language of text; it produces no audio."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Comprehend analyzes text for sentiment and entities; it produces no audio."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Amazon Translate",
+    "q": "An e-commerce company must show product descriptions in 12 languages and wants the text translated automatically with no custom model. Which service fits?",
+    "options": {
+      "A": "Amazon Translate",
+      "B": "Amazon Comprehend",
+      "C": "Amazon Polly",
+      "D": "Amazon Lex"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Translate is the managed machine-translation service for converting text between languages."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Comprehend analyzes text meaning; it does not translate."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Polly speaks text aloud; it does not translate."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Lex builds chatbots, not translated catalogs."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Rekognition for moderation",
+    "q": "A photo-sharing app wants to automatically detect inappropriate content in user-uploaded images without training its own model. Which service fits?",
+    "options": {
+      "A": "Amazon Textract",
+      "B": "Amazon Rekognition",
+      "C": "Amazon Comprehend",
+      "D": "Amazon Personalize"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Rekognition analyzes images and video, including content moderation."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Textract extracts text and form data from documents, not moderating photos."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Comprehend analyzes written text, not images."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Personalize produces recommendations, not image analysis."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Custom model needs SageMaker",
+    "q": "A team has strong ML expertise and must train a model with a novel architecture and full control over the training code, on data no purpose-built AI service handles. Which choice fits?",
+    "options": {
+      "A": "Amazon Personalize",
+      "B": "Amazon Forecast",
+      "C": "Amazon SageMaker",
+      "D": "Amazon Fraud Detector"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "SageMaker is the platform for custom models and full control; purpose-built services only cover their specific tasks."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Personalize only produces recommendations."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Forecast only handles time-series forecasting."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Fraud Detector only scores fraud risk."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Overfitting remedies (Select TWO)",
+    "q": "A model fits training data very well but generalizes poorly. Which TWO actions are most likely to reduce overfitting? (Select TWO.)",
+    "options": {
+      "A": "Add more layers to the model",
+      "B": "Apply L2 regularization or dropout",
+      "C": "Collect more diverse training data",
+      "D": "Remove early stopping and train longer"
+    },
+    "answer": [
+      "B",
+      "C"
+    ],
+    "why": [
+      "Regularization penalizes overly complex fits, and more varied data makes memorizing noise harder."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "More layers increases complexity and tends to worsen overfitting."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Training longer without early stopping lets the model memorize more noise."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "When ML is not appropriate",
+    "q": "A government agency must calculate a tax owed from a fixed statutory formula. Which statement is most accurate?",
+    "options": {
+      "A": "Write rule-based code, because the formula is fully defined",
+      "B": "Train a regression model on past tax bills so it learns the formula",
+      "C": "Use SageMaker Autopilot to approximate the statutory formula",
+      "D": "Use a foundation model so the calculation can vary by request"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "When rules are known, deterministic and must be exact, ordinary code beats ML, which is best when patterns are learned from data."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A model would only approximate a formula that can be coded exactly."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Approximating an exact formula adds error for no benefit."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Variable output is unacceptable for a legally fixed calculation."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Good ML candidate",
+    "q": "Which problem is the BEST candidate for machine learning rather than hand-written rules?",
+    "options": {
+      "A": "Converting kilometers to miles with a standard conversion factor",
+      "B": "Applying a fixed 8% sales tax rate to every order total",
+      "C": "Spotting evolving spam across millions of labeled emails",
+      "D": "Checking that a password is at least 12 characters long"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "ML fits problems with patterns too complex or changing for rules, where plenty of historical data exists."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A fixed conversion factor is simple deterministic math."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A fixed rate is a plain calculation."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A length check is a simple explicit rule."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Regression vs classification",
+    "q": "Which task is a regression problem rather than classification?",
+    "options": {
+      "A": "Predicting a delivery time in minutes",
+      "B": "Predicting whether a package will be late",
+      "C": "Labeling an email as spam or not spam",
+      "D": "Assigning a photo to one of ten animal types"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Regression predicts a continuous number, such as minutes; the others predict a category."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Late or not late is a yes/no category."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Spam or not spam is a category."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Choosing among ten animal types is multi-class classification."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "AUC-ROC of 0.5",
+    "q": "A binary classifier reports an AUC-ROC of 0.5. What does this mean?",
+    "options": {
+      "A": "It ranks positives above negatives no better than chance",
+      "B": "The model separates the two classes perfectly",
+      "C": "The model is right half the time, on training data only",
+      "D": "The model has high precision but low recall"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "AUC-ROC of 1.0 is perfect and 0.5 is random guessing, summarizing ranking quality across all thresholds."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A perfect classifier has an AUC of 1.0."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "AUC measures ranking across thresholds, not accuracy on training data."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "AUC is threshold-independent and says nothing about a precision-recall imbalance."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Generative AI placement",
+    "q": "Where does generative AI based on foundation models fit in the AI/ML/DL relationship?",
+    "options": {
+      "A": "Outside AI, as a field that is separate from it",
+      "B": "Inside deep learning, within machine learning, within AI",
+      "C": "Inside machine learning but outside deep learning",
+      "D": "Equal to machine learning, since the two terms mean the same"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Generative AI uses large multi-layer neural networks, so it is a part of deep learning within ML within AI."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Generative AI is a part of AI, not separate."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Foundation models are deep neural networks, so they are inside deep learning."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "ML is a broader field that also includes non-deep methods like k-means."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "SageMaker Clarify",
+    "q": "Before approving a loan model, a team wants bias metrics across protected groups and explanations of which features drove predictions. Which SageMaker capability fits?",
+    "options": {
+      "A": "SageMaker Ground Truth",
+      "B": "SageMaker Feature Store",
+      "C": "SageMaker Clarify",
+      "D": "SageMaker Model Registry"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Clarify provides bias metrics and explainability for models."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Ground Truth produces labeled training data."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Feature Store stores consistent features, not bias reports."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Registry versions and approves models; it does not measure bias."
+      }
+    ]
+  },
+  {
+    "domain": 1,
+    "topic": "Canary vs blue/green",
+    "q": "A team wants to expose a new model version to 5% of traffic first, then raise the share step by step while watching errors, with easy rollback. Which strategy is this?",
+    "options": {
+      "A": "Blue/green deployment",
+      "B": "Shadow deployment",
+      "C": "Canary deployment",
+      "D": "Batch transform"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Gradually increasing a small share of real traffic to the new version is a canary rollout."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Blue/green cuts all traffic over at once rather than gradually."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Shadow sends copies of traffic whose outputs users never see."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Batch transform is an offline scoring job, not a rollout."
+      }
+    ]
+  }
+]

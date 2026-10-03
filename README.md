@@ -5,7 +5,7 @@
 **Free study guides, flashcards, mock exams and an online exam simulator.**
 
 [![Exam simulator](https://img.shields.io/badge/▶_Take_the_exam_simulator-ff9900?style=for-the-badge)](https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/)
-&nbsp;![Questions](https://img.shields.io/badge/practice_questions-130-232f3e?style=for-the-badge)
+&nbsp;![Questions](https://img.shields.io/badge/practice_questions-296-232f3e?style=for-the-badge)
 &nbsp;![License](https://img.shields.io/badge/license-MIT-12805c?style=for-the-badge)
 
 [🚀 Start here](#-start-here) · [📚 Study materials](#-study-materials) · [📝 Practice](#-practice-and-mock-exams) · [🗓️ Study plan](#️-study-plan) · [❓ FAQ](#-faq)
@@ -29,7 +29,7 @@
 Runs in your browser, no sign-up, no tracking.
 
 - ⏱️ **Full exam**: 65 questions, 90 minutes, results only at the end, like the real thing
-- ⚡ **Quick practice** (20 questions), 📚 **whole bank** (130), 🎯 **weak-area drill**, or **one domain at a time**
+- ⚡ **Quick practice** (20 questions), 📚 **whole bank** (296), 🎯 **weak-area drill**, or **one domain at a time**
 - 📊 Per-domain score, pass/fail estimate and an explanation for every answer
 - 💾 Your history stays **in your own browser**. Use *Export backup* to keep it safe or move devices
 - ⌨️ Keyboard shortcuts: `A`–`E` answer · `←` `→` navigate · `F` flag · `Enter` check
@@ -77,7 +77,7 @@ Every testable concept appears in all three depths. Only the explanation gets sh
 | [Cross-domain scenarios](docs/cross-domain-scenario-questions.md) | 30 | Questions that need two or more domains at once |
 | Domain guides | ~85 | Practice questions at the end of each guide |
 
-> 💡 All 130 mock-exam questions are in the [online simulator](https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/) with instant scoring.
+> 💡 All 130 mock-exam questions, plus 166 extra edge-case questions (look-alike services, negation traps, select-two), are in the [online simulator](https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/) with instant scoring.
 
 Log your attempts in the [study progress tracker](docs/study-progress-tracker.md).
 
@@ -119,7 +119,7 @@ Only in your browser's local storage. Nothing is sent to a server. They survive 
 python3 exam-simulator/build_questions.py   # rebuild questions from docs/
 python3 -m http.server -d exam-simulator    # open http://localhost:8000
 ```
-It is plain HTML and JavaScript with no dependencies. The question bank is generated from the two mock exams in `docs/`.
+It is plain HTML and JavaScript with no dependencies. The question bank is generated from the two mock exams in `docs/` plus the edge-case questions in `exam-simulator/extra-questions/`.
 </details>
 
 ## 🤝 Contributing

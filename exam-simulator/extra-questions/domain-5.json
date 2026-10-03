@@ -1,0 +1,1018 @@
+[
+  {
+    "domain": 5,
+    "topic": "GuardDuty vs Config",
+    "q": "A security team suspects that stolen IAM credentials are being used from an unfamiliar location to call Amazon Bedrock and other AI resources. Which service is built to continuously detect this kind of malicious or anomalous account activity?",
+    "options": {
+      "A": "AWS Config",
+      "B": "Amazon GuardDuty",
+      "C": "AWS Audit Manager",
+      "D": "AWS Artifact"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "GuardDuty does continuous threat and anomaly detection, such as compromised credentials being used against AI resources. The clue is suspicious activity, not configuration or paperwork."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Config records resource configuration and rule compliance. It does not hunt for malicious behavior."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Audit Manager collects evidence for audits. It does not detect threats."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Artifact hands out AWS compliance reports and agreements. It does not monitor your account."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Gateway vs interface endpoint",
+    "q": "Training data sits in Amazon S3 and is read by SageMaker jobs running in a VPC with no internet gateway or NAT gateway. Which VPC endpoint type is the one used for S3 (and DynamoDB) and is added to the VPC's route tables?",
+    "options": {
+      "A": "Interface endpoint powered by AWS PrivateLink, the type used for the Bedrock and SageMaker APIs",
+      "B": "NAT gateway placed in a public subnet with a route to the internet",
+      "C": "Gateway endpoint",
+      "D": "Site-to-site VPN connection between the VPC and the S3 service"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "S3 (and DynamoDB) use a gateway VPC endpoint. Most other services, such as Bedrock and SageMaker APIs, use interface endpoints."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Interface endpoints serve Bedrock and SageMaker. S3 and DynamoDB are the services that use the gateway type."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A NAT gateway sends traffic out through the public internet and the stem has no such path."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A VPN connects networks to each other. It does not connect a VPC to an AWS service."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Artifact agreements for GDPR",
+    "q": "A company processing EU personal data with AWS AI services wants to sign AWS's GDPR data processing addendum. Where does it do that?",
+    "options": {
+      "A": "AWS Audit Manager assessment reports",
+      "B": "Amazon Macie classification jobs",
+      "C": "AWS Config conformance packs",
+      "D": "AWS Artifact agreements"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "AWS Artifact gives on-demand access to AWS compliance reports and also to agreements such as the BAA and the GDPR DPA. The stem asks for signing an agreement with AWS."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Audit Manager assembles evidence about your own controls. It is not a place to sign agreements with AWS."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Macie finds sensitive data in S3. It has nothing to do with contracts."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Config tracks resource configuration against rules. It does not host legal agreements."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Data vs model encryption keys",
+    "q": "A team fine-tunes a Bedrock model on sensitive records and wants both the training-data bucket and the resulting custom model artifact protected with customer managed keys. Which statement is correct?",
+    "options": {
+      "A": "One CMK is enough, because encrypting the data automatically encrypts the model artifact with the same key setting",
+      "B": "The data and the model artifact use two separate, independent CMKs, each protecting a different asset",
+      "C": "Encrypting the model artifact removes the need to encrypt the training data",
+      "D": "CMKs are only needed for data in transit, since data at rest uses TLS"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "The training data (confidentiality) and the fine-tuned model (IP protection) are protected by separate, independent keys. Neither one substitutes for the other."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "The two assets are encrypted separately, so one setting does not cover both."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Protecting the model does not protect the raw training data sitting in its bucket."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "TLS covers data in transit. KMS keys cover data at rest."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Differential privacy vs encryption",
+    "q": "A privacy engineer adds calibrated noise during model training so that the deployed model's outputs reveal very little about any single training record. What is this technique, and what is it NOT?",
+    "options": {
+      "A": "Differential privacy; it is not a replacement for encryption with KMS",
+      "B": "Envelope encryption; it is a replacement for TLS",
+      "C": "Tokenization; it is a replacement for IAM policies",
+      "D": "Data lineage tracking; it is a replacement for CloudTrail"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "Differential privacy injects noise (for example DP-SGD) to limit what a deployed model's outputs can leak. It complements KMS encryption and does not replace it."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Noise injection is not envelope encryption and does not replace TLS."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "This is not tokenization, and access control still needs IAM."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Lineage tracks where data came from. It does not add noise to training."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Access Analyzer",
+    "q": "A security team wants continuous alerts if the bucket policy on an S3 training-data bucket ever grants access to a principal outside the company's AWS organization. Which service does this?",
+    "options": {
+      "A": "Amazon Macie",
+      "B": "AWS Artifact",
+      "C": "IAM Access Analyzer",
+      "D": "Amazon Inspector"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "IAM Access Analyzer flags resource-based policies shared with principals outside your account or organization. The clue is external sharing of a resource policy."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Macie looks at what data is inside S3 objects, not at who the policy shares access with."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Artifact provides AWS compliance documents and agreements."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Inspector scans for software vulnerabilities, not policy sharing."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Inspector vs Macie/Config",
+    "q": "Which service is designed for automated vulnerability scanning of workloads rather than discovering sensitive data or tracking configuration compliance?",
+    "options": {
+      "A": "Amazon Macie",
+      "B": "AWS Config",
+      "C": "AWS Audit Manager",
+      "D": "Amazon Inspector"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Inspector is a vulnerability-scanning service. Macie classifies sensitive data in S3 and Config tracks configuration state against rules."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Macie finds PII and PHI in S3, not software vulnerabilities."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Config evaluates resource configuration rules, not vulnerabilities."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Audit Manager assembles audit evidence and does not scan anything."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Insecure output handling",
+    "q": "An application takes text generated by an LLM and passes it straight into a database query. An attacker crafts a prompt so the model emits a malicious SQL fragment. What is the best mitigation?",
+    "options": {
+      "A": "Increase the model's temperature so each response is less predictable and harder to exploit",
+      "B": "Treat LLM output as untrusted and validate or parameterize it before it reaches the database",
+      "C": "Move the model to a larger context window so more of the conversation is checked",
+      "D": "Encrypt the database with a customer managed KMS key so stored rows are protected"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "This is insecure output handling: the app trusts raw model output. The fix is to validate or parameterize it before it reaches another system."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Temperature changes randomness and does nothing to make output safe."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "A larger context window does not stop unsafe output from being executed."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Encryption at rest protects stored data, not a query injected at runtime."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Excessive agency",
+    "q": "A Bedrock Agent can delete and terminate cloud resources through its action groups, although its task only requires reading status information. Which TWO actions best reduce the risk of excessive agency? (Select TWO.)",
+    "options": {
+      "A": "Scope the agent's execution role to the narrow actions the task needs",
+      "B": "Raise the model's max tokens so the agent can write longer explanations of its actions",
+      "C": "Require human approval before high-impact actions such as delete or terminate",
+      "D": "Enable TLS on the connection between the agent and the model"
+    },
+    "answer": [
+      "A",
+      "C"
+    ],
+    "why": [
+      "Excessive agency means the agent has more permissions than its job needs. Least-privilege roles plus human approval for high-impact actions are the two matching controls."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Output length does not limit what the agent is allowed to do."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "TLS protects data in transit but does not limit the agent's permissions."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Insecure plugin design",
+    "q": "A Bedrock Agent calls a Lambda action group that looks up account balances using an account ID supplied by the model. Which design best addresses insecure plugin design?",
+    "options": {
+      "A": "Trust the account ID from the model because the model was fine-tuned on the company's own data",
+      "B": "Give the Lambda role AdministratorAccess so account lookups never fail on permissions",
+      "C": "Hide the Lambda function's name from the agent's instructions so attackers cannot find it",
+      "D": "Give the Lambda role least privilege and validate the account ID server-side"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Model-supplied values can be manipulated, so the action code must validate them itself and run with a narrowly scoped role."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Fine-tuning does not make model-supplied values trustworthy."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Admin permissions are the opposite of least privilege and make abuse worse."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Hiding a name is obscurity, not an access control."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "EU AI Act vs GDPR",
+    "q": "A compliance team needs to classify its AI systems into risk tiers (such as minimal, limited and high risk) to learn which legal obligations apply. Which framework is built around this approach?",
+    "options": {
+      "A": "EU AI Act",
+      "B": "GDPR",
+      "C": "HIPAA",
+      "D": "ISO 27001"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "The EU AI Act is binding law that regulates AI systems themselves, tiered by risk. The clue is risk tiers for AI systems."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "GDPR is about personal data, not risk tiers for AI systems."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "HIPAA covers protected health information in the US."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "ISO 27001 is an information security management standard, not an AI risk-tier law."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Voluntary frameworks",
+    "q": "Which TWO of the following are voluntary frameworks or standards rather than binding law? (Select TWO.)",
+    "options": {
+      "A": "GDPR",
+      "B": "NIST AI Risk Management Framework",
+      "C": "HIPAA",
+      "D": "ISO/IEC 42001"
+    },
+    "answer": [
+      "B",
+      "D"
+    ],
+    "why": [
+      "NIST AI RMF and ISO/IEC 42001 are voluntary. GDPR, HIPAA and the EU AI Act are binding law."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "GDPR is binding EU law."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "HIPAA is binding US law."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Proposed vs voluntary",
+    "q": "Which statement about the Algorithmic Accountability Act is correct?",
+    "options": {
+      "A": "It is a voluntary international standard for AI management systems",
+      "B": "It is binding EU law that sorts AI systems into risk tiers",
+      "C": "It is proposed US legislation, not yet binding, on automated decision systems",
+      "D": "It is an AWS service that audits models for bias and reports the results"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "It is proposed US legislation (impact assessments for automated decision systems). Proposed is not the same as voluntary, and not the same as binding."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "That describes ISO/IEC 42001, not this proposed US bill."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "That describes the EU AI Act."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "It is legislation, not an AWS service."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Model Cards",
+    "q": "Governance stakeholders want a single record of a model's intended use, limitations, training data and evaluation results, with an assigned risk rating. Which tool is meant for this?",
+    "options": {
+      "A": "Amazon SageMaker Clarify",
+      "B": "Amazon SageMaker Model Cards",
+      "C": "AWS CloudTrail",
+      "D": "Amazon SageMaker Model Monitor"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "Model Cards document a model's intended use, training data and evaluation results for governance and transparency."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Clarify measures bias and explainability. It does not serve as the documentation record."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "CloudTrail logs API calls, not model documentation."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Model Monitor watches a deployed model for drift. It is not a documentation record."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Titan watermark",
+    "q": "A publisher generates images with Amazon Titan Image Generator and later must prove that a disputed image was AI-generated. What supports this?",
+    "options": {
+      "A": "Adding the word 'watermark' to the negative prompt when generating",
+      "B": "Reading the file's EXIF metadata, which cannot be altered",
+      "C": "Enabling a Guardrails denied topic for images",
+      "D": "The always-on invisible watermark, checked with Bedrock's detection capability"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "Titan Image Generator embeds an invisible, always-on watermark, and Bedrock's detection capability can confirm it later. It does not rely on metadata."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "A negative prompt only asks the model to keep a visible watermark or logo out of the picture. It is not provenance."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Metadata can be stripped or edited, so it is weak evidence."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Guardrails filter content. They do not prove where an image came from."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Drift is not an attack",
+    "q": "A deployed model's accuracy slowly drops because customer behavior has changed since training. There is no sign of intrusion. What is the right response?",
+    "options": {
+      "A": "Revoke the model's IAM role and rotate the CMK as in an incident",
+      "B": "Roll back to the previous model version and open a security investigation",
+      "C": "Monitor for drift and retrain the model on fresh data on a schedule",
+      "D": "Enable VPC endpoints so drift cannot occur"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "Model drift is degradation, not an attack. The response is monitoring plus retraining, not incident containment."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Revoking roles and keys is containment for a security incident, and there is none here."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Treating it as an investigation misreads normal drift as an attack."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Network isolation has no effect on data changing over time."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Shared responsibility per stage",
+    "q": "A pipeline uses a SageMaker Processing job with the company's own container to anonymize data, then fine-tunes on fully managed Bedrock. Customer records leak because of a bug in the anonymization code. Who is responsible?",
+    "options": {
+      "A": "The customer, because the code and IAM scope in that Processing stage are its own",
+      "B": "AWS, because the later fine-tuning stage runs on fully managed Bedrock",
+      "C": "AWS, because AWS patches and operates the SageMaker platform",
+      "D": "Shared equally, since the pipeline spans two services"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "The split applies per stage. The customer owns its container, code and role scope, regardless of how managed a later stage is."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Managed Bedrock in a later stage does not move responsibility for earlier customer code."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "AWS patches the platform, but the bug is in the customer's own code."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "There is no equal split. The customer always owns its data and access configuration."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Bedrock shared responsibility",
+    "q": "Under the shared responsibility model for Amazon Bedrock, which TWO items belong to the customer? (Select TWO.)",
+    "options": {
+      "A": "Physical security of the data centers",
+      "B": "Guardrail configuration",
+      "C": "IAM permissions controlling who can invoke models",
+      "D": "Patching the host OS that serves the foundation model"
+    },
+    "answer": [
+      "B",
+      "C"
+    ],
+    "why": [
+      "On Bedrock the customer owns IAM permissions, data sent to the model, Guardrail configuration and key choices. AWS owns physical infrastructure, host OS and FM hosting."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Physical data center security is AWS's responsibility."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Host OS and FM hosting patches are AWS's responsibility."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "NAT is not private",
+    "q": "A policy says traffic from a VPC to Amazon Bedrock must never traverse the public internet. Which setup would NOT meet this requirement?",
+    "options": {
+      "A": "An interface VPC endpoint for Bedrock Runtime",
+      "B": "An interface VPC endpoint with a restrictive endpoint policy",
+      "C": "Routing through a NAT gateway to Bedrock's public endpoint",
+      "D": "A private subnet with only a PrivateLink path to Bedrock"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "A NAT gateway still sends the traffic out over the public internet. PrivateLink interface endpoints keep it on the AWS network."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "An interface endpoint uses PrivateLink and keeps traffic inside AWS."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "The endpoint policy only narrows access. The path stays private."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "A PrivateLink-only path is private by design."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "VPC endpoint policy",
+    "q": "A company already has an interface VPC endpoint for Bedrock. It now wants to control which IAM principals and actions may be used through that endpoint. What should it attach?",
+    "options": {
+      "A": "A route table entry for the endpoint",
+      "B": "A VPC endpoint policy",
+      "C": "An S3 lifecycle rule",
+      "D": "A Macie classification job"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "A VPC endpoint policy restricts which principals and actions can use the endpoint. A security group controls network access by source and port, a different layer."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Routes decide where traffic goes, not which principals may call an action."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Lifecycle rules handle S3 object retention and are unrelated."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Macie classifies data in S3 and does not control endpoint use."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "KMS vs CloudTrail",
+    "q": "An auditor asks which IAM principal called Decrypt on a customer managed key last month. Where is that usage recorded?",
+    "options": {
+      "A": "AWS CloudTrail, which logs every use of the CMK",
+      "B": "AWS KMS itself, which stores decryption history in the key policy",
+      "C": "Amazon Macie findings",
+      "D": "AWS Artifact reports"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "KMS manages the keys, while CloudTrail logs their usage (Encrypt, Decrypt, GenerateDataKey). The clue is who used the key."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "A key policy defines permissions, not a history of usage."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Macie reports sensitive data it finds in S3, not key usage."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Artifact holds AWS's own compliance documents, not your key activity."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Data poisoning response",
+    "q": "A team discovers that a fine-tuned model was trained on a dataset containing maliciously altered examples. What is the best eradication step, using SageMaker features?",
+    "options": {
+      "A": "Increase the endpoint's instance size to give the model more compute",
+      "B": "Disable TLS on the endpoint to simplify debugging of bad predictions",
+      "C": "Ask Macie to re-encrypt the model so the altered examples are protected",
+      "D": "Roll back to a known-good dataset and model version in SageMaker Model Registry"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "For data poisoning or supply-chain issues, the fix is to roll back to a vetted dataset or model version through Model Registry versioning, then fix the source of the poisoned data."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "More compute has no effect on the poisoned training data."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Disabling TLS weakens security and does not remove poison."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "Macie classifies data in S3. It does not re-encrypt or repair models."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Artifact vs Audit Manager",
+    "q": "An internal audit asks for proof that AWS's own data centers hold a current ISO 27001 certification. Which service provides it?",
+    "options": {
+      "A": "AWS Audit Manager, because it collects all audit evidence",
+      "B": "AWS Config, because it records AWS's infrastructure",
+      "C": "AWS Artifact, which provides AWS's compliance reports",
+      "D": "AWS CloudTrail, because it logs AWS operations"
+    },
+    "answer": [
+      "C"
+    ],
+    "why": [
+      "AWS's own certifications and reports (SOC, ISO, PCI) come from AWS Artifact. Audit Manager gathers evidence about your own controls."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "Audit Manager assembles evidence from your resources, not AWS's own certifications."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Config records your resource configurations, not AWS's facilities."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "CloudTrail logs API activity in your account."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "HIPAA requirements",
+    "q": "Which statement about HIPAA's Security Rule is accurate for the AIF-C01 level?",
+    "options": {
+      "A": "Audit controls for PHI access are required, while encryption is addressable",
+      "B": "Encryption is strictly mandated, but audit logging is optional",
+      "C": "It requires that all PHI stays in a specific AWS Region",
+      "D": "It mandates a human reviewer for every AI-assisted clinical decision"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "The Security Rule requires audit controls and treats encryption as addressable: implement it or document an equivalent measure."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "It is reversed. Audit controls are required and encryption is addressable."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "HIPAA governs access and encryption of PHI, not its location."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "Human oversight is not mandated by the statute, though it is expected operationally."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "GDPR Article 22",
+    "q": "A lender uses a model to automatically decline loan applications from EU residents with no human involvement. Which GDPR idea is most directly relevant?",
+    "options": {
+      "A": "Individuals must receive a SOC 2 report covering the model",
+      "B": "The right to human review of solely automated decisions with significant effects",
+      "C": "A mandatory ban on using AI for credit decisions about EU residents",
+      "D": "A requirement that the model be trained only in the lender's home country"
+    },
+    "answer": [
+      "B"
+    ],
+    "why": [
+      "GDPR Article 22 gives a right to human review of solely automated decisions with legal or similarly significant effect."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "SOC 2 reports are AWS audit documents and not a GDPR right."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "GDPR does not ban AI credit decisions. It sets safeguards."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "GDPR has no blanket training-location rule."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "Audit logging and human oversight under EU AI Act",
+    "q": "Which TWO obligations does the EU AI Act place on high-risk AI systems? (Select TWO.)",
+    "options": {
+      "A": "Hosting all training data in one specific AWS Region",
+      "B": "Obtaining a voluntary ISO/IEC 42001 certification before launch",
+      "C": "Automatic record-keeping (logging) of system operation",
+      "D": "Human oversight so a person can intervene or halt the system"
+    },
+    "answer": [
+      "C",
+      "D"
+    ],
+    "why": [
+      "For high-risk systems the Act requires automatic record-keeping and human oversight (Art. 12 and 14). It does not require a specific Region or ISO 42001."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "The Act focuses on data governance, not a mandatory hosting Region."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "ISO/IEC 42001 is voluntary, so it is not required by law."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "GDPR and Region choice",
+    "q": "A company with EU customers asks whether GDPR forces it to run AI workloads in an EU Region. What is the most accurate answer?",
+    "options": {
+      "A": "There is no blanket Region rule, but transfer limits push toward EU or EEA Regions",
+      "B": "GDPR forbids any use of AWS Regions outside the EU in all cases",
+      "C": "GDPR is satisfied automatically once TLS is enabled on every endpoint",
+      "D": "GDPR only applies to companies that are headquartered in the EU"
+    },
+    "answer": [
+      "A"
+    ],
+    "why": [
+      "GDPR has no blanket residency rule, yet its cross-border transfer limits make EU or EEA Regions the practical choice. It protects people in the EU regardless of company location."
+    ],
+    "others": [
+      {
+        "l": [
+          "B"
+        ],
+        "t": "It does not flatly forbid other Regions. It limits transfers."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "TLS is one security measure, not GDPR compliance."
+      },
+      {
+        "l": [
+          "D"
+        ],
+        "t": "GDPR protects individuals in the EU/EEA wherever the company is based."
+      }
+    ]
+  },
+  {
+    "domain": 5,
+    "topic": "OWASP vs MITRE ATLAS",
+    "q": "A team wants a prioritized checklist of the most critical risks specific to LLM applications, such as prompt injection and insecure output handling. Which resource fits best?",
+    "options": {
+      "A": "MITRE ATLAS, which is an AWS service for blocking attacks",
+      "B": "AWS Config conformance packs",
+      "C": "ISO/IEC 42001 certification",
+      "D": "OWASP Top 10 for LLM Applications"
+    },
+    "answer": [
+      "D"
+    ],
+    "why": [
+      "OWASP Top 10 for LLM Applications is a prioritized LLM-specific risk checklist. MITRE ATLAS is a knowledge base of adversary tactics and techniques, and both are industry frameworks, not AWS services."
+    ],
+    "others": [
+      {
+        "l": [
+          "A"
+        ],
+        "t": "ATLAS is not an AWS service and catalogs adversary techniques instead of a prioritized checklist."
+      },
+      {
+        "l": [
+          "B"
+        ],
+        "t": "Conformance packs check resource configuration rules, not LLM risks."
+      },
+      {
+        "l": [
+          "C"
+        ],
+        "t": "ISO/IEC 42001 is a management-system standard, not a risk checklist."
+      }
+    ]
+  }
+]

@@ -1,8 +1,11 @@
 # AWS Certified AI Practitioner (AIF-C01) — Study Guide Series
 
 A structured, exam-focused document series for the AWS Certified AI
-Practitioner (AIF-C01) certification, maintained automatically by
-gd-autopilot.
+Practitioner (AIF-C01) certification.
+
+**🎯 Try the free exam simulator: <https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/>**
+— 130 practice questions, a timed 65-question full exam, per-domain results,
+and answer explanations. No sign-up; your results stay in your own browser.
 
 ## Exam domains
 
@@ -210,8 +213,33 @@ which domains keep coming up weak across attempts. See
 blank attempt-log template plus guidance on spotting recurring weak areas
 and reading score trends across retakes.
 
-## Status
+## Exam simulator
 
-This series is generated and kept current by gd-autopilot's own
-discovery → design → implementation → review pipeline. See `docs/` for the
-individual domain guides as they're written.
+The [`exam-simulator/`](exam-simulator/) folder is a static web app (plain
+HTML/JS, no dependencies, no tracking) deployed to GitHub Pages by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml). Its question bank
+is generated from the two mock exams in `docs/` by
+`python3 exam-simulator/build_questions.py`. To run it locally:
+
+```
+python3 exam-simulator/build_questions.py
+python3 -m http.server -d exam-simulator
+```
+
+## Disclaimer
+
+This is an independent, community study resource. It is **not affiliated with,
+endorsed by, or sponsored by Amazon Web Services**. "AWS", "Amazon Bedrock" and
+other product names are trademarks of Amazon.com, Inc. or its affiliates. The
+practice questions are original, not real exam questions, and the material may
+contain errors or become outdated as AWS changes its services — always verify
+against the [official exam guide](https://aws.amazon.com/certification/certified-ai-practitioner/)
+and AWS documentation.
+
+## Contributing
+
+Found a mistake? Please [open an issue](../../issues) or a pull request.
+
+## License
+
+Released under the [MIT License](LICENSE).

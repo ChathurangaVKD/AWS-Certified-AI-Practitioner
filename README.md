@@ -1,245 +1,133 @@
-# AWS Certified AI Practitioner (AIF-C01) — Study Guide Series
+<div align="center">
 
-A structured, exam-focused document series for the AWS Certified AI
-Practitioner (AIF-C01) certification.
+# 🎓 AWS Certified AI Practitioner (AIF-C01)
 
-**🎯 Try the free exam simulator: <https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/>**
-— 130 practice questions, a timed 65-question full exam, per-domain results,
-and answer explanations. No sign-up; your results stay in your own browser.
+**Free study guides, flashcards, mock exams and an online exam simulator.**
 
-## Exam domains
+[![Exam simulator](https://img.shields.io/badge/▶_Take_the_exam_simulator-ff9900?style=for-the-badge)](https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/)
+&nbsp;![Questions](https://img.shields.io/badge/practice_questions-130-232f3e?style=for-the-badge)
+&nbsp;![License](https://img.shields.io/badge/license-MIT-12805c?style=for-the-badge)
 
-| # | Domain | Weight | Doc |
-|---|--------|--------|-----|
-| 1 | Fundamentals of AI and ML | ~20% | `docs/domain-1-fundamentals-of-ai-and-ml.md` |
-| 2 | Fundamentals of Generative AI | ~24% | `docs/domain-2-fundamentals-of-generative-ai.md` |
-| 3 | Applications of Foundation Models | ~28% | `docs/domain-3-applications-of-foundation-models.md` |
-| 4 | Guidelines for Responsible AI | ~14% | `docs/domain-4-guidelines-for-responsible-ai.md` |
-| 5 | Security, Compliance, and Governance for AI Solutions | ~14% | `docs/domain-5-security-compliance-governance.md` |
+[🚀 Start here](#-start-here) · [📚 Study materials](#-study-materials) · [📝 Practice](#-practice-and-mock-exams) · [🗓️ Study plan](#️-study-plan) · [❓ FAQ](#-faq)
 
-Each domain document covers the exam guide's task statements in depth, with
-worked examples and a set of practice questions (with answers and
-explanations) at the end.
+</div>
 
-## Three-tier learning structure
+---
 
-Every domain above is available in three tiers, each suited to a
-different point in your study cycle:
+## 🚀 Start here
 
-1. **Full domain guide** (the `Doc` column above) — the complete,
-   foundational treatment: every concept explained in prose, with worked
-   examples, AWS example scenarios, embedded mini-quizzes, and a full set
-   of practice questions. Start here for any domain whose material is new
-   to you.
-2. **Fast Track** (`docs/domain-N-fast-track/README.md`) — a ~40%-length
-   condensation of the full guide, built for reviewing material you've
-   already learned rather than learning it for the first time. It keeps
-   comparison tables, decision tables, and one-line takeaways, trimming
-   the worked-example narration and repeated "AWS example" paragraphs.
-3. **Ultra Fast Learn** (`docs/domain-N-fast-track/ULTRA-FAST-LEARN.md`)
-   — a ~15%-length cram sheet: bullets and tables only, no prose, no
-   worked examples, meant for the last 15-20 minutes before the exam.
+| I want to… | Go to |
+|---|---|
+| **Test myself right now** | [▶ Exam simulator](https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/) |
+| **Learn from scratch** | [Domain 1 guide](docs/domain-1-fundamentals-of-ai-and-ml.md) |
+| **Revise quickly** | [Fast Track](docs/domain-1-fast-track/README.md) or [Cheat sheet](docs/domain-1-fast-track/CHEAT-SHEET.md) |
+| **Cram before the exam** | [Ultra Fast Learn](docs/domain-1-fast-track/ULTRA-FAST-LEARN.md) |
+| **Plan my weeks** | [Exam preparation strategy](docs/exam-preparation-strategy.md) |
 
-Across all three tiers, **every testable concept is retained** — only
-narrative explanation and redundant examples are trimmed as the tiers get
-shorter, so a Fast Track or Ultra Fast Learn pass never leaves out
-exam-relevant material.
+## 🖥️ Exam simulator
 
-Use whichever tier matches your familiarity with a domain: if you're
-learning Domain 1 fundamentals for the first time, read the [full
-guide](docs/domain-1-fundamentals-of-ai-and-ml.md); if you already know
-Domain 1 fundamentals and just need a refresher, start with the [Fast
-Track](docs/domain-1-fast-track/README.md); and if you've already done a
-Fast Track pass and just need the tables one more time before the exam,
-use the [Ultra Fast
-Learn](docs/domain-1-fast-track/ULTRA-FAST-LEARN.md) cram sheet. The same
-`docs/domain-N-fast-track/` pattern exists for all five domains. See
-[`docs/study-progress-tracker.md`](docs/study-progress-tracker.md), which
-already tracks Fast Track and Ultra Fast Learn sessions as valid study
-materials alongside full-guide study, for logging which tier you used on
-each attempt.
+Runs in your browser, no sign-up, no tracking.
 
-Each domain's `docs/domain-N-fast-track/` directory also ships a
-`CHEAT-SHEET.md` — an **interactive quick-scan cheat sheet** alongside
-`README.md` (Fast Track) and `ULTRA-FAST-LEARN.md` (Ultra Fast Learn). It
-doesn't add new material or replace any of the three tiers above; it
-reformats their already-verified facts into a GitHub-flavored-Markdown
-layout built for a 2-3 minute skim right before the exam: a jump-link
-table of contents, collapsible `<details>` sections per topic so the page
-loads as a compact list of headings, comparison tables for
-commonly-confused pairs, and a tickable self-check checklist at the end.
-See [Domain 1's cheat sheet](docs/domain-1-fast-track/CHEAT-SHEET.md) for
-an example — the same file exists for all five domains.
+- ⏱️ **Full exam**: 65 questions, 90 minutes, results only at the end, like the real thing
+- ⚡ **Quick practice** (20 questions), 📚 **whole bank** (130), 🎯 **weak-area drill**, or **one domain at a time**
+- 📊 Per-domain score, pass/fail estimate and an explanation for every answer
+- 💾 Your history stays **in your own browser**. Use *Export backup* to keep it safe or move devices
+- ⌨️ Keyboard shortcuts: `A`–`E` answer · `←` `→` navigate · `F` flag · `Enter` check
 
-## Flashcard decks (active recall / spaced repetition)
+## 📚 Study materials
 
-Each domain's `docs/domain-N-fast-track/` directory also ships a
-**flashcard deck** — a companion study format alongside the three tiers
-above, not a replacement for any of them. It doesn't add new material
-either: every card is a front/back reformat of a fact already verified in
-that domain's Ultra Fast Learn cram sheet (key terms, AWS service →
-use-case mappings, numeric thresholds, commonly-confused pairs, and
-short scenarios → correct approach), ordered to match that domain's own
-section order for active-recall or spaced-repetition study. Each deck
-ships as two files: `FLASHCARDS.md` (a plain front/back Markdown list,
-viewable directly on GitHub) and `flashcards.tsv` (the same cards,
-tab-separated with no header row, importable as-is into Anki, Quizlet, or
-any other spaced-repetition app). See [Domain 1's flashcard
-deck](docs/domain-1-fast-track/FLASHCARDS.md) for an example — the same
-pair of files exists for all five domains:
-[Domain 2](docs/domain-2-fast-track/FLASHCARDS.md),
-[Domain 3](docs/domain-3-fast-track/FLASHCARDS.md) (covers the full
-domain, not split by part),
-[Domain 4](docs/domain-4-fast-track/FLASHCARDS.md), and
-[Domain 5](docs/domain-5-fast-track/FLASHCARDS.md).
+The exam has five domains. Each one comes in three depths plus extras. Pick the depth that fits where you are.
 
-## Study plan
+| # | Domain | Weight | Full guide | Fast Track | Cram sheet | Cheat sheet | Flashcards |
+|---|---|:-:|---|---|---|---|---|
+| 1 | Fundamentals of AI and ML | ~20% | [Guide](docs/domain-1-fundamentals-of-ai-and-ml.md) | [Read](docs/domain-1-fast-track/README.md) | [Cram](docs/domain-1-fast-track/ULTRA-FAST-LEARN.md) | [Open](docs/domain-1-fast-track/CHEAT-SHEET.md) | [Cards](docs/domain-1-fast-track/FLASHCARDS.md) |
+| 2 | Fundamentals of Generative AI | ~24% | [Guide](docs/domain-2-fundamentals-of-generative-ai.md) | [Read](docs/domain-2-fast-track/README.md) | [Cram](docs/domain-2-fast-track/ULTRA-FAST-LEARN.md) | [Open](docs/domain-2-fast-track/CHEAT-SHEET.md) | [Cards](docs/domain-2-fast-track/FLASHCARDS.md) |
+| 3 | Applications of Foundation Models | ~28% | [Guide](docs/domain-3-applications-of-foundation-models.md) | [Read](docs/domain-3-fast-track/README.md) | [Cram](docs/domain-3-fast-track/ULTRA-FAST-LEARN.md) | [Open](docs/domain-3-fast-track/CHEAT-SHEET.md) | [Cards](docs/domain-3-fast-track/FLASHCARDS.md) |
+| 4 | Guidelines for Responsible AI | ~14% | [Guide](docs/domain-4-guidelines-for-responsible-ai.md) | [Read](docs/domain-4-fast-track/README.md) | [Cram](docs/domain-4-fast-track/ULTRA-FAST-LEARN.md) | [Open](docs/domain-4-fast-track/CHEAT-SHEET.md) | [Cards](docs/domain-4-fast-track/FLASHCARDS.md) |
+| 5 | Security, Compliance and Governance | ~14% | [Guide](docs/domain-5-security-compliance-governance.md) | [Read](docs/domain-5-fast-track/README.md) | [Cram](docs/domain-5-fast-track/ULTRA-FAST-LEARN.md) | [Open](docs/domain-5-fast-track/CHEAT-SHEET.md) | [Cards](docs/domain-5-fast-track/FLASHCARDS.md) |
 
-**Recommended reading order: Domain 1 → Domain 2 → Domain 3 → Domain 4 →
-Domain 5.** The domain guides are numbered for a reason — read them in
-order rather than jumping straight to the domain that interests you most:
+<details>
+<summary><b>What is each depth for?</b></summary>
 
-- **Domain 1 (Fundamentals of AI and ML) is foundational.** Its ML
-  lifecycle, learning types, and model-evaluation vocabulary reappear —
-  renamed or specialized — in every later domain, so it should be read
-  first regardless of prior experience.
-- **Domains 2 and 3 assume Domain 1 knowledge.** Fundamentals of
-  Generative AI and Applications of Foundation Models both build directly
-  on Domain 1's concepts and terminology, so reading Domain 1 first avoids
-  backfilling gaps mid-domain.
-- **Domains 4 and 5 build on Domains 1–3.** Guidelines for Responsible AI
-  and Security, Compliance, and Governance apply the model and
-  application concepts from the earlier domains to responsible-use and
-  governance scenarios.
+| Depth | Length | Use it when |
+|---|---|---|
+| **Full guide** | 100% | The topic is new to you. Prose, worked examples, practice questions. |
+| **Fast Track** | ~40% | You know the basics and want a refresher. Tables and one-line takeaways. |
+| **Ultra Fast Learn** | ~15% | Last 15–20 minutes before the exam. Bullets and tables only. |
+| **Cheat sheet** | n/a | A 2–3 minute skim with collapsible sections and a self-check list. |
+| **Flashcards** | n/a | Active recall. `flashcards.tsv` imports straight into Anki or Quizlet. |
 
-For a full explanation of why this order matters, plus ready-made
-1-week/2-week/4-week study schedules, see
-[`docs/exam-preparation-strategy.md`](docs/exam-preparation-strategy.md#3-recommended-reading-order).
+Every testable concept appears in all three depths. Only the explanation gets shorter.
+</details>
 
-For a quicker "where is X explained?" lookup, see
-[`docs/master-glossary.md`](docs/master-glossary.md) — the same
-cross-domain term set as a compact alphabetical index, with a `[D1, D3]`
--style domain tag and direct links per term.
+### 🔎 Quick lookups
 
-For "where does this series discuss AWS service X?" specifically, see
-[`docs/aws-service-index.md`](docs/aws-service-index.md) — every AWS
-service referenced anywhere across the five domain guides, listed
-alphabetically and linked to every section/domain that covers it (e.g.,
-find every mention of Amazon SageMaker or Amazon Bedrock in one place).
+- [Master glossary](docs/master-glossary.md) · [Full glossary with definitions](docs/GLOSSARY.md): *what does this term mean?*
+- [AWS service index](docs/aws-service-index.md): *where is this service covered?*
+- [AWS service decision guide](docs/aws-service-decision-guide.md): *which service should I pick?*
+- [Cross-domain concept map](docs/cross-domain-concept-map.md): *how do the domains connect?*
+- [End-to-end case study](docs/case-study-ai-system-lifecycle.md): one AI system across all five domains
 
-Each domain guide ends with its own "Key terms" section, but those are
-scoped to that guide alone. See [`docs/GLOSSARY.md`](docs/GLOSSARY.md) for
-a single alphabetical glossary of every key term across all five domains,
-each with a brief definition and a backlink to the domain section that
-explains it in full.
+## 📝 Practice and mock exams
 
-Domains 1, 2, 3, and 5 each include their own service comparison table,
-scoped to that domain. See
-[`docs/aws-service-decision-guide.md`](docs/aws-service-decision-guide.md)
-for a consolidated quick reference: a decision flow for choosing between
-SageMaker, Bedrock, and purpose-built AI services, plus cross-domain
-comparison tables for security/compliance/governance services and
-encryption/privacy options.
+| Resource | Questions | What it is |
+|---|:-:|---|
+| [Full-length mock exam](docs/full-length-mock-exam.md) | 65 | Weighted like the real exam, 90 minutes, answer key included |
+| [Second mock exam](docs/mock-exam.md) | 65 | Different questions, same format. Take it after re-studying weak domains |
+| [Cross-domain scenarios](docs/cross-domain-scenario-questions.md) | 30 | Questions that need two or more domains at once |
+| Domain guides | ~85 | Practice questions at the end of each guide |
 
-The domain guides above are written to stand alone, but the exam and
-real-world practice both draw on them together. See
-[`docs/cross-domain-concept-map.md`](docs/cross-domain-concept-map.md) for
-a map of how Domain 1 fundamentals (model evaluation, the ML lifecycle,
-bias–variance) and Domain 2 fundamentals (model selection, prompt
-engineering) flow into Domain 3 foundation-model applications, Domain 4
-responsible-AI concerns, and Domain 5 security/governance requirements —
-plus how Domain 3 application choices flow into Domain 4 and Domain 5 in
-turn.
+> 💡 All 130 mock-exam questions are in the [online simulator](https://chathurangavkd.github.io/AWS-Certified-AI-Practitioner/) with instant scoring.
 
-Ready to rehearse actual exam conditions? This series ships **two separate,
-complementary 65-question mock exams** — same structure and domain
-weighting, entirely different questions — so you get two independent
-rehearsal passes instead of memorizing one fixed set of answers. Take
-[`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md) first: a
-65-question, 90-minute mock exam weighted across all five domains in the
-same proportions as the real exam (~20%/24%/28%/14%/14%), mixed in
-exam-like order rather than grouped by domain, with timing guidance and a
-full answer key with explanations. Once you've reviewed those results,
-use [`docs/mock-exam.md`](docs/mock-exam.md) — a second, independently
-written 65-question mock exam with the same 90-minute timing and domain
-weighting but a completely different question set — as your second
-rehearsal pass; see below.
+Log your attempts in the [study progress tracker](docs/study-progress-tracker.md).
 
-## Cross-domain scenario questions
+## 🗓️ Study plan
 
-Every domain guide's practice questions are scoped to that one domain, but
-the real exam often is not. See
-[`docs/cross-domain-scenario-questions.md`](docs/cross-domain-scenario-questions.md)
-for 30 scenario questions that each require knowledge from two or more
-domains — for example, choosing a Domain 3 customization method that also
-satisfies a Domain 5 security requirement — tagged by difficulty
-(beginner/intermediate/advanced) like the domain guides' own questions.
-Questions 1–25 each pair exactly two domains; questions 26–30 go further
-and require reasoning across three or more domains at once — a harder
-tier best attempted after you're comfortable with the two-domain set.
+**Read the domains in order: 1 → 2 → 3 → 4 → 5.** Domain 1 vocabulary reappears in every later domain, and Domains 4 and 5 apply the earlier ones.
 
-## End-to-end case study
+<details>
+<summary><b>Sample schedule</b></summary>
 
-Each domain guide illustrates its concepts with isolated "AWS example"
-scenarios, but a real AI system moves through every domain over its
-lifetime. See
-[`docs/case-study-ai-system-lifecycle.md`](docs/case-study-ai-system-lifecycle.md)
-for a single company building one AI system — from a classical ML model,
-through evaluating and customizing a foundation model, to addressing bias
-and securing/governing the deployed result — across all five domains.
+- [ ] Read Domain 1, then take the Domain 1 practice questions
+- [ ] Repeat for Domains 2, 3, 4 and 5
+- [ ] Review each domain's Fast Track and flashcards
+- [ ] Take the [full-length mock exam](docs/full-length-mock-exam.md) under timed conditions
+- [ ] Re-study your two weakest domains
+- [ ] Take the [second mock exam](docs/mock-exam.md)
+- [ ] Final day: Ultra Fast Learn sheets only
 
-## Second mock exam
+Ready-made 1, 2 and 4-week plans: [exam preparation strategy](docs/exam-preparation-strategy.md#5-study-plans).
+</details>
 
-Each domain guide's practice questions are domain-siloed (15–20 questions,
-one domain at a time), and [`docs/full-length-mock-exam.md`](docs/full-length-mock-exam.md)
-above is a first full rehearsal — but taking the same 65 questions twice
-teaches you the answer key, not the material. [`docs/mock-exam.md`](docs/mock-exam.md)
-is a second, independently written 65-question mock exam: a different
-question set with the same structure — mixed across all five domains in
-the exam's own weight proportions (13/16/18/9/9 questions for Domains
-1–5), a 90-minute timing budget, and a full answer key with explanations
-tagged by domain. Use it as your follow-up rehearsal after
-`full-length-mock-exam.md`, ideally after you've re-studied whatever
-domains you missed the first time.
+## ❓ FAQ
 
-## Progress tracking
+<details><summary><b>Are these real exam questions?</b></summary>
+No. They are original practice questions written for this repo, so they teach the material rather than leak the exam.
+</details>
 
-With 324 total self-assessment items across the series (129 domain
-practice questions, 35 embedded mini-quizzes, 30 cross-domain scenario
-questions, and 130 mock-exam questions across two 65-question mock
-exams), it's easy to lose track of
-which domains keep coming up weak across attempts. See
-[`docs/study-progress-tracker.md`](docs/study-progress-tracker.md) for a
-blank attempt-log template plus guidance on spotting recurring weak areas
-and reading score trends across retakes.
+<details><summary><b>What score do I need?</b></summary>
+The real exam scales scores from 100 to 1000 and passes at 700. The simulator uses about 72% correct as a rough estimate. AWS does not publish the exact conversion.
+</details>
 
-## Exam simulator
+<details><summary><b>Where are my simulator results stored?</b></summary>
+Only in your browser's local storage. Nothing is sent to a server. They survive refreshes but not clearing site data or switching browsers, so use <b>Export backup</b> now and then.
+</details>
 
-The [`exam-simulator/`](exam-simulator/) folder is a static web app (plain
-HTML/JS, no dependencies, no tracking) deployed to GitHub Pages by
-[`.github/workflows/pages.yml`](.github/workflows/pages.yml). Its question bank
-is generated from the two mock exams in `docs/` by
-`python3 exam-simulator/build_questions.py`. To run it locally:
+<details><summary><b>Can I run the simulator offline or locally?</b></summary>
 
+```bash
+python3 exam-simulator/build_questions.py   # rebuild questions from docs/
+python3 -m http.server -d exam-simulator    # open http://localhost:8000
 ```
-python3 exam-simulator/build_questions.py
-python3 -m http.server -d exam-simulator
-```
+It is plain HTML and JavaScript with no dependencies. The question bank is generated from the two mock exams in `docs/`.
+</details>
 
-## Disclaimer
+## 🤝 Contributing
 
-This is an independent, community study resource. It is **not affiliated with,
-endorsed by, or sponsored by Amazon Web Services**. "AWS", "Amazon Bedrock" and
-other product names are trademarks of Amazon.com, Inc. or its affiliates. The
-practice questions are original, not real exam questions, and the material may
-contain errors or become outdated as AWS changes its services — always verify
-against the [official exam guide](https://aws.amazon.com/certification/certified-ai-practitioner/)
-and AWS documentation.
+Found a mistake or an outdated answer? [Open an issue](../../issues) or send a pull request. See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
-## Contributing
+## ⚖️ Disclaimer and license
 
-Found a mistake? Please [open an issue](../../issues) or a pull request.
-
-## License
+Independent community resource, **not affiliated with, endorsed by, or sponsored by Amazon Web Services**. AWS and service names are trademarks of Amazon.com, Inc. or its affiliates. Content may contain errors or become outdated, so always verify against the [official exam guide](https://aws.amazon.com/certification/certified-ai-practitioner/) and AWS documentation.
 
 Released under the [MIT License](LICENSE).

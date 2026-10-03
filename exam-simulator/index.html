@@ -104,7 +104,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:10px 16px 28
 "use strict";
 const Q = window.QUESTIONS, app = document.getElementById("app"), mid = document.getElementById("hdrMid");
 const DOM = {1:"Fundamentals of AI & ML",2:"Fundamentals of Generative AI",3:"Applications of Foundation Models",4:"Guidelines for Responsible AI",5:"Security, Compliance & Governance"};
-const PASS = 0.72, KEY = "aif-c01-history-v1", DRAFT = "aif-c01-draft-v1", THEME = "aif-c01-theme";
+const PASS = 0.72, KEY = "aif-c01-history-v1", DRAFT = "aif-c01-draft-v1", THEME = "aif-c01-theme", BACKUP = "aif-c01-last-backup";
 let S = null, timerId = null;
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -142,12 +142,15 @@ function modal(html, buttons) {
 function home() {
   clearInterval(timerId); S = null; mid.innerHTML = "";
   const hist = store.get(KEY, []), draft = store.get(DRAFT, null);
+  try { navigator.storage?.persist?.(); } catch {}
+  const stale = hist.length >= 3 && Date.now() - store.get(BACKUP, 0) > 14 * 864e5;
   const best = hist.length ? Math.max(...hist.map(r => r.pct)) : null;
   const avg = hist.length ? Math.round(hist.reduce((a, r) => a + r.pct, 0) / hist.length) : null;
   const qs = hist.reduce((a, r) => a + r.total, 0);
   app.innerHTML = `
   <div class="card hero"><h2>Practice for the AWS Certified AI Practitioner</h2>
     <p>${Q.length} exam-style questions across all five domains. Take a timed full-length simulation or drill a single domain, then see exactly where to focus next.</p></div>
+  ${stale ? `<div class="card" style="border-color:var(--accent)"><div class="row"><span>💾 You have ${hist.length} saved attempts that exist only in this browser. Back them up so they're never lost.</span><span class="spacer"></span><button class="primary" id="exp2">Export backup</button></div></div>` : ""}
   ${draft ? `<div class="card" style="border-color:var(--accent)"><div class="row"><div><b>You have an unfinished exam</b><br><span class="muted small">${esc(draft.title)} · ${Object.keys(draft.ans).length}/${draft.qs.length} answered${draft.limit ? " · " + fmt(draft.left) + " left" : ""}</span></div><span class="spacer"></span>
     <button id="discard" class="danger">Discard</button><button class="primary" id="resume">Resume ▶</button></div></div>` : ""}
   <div class="stats">
@@ -172,6 +175,9 @@ function home() {
   const wk = app.querySelector('[data-m=weak]'); if (wk && !hist.length) wk.disabled = true;
   if (draft) { document.getElementById("resume").onclick = () => { S = draft; runTimer(); render(); };
     document.getElementById("discard").onclick = async () => { if (await modal("<h3>Discard unfinished exam?</h3><p>This cannot be undone.</p>", [{ t: "Cancel", v: false }, { t: "Discard", v: true, cls: "danger" }])) { store.del(DRAFT); home(); } }; }
+  const ex = document.getElementById("exp"); if (ex) ex.onclick = exportHist;
+  const e2 = document.getElementById("exp2"); if (e2) e2.onclick = () => { exportHist(); home(); };
+  const im = document.getElementById("imp"); if (im) im.onclick = importHist;
   const clr = document.getElementById("clr");
   if (clr) clr.onclick = async () => { if (await modal("<h3>Clear history?</h3><p>All saved results in this browser will be deleted.</p>", [{ t: "Cancel", v: false }, { t: "Delete", v: true, cls: "danger" }])) { store.del(KEY); home(); } };
   window.scrollTo(0, 0);
@@ -179,12 +185,31 @@ function home() {
 const domBar = (d, c, t) => { const p = t ? Math.round(100 * c / t) : 0; return `<div class="dom"><div class="row"><span>${d}. ${DOM[d]}</span><span class="spacer"></span><b>${c}/${t} · ${p}%</b></div><div class="bar"><i class="${cls(p)}" style="width:${p}%"></i></div></div>`; };
 function aggregate(h) { const agg = {}; h.forEach(r => Object.entries(r.byDomain).forEach(([d, v]) => { (agg[d] ??= [0, 0]); agg[d][0] += v[0]; agg[d][1] += v[1]; })); return agg; }
 function histHtml(h) {
-  if (!h.length) return `<p class="muted">No attempts yet. Your scores and domain accuracy will appear here.</p>`;
+  if (!h.length) return `<p class="muted">No attempts yet. Your scores and domain accuracy will appear here.</p><button id="imp" class="small">⬆ Import backup</button>`;
   const rows = h.slice().reverse().slice(0, 10).map(r => `<tr><td>${new Date(r.date).toLocaleDateString()}</td><td>${esc(r.title)}</td><td>${r.correct}/${r.total}</td><td class="${r.pct >= PASS * 100 ? "pass" : "fail"}"><b>${r.pct}%</b></td></tr>`).join("");
   const agg = aggregate(h);
   return `<h3 class="muted small" style="font-weight:600">Accuracy by domain</h3>${Object.keys(DOM).filter(d => agg[d]).map(d => domBar(d, agg[d][0], agg[d][1])).join("")}
   <h3 class="muted small" style="font-weight:600;margin-top:18px">Recent attempts</h3><table><tr><th>Date</th><th>Exam</th><th>Score</th><th>%</th></tr>${rows}</table>
-  <p><button id="clr" class="small">Clear history</button></p>`;
+  <div class="row" style="margin-top:10px"><button id="exp" class="small">⬇ Export backup</button><button id="imp" class="small">⬆ Import backup</button><button id="clr" class="small danger">Clear history</button></div>
+  <p class="muted small">Results live only in this browser. Export a backup to keep them safe or move them to another device.</p>`;
+}
+function exportHist() {
+  const blob = new Blob([JSON.stringify({ app: "aif-c01-simulator", version: 1, exported: new Date().toISOString(), history: store.get(KEY, []) }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "aif-c01-results-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); store.set(BACKUP, Date.now());
+}
+function importHist() {
+  const f = document.createElement("input"); f.type = "file"; f.accept = "application/json,.json";
+  f.onchange = async () => {
+    try {
+      const d = JSON.parse(await f.files[0].text()), ok = r => r && typeof r.date === "number" && typeof r.title === "string" && Number.isFinite(r.correct) && Number.isFinite(r.total) && Number.isFinite(r.pct) && r.byDomain && typeof r.byDomain === "object";
+      if (d.app !== "aif-c01-simulator" || !Array.isArray(d.history) || !d.history.every(ok)) throw 0;
+      const cur = store.get(KEY, []), seen = new Set(cur.map(r => r.date + r.title)), add = d.history.filter(r => !seen.has(r.date + r.title));
+      store.set(KEY, cur.concat(add).sort((a, b) => a.date - b.date)); home();
+      modal(`<h3>Import complete</h3><p>${add.length} new attempt(s) added.</p>`, [{ t: "OK", v: true, cls: "primary" }]);
+    } catch { modal("<h3>Import failed</h3><p>That file isn't a valid backup from this simulator.</p>", [{ t: "OK", v: true, cls: "primary" }]); }
+  };
+  f.click();
 }
 
 /* START */

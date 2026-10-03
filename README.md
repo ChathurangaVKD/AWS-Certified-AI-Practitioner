@@ -31,8 +31,9 @@ Runs in your browser, no sign-up, no tracking.
 - ⏱️ **Full exam**: 65 questions, 90 minutes, results only at the end, like the real thing
 - ⚡ **Quick practice** (20 questions), 📚 **whole bank** (296), 🎯 **weak-area drill**, or **one domain at a time**
 - 📊 Per-domain score, pass/fail estimate and an explanation for every answer
+- ⏸️ Exam timer with **pause** (paused time isn't counted) and **time taken** saved in your attempt history
 - 💾 Your history stays **in your own browser**. Use *Export backup* to keep it safe or move devices
-- ⌨️ Keyboard shortcuts: `A`–`E` answer · `←` `→` navigate · `F` flag · `Enter` check
+- ⌨️ Keyboard shortcuts: `A`–`E` answer · `←` `→` navigate · `F` flag · `P` pause · `Enter` check
 
 ## 📚 Study materials
 
